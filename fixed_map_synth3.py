@@ -60,9 +60,10 @@ def simulate_sky(show_renders=True, save_renders=False):
                       dict(min=-2.5, max=2.5),
                       dict(min=-2.5, max=2.5),]
 
-        planck_freqs = [30, 44, 70, 100, 143, 217, 353, 545, 857]
-        # planck_freqs = [100]
+        # planck_freqs = [30, 44, 70, 100, 143, 217, 353, 545, 857]
+        planck_freqs = [100]
         for nominal_freq in planck_freqs:
+            print(nominal_freq)
             detector = planck.detectors[nominal_freq]
             frequency = detector.center_frequency
             skymaps = sky.get_emission(frequency)
@@ -70,38 +71,39 @@ def simulate_sky(show_renders=True, save_renders=False):
 
             i = 1
             for skymap, field_str, val_range in zip(skymaps, field_strs, val_ranges):
-                if nominal_freq in ["545", "857"] and field_str != "T":
-                    continue
+                if nominal_freq in [545, 857] and field_str != "T":
+                    continue  # 545 and 857 do not have polarization maps
                 noise_map = detector.get_noise_map(field_str, rng, force_overwrite=True)
                 map_smoothed = pysm3.apply_smoothing_and_coord_transform(skymap, fwhm=fwhm)
                 final_map = map_smoothed + noise_map
                 if show_renders:
                     hp.mollview(map_smoothed, **val_range, 
                                 title=f"No  Noise Model: {option}, Field: {field_str}, {nominal_freq} GHz", 
-                                unit=skymap.unit,
+                                unit=final_map.unit,
                                 cmap=colombi1_cmap)
                     hp.mollview(final_map, **val_range, 
                                 title=f"Yes Noise Model: {option}, Field: {field_str}, {nominal_freq} GHz", 
-                                unit=skymap.unit,
+                                unit=final_map.unit,
                                 cmap=colombi1_cmap)
                     plt.show()
+                    plt.close()
                 if save_renders:
                     hp.mollview(map_smoothed, **val_range, 
                                 title=f"No  Noise Model: {option}, Field: {field_str}, {nominal_freq} GHz", 
-                                unit=skymap.unit,
+                                unit=final_map.unit,
                                 cmap=colombi1_cmap)
                     plt.savefig(f"out/cmb_map_{option}_{i}_{field_str}_{nominal_freq}_no_noise_cf.png")
                     plt.clf()
                     hp.mollview(final_map, **val_range, 
                                 title=f"Yes Noise Model: {option}, Field: {field_str}, {nominal_freq} GHz", 
-                                unit=skymap.unit,
+                                unit=final_map.unit,
                                 cmap=colombi1_cmap)
                     plt.savefig(f"out/cmb_map_{option}_{i}_{field_str}_{nominal_freq}_yes_noise_cf.png")
                     plt.clf()
+                    plt.close()
                 i+=1
 
 
-
 if __name__ == "__main__":
-    simulate_sky(show_renders=False, save_renders=True)
-    # simulate_sky()
+    # simulate_sky(show_renders=False, save_renders=True)
+    simulate_sky()

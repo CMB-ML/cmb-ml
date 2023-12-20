@@ -5,6 +5,7 @@ from astropy.io import fits
 import healpy as hp
 import pysm3
 import pysm3.units as u
+from astropy.cosmology import Planck15
 
 
 ref_map_files = {
@@ -119,11 +120,18 @@ class PlanckDetector:
                 unit = ""
                 # TODO: Use logging
                 # log.warning("No physical unit associated with file %s", str(path))
-        ok_units = ["(K_CMB)^2", "Kcmb^2"]
+        ok_units_k_cmb = ["(K_CMB)^2", "Kcmb^2"]
+        ok_units_mjysr = ["(Mjy/sr)^2"]
+        ok_units = [*ok_units_k_cmb, *ok_units_mjysr]
         if unit not in ok_units:
             raise ValueError(f"Wrong unit found in fits file. Found {unit}, expected one of {ok_units}.")
+        if unit in ok_units_k_cmb:
+            unit_sqrt = "K_CMB"
+        else:
+            unit_sqrt = "MJy/sr"
 
         m = hp.read_map(fn, field=field_idx)
+
         # From PySM3 template.py's read_map function, with minimal alteration:
         dtype = m.dtype
         # numba only supports little endian
@@ -143,7 +151,22 @@ class PlanckDetector:
         # End of code from PySM3 template.py
 
         # Assume variance was calculated for K_CMB; otherwise * 1e6 if calculated in uK_CMB
-        m = np.sqrt(m)  # m * 1e6 if uK; tried this and noise got worse.
+        if unit_sqrt == "K_CMB":
+            m *= 1e6
+        
+        # Convert variance to standard deviation, 
+        #   to be used in np.random.Generator.normal as "scale" parameter
+        m = np.sqrt(m)
+
+        # Convert MJy/sr to K_CMB (I think, TODO: Verify)
+        # This is an oversimplification applied to the 545 and 857 GHz bands
+        # something about "very sensitive to band shape" for sub-mm bands (forgotten source)
+        # But it may be a suitable first-order approximation
+        if unit_sqrt == "MJy/sr":
+            m = (m * u.MJy / u.sr).to(
+                u.K, equivalencies=u.thermodynamic_temperature(self.center_frequency, Planck15.Tcmb0)
+            ).value
+
         col_names = {"T": "II", "Q": "QQ", "U": "UU"}
         hp.write_map(filename=str(out_filepath),
                      m=m,
