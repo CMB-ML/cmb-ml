@@ -6,6 +6,8 @@ import healpy as hp
 from time import time
 
 
+# Map synthesis 0 (basic make map using PySM)
+
 """
 c#:    [1- 4]  cmb
 d#:    [1-12]  dust

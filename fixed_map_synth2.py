@@ -11,7 +11,9 @@ from cmb_component import write_cls
 from planck_instrument import PlanckInstrument
 
 
-# On top of fixed map synthesis 1, we now convolve the map with the appropriate beam
+# Map synthesis 0 (basic make map using PySM)
+# Map synthesis 1 (use custom cmb class)
+# Map synthesis 2 (convolve beam)
 
 """
 c#:    [1- 4]  cmb

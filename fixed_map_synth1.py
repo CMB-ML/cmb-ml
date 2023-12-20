@@ -10,6 +10,9 @@ from planck_cmap import colombi1_cmap
 from cmb_component import write_cls
 
 
+# Map synthesis 0 (basic make map using PySM)
+# Map synthesis 1 (use custom cmb class)
+
 """
 c#:    [1- 4]  cmb
 d#:    [1-12]  dust
