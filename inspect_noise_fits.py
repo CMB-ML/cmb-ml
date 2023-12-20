@@ -55,6 +55,7 @@ def process_fits_files(directory):
                     variance_val = np.var(field_map) * 1e6
                     q1_val = np.percentile(field_map, 25) * 1e6
                     q3_val = np.percentile(field_map, 75) * 1e6
+                    IQR_val = q3_val - q1_val
 
                     field_strs = {1: "I", 2: "Q", 3: "U"}
                     
@@ -65,7 +66,7 @@ def process_fits_files(directory):
                         '3  Q3    ': f"{q3_val:>15.2f}",
                         '4  max   ': f"{max_val:>15.2f}", 
                         '5  mean  ': f"{mean_val:>15.2f}",
-                        '6  var   ': f"{variance_val:>15.2f}",
+                        '6  IQR   ': f"{IQR_val:>15.2f}",
                     }
     return results
 
