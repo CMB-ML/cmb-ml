@@ -12,7 +12,11 @@ from planck_instrument import PlanckInstrument, PlanckDetector
 from planck_cmap import colombi1_cmap
 
 
-# On top of fixed map synthesis 1, we now convolve the map with the appropriate beam
+# Map synthesis 0 (basic make map using PySM)
+# Map synthesis 1 (use custom cmb class)
+# Map synthesis 2 (convolve beam)
+# Map synthesis 3 (add instrumentation noise)
+
 
 """
 c#:    [1- 4]  cmb
@@ -42,13 +46,12 @@ def simulate_sky(show_renders=True, save_renders=False):
     # for option in tqdm(options):
     for option in options:
         if option == "Syn":
-            # filename = write_cls(ellmax=ellmax)
-            # cmb = pysm3.CMBLensed(nside=nside, 
-            #                       cmb_spectra=filename, 
-            #                       cmb_seed=0, 
-            #                       apply_delens=False)
-            # sky = pysm3.Sky(nside=nside, component_objects=[cmb])
-            pass
+            filename = write_cls(ellmax=ellmax)
+            cmb = pysm3.CMBLensed(nside=nside, 
+                                  cmb_spectra=filename, 
+                                  cmb_seed=0, 
+                                  apply_delens=False)
+            sky = pysm3.Sky(nside=nside, component_objects=[cmb])
         else:
             sky = pysm3.Sky(nside=nside, preset_strings=[option])
 
@@ -72,20 +75,30 @@ def simulate_sky(show_renders=True, save_renders=False):
                 noise_map = detector.get_noise_map(field_str, rng, force_overwrite=True)
                 map_smoothed = pysm3.apply_smoothing_and_coord_transform(skymap, fwhm=fwhm)
                 final_map = map_smoothed + noise_map
-                hp.mollview(map_smoothed, **val_range, 
-                            title=f"No  Noise Model: {option}, Field: {field_str}, {nominal_freq} GHz", 
-                            unit=skymap.unit,
-                            cmap=colombi1_cmap)
-                hp.mollview(final_map, **val_range, 
-                            title=f"Yes Noise Model: {option}, Field: {field_str}, {nominal_freq} GHz", 
-                            unit=skymap.unit,
-                            cmap=colombi1_cmap)
                 if show_renders:
+                    hp.mollview(map_smoothed, **val_range, 
+                                title=f"No  Noise Model: {option}, Field: {field_str}, {nominal_freq} GHz", 
+                                unit=skymap.unit,
+                                cmap=colombi1_cmap)
+                    hp.mollview(final_map, **val_range, 
+                                title=f"Yes Noise Model: {option}, Field: {field_str}, {nominal_freq} GHz", 
+                                unit=skymap.unit,
+                                cmap=colombi1_cmap)
                     plt.show()
                 if save_renders:
-                    plt.savefig(f"out/cmb_map_{option}_{i}_{field_str}_{nominal_freq}.png")
+                    hp.mollview(map_smoothed, **val_range, 
+                                title=f"No  Noise Model: {option}, Field: {field_str}, {nominal_freq} GHz", 
+                                unit=skymap.unit,
+                                cmap=colombi1_cmap)
+                    plt.savefig(f"out/cmb_map_{option}_{i}_{field_str}_{nominal_freq}_no_noise_cf.png")
                     plt.clf()
-                    i+=1
+                    hp.mollview(final_map, **val_range, 
+                                title=f"Yes Noise Model: {option}, Field: {field_str}, {nominal_freq} GHz", 
+                                unit=skymap.unit,
+                                cmap=colombi1_cmap)
+                    plt.savefig(f"out/cmb_map_{option}_{i}_{field_str}_{nominal_freq}_yes_noise_cf.png")
+                    plt.clf()
+                i+=1
 
 
 
