@@ -8,6 +8,7 @@ from matplotlib.colors import ListedColormap
 from tqdm import tqdm
 from planck_cmap import colombi1_cmap
 from cmb_component import write_cls
+from pathlib import Path
 
 
 # Map synthesis 0 (basic make map using PySM)
@@ -26,7 +27,9 @@ ksz#:  [1]     Kinetic Sunyaev-Zeldovich
 rg#:   [1]     Radio Galaxies
 """
 
-def simulate_sky():
+def simulate_sky(output_dir="out"):
+    if not Path(output_dir).exists():
+        Path(output_dir).mkdir(exist_ok=True, parents=True)
     colombi1_cmap = ListedColormap(np.loadtxt("planck_colormap.txt")/255.)
     colombi1_cmap.set_bad("gray") # color of missing pixels
     colombi1_cmap.set_under("white") # color of background, necessary if you want to use
@@ -72,7 +75,7 @@ def simulate_sky():
                             unit=skymap.unit,
                             cmap=colombi1_cmap)
                 # plt.show()
-                plt.savefig(f"out/cmb_map_{option}_{i}_{field_str}_{freq}.png")
+                plt.savefig(f"{output_dir}/cmb_map_{option}_{i}_{field_str}_{freq}.png")
                 plt.clf()
                 i+=1
 
