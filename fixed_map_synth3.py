@@ -31,7 +31,9 @@ ksz#:  [1]     Kinetic Sunyaev-Zeldovich
 rg#:   [1]     Radio Galaxies
 """
 
-def simulate_sky(show_renders=True, save_renders=False):
+def simulate_sky(output_dir="out", show_renders=True, save_renders=False):
+    if not Path(output_dir).exists():
+        Path(output_dir).mkdir(exist_ok=True, parents=True)
     nside = 512
     ellmax = 8150
 
@@ -106,4 +108,5 @@ def simulate_sky(show_renders=True, save_renders=False):
 
 if __name__ == "__main__":
     # simulate_sky(show_renders=False, save_renders=True)
-    simulate_sky()
+    simulate_sky(show_renders=True, save_renders=False)
+    # simulate_sky()
