@@ -8,3 +8,5 @@ __pycache__/
 *.fits
 *.tar.gz
 cmb_spectrum.txt
+.DS_Store
+*/.DS_Store
