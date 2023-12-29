@@ -93,9 +93,10 @@ def show_one_map(fits_fn, hdu_n, field_n):
     plt.show()
   
 
-noise_map_fn = "fidu_noise/ffp10_noise_030_full_map_mc_00000.fits"
+# noise_map_fn = "fidu_noise/ffp10_noise_030_full_map_mc_00000.fits"
 # petroff_used_fn = "ref_maps/HFI_SkyMap_100_2048_R3.01_full.fits"
-petroff_used_fn = "planck_assets/LFI_SkyMap_030-BPassCorrected_1024_R3.00_full.fits"
+# petroff_used_fn = "planck_assets/LFI_SkyMap_030-BPassCorrected_1024_R3.00_full.fits"
+petroff_used_fn = "planck_assets/HFI_SkyMap_100-field-IQU_2048_R3.00_full.fits"
 
 # for fn in map_files.values():
 #     print_out_header(fn)
@@ -106,8 +107,7 @@ petroff_used_fn = "planck_assets/LFI_SkyMap_030-BPassCorrected_1024_R3.00_full.f
 # print(get_num_fields(noise_map_fn))
 # show_all_maps(noise_map_fn)
 
-# sizes = [*[144]*3, *[576]*6]
-# print(sum(sizes)*300 / 1000)
-
-pretty_print_dict(get_fits_information(noise_map_fn))
 # pretty_print_dict(get_fits_information(petroff_used_fn))
+# pretty_print_dict(get_fits_information(petroff_used_fn))
+
+show_all_maps(petroff_used_fn)
