@@ -3,34 +3,65 @@ Rough development repository for PySM simulations for ML project
 
 # Set Up
 
-(This Section To Be Update)
+(This Section is a DRAFT)
 
-Unfortunately, the current environment is a hodge-podge. I know that PySM3 had to be installed from the current version on GitHub, as the installation instructions produce a library without all the most recent components. "pip_" and "conda_packages.txt" contain current packages. I don't recall issues installing other packages.
+- Clone the repositories (both ml_cmb_pysm_sims and the dependency, pysm3).
+    - Either (git with HTTPS)
+    - `git clone https://github.com/JamesAmato/ml_cmb_pysm_sims.git`
+    - `git clone https://github.com/galsci/pysm.git`
+    - Or (git with SSH):
+    - git clone git@github.com:JamesAmato/ml_cmb_pysm_sims.git
+    - git clone git@github.com:galsci/pysm.git
+
+- Create and activate a conda environment
+    - `conda create --name ml_cmb_pysm_sims python=3.8`
+    - `conda activate ml_cmb_pysm_sims`
+
+- Install healpy using conda (consider skipping this at first; it may only be needed on a Mac; unknown currently.)
+    - At least on a mac (maybe? apparently?), healpy doesn't like the pip installer but is ok with the conda installer. Maybe. I'm not sure the correct process; some combination of pip and conda installs and uninstalls of both healpy and pysm3 got it working.
+    - Official healpy documentation says the following, but this adds conda-forge to your channels permanently:
+    - `conda config --add channels conda-forge` (Don't do this)
+    - `conda install healpy` (Don't do this)
+    - Instead, I suggest `conda install -c conda-forge healpy` which makes no system-wide changes.
+
+- Try to install all of pysm3 with pip
+     - Within the repo, install using `pip install .`
+     - That may fail for healpy, but install everything else except pysm3 itself
+     - Then do `pip install --no-deps .`
+
+- Still missing numba and toml
+    - Run `conda install numba toml tqdm`
+    - Maybe this should go earlier?
 
 # Needed files
 
 "planck_assets/" files are needed for noise generation. There's a lot of data there (~2GB?). "fidu_noise/" files are only for comparisons of noise. WMAP 9 chains are not yet used. 
 
-From [ESA Planck Page](https://pla.esac.esa.int/#results), choose Maps, then Advanced Search. Get the following:
-- planck_assets/LFI_SkyMap_030-BPassCorrected_1024_R3.00_full.fits
-- planck_assets/LFI_SkyMap_044-BPassCorrected_1024_R3.00_full.fits
-- planck_assets/LFI_SkyMap_070-BPassCorrected_1024_R3.00_full.fits
-- planck_assets/HFI_SkyMap_100_2048_R3.01_full.fits
-- planck_assets/HFI_SkyMap_143_2048_R3.01_full.fits
-- planck_assets/HFI_SkyMap_217_2048_R3.01_full.fits
-- planck_assets/HFI_SkyMap_353-psb_2048_R3.01_full.fits
-- planck_assets/HFI_SkyMap_545_2048_R3.01_full.fits
-- planck_assets/HFI_SkyMap_857_2048_R3.01_full.fits
-- fidu_noise/ffp10_noise_030_full_map_mc_00000.fits
-- fidu_noise/ffp10_noise_044_full_map_mc_00000.fits
-- fidu_noise/ffp10_noise_070_full_map_mc_00000.fits
-- fidu_noise/ffp10_noise_100_full_map_mc_00000.fits
-- fidu_noise/ffp10_noise_143_full_map_mc_00000.fits
-- fidu_noise/ffp10_noise_217_full_map_mc_00000.fits
-- fidu_noise/ffp10_noise_353_full_map_mc_00000.fits
-- fidu_noise/ffp10_noise_545_full_map_mc_00000.fits
-- fidu_noise/ffp10_noise_857_full_map_mc_00000.fits
-- fidu_noise/ffp10_noise_353_psb_full_map_mc_00000.fits
+From [ESA Planck Page](https://pla.esac.esa.int/#results), choose Maps, then Advanced Search. Get the following (take care to get these files instead of similar ones):
+- Option 1: Use get_caltech_maps.sh to get the HFI maps. I'm not sure if those maps are Bandpass Corrected...; I'm pretty sure the Planck Maps are all Bandpass corrected.
+- Use the search term "LFI_SkyMap_%%%-BPassCorrected_1024_R3.00_full.fits" for these:
+  - planck_assets/LFI_SkyMap_030-BPassCorrected_1024_R3.00_full.fits
+  - planck_assets/LFI_SkyMap_044-BPassCorrected_1024_R3.00_full.fits
+  - planck_assets/LFI_SkyMap_070-BPassCorrected_1024_R3.00_full.fits
+- Use the search term "HFI_SkyMap_353-psb_2048_R3.01_full.fits" for this (the version without -psb is listed as not-to-be-used by Planck; I didn't check if CalTech has it...):
+  - planck_assets/HFI_SkyMap_353-psb_2048_R3.01_full.fits
+- Use the get_caltech_maps.sh script (or search term "HFI_SkyMap_%%%_2048_R3.01_full.fits" for these):
+  - planck_assets/HFI_SkyMap_100_2048_R3.01_full.fits
+  - planck_assets/HFI_SkyMap_143_2048_R3.01_full.fits
+  - planck_assets/HFI_SkyMap_217_2048_R3.01_full.fits
+  - planck_assets/HFI_SkyMap_545_2048_R3.01_full.fits
+  - planck_assets/HFI_SkyMap_857_2048_R3.01_full.fits
+- Noise files, found with "ffp10_noise_%%%_full_map_mc_00000.fits"
+  - fidu_noise/ffp10_noise_030_full_map_mc_00000.fits
+  - fidu_noise/ffp10_noise_044_full_map_mc_00000.fits
+  - fidu_noise/ffp10_noise_070_full_map_mc_00000.fits
+  - fidu_noise/ffp10_noise_100_full_map_mc_00000.fits
+  - fidu_noise/ffp10_noise_143_full_map_mc_00000.fits
+  - fidu_noise/ffp10_noise_217_full_map_mc_00000.fits
+  - fidu_noise/ffp10_noise_353_full_map_mc_00000.fits
+  - fidu_noise/ffp10_noise_545_full_map_mc_00000.fits
+  - fidu_noise/ffp10_noise_857_full_map_mc_00000.fits
+  - fidu_noise/ffp10_noise_353_psb_full_map_mc_00000.fits
 
 From [NASA WMAP page](https://lambda.gsfc.nasa.gov/product/wmap/dr5/params/lcdm_wmap9.html), [Chain Files Direct Link](https://lambda.gsfc.nasa.gov/data/map/dr5/dcp/chains/wmap_lcdm_wmap9_chains_v5.tar.gz)
 
