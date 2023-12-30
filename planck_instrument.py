@@ -9,6 +9,9 @@ from astropy.cosmology import Planck15
 
 
 ref_map_files = {
+    # 30: "LFI_SkyMap_030-BPassCorrected-field-IQU_1024_R3.00_full.fits",
+    # 44: "LFI_SkyMap_044-BPassCorrected-field-IQU_1024_R3.00_full.fits",
+    # 70: "LFI_SkyMap_070-BPassCorrected-field-IQU_1024_R3.00_full.fits",
     30: "LFI_SkyMap_030-BPassCorrected_1024_R3.00_full.fits",
     44: "LFI_SkyMap_044-BPassCorrected_1024_R3.00_full.fits",
     70: "LFI_SkyMap_070-BPassCorrected_1024_R3.00_full.fits",
@@ -123,6 +126,8 @@ class PlanckDetector:
         ok_units_k_cmb = ["(K_CMB)^2", "Kcmb^2"]
         ok_units_mjysr = ["(Mjy/sr)^2"]
         ok_units = [*ok_units_k_cmb, *ok_units_mjysr]
+        # TODO: Use logging
+        # log.info(f"Units for map {self.ref_map_fn} are {unit}")
         if unit not in ok_units:
             raise ValueError(f"Wrong unit found in fits file. Found {unit}, expected one of {ok_units}.")
         if unit in ok_units_k_cmb:
@@ -150,9 +155,11 @@ class PlanckDetector:
         m = m.astype(dtype, copy=False)
         # End of code from PySM3 template.py
 
-        # Assume variance was calculated for K_CMB; otherwise * 1e6 if calculated in uK_CMB
-        if unit_sqrt == "K_CMB":
-            m *= 1e6
+        # TODO: (Physics) Please check my assumption.
+        # I assume variance was calculated for K_CMB, but not sure.
+        # If you think it was calculated for uK_CMB, uncomment the next two lines.
+        # if unit_sqrt == "K_CMB":
+        #     m *= 1e6
         
         # Convert variance to standard deviation, 
         #   to be used in np.random.Generator.normal as "scale" parameter
@@ -161,7 +168,7 @@ class PlanckDetector:
         # Convert MJy/sr to K_CMB (I think, TODO: Verify)
         # This is an oversimplification applied to the 545 and 857 GHz bands
         # something about "very sensitive to band shape" for sub-mm bands (forgotten source)
-        # But it may be a suitable first-order approximation
+        # This may be a suitable first-order approximation
         if unit_sqrt == "MJy/sr":
             m = (m * u.MJy / u.sr).to(
                 u.K, equivalencies=u.thermodynamic_temperature(self.center_frequency, Planck15.Tcmb0)

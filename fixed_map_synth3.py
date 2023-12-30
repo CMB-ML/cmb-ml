@@ -58,12 +58,13 @@ def simulate_sky(output_dir="out", show_renders=True, save_renders=False):
             sky = pysm3.Sky(nside=nside, preset_strings=[option])
 
         field_strs = ["T", "Q", "U"]
+        # field_strs = ["T"]
         val_ranges = [dict(min=-300, max=300),
                       dict(min=-2.5, max=2.5),
                       dict(min=-2.5, max=2.5),]
 
-        # planck_freqs = [30, 44, 70, 100, 143, 217, 353, 545, 857]
-        planck_freqs = [100]
+        planck_freqs = [30, 44, 70, 100, 143, 217, 353, 545, 857]
+        # planck_freqs = [100]
         for nominal_freq in planck_freqs:
             print(nominal_freq)
             detector = planck.detectors[nominal_freq]
@@ -107,6 +108,6 @@ def simulate_sky(output_dir="out", show_renders=True, save_renders=False):
 
 
 if __name__ == "__main__":
-    # simulate_sky(show_renders=False, save_renders=True)
-    simulate_sky(show_renders=True, save_renders=False)
+    simulate_sky(show_renders=False, save_renders=True)
+    # simulate_sky(show_renders=True, save_renders=False)
     # simulate_sky()
