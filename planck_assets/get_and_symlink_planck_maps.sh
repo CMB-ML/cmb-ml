@@ -1,4 +1,12 @@
-#!/bin/bash
+#!/bin/sh
+#
+# NASA/IPAC Infrared Science Archive
+# Planck Data Release 3: All-Sky Maps
+#
+# Original script from: https://irsa.ipac.caltech.edu/data/Planck/release_3/all-sky-maps/index.html
+#
+# Edit this script to select which files to download and where they go.
+#
 
 # Flag to determine if a separate data directory is used
 USE_SEPARATE_DATA_DIR=true
@@ -23,15 +31,15 @@ BASE_URL="https://irsa.ipac.caltech.edu/data/Planck/release_3/all-sky-maps/maps"
 
 # File names
 FILES=(
-    # "LFI_SkyMap_030-BPassCorrected_1024_R3.00_full.fits"
+    "LFI_SkyMap_030-BPassCorrected_1024_R3.00_full.fits"
     "LFI_SkyMap_044-BPassCorrected_1024_R3.00_full.fits"
-    # "LFI_SkyMap_070-BPassCorrected_1024_R3.00_full.fits"
-    # "HFI_SkyMap_100_2048_R3.01_full.fits"
-    # "HFI_SkyMap_143_2048_R3.01_full.fits"
-    # "HFI_SkyMap_217_2048_R3.01_full.fits"
-    # "HFI_SkyMap_353-psb_2048_R3.01_full.fits"
-    # "HFI_SkyMap_545_2048_R3.01_full.fits"
-    # "HFI_SkyMap_857_2048_R3.01_full.fits"
+    "LFI_SkyMap_070-BPassCorrected_1024_R3.00_full.fits"
+    "HFI_SkyMap_100_2048_R3.01_full.fits"
+    "HFI_SkyMap_143_2048_R3.01_full.fits"
+    "HFI_SkyMap_217_2048_R3.01_full.fits"
+    "HFI_SkyMap_353-psb_2048_R3.01_full.fits"
+    "HFI_SkyMap_545_2048_R3.01_full.fits"
+    "HFI_SkyMap_857_2048_R3.01_full.fits"
 )
 
 # Loop over the files, download them and create symlinks if necessary
