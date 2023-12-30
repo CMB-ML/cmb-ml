@@ -1,6 +1,7 @@
 import healpy as hp
 from astropy.io import fits
 import matplotlib.pyplot as plt
+from pathlib import Path
 # from planck_instrument import map_files
 
 
@@ -95,8 +96,15 @@ def show_one_map(fits_fn, hdu_n, field_n):
 
 # noise_map_fn = "fidu_noise/ffp10_noise_030_full_map_mc_00000.fits"
 # petroff_used_fn = "ref_maps/HFI_SkyMap_100_2048_R3.01_full.fits"
-# petroff_used_fn = "planck_assets/LFI_SkyMap_030-BPassCorrected_1024_R3.00_full.fits"
-petroff_used_fn = "planck_assets/HFI_SkyMap_100-field-IQU_2048_R3.00_full.fits"
+maybe_ok_fn = "planck_assets/LFI_SkyMap_070-BPassCorrected_1024_R3.00_full.fits"
+# maybe_ok_fn = "planck_assets/LFI_SkyMap_070-BPassCorrected_1024_R3.00_full.fits"
+# maybe_ok_fn = "planck_assets/HFI_SkyMap_100_2048_R3.01_full.fits"
+# maybe_ok_fn = "planck_assets/HFI_SkyMap_100-field-IQU_2048_R3.00_full.fits"
+
+if Path(maybe_ok_fn).exists():
+    print("Exists!")
+else:
+    print("No exists!")
 
 # for fn in map_files.values():
 #     print_out_header(fn)
@@ -108,6 +116,6 @@ petroff_used_fn = "planck_assets/HFI_SkyMap_100-field-IQU_2048_R3.00_full.fits"
 # show_all_maps(noise_map_fn)
 
 # pretty_print_dict(get_fits_information(petroff_used_fn))
-# pretty_print_dict(get_fits_information(petroff_used_fn))
+pretty_print_dict(get_fits_information(maybe_ok_fn))
 
-show_all_maps(petroff_used_fn)
+show_all_maps(maybe_ok_fn)
