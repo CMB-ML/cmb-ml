@@ -156,3 +156,8 @@ No physical unit associated with file /Users/jimcamato/.astropy/cache/download/u
 857
 (ml_cmb_pysm_sims) jimcamato@Jims-Laptop ml_cmb_pysm_sims % 
 ```
+
+
+# Credit / References
+
+https://camb.readthedocs.io/en/latest/CAMBdemo.html
