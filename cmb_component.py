@@ -7,6 +7,9 @@ import matplotlib.pyplot as plt
 import pysm3.units as u
 
 
+# Based on https://camb.readthedocs.io/en/latest/CAMBdemo.html
+
+
 def get_cls(ellmax):
     #Set up a new set of parameters for CAMB
     pars = camb.CAMBparams()
