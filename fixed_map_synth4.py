@@ -42,6 +42,10 @@ high_complexity_foregrounds = ["d12","s7","f1","a2","co3"]
 # extragalactic_foregrounds = []
 extragalactic_foregrounds = ["cib1", "tsz1", "ksz1", "rg1"]
 
+low_complexity_with_extragalactic_foregrounds = [
+    *low_complexity_foregrounds,
+    *extragalactic_foregrounds
+]
 
 def simulate_sky(output_dir="out5", show_renders=True, save_renders=False):
     if not Path(output_dir).exists():
@@ -53,7 +57,8 @@ def simulate_sky(output_dir="out5", show_renders=True, save_renders=False):
     rng = np.random.default_rng(seed=8675309)
 
     complexities = dict(
-        low=low_complexity_foregrounds,
+        # low=low_complexity_foregrounds,
+        lowplus=low_complexity_with_extragalactic_foregrounds,  # only for downloading data
         medium=medium_complexity_foregrounds,
         high=high_complexity_foregrounds
     )
@@ -64,11 +69,17 @@ def simulate_sky(output_dir="out5", show_renders=True, save_renders=False):
                               cmb_spectra=cmb_ps_filename, 
                               cmb_seed=0, 
                               apply_delens=False)
+
+        # For use with limited download everything setup
+        # TODO: Implement this better (hydra?)
         sky = pysm3.Sky(nside=nside, 
-                        preset_strings=[
-                            *complexity_fgs,
-                            *extragalactic_foregrounds], 
+                        preset_strings=complexity_fgs,
                         component_objects=[cmb])
+        # sky = pysm3.Sky(nside=nside, 
+        #                 preset_strings=[
+        #                     *complexity_fgs,
+        #                     *extragalactic_foregrounds], 
+        #                 component_objects=[cmb])
 
         field_strs = ["T", "Q", "U"]
         # field_strs = ["T"]
@@ -90,7 +101,7 @@ def simulate_sky(output_dir="out5", show_renders=True, save_renders=False):
 
         # planck_freqs = [30]
         planck_freqs = [30, 44, 70, 100, 143, 217, 353, 545, 857]
-        # planck_freqs = [857]
+        # planck_freqs = [545, 857]
         for nominal_freq in planck_freqs:
             print(nominal_freq)
             detector = planck.detectors[nominal_freq]
