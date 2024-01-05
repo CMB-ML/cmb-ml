@@ -10,7 +10,7 @@ import pysm3.units as u
 from cmb_component import write_cls
 from planck_instrument import PlanckInstrument, PlanckDetector
 from planck_cmap import colombi1_cmap
-from astropy import URLError
+from urllib.error import URLError
 
 
 # Map synthesis 0 (basic make map using PySM)
@@ -90,7 +90,7 @@ def simulate_sky(output_dir="out5", show_renders=True, save_renders=False):
 
         # planck_freqs = [30]
         planck_freqs = [30, 44, 70, 100, 143, 217, 353, 545, 857]
-        # planck_freqs = [545]
+        # planck_freqs = [857]
         for nominal_freq in planck_freqs:
             print(nominal_freq)
             detector = planck.detectors[nominal_freq]
