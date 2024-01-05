@@ -1,12 +1,25 @@
 # Ignore data folders
 out/
+out4/
+out5/
 out_old/
+
+# Ignnore all output figures (for now)
+# TODO: Fix this?
+*.png
+
+# Ignore temporary cmb power spectrum file used when making maps
+# TODO: Change the method to not produce these files outside temp folders
+cmb_spectrum.txt
+
+# Ignore potentially large files and symlinks
 wmap_lcdm_wmap9_chains_v5/
+*.fits
+*.tar.gz
+
+# Ignore local system files
 .vscode/
 */__pycache__/
 __pycache__/
-*.fits
-*.tar.gz
-cmb_spectrum.txt
 .DS_Store
 */.DS_Store
