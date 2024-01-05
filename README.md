@@ -105,15 +105,15 @@ Currently, working on fixed_map_synth4.py. Trying to download all files (~63.2 G
 
 - [x] Figure out pip and conda installation steps
 - [x] Noise, CMB, and all components in a single map
-- [] CMB component determined by cosmological parameter draws from WMAP 9 chains.
-- [] Output, per component, default variation (requires 2 runs)
-- [] Make presentation of the above
-- [] Where not enough variation exists (read: same thing), use PySM component_objects interface instead of preset_strings 
-- [] Move to Markov
-- [] Traceability/reproducability (this is a lot of stuff, todo: break down further)
-- [] Run simulations v1
-- [] Clean up (better names for files, get rid of testing/learning one-offs)
-- [] Are the CalTech maps the same as the ESA maps? Just need to load the maps and calculate the difference.
+- [ ] CMB component determined by cosmological parameter draws from WMAP 9 chains.
+- [ ] Output, per component, default variation (requires 2 runs)
+- [ ] Make presentation of the above
+- [ ] Where not enough variation exists (read: same thing), use PySM component_objects interface instead of preset_strings 
+- [ ] Move to Markov
+- [ ] Traceability/reproducability (this is a lot of stuff, todo: break down further)
+- [ ] Run simulations v1
+- [ ] Clean up (better names for files, get rid of testing/learning one-offs)
+- [ ] Are the CalTech maps the same as the ESA maps? Just need to load the maps and calculate the difference.
 - [x] Change the CalTech shell script to get the LFI maps as well. Or just... make a different script to get them from ESA.
 
 Physics questions:
