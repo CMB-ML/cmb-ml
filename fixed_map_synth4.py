@@ -17,6 +17,7 @@ from astropy import URLError
 # Map synthesis 1 (use custom cmb class)
 # Map synthesis 2 (convolve beam)
 # Map synthesis 3 (add instrumentation noise)
+# Map synthesis 4 (add all foregrounds, check if it runs)
 
 
 """
