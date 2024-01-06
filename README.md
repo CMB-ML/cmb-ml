@@ -104,11 +104,13 @@ Currently, working on fixed_map_synth4.py. Trying to download all files (~63.2 G
 # To do
 
 - [x] Figure out pip and conda installation steps
-- [x] Noise, CMB, and all components in a single map
-- [ ] CMB component determined by cosmological parameter draws from WMAP 9 chains.
-- [ ] Output, per component, default variation (requires 2 runs)
-- [ ] Make presentation of the above
+- [x] Noise, CMB, and all components in a single map (see fixed_map_synth4.py)
+- [x] CMB component determined by cosmological parameter draws. (partial, see simple_camb_ps.py)
+- [ ] CMB component determined by cosmological parameter draws from WMAP 9 chains. 
+- [x] Output, per component, default variation (requires 2 runs); compare them (see check_variation_in_base.py)
+- [ ] Switch to uK_CMB instead of uK_RJ
 - [ ] Where not enough variation exists (read: same thing), use PySM component_objects interface instead of preset_strings 
+- [ ] Make presentation of the above
 - [ ] Move to Markov
 - [ ] Traceability/reproducability (this is a lot of stuff, todo: break down further)
 - [ ] Run simulations v1
