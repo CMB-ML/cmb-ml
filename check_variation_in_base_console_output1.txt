@@ -1,0 +1,337 @@
+Running check_variation_in_base.py
+30 d9
+OMP: Info #276: omp_set_nested routine deprecated, please use omp_set_max_active_levels instead.
+30 s4
+30 f1
+/Users/jim/miniconda3/envs/ml_cmb_pysm_sims/lib/python3.8/site-packages/healpy/sphtfunc.py:414: RuntimeWarning: invalid value encountered in scalar divide
+  return realalm2alm(res[0]), res[3] / norm(maps.reshape((-1,))), res[2]
+30 a1
+/Users/jim/miniconda3/envs/ml_cmb_pysm_sims/lib/python3.8/site-packages/healpy/sphtfunc.py:414: RuntimeWarning: invalid value encountered in scalar divide
+  return realalm2alm(res[0]), res[3] / norm(maps.reshape((-1,))), res[2]
+30 co1
+30 d10
+30 s5
+30 f1
+/Users/jim/miniconda3/envs/ml_cmb_pysm_sims/lib/python3.8/site-packages/healpy/sphtfunc.py:414: RuntimeWarning: invalid value encountered in scalar divide
+  return realalm2alm(res[0]), res[3] / norm(maps.reshape((-1,))), res[2]
+30 a1
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/a6997a166010916ce04ada58b4872b86/contents
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/1a77be884471968effb02a9e53c2a236/contents
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/a6997a166010916ce04ada58b4872b86/contents
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/1a77be884471968effb02a9e53c2a236/contents
+30 co3
+30 d12
+30 s7
+30 f1
+/Users/jim/miniconda3/envs/ml_cmb_pysm_sims/lib/python3.8/site-packages/healpy/sphtfunc.py:414: RuntimeWarning: invalid value encountered in scalar divide
+  return realalm2alm(res[0]), res[3] / norm(maps.reshape((-1,))), res[2]
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/2233e1624d4c24ef8100824b8c088c68/contents
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/ca73bb01bc98b80a5f50b6066aa9c8fe/contents
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/2233e1624d4c24ef8100824b8c088c68/contents
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/ca73bb01bc98b80a5f50b6066aa9c8fe/contents
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/2233e1624d4c24ef8100824b8c088c68/contents
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/ca73bb01bc98b80a5f50b6066aa9c8fe/contents
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/2233e1624d4c24ef8100824b8c088c68/contents
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/ca73bb01bc98b80a5f50b6066aa9c8fe/contents
+30 a2
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/a6997a166010916ce04ada58b4872b86/contents
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/1a77be884471968effb02a9e53c2a236/contents
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/a6997a166010916ce04ada58b4872b86/contents
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/1a77be884471968effb02a9e53c2a236/contents
+30 co3
+/Users/jim/miniconda3/envs/ml_cmb_pysm_sims/lib/python3.8/site-packages/healpy/sphtfunc.py:414: RuntimeWarning: invalid value encountered in scalar divide
+  return realalm2alm(res[0]), res[3] / norm(maps.reshape((-1,))), res[2]
+30 cib1
+/Users/jim/miniconda3/envs/ml_cmb_pysm_sims/lib/python3.8/site-packages/healpy/sphtfunc.py:414: RuntimeWarning: invalid value encountered in scalar divide
+  return realalm2alm(res[0]), res[3] / norm(maps.reshape((-1,))), res[2]
+30 tsz1
+/Users/jim/miniconda3/envs/ml_cmb_pysm_sims/lib/python3.8/site-packages/healpy/sphtfunc.py:414: RuntimeWarning: invalid value encountered in scalar divide
+  return realalm2alm(res[0]), res[3] / norm(maps.reshape((-1,))), res[2]
+30 ksz1
+30 rg1
+44 d9
+44 s4
+44 f1
+44 a1
+44 co1
+44 d10
+44 s5
+44 f1
+44 a1
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/a6997a166010916ce04ada58b4872b86/contents
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/1a77be884471968effb02a9e53c2a236/contents
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/a6997a166010916ce04ada58b4872b86/contents
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/1a77be884471968effb02a9e53c2a236/contents
+44 co3
+44 d12
+44 s7
+44 f1
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/2233e1624d4c24ef8100824b8c088c68/contents
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/ca73bb01bc98b80a5f50b6066aa9c8fe/contents
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/2233e1624d4c24ef8100824b8c088c68/contents
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/ca73bb01bc98b80a5f50b6066aa9c8fe/contents
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/2233e1624d4c24ef8100824b8c088c68/contents
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/ca73bb01bc98b80a5f50b6066aa9c8fe/contents
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/2233e1624d4c24ef8100824b8c088c68/contents
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/ca73bb01bc98b80a5f50b6066aa9c8fe/contents
+44 a2
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/a6997a166010916ce04ada58b4872b86/contents
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/1a77be884471968effb02a9e53c2a236/contents
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/a6997a166010916ce04ada58b4872b86/contents
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/1a77be884471968effb02a9e53c2a236/contents
+44 co3
+44 cib1
+44 tsz1
+44 ksz1
+44 rg1
+70 d9
+70 s4
+70 f1
+70 a1
+70 co1
+70 d10
+70 s5
+70 f1
+70 a1
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/a6997a166010916ce04ada58b4872b86/contents
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/1a77be884471968effb02a9e53c2a236/contents
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/a6997a166010916ce04ada58b4872b86/contents
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/1a77be884471968effb02a9e53c2a236/contents
+70 co3
+70 d12
+70 s7
+70 f1
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/2233e1624d4c24ef8100824b8c088c68/contents
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/ca73bb01bc98b80a5f50b6066aa9c8fe/contents
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/2233e1624d4c24ef8100824b8c088c68/contents
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/ca73bb01bc98b80a5f50b6066aa9c8fe/contents
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/2233e1624d4c24ef8100824b8c088c68/contents
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/ca73bb01bc98b80a5f50b6066aa9c8fe/contents
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/2233e1624d4c24ef8100824b8c088c68/contents
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/ca73bb01bc98b80a5f50b6066aa9c8fe/contents
+70 a2
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/a6997a166010916ce04ada58b4872b86/contents
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/1a77be884471968effb02a9e53c2a236/contents
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/a6997a166010916ce04ada58b4872b86/contents
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/1a77be884471968effb02a9e53c2a236/contents
+70 co3
+70 cib1
+70 tsz1
+70 ksz1
+70 rg1
+100 d9
+100 s4
+100 f1
+100 a1
+100 co1
+100 d10
+100 s5
+100 f1
+100 a1
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/a6997a166010916ce04ada58b4872b86/contents
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/1a77be884471968effb02a9e53c2a236/contents
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/a6997a166010916ce04ada58b4872b86/contents
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/1a77be884471968effb02a9e53c2a236/contents
+100 co3
+100 d12
+100 s7
+100 f1
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/2233e1624d4c24ef8100824b8c088c68/contents
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/ca73bb01bc98b80a5f50b6066aa9c8fe/contents
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/2233e1624d4c24ef8100824b8c088c68/contents
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/ca73bb01bc98b80a5f50b6066aa9c8fe/contents
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/2233e1624d4c24ef8100824b8c088c68/contents
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/ca73bb01bc98b80a5f50b6066aa9c8fe/contents
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/2233e1624d4c24ef8100824b8c088c68/contents
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/ca73bb01bc98b80a5f50b6066aa9c8fe/contents
+100 a2
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/a6997a166010916ce04ada58b4872b86/contents
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/1a77be884471968effb02a9e53c2a236/contents
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/a6997a166010916ce04ada58b4872b86/contents
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/1a77be884471968effb02a9e53c2a236/contents
+100 co3
+100 cib1
+100 tsz1
+100 ksz1
+100 rg1
+143 d9
+143 s4
+143 f1
+143 a1
+143 co1
+143 d10
+143 s5
+143 f1
+143 a1
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/a6997a166010916ce04ada58b4872b86/contents
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/1a77be884471968effb02a9e53c2a236/contents
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/a6997a166010916ce04ada58b4872b86/contents
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/1a77be884471968effb02a9e53c2a236/contents
+143 co3
+143 d12
+143 s7
+143 f1
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/2233e1624d4c24ef8100824b8c088c68/contents
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/ca73bb01bc98b80a5f50b6066aa9c8fe/contents
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/2233e1624d4c24ef8100824b8c088c68/contents
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/ca73bb01bc98b80a5f50b6066aa9c8fe/contents
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/2233e1624d4c24ef8100824b8c088c68/contents
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/ca73bb01bc98b80a5f50b6066aa9c8fe/contents
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/2233e1624d4c24ef8100824b8c088c68/contents
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/ca73bb01bc98b80a5f50b6066aa9c8fe/contents
+143 a2
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/a6997a166010916ce04ada58b4872b86/contents
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/1a77be884471968effb02a9e53c2a236/contents
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/a6997a166010916ce04ada58b4872b86/contents
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/1a77be884471968effb02a9e53c2a236/contents
+143 co3
+143 cib1
+143 tsz1
+143 ksz1
+143 rg1
+217 d9
+217 s4
+217 f1
+217 a1
+217 co1
+217 d10
+217 s5
+217 f1
+217 a1
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/a6997a166010916ce04ada58b4872b86/contents
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/1a77be884471968effb02a9e53c2a236/contents
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/a6997a166010916ce04ada58b4872b86/contents
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/1a77be884471968effb02a9e53c2a236/contents
+217 co3
+217 d12
+217 s7
+217 f1
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/2233e1624d4c24ef8100824b8c088c68/contents
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/ca73bb01bc98b80a5f50b6066aa9c8fe/contents
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/2233e1624d4c24ef8100824b8c088c68/contents
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/ca73bb01bc98b80a5f50b6066aa9c8fe/contents
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/2233e1624d4c24ef8100824b8c088c68/contents
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/ca73bb01bc98b80a5f50b6066aa9c8fe/contents
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/2233e1624d4c24ef8100824b8c088c68/contents
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/ca73bb01bc98b80a5f50b6066aa9c8fe/contents
+217 a2
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/a6997a166010916ce04ada58b4872b86/contents
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/1a77be884471968effb02a9e53c2a236/contents
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/a6997a166010916ce04ada58b4872b86/contents
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/1a77be884471968effb02a9e53c2a236/contents
+217 co3
+217 cib1
+217 tsz1
+217 ksz1
+217 rg1
+353 d9
+353 s4
+353 f1
+353 a1
+353 co1
+353 d10
+353 s5
+353 f1
+353 a1
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/a6997a166010916ce04ada58b4872b86/contents
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/1a77be884471968effb02a9e53c2a236/contents
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/a6997a166010916ce04ada58b4872b86/contents
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/1a77be884471968effb02a9e53c2a236/contents
+353 co3
+353 d12
+353 s7
+353 f1
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/2233e1624d4c24ef8100824b8c088c68/contents
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/ca73bb01bc98b80a5f50b6066aa9c8fe/contents
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/2233e1624d4c24ef8100824b8c088c68/contents
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/ca73bb01bc98b80a5f50b6066aa9c8fe/contents
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/2233e1624d4c24ef8100824b8c088c68/contents
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/ca73bb01bc98b80a5f50b6066aa9c8fe/contents
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/2233e1624d4c24ef8100824b8c088c68/contents
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/ca73bb01bc98b80a5f50b6066aa9c8fe/contents
+353 a2
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/a6997a166010916ce04ada58b4872b86/contents
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/1a77be884471968effb02a9e53c2a236/contents
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/a6997a166010916ce04ada58b4872b86/contents
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/1a77be884471968effb02a9e53c2a236/contents
+353 co3
+353 cib1
+353 tsz1
+353 ksz1
+353 rg1
+545 d9
+545 s4
+545 f1
+545 a1
+545 co1
+545 d10
+545 s5
+545 f1
+545 a1
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/a6997a166010916ce04ada58b4872b86/contents
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/1a77be884471968effb02a9e53c2a236/contents
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/a6997a166010916ce04ada58b4872b86/contents
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/1a77be884471968effb02a9e53c2a236/contents
+545 co3
+545 d12
+545 s7
+545 f1
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/2233e1624d4c24ef8100824b8c088c68/contents
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/ca73bb01bc98b80a5f50b6066aa9c8fe/contents
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/2233e1624d4c24ef8100824b8c088c68/contents
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/ca73bb01bc98b80a5f50b6066aa9c8fe/contents
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/2233e1624d4c24ef8100824b8c088c68/contents
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/ca73bb01bc98b80a5f50b6066aa9c8fe/contents
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/2233e1624d4c24ef8100824b8c088c68/contents
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/ca73bb01bc98b80a5f50b6066aa9c8fe/contents
+545 a2
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/a6997a166010916ce04ada58b4872b86/contents
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/1a77be884471968effb02a9e53c2a236/contents
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/a6997a166010916ce04ada58b4872b86/contents
+No physical unit associated with file /Users/jim/.astropy/cache/download/url/1a77be884471968effb02a9e53c2a236/contents
+545 co3
+545 cib1
+545 tsz1
+545 ksz1
+545 rg1
+Traceback (most recent call last):
+  File "/Users/jim/Developer/ml_cmb_pysm_sims/check_variation_in_base.py", line 85, in <module>
+    simulate_sky()
+  File "/Users/jim/Developer/ml_cmb_pysm_sims/check_variation_in_base.py", line 64, in simulate_sky
+    skymaps1 = sky1.get_emission(frequency)
+  File "/Users/jim/miniconda3/envs/ml_cmb_pysm_sims/lib/python3.8/site-packages/pysm3/sky.py", line 177, in get_emission
+    output = self.components[0].get_emission(freq, weights=weights)
+  File "/Users/jim/miniconda3/envs/ml_cmb_pysm_sims/lib/python3.8/site-packages/astropy/units/decorators.py", line 316, in wrapper
+    return_ = wrapped_function(*func_args, **func_kwargs)
+  File "/Users/jim/miniconda3/envs/ml_cmb_pysm_sims/lib/python3.8/site-packages/pysm3/models/interpolating.py", line 122, in get_emission
+    m = self.read_map_by_frequency(freq)
+  File "/Users/jim/miniconda3/envs/ml_cmb_pysm_sims/lib/python3.8/site-packages/pysm3/models/websky.py", line 169, in read_map_by_frequency
+    filename = self.remote_data.get(self.maps[freq])
+  File "/Users/jim/miniconda3/envs/ml_cmb_pysm_sims/lib/python3.8/site-packages/pysm3/utils/data.py", line 52, in get
+    full_path = data.get_pkg_data_filename(filename, show_progress=True)
+  File "/Users/jim/miniconda3/envs/ml_cmb_pysm_sims/lib/python3.8/site-packages/astropy/utils/data.py", line 745, in get_pkg_data_filename
+    return download_file(
+  File "/Users/jim/miniconda3/envs/ml_cmb_pysm_sims/lib/python3.8/site-packages/astropy/utils/data.py", line 1509, in download_file
+    f_name = _download_file_from_source(
+  File "/Users/jim/miniconda3/envs/ml_cmb_pysm_sims/lib/python3.8/site-packages/astropy/utils/data.py", line 1293, in _download_file_from_source
+    with _try_url_open(
+  File "/Users/jim/miniconda3/envs/ml_cmb_pysm_sims/lib/python3.8/site-packages/astropy/utils/data.py", line 1211, in _try_url_open
+    return urlopener.open(req, timeout=timeout)
+  File "/Users/jim/miniconda3/envs/ml_cmb_pysm_sims/lib/python3.8/urllib/request.py", line 525, in open
+    response = self._open(req, data)
+  File "/Users/jim/miniconda3/envs/ml_cmb_pysm_sims/lib/python3.8/urllib/request.py", line 542, in _open
+    result = self._call_chain(self.handle_open, protocol, protocol +
+  File "/Users/jim/miniconda3/envs/ml_cmb_pysm_sims/lib/python3.8/urllib/request.py", line 502, in _call_chain
+    result = func(*args)
+  File "/Users/jim/miniconda3/envs/ml_cmb_pysm_sims/lib/python3.8/urllib/request.py", line 1397, in https_open
+    return self.do_open(http.client.HTTPSConnection, req,
+  File "/Users/jim/miniconda3/envs/ml_cmb_pysm_sims/lib/python3.8/urllib/request.py", line 1358, in do_open
+    r = h.getresponse()
+  File "/Users/jim/miniconda3/envs/ml_cmb_pysm_sims/lib/python3.8/http/client.py", line 1348, in getresponse
+    response.begin()
+  File "/Users/jim/miniconda3/envs/ml_cmb_pysm_sims/lib/python3.8/http/client.py", line 316, in begin
+    version, status, reason = self._read_status()
+  File "/Users/jim/miniconda3/envs/ml_cmb_pysm_sims/lib/python3.8/http/client.py", line 285, in _read_status
+    raise RemoteDisconnected("Remote end closed connection without"
+http.client.RemoteDisconnected: Remote end closed connection without response
+(ml_cmb_pysm_sims) jim@Jims-Laptop ml_cmb_pysm_sims % 
