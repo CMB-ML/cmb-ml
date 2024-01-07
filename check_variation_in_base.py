@@ -41,6 +41,7 @@ all_preset_strings = [
     *extragalactic_foregrounds
 ]
 
+
 def get_full_class_name(obj):
     # From https://stackoverflow.com/a/58045927
     module = obj.__class__.__module__
@@ -62,9 +63,11 @@ def simulate_sky():
     for nominal_freq, preset_string in combinations:
 
         sky1 = pysm3.Sky(nside=nside, 
-                        preset_strings=[preset_string])
+                        preset_strings=[preset_string],
+                        output_unit="uK_CMB")
         sky2 = pysm3.Sky(nside=nside, 
-                        preset_strings=[preset_string])
+                        preset_strings=[preset_string],
+                        output_unit="uK_CMB")
 
         print(nominal_freq, preset_string)
         if nominal_freq not in results.keys():

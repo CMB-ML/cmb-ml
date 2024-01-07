@@ -108,7 +108,9 @@ Currently, working on fixed_map_synth4.py. Trying to download all files (~63.2 G
 - [x] CMB component determined by cosmological parameter draws. (partial, see simple_camb_ps.py)
 - [ ] CMB component determined by cosmological parameter draws from WMAP 9 chains. 
 - [x] Output, per component, default variation (requires 2 runs); compare them (see check_variation_in_base.py)
-- [ ] Switch to uK_CMB instead of uK_RJ
+- [x] Switch to uK_CMB instead of uK_RJ 
+    - [x] simple fix: when initializing Sky(), include "output_unit='uK_CMB'"
+    - [ ] uglier fix: noise is broken (see fixed_map_synth3.py [not 4] results)
 - [ ] Where not enough variation exists (read: same thing), use PySM component_objects interface instead of preset_strings 
 - [ ] Make presentation of the above
 - [ ] Move to Markov

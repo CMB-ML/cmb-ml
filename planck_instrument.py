@@ -92,6 +92,7 @@ class PlanckDetector:
         noise_map = rng.normal(scale=sd_map, size=sd_map.size)
         noise_map = u.Quantity(noise_map, u.K_CMB, copy=False)
         noise_map = noise_map.to(u.uK_RJ, equivalencies=u.cmb_equivalencies(self.center_frequency))
+        # noise_map = noise_map.to(u.uK_CMB, equivalencies=u.cmb_equivalencies(self.center_frequency))
         return noise_map
 
     def get_sd_map_path(self, field_str):
