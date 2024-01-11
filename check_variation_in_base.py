@@ -12,6 +12,7 @@ import json
 # Map synthesis 3 (add instrumentation noise)
 # Map synthesis 4 (add all foregrounds, check if it runs)
 # Check_variation_in_base: for each preset string, check if there's variations
+    # There's none.
 
 
 """
