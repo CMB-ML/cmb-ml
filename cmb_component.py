@@ -3,13 +3,6 @@ import inspect
 from pysm3 import CMBLensed
 import camb
 
-# For test code
-import healpy as hp
-import pysm3
-import pysm3.units as u
-import matplotlib.pyplot as plt
-from planck_cmap import colombi1_cmap
-
 
 # Based on https://camb.readthedocs.io/en/latest/CAMBdemo.html
 # TODO: Break out test code into separate file
@@ -142,47 +135,3 @@ def create_cmb_lensed_from_params(cosmo_params,
 def get_param_names(method):
     sig = inspect.signature(method)
     return [param.name for param in sig.parameters.values() if param.name != 'self']
-
-
-def try_create_cmb_lensed_from_params():
-    nside = 512
-    lmax = 8150
-    cmb_seed = 0
-    # cmb_ps_file_to_save = "test_ps.txt"
-    cmb_ps_file_to_save = None
-
-    # From planck_deltabandpass.tbl
-    detector_frq = 100.89 * u.GHz
-    fwhm = 9.682 * u.arcmin
-
-    # Params from camb demo file https://camb.readthedocs.io/en/latest/CAMBdemo.html
-    params = dict(H0=67.4, 
-                  ombh2=0.0224, 
-                  omch2=0.120, 
-                  mnu=0.06, 
-                  omk=0.001, 
-                  tau=0.054,
-                  As=2e-9,
-                  ns=0.965
-                  )
-    cmb = create_cmb_lensed_from_params(cosmo_params=params,
-                                        cmb_ps_file_out=cmb_ps_file_to_save,
-                                        lmax=lmax,
-                                        nside=nside,
-                                        cmb_seed=cmb_seed,
-                                        apply_delens=False
-                                        )
-    sky = pysm3.Sky(nside=nside, component_objects=[cmb], output_unit="uK_RJ")
-    skymaps = sky.get_emission(detector_frq)
-    skymap = skymaps[0]
-    map_smoothed = pysm3.apply_smoothing_and_coord_transform(skymap, fwhm=fwhm)
-
-    hp.mollview(map_smoothed, min=-300, max=300,
-                title=f"Test Map {detector_frq}", 
-                unit=map_smoothed.unit,
-                cmap=colombi1_cmap)
-    plt.show()
-
-
-if __name__ == "__main__":
-    try_create_cmb_lensed_from_params()
