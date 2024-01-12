@@ -39,13 +39,11 @@ def pull_params_from_file(wmap_chain_path, chain_idcs, params_to_get):
                 # We need to get the second value, the first is just the wmap index
                 random_draw = random_line.split()[1]
                 # Store the drawn value at the position matching the random draws
-                param_vals[param][orig_pos] = random_draw
+                param_vals[param][orig_pos] = float(random_draw)
         for i in range(n_vals):
             assert param_vals[param][i] is not None, "Error while drawing values"
-        if param == 'H0':
-            param_vals[param] = [str(float(v) / 100) for v in param_vals[param]]
-        elif param == 'a002':
-            param_vals[param] = [str(float(v) / 1e9) for v in param_vals[param]]
+        if param == 'a002':
+            param_vals[param] = [v / 1e9 for v in param_vals[param]]
     param_vals['chain_idx'] = chain_idcs
     return param_vals
 
