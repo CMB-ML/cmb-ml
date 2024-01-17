@@ -26,6 +26,12 @@ for k in list(ref_map_files.keys()):
     ref_map_files[str(k)] = ref_map_files[k]
 
 
+class PlanckInstrumentFS:
+    def __init__(self, cfg):
+        
+        pass
+
+
 class PlanckInstrument:
     def __init__(self, 
                  nside, 
@@ -79,7 +85,7 @@ class PlanckDetector:
             self.var_maps = {"T": None, "Q": None, "U": None}
     
     def get_noise_map(self, field, rng: np.random.Generator, force_overwrite=False):
-        if isinstance(field, str):
+        if field in ['T', 'Q', 'U']:
             field_str = field
         else:
             raise TypeError(f"Field must be a string. Got {field}, expected 'T', 'Q', or 'U'.")

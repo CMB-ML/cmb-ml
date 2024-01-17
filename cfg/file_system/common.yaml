@@ -1,8 +1,0 @@
-structure: "{dataset_name}/Raw/{split_name}/{sim_folder}"
-sim_folder_prefix: "sim"
-sim_str_num_digits: 4
-cmb_map_fid_fn: cmb_map_fid.fits
-cmb_ps_fid_fn: cmb_ps_fid.txt
-cmb_ps_der_fn: cmb_ps_der.txt
-obs_map_fn: "obs_{det}_map.fits"
-sim_config_fn: config.txt
