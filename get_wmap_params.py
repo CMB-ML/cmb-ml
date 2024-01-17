@@ -52,6 +52,8 @@ def get_indices(n_indcs, rng: np.random.Generator):
     return rng.integers(low=1, high=ROWS_IN_CHAINS, size=n_indcs, endpoint=True)
 
 
+# Demo code from here to bottom
+
 def try_getting_wmap_params():
     wmap_path = Path("wmap_assets/wmap_lcdm_wmap9_chains_v5")
     chain_idcs = [1, 2, 3, 4, 5, ROWS_IN_CHAINS]
