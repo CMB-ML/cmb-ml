@@ -3,6 +3,7 @@ out/
 out4/
 out5/
 out_old/
+outputs/
 
 # Ignnore all output figures (for now)
 # TODO: Fix this?
@@ -13,7 +14,7 @@ out_old/
 cmb_spectrum.txt
 
 # Ignore potentially large files and symlinks
-wmap_lcdm_wmap9_chains_v5/
+wmap_assets/wmap_chains
 *.fits
 *.tar.gz
 
