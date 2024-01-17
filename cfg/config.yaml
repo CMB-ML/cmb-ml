@@ -1,2 +1,5 @@
 defaults:
-  - db: mysql
+  - file_system: common
+  - splits: two_two_dbg
+  - simulation: cmb_only
+  - local_system: jim_laptop.yaml

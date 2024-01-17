@@ -1,0 +1,4 @@
+datasets_root: "~/jimcamato/cmb_datasets/"
+noise_files: "./planck_assets/"
+instr_table: "./planck_assets/planck_deltabandpass.tbl"
+wmap_chains: "./wmap_assets/wmap_chains/"
