@@ -5,22 +5,22 @@ import camb
 
 
 # Based on https://camb.readthedocs.io/en/latest/CAMBdemo.html
-# TODO: Break out test code into separate file
 
 
+# TODO: remove get_cls which relies on a fixed cosmology
 def get_cls(ellmax):
-    #Set up a new set of parameters for CAMB
+    # Set up a new set of parameters for CAMB
     pars = camb.CAMBparams()
-    #This function sets up with one massive neutrino and helium set using BBN consistency
+    # This function sets up with one massive neutrino and helium set using BBN consistency
     pars.set_cosmology(H0=67.4, ombh2=0.0224, omch2=0.120, mnu=0.06, omk=0.001, tau=0.054)
     pars.InitPower.set_params(As=2e-9, ns=0.965, r=0)
     pars.set_for_lmax(ellmax, lens_potential_accuracy=0)
 
     results = camb.get_results(pars)
 
-    # TODO: Ensure correct CMB_unit
+    # TODO: (Physics) Ensure correct CMB_unit
     # We want raw_cl: this is unnormalized C_ell; the alternative is normalized D_ell
-    # TODO: USing 'total' spectra
+    # TODO: (Physics) Using 'total' spectra; is this correct?
     powers = results.get_cmb_power_spectra(pars, CMB_unit='muK', spectra=('total',), raw_cl=True)
 
     totCL=powers['total']
@@ -28,6 +28,7 @@ def get_cls(ellmax):
     return totCL
 
 
+# TODO: remove write_cls which relies on a fixed cosmology
 def write_cls(ellmax):
     filename = "cmb_spectrum.txt"
     #Set up a new set of parameters for CAMB
@@ -102,9 +103,6 @@ def create_cmb_lensed_from_params(cosmo_params,
     # Set the parameters
     pars.set_cosmology(**set_cosmology_args)
     pars.InitPower.set_params(r=0, **init_power_args)
-
-    # pars.set_cosmology(H0=67.4, ombh2=0.0224, omch2=0.120, mnu=0.06, omk=0.001, tau=0.054)
-    # pars.InitPower.set_params(As=2e-9, ns=0.965, r=0)
     pars.set_for_lmax(lmax, lens_potential_accuracy=0)
     
     results = camb.get_results(pars)
