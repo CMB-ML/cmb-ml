@@ -8,12 +8,18 @@ from matplotlib.colors import ListedColormap
 from tqdm import tqdm
 from planck_cmap import colombi1_cmap
 from cmb_component import write_cls
-from planck_instrument import PlanckInstrument
+from pathlib import Path
 
 
-# Map synthesis 0 (basic make map using PySM)
-# Map synthesis 1 (use custom cmb class)
-# Map synthesis 2 (convolve beam)
+# Dev path 1 goal: Show simplest map
+# Dev path 2 goal: Show skymap with simple features
+# Dev path 3 goal: Show skymaps with recommended features:
+# https://galsci.github.io/blog/2022/common-fiducial-sky/
+# https://galsci.github.io/blog/2022/common-fiducial-extragalactic-cmb/
+# Dev path 4 goal: Show skymaps with simplest possible noise implementation
+# Dev path 5 goal: Skymaps with simple noise and simple beam convolution
+# Dev path 6 goal: Skymaps of CMB preset strings
+#                  Also, break out TQU maps instead of commenting out lines 
 
 """
 c#:    [1- 4]  cmb
@@ -28,28 +34,18 @@ ksz#:  [1]     Kinetic Sunyaev-Zeldovich
 rg#:   [1]     Radio Galaxies
 """
 
-def simulate_sky():    
+def simulate_sky(output_dir="out"):
+    if not Path(output_dir).exists():
+        Path(output_dir).mkdir(exist_ok=True, parents=True)
+    colombi1_cmap = ListedColormap(np.loadtxt("planck_colormap.txt")/255.)
+    colombi1_cmap.set_bad("gray") # color of missing pixels
+    colombi1_cmap.set_under("white") # color of background, necessary if you want to use
+    
     nside = 512
-    ellmax = 8150
-
-    # options = ["Syn"]
-    options = ["c1"]
-    # options = ["c1", "c2", "c3", "c4"]
-    # options = ["c1", "c2", "c3", "c4", "Syn"]
-
-    planck = PlanckInstrument(nside)
+    options = ["c1", "c2", "c3", "c4"]
 
     for option in tqdm(options):
-        if option == "Syn":
-            # filename = write_cls(ellmax=ellmax)
-            # cmb = pysm3.CMBLensed(nside=nside, 
-            #                       cmb_spectra=filename, 
-            #                       cmb_seed=0, 
-            #                       apply_delens=False)
-            # sky = pysm3.Sky(nside=nside, component_objects=[cmb])
-            pass
-        else:
-            sky = pysm3.Sky(nside=nside, preset_strings=[option])
+        sky = pysm3.Sky(nside=nside, preset_strings=[option])
 
         field_strs = ["T", "Q", "U"]
         val_ranges = [dict(min=-300, max=300),
@@ -57,24 +53,24 @@ def simulate_sky():
                       dict(min=-2.5, max=2.5),]
 
         # planck_freqs = [30, 44, 70, 100, 143, 217, 353, 545, 857]
-        planck_freqs = [30]
+        planck_freqs = [100]
         for freq in planck_freqs:
             frequency = freq * u.GHz
             skymaps = sky.get_emission(frequency)
-            fwhm = planck.detectors[freq].fwhm
+            fwhm_degrees = 0.16*u.deg  # Full width at half maximum in degrees, arbitrary value (for 100GHz detector?)
 
             i = 1
             for skymap, field_str, val_range in zip(skymaps, field_strs, val_ranges):
                 map_smoothed = pysm3.apply_smoothing_and_coord_transform(
-                    skymap, fwhm=fwhm)
+                                        skymap, fwhm=fwhm_degrees)
                 hp.mollview(map_smoothed, **val_range, 
                             title=f"Model: {option}, Field: {field_str}, {freq} GHz", 
                             unit=skymap.unit,
                             cmap=colombi1_cmap)
-                plt.show()
-                # plt.savefig(f"out/cmb_map_{option}_{i}_{field_str}_{freq}.png")
-                # plt.clf()
-                # i+=1
+                # plt.show()
+                plt.savefig(f"{output_dir}/cmb_map_{option}_{i}_{field_str}_{freq}.png")
+                plt.clf()
+                i+=1
 
 
 if __name__ == "__main__":

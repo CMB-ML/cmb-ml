@@ -12,11 +12,18 @@ from planck_instrument import PlanckInstrument, PlanckDetector
 from planck_cmap import colombi1_cmap
 
 
-# Map synthesis 0 (basic make map using PySM)
-# Map synthesis 1 (use custom cmb class)
-# Map synthesis 2 (convolve beam)
-# Map synthesis 3 (add instrumentation noise)
-
+# Dev path 1 goal: Show simplest map
+# Dev path 2 goal: Show skymap with simple features
+# Dev path 3 goal: Show skymaps with recommended features:
+# https://galsci.github.io/blog/2022/common-fiducial-sky/
+# https://galsci.github.io/blog/2022/common-fiducial-extragalactic-cmb/
+# Dev path 4 goal: Show skymaps with simplest possible noise implementation
+# Dev path 5 goal: Skymaps with simple noise and simple beam convolution
+# Dev path 6 goal: Skymaps of CMB preset strings
+#                  Also, break out TQU maps instead of commenting out lines 
+# Dev path 7 goal: Skymaps of CMB with seeding
+# Dev path 8 goal: Better beam convolution
+# Dev path 9 goal: Better instrumentation noise
 
 """
 c#:    [1- 4]  cmb
