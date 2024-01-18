@@ -3,3 +3,7 @@ defaults:
   - file_system : common_fs
   - splits      : two_two_dbg
   - simulation  : base_sim
+  - override hydra/job_logging: custom_log
+  - _self_
+
+create_dirs: false
