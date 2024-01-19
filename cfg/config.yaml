@@ -1,5 +1,5 @@
 defaults:
-  - local_system: jim_lab
+  - local_system: jim_laptop
   - file_system : common_fs
   - splits      : two_two_dbg
   - simulation  : base_sim

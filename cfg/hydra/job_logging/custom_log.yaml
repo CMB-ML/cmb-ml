@@ -7,16 +7,13 @@ formatters:
 handlers:
   console:
     class: logging.StreamHandler
-    level: WARNING
     formatter: simpler
     stream: ext://sys.stdout
   file:
     class: logging.FileHandler
-    level: DEBUG
     formatter: simple
     filename: ${hydra.runtime.output_dir}/${hydra.job.name}.log
 root:
-  level: DEBUG
   handlers:
   - console
   - file

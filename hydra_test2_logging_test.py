@@ -29,12 +29,12 @@ def test_class(cfg):
     
     a = DatasetFilepaths(cfg)
     
-    # Check if DatasetFilepaths logger affects __main__ logger
+    # Check if DatasetFilepaths logger affects __main__ logger (no)
     logger.debug(f"Debug level in {__name__}")
     logger.info(f"Info level in {__name__}")
     logger.warning(f"Warning level in {__name__}")
 
-    # Check if setLevel affects things (it doesn't with current hydra settings)
+    # Check if setLevel affects things (currently, yes)
     logger.setLevel("DEBUG")
     logger.debug(f"Debug level in {__name__}, after setLevel DEBUG")
     logger.info(f"Info level in {__name__}, after setLevel DEBUG")
