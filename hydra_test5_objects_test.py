@@ -38,19 +38,21 @@ cs.store(name="this_config", node=DummyConfig)
 def test_class(cfg):
     logger.debug(f"Running {__name__} in {__file__}")
     # print(OmegaConf.to_yaml(cfg))
-    a = DatasetFileLocator(cfg)
-    b = a.get_split("Dummy0")
-    c = b.get_sim(0)
-    print(c.cmb_map_fid_path)
-    print(c.cmb_ps_fid_path)
-    print(c.cmb_ps_der_path)
-    print(c.obs_map_path(100))
-    b = a.get_split("Dummy1")
-    c = b.get_sim(0)
-    print(c.cmb_map_fid_path)
-    print(c.cmb_ps_fid_path)
-    print(c.cmb_ps_der_path)
-    print(c.obs_map_path(100))
+    dfl = DatasetFileLocator(cfg)
+
+    sfl_dummy0 = dfl.get_split("Dummy0")
+    this_sim = sfl_dummy0.get_sim(0)
+    print(this_sim.cmb_map_fid_path)
+    print(this_sim.cmb_ps_fid_path)
+    print(this_sim.cmb_ps_der_path)
+    print(this_sim.obs_map_path(100))
+
+    sfl_dummy1 = dfl.get_split("Dummy1")
+    this_sim = sfl_dummy1.get_sim(0)
+    print(this_sim.cmb_map_fid_path)
+    print(this_sim.cmb_ps_fid_path)    # Note that this is different
+    print(this_sim.cmb_ps_der_path)
+    print(this_sim.obs_map_path(100))
     pass
 
 
