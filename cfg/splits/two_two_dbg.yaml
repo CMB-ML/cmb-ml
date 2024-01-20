@@ -1,6 +1,6 @@
 Dummy0:
   ps_fidu_fixed: false
-  n_samples: 2
+  n_sims: 2
 Dummy1:
   ps_fidu_fixed: true
-  n_samples: 2
+  n_sims: 2

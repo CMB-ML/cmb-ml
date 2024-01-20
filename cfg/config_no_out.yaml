@@ -5,6 +5,6 @@ defaults:
   - override hydra/job_logging: custom_log
   - _self_
 
+splits: none
 create_dirs: false
 dataset_name: dummy
-splits: none

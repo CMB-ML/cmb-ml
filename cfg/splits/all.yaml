@@ -1,9 +1,9 @@
 Train:
   ps_fidu_fixed: false
-  n_samples: 1250
+  n_sims: 1250
 Test0: &fixed_test
   ps_fidu_fixed: true
-  n_samples: 100
+  n_sims: 100
 Test1: *fixed_test
 Test2: *fixed_test
 Test3: *fixed_test
@@ -15,4 +15,4 @@ Test8: *fixed_test
 Test9: *fixed_test
 Test10:
   ps_fidu_fixed: false
-  n_samples: 200
+  n_sims: 200
