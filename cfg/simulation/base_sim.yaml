@@ -1,5 +1,6 @@
 defaults:
   - noise: base_noise
+nside            : 128
 split_seed_fac   : 1000000
 sim_seed_fact    : 100
 cmb_seed_add     : 1

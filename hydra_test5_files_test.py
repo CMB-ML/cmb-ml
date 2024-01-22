@@ -7,7 +7,13 @@ from hydra.core.config_store import ConfigStore
 from dataclasses import dataclass, field
 
 from utils.hydra_log_helper import *
-from hydra_test5_objects_testhelper import DatasetFileLocator
+from hydra_test5_files_testhelper import (
+    DatasetFiles, 
+    NoiseSrcFiles, 
+    NoiseCacheFiles,
+    InstrumentFiles,
+    WMAPFiles
+    )
 
 
 logger = logging.getLogger(__name__)
@@ -35,26 +41,55 @@ cs.store(name="this_config", node=DummyConfig)
 
 
 @hydra.main(version_base=None, config_path="cfg", config_name="this_config")
-def test_class(cfg):
+def try_fs_locators(cfg):
     logger.debug(f"Running {__name__} in {__file__}")
     # print(OmegaConf.to_yaml(cfg))
-    dfl = DatasetFileLocator(cfg)
+    try_dataset_files(cfg)
+    try_noise_files(cfg)
+    try_wmap_files(cfg)
+    try_instr_files(cfg)
 
-    sfl_dummy0 = dfl.get_split("Dummy0")
-    this_sim = sfl_dummy0.get_sim(0)
+
+def try_dataset_files(cfg):
+    dataset_files = DatasetFiles(cfg)
+
+    split_dummy0 = dataset_files.get_split("Dummy0")
+    this_sim = split_dummy0.get_sim(0)
+    print(this_sim.sim_config_path)
     print(this_sim.cmb_map_fid_path)
     print(this_sim.cmb_ps_fid_path)
     print(this_sim.cmb_ps_der_path)
     print(this_sim.obs_map_path(100))
 
-    sfl_dummy1 = dfl.get_split("Dummy1")
-    this_sim = sfl_dummy1.get_sim(0)
+    split_dummy1 = dataset_files.get_split("Dummy1")
+    this_sim = split_dummy1.get_sim(0)
+    print(this_sim.sim_config_path)
     print(this_sim.cmb_map_fid_path)
     print(this_sim.cmb_ps_fid_path)    # Note that this is different
     print(this_sim.cmb_ps_der_path)
     print(this_sim.obs_map_path(100))
+
+
+def try_noise_files(cfg):
+    noise_src_files = NoiseSrcFiles(cfg)
+    path = noise_src_files.get_path_for(100)
+    print(path, f"which does {'' if path.exists() else 'not '}exist.")
+    
+    noise_cache_files = NoiseCacheFiles(cfg)
+    path = noise_cache_files.get_path_for(100, "T")
+    print(path, f"which does {'' if path.exists() else 'not '}exist.")
     pass
 
 
+def try_wmap_files(cfg):
+    wmap_files = WMAPFiles(cfg)
+    print(wmap_files.wmap_chains_dir)
+
+
+def try_instr_files(cfg):
+    instr_files = InstrumentFiles(cfg)
+    print(instr_files.instr_table_path)
+
+
 if __name__ == "__main__":
-    test_class()
+    try_fs_locators()
