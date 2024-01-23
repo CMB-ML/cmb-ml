@@ -169,6 +169,7 @@ In more detail:
 - [ ] Run simulations v1
 - [ ] Make dev_pathX...py files into ... python notebooks and test scripts
 - [ ] Clean up (better names for files, get rid of testing/learning one-offs)
+- [ ] Use or remove configuration items
 - [ ] Are the CalTech maps the same as the ESA maps? Just need to load the maps and calculate the difference.
 - [x] Change the CalTech shell script to get the LFI maps as well. Or just... make a different script to get them from ESA.
 
@@ -228,7 +229,7 @@ Making simulations principles:
 - Each step should deterministically follow the previous steps.
     * Use seeds stored in configuration files.
 - Leave lots of breadcrumbs, leave few loaves of bread.
-    * Save the small ones. Save the large ones only if they're to be used in the end analysis.
+    * Save the small files. Save the large files only if they're to be used in the end analysis.
     * Save configuration files, even if they're only used to produce other configuration files.
     - Specifically, keep as individual files:
         - cosmo params
@@ -298,5 +299,6 @@ Making simulations principles:
         - Generate split configurations
         - Generate simulation configurations
         - Generate power spectra based on WMAP cosmo parameters
+        - Generate noise cache files
         - Generate maps
         

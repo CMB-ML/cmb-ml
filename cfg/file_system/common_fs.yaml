@@ -1,6 +1,13 @@
-structure               : "{dataset_name}/Raw/{split_name}/{sim_folder}"
+dir_to_dataset          : "{dataset_name}"
+dir_to_split            : "Raw/{split_name}"
+dir_to_sim              : "{sim_folder}"
 sim_folder_prefix       : "sim"
 sim_str_num_digits      : 4
+
+split_cfg_fn            : split_config.yaml
+# Keep a copy of the wmap parameters in the directory with the power spectra
+wmap_param_fn           : wmap_param.yaml
+
 cmb_map_fid_fn          : cmb_map_fid.fits
 cmb_ps_fid_fn           : cmb_ps_fid.txt
 cmb_ps_der_fn           : cmb_ps_der.txt
