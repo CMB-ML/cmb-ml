@@ -1,8 +1,11 @@
 from pathlib import Path
-from omegaconf import DictConfig
 from typing import List, Dict, Any
-import hydra
 import logging
+
+import numpy as np
+
+from omegaconf import DictConfig, OmegaConf
+import hydra
 
 
 logger = logging.getLogger(__name__)
@@ -258,3 +261,42 @@ class InstrumentFiles:
     def __init__(self, conf: DictConfig) -> None:
         logger.debug(f"Running {__name__} in {__file__}")
         self.instr_table_path = Path(conf.local_system.instr_table_path)
+
+
+class DatasetConfigsBuilder:
+    def __init__(self, dataset_files: DatasetFiles):
+        self.dsf = dataset_files
+
+    def setup_folders(self):
+        for split in self.dsf.iter_splits():
+            for sim in split.iter_sims():
+                sim.make_folder()
+
+    def make_chain_idcs_per_split(self, rng: np.random.Generator):
+        import random
+        chain_rows = 1000  # TODO: Get correct value... in configs? Hard code it?
+        
+        n_indices_total = self.dsf.total_n_ps
+        all_chain_indices = rng.integers(0, chain_rows, size=n_indices_total)
+        # convert from numpy array of np.int64 to List[int] for OmegaConf
+        all_chain_indices = getattr(all_chain_indices, "tolist", lambda: all_chain_indices)()
+        
+        last_index_used = 0
+        chain_idcs_dict = {}
+        for split in self.dsf.iter_splits():
+            first_index = last_index_used
+            last_index_used = first_index + split.n_ps
+            chain_idcs_dict[split.name] = all_chain_indices[first_index: last_index_used]
+
+        return chain_idcs_dict
+
+    def make_split_configs(self, chain_idcs_dict):
+        for split in self.dsf.iter_splits():
+            split_cfg_dict = dict(
+                ps_fidu_fixed = split.ps_fidu_fixed,
+                n_sims = split.n_sims,
+                wmap_chain_idcs = chain_idcs_dict[split.name]
+            )
+
+            split_yaml = OmegaConf.to_yaml(OmegaConf.create(split_cfg_dict))
+            split.write_yaml_to_conf(split_yaml)
