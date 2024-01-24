@@ -49,7 +49,7 @@ def try_make_split_configs(cfg):
 
     dataset_files = DatasetFiles(cfg)
     dataset_configs_builder = DatasetConfigsBuilder(dataset_files)
-    dataset_files.assume_dataset_root_exists()
+
     dataset_configs_builder.setup_folders()
 
     rng = np.random.default_rng(seed=8675309)

@@ -268,6 +268,8 @@ class DatasetConfigsBuilder:
         self.dsf = dataset_files
 
     def setup_folders(self):
+        # Ensure correct filesystem before creating folders in strange places
+        self.dsf.assume_dataset_root_exists()
         for split in self.dsf.iter_splits():
             for sim in split.iter_sims():
                 sim.make_folder()
