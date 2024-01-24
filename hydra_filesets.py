@@ -62,9 +62,12 @@ class SplitFiles:
         logger.debug(f"Running {self.__class__.__name__} in {__name__}")
         self.dfl = parent_dfl
         self.name = split_name
+
         dir_str_template = self.dfl.dir_to_split_template
         dir_str = dir_str_template.format(split_name=split_name)
         self.path = self.dfl.path / dir_str
+
+        self.cfg_fn = self.dfl.split_cfg_fn
 
         split_structure = self.dfl.split_structures[split_name]
         self.ps_fidu_fixed: bool = split_structure.ps_fidu_fixed

@@ -1,7 +1,8 @@
+import random
+from typing import *
+
 import logging
 import hydra
-
-from typing import *
 
 from hydra.core.config_store import ConfigStore
 from dataclasses import dataclass, field
@@ -22,7 +23,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class SplitsDummy:
     ps_fidu_fixed: bool = False
-    n_sims: int = 2
+    n_sims: int = 4
 
 @dataclass
 class DummyConfig:
@@ -46,8 +47,9 @@ def try_make_split_configs(cfg):
     # print(OmegaConf.to_yaml(cfg))
 
     dataset_files = DatasetFiles(cfg)
-    check_dataset_root_exists(dataset_files)
-    make_folder_for_each_split(dataset_files)
+    # check_dataset_root_exists(dataset_files)
+    # make_folder_for_each_split(dataset_files)
+    make_split_configs(dataset_files)
     pass
 
 
@@ -66,15 +68,34 @@ def make_folder_for_each_split(dataset_files: DatasetFiles):
 
 
 def make_split_configs(dataset_files: DatasetFiles):
+    chain_rows = 1000  # TODO: Get correct value... in configs? Hard code it?
+    num_vals = determine_num_vals(dataset_files)
+    all_chain_idcs = [random.randint(0, chain_rows) for _ in range(num_vals)]
+    n_idcs_used = 0
     for split in dataset_files.iter_splits():
-        pass
-        # Need to write only the following (I think?)
-        # Only interesting bit is the wmap_chain_idcs ???
-        """
-ps_fidu_fixed: true
-n_sims: 2
-wmap_chain_idcs: 1, 3
-"""
+        if split.ps_fidu_fixed:
+            n_chain_idcs_needed = 1
+        else:
+            n_chain_idcs_needed = split.n_sims
+        chain_idcs = all_chain_idcs[n_idcs_used: n_idcs_used+n_chain_idcs_needed]
+        n_idcs_used += n_chain_idcs_needed
+        split_cfg_dict = dict(
+            ps_fidu_fixed = split.ps_fidu_fixed,
+            n_sims = split.n_sims,
+            wmap_chain_idcs = chain_idcs
+        )
+        split_yaml = OmegaConf.to_yaml(OmegaConf.create(split_cfg_dict))
+        split.write_yaml_to_conf(split_yaml)
+
+
+def determine_num_vals(dataset_files: DatasetFiles):
+    num_indcs_needed = 0
+    for split in dataset_files.iter_splits():
+        if split.ps_fidu_fixed:
+            num_indcs_needed += 1
+        else:
+            num_indcs_needed += split.n_sims
+    return num_indcs_needed    
 
 
 if __name__ == "__main__":
