@@ -6,7 +6,7 @@ Rough development repository for PySM simulations for ML project
 
 (This Section is a DRAFT)
 
-- Clone the repositories (both ml_cmb_pysm_sims and the dependency, pysm3).
+- Clone the repositories (both ml_cmb_pysm_sims and the dependency, pysm3) into separate directories.
     - Either (git with HTTPS)
     - `git clone https://github.com/JamesAmato/ml_cmb_pysm_sims.git`
     - `git clone https://github.com/galsci/pysm.git`
@@ -39,6 +39,9 @@ Rough development repository for PySM simulations for ML project
 - Install hydra
     - pip install omegaconf
     - pip install hydra-core --upgrade
+
+- Install CAMB
+    - pip install camb
 
 ## Needed files
 
