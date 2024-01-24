@@ -54,6 +54,13 @@ class DatasetFiles:
         for split in self.split_structures:
             yield self.get_split(split)
 
+    @property
+    def total_n_ps(self):
+        total = 0
+        for split in self.iter_splits():
+            total += split.n_ps
+        return total
+
 
 class SplitFiles:
     def __init__(self,
@@ -77,6 +84,17 @@ class SplitFiles:
             self.cmb_ps_fid_path = self.path / self.dfl.cmb_ps_fid_fn
             self.wmap_param_path = self.path / self.dfl.wmap_param_fn
 
+    @property
+    def n_ps(self):
+        if self.ps_fidu_fixed:
+            return 1
+        else:
+            return self.n_sims
+        
+    @property
+    def cfg_path(self):
+        return self.path / self.cfg_fn
+
     def get_sim(self, sim_num):
         try:
             f"{sim_num:03d}"
@@ -91,6 +109,13 @@ class SplitFiles:
     def iter_sims(self):
         for sim_num in range(self.n_sims):
             yield self.get_sim(sim_num)
+
+    def write_yaml_to_conf(self, config_yaml):
+        write_yaml_to_conf(self.cfg_path, config_yaml)
+
+
+def write_yaml_to_conf(fp: Path, yaml: str):
+    fp.write_text(yaml)
 
 
 class SimFiles:
