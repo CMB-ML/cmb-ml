@@ -5,8 +5,8 @@ sim_folder_prefix       : "sim"
 sim_str_num_digits      : 4
 
 split_cfg_fn            : split_config.yaml
-# Keep a copy of the wmap parameters in the directory with the power spectra
-wmap_param_fn           : wmap_param.yaml
+# Keep a copy of the wmap parameters in the directory with the power spectra if ps_fidu_fixed
+cosmo_param_fn          : wmap_param.yaml
 
 cmb_map_fid_fn          : cmb_map_fid.fits
 cmb_ps_fid_fn           : cmb_ps_fid.txt

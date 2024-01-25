@@ -7,6 +7,8 @@ import numpy as np
 from omegaconf import DictConfig, OmegaConf
 import hydra
 
+from get_wmap_params import get_indices, pull_params_from_file
+
 
 logger = logging.getLogger(__name__)
 
@@ -38,7 +40,7 @@ class DatasetFiles:
 
         # For use in either split or sim level, depending on fixed_fidu
         self.cmb_ps_fid_fn: str = conf.file_system.cmb_ps_fid_fn
-        self.wmap_param_fn: str = conf.file_system.wmap_param_fn
+        self.cosmo_param_fn: str = conf.file_system.cosmo_param_fn
 
     def assume_dataset_root_exists(self) -> None:
         try:
@@ -85,7 +87,7 @@ class SplitFiles:
 
         if self.ps_fidu_fixed:
             self.cmb_ps_fid_path = self.path / self.dfl.cmb_ps_fid_fn
-            self.wmap_param_path = self.path / self.dfl.wmap_param_fn
+            self.wmap_param_path = self.path / self.dfl.cosmo_param_fn
 
     @property
     def n_ps(self):
@@ -113,12 +115,30 @@ class SplitFiles:
         for sim_num in range(self.n_sims):
             yield self.get_sim(sim_num)
 
-    def write_yaml_to_conf(self, config_yaml):
-        write_yaml_to_conf(self.cfg_path, config_yaml)
+    def write_split_conf_file(self, config_yaml) -> None:
+        write_conf_file(self.cfg_path, config_yaml)
+
+    def read_split_conf_file(self) -> DictConfig:
+        return read_conf_file(self.cfg_path)
 
 
-def write_yaml_to_conf(fp: Path, yaml: str):
-    fp.write_text(yaml)
+def write_conf_file(fp: Path, cfg: DictConfig) -> None:
+    # TODO: Handle better?
+    try:
+        fp.exists()
+    except AttributeError as e:
+        raise e
+    with open(fp, 'w') as f:
+        OmegaConf.save(config=cfg, f=f)
+
+
+def read_conf_file(fp: Path) -> DictConfig:
+    # TODO: Handle better?
+    try:
+        fp.exists()
+    except AttributeError as e:
+        raise e
+    return OmegaConf.load(fp)
 
 
 class SimFiles:
@@ -126,8 +146,9 @@ class SimFiles:
                  parent_sfl: SplitFiles, 
                  sim_num: int) -> None:
         logger.debug(f"Running {self.__class__.__name__} in {__name__}")
-        self.sfl = parent_sfl
         self.dfl = parent_sfl.dfl
+        self.sfl = parent_sfl
+        self.sim_num = sim_num
 
         sim_folder_prefix = self.dfl.sim_folder_prefix
         str_num_digits = self.dfl.sim_str_num_digits
@@ -137,6 +158,7 @@ class SimFiles:
 
         self.ps_fidu_fixed = self.sfl.ps_fidu_fixed
         self.sim_config_fn = self.dfl.sim_config_fn
+        self.cosmo_param_fn = self.dfl.cosmo_param_fn
 
         self.cmb_map_fid_fn = self.dfl.cmb_map_fid_fn
         self.cmb_ps_fid_fn = self.dfl.cmb_ps_fid_fn
@@ -146,6 +168,13 @@ class SimFiles:
     @property
     def sim_config_path(self):
         return self.path / self.sim_config_fn
+
+    @property
+    def cosmo_param_path(self):
+        if self.ps_fidu_fixed:
+            return self.sfl.path / self.cosmo_param_fn
+        else:
+            return self.path / self.cosmo_param_fn
 
     @property
     def cmb_map_fid_path(self):
@@ -171,6 +200,19 @@ class SimFiles:
 
     def make_folder(self):
         self.path.mkdir(parents=True, exist_ok=True)
+
+    def write_sim_conf_file(self, config: DictConfig) -> None:
+        write_conf_file(self.sim_config_path, config)
+
+    def read_sim_conf_file(self) -> DictConfig:
+        return read_conf_file(self.sim_config_path)
+
+    def write_wmap_params_file(self, config: DictConfig) -> None:
+        write_conf_file(self.cosmo_param_path, config)
+
+    def read_wmap_params_file(self) -> DictConfig:
+        return read_conf_file(self.cosmo_param_path)
+
 
 class NoiseGenericFiles:
     def __init__(self, conf: DictConfig) -> None:
@@ -264,8 +306,11 @@ class InstrumentFiles:
 
 
 class DatasetConfigsBuilder:
-    def __init__(self, dataset_files: DatasetFiles):
-        self.dsf = dataset_files
+    def __init__(self, 
+                 conf: DictConfig):
+        self.dsf = DatasetFiles(conf)
+        self.wmap_files = WMAPFiles(conf)
+        self.wmap_param_labels = conf.simulation.wmap_params
 
     def setup_folders(self):
         # Ensure correct filesystem before creating folders in strange places
@@ -275,11 +320,8 @@ class DatasetConfigsBuilder:
                 sim.make_folder()
 
     def make_chain_idcs_per_split(self, rng: np.random.Generator):
-        import random
-        chain_rows = 1000  # TODO: Get correct value... in configs? Hard code it?
-        
         n_indices_total = self.dsf.total_n_ps
-        all_chain_indices = rng.integers(0, chain_rows, size=n_indices_total)
+        all_chain_indices = get_indices(n_indices_total, rng)
         # convert from numpy array of np.int64 to List[int] for OmegaConf
         all_chain_indices = getattr(all_chain_indices, "tolist", lambda: all_chain_indices)()
         
@@ -300,5 +342,26 @@ class DatasetConfigsBuilder:
                 wmap_chain_idcs = chain_idcs_dict[split.name]
             )
 
-            split_yaml = OmegaConf.to_yaml(OmegaConf.create(split_cfg_dict))
-            split.write_yaml_to_conf(split_yaml)
+            split_yaml = OmegaConf.create(split_cfg_dict)
+            split.write_split_conf_file(split_yaml)
+
+    def make_cosmo_param_configs(self):
+        from pprint import pprint
+        for split in self.dsf.iter_splits():
+            split_conf = split.read_split_conf_file()
+            wmap_params = pull_params_from_file(wmap_chain_path=self.wmap_files.wmap_chains_dir,
+                                                chain_idcs=split_conf.wmap_chain_idcs,
+                                                params_to_get=self.wmap_param_labels)
+
+            pprint(split_conf)
+            pprint(wmap_params)
+
+            if split.ps_fidu_fixed:
+                n_sims_to_process = 1
+            else:
+                n_sims_to_process = split.n_sims
+            
+            for i in range(n_sims_to_process):
+                these_params = {key: values[i] for key, values in wmap_params.items()}
+                sim = split.get_sim(i)
+                sim.write_wmap_params_file(these_params)

@@ -8,7 +8,6 @@ ROWS_IN_CHAINS = 1296570
 
 def pull_params_from_file(wmap_chain_path, chain_idcs, params_to_get):
     """
-
     Get parameters from wmap chains.
     
     For a tiny bit of speed, we do a single pass through the data files.
