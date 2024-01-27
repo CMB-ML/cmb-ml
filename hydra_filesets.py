@@ -6,11 +6,17 @@ import numpy as np
 
 from omegaconf import DictConfig, OmegaConf
 import hydra
+from astropy.table import QTable
 
 from get_wmap_params import get_indices, pull_params_from_file
 
 
 logger = logging.getLogger(__name__)
+
+
+# TODO: Refactor: unsure of exact structure.
+#       Something to track just file locations, something else to handle io
+#       Something(s) to track simulation parameters.
 
 
 class DatasetFiles:
@@ -286,23 +292,33 @@ class NoiseCacheFiles(NoiseGenericFiles):
         except:
             raise ValueError(f"field must be one of T, Q, or U")
 
-    def get_path_for(self, detector: int, field: str):
+    def get_path_for(self, detector: int, field: str) -> Path:
         self._assume_detector_in_conf(detector)
         self._assume_valid_field(field)
         noise_fn = self._get_noise_fn(detector, field)
         return self._get_path(noise_fn)
 
 
+class PlanckInstrumentFiles:
+    def __init__(self, conf: DictConfig) -> None:
+        logger.debug(f"Running {__name__} in {__file__}")
+        self.noise_src_files = NoiseSrcFiles(conf)
+        self.src = self.noise_src_files
+        self.noise_cache_files = NoiseCacheFiles(conf)
+        self.cache = self.noise_cache_files
+        self.instr_table_path = Path(conf.local_system.instr_table_path)
+        self.table = self.instr_table_path
+
+    def read_instr_table(self) -> QTable:
+        planck_beam_info = QTable.read(self.table, format="ascii.ipac")
+        planck_beam_info.add_index("band")
+        return planck_beam_info
+
+
 class WMAPFiles:
     def __init__(self, conf: DictConfig) -> None:
         logger.debug(f"Running {__name__} in {__file__}")
         self.wmap_chains_dir = Path(conf.local_system.wmap_chains_dir)
-
-
-class InstrumentFiles:
-    def __init__(self, conf: DictConfig) -> None:
-        logger.debug(f"Running {__name__} in {__file__}")
-        self.instr_table_path = Path(conf.local_system.instr_table_path)
 
 
 class DatasetConfigsBuilder:
@@ -346,15 +362,15 @@ class DatasetConfigsBuilder:
             split.write_split_conf_file(split_yaml)
 
     def make_cosmo_param_configs(self):
-        from pprint import pprint
+        # from pprint import pprint
         for split in self.dsf.iter_splits():
             split_conf = split.read_split_conf_file()
             wmap_params = pull_params_from_file(wmap_chain_path=self.wmap_files.wmap_chains_dir,
                                                 chain_idcs=split_conf.wmap_chain_idcs,
                                                 params_to_get=self.wmap_param_labels)
 
-            pprint(split_conf)
-            pprint(wmap_params)
+            # pprint(split_conf)
+            # pprint(wmap_params)
 
             if split.ps_fidu_fixed:
                 n_sims_to_process = 1
