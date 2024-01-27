@@ -252,6 +252,13 @@ Making simulations principles:
         - For making Power Spectra, this is common set and whatever contains WMAP parameters
 - Process is data
     * Ensure the scripts used to produce some data are associated with and recoverable for the data.
+- Object hierarchy
+    - Prefer external initialization 
+        - I'm not sure the right way to go, but I'd rather attempt to be consistent
+        - Minimal creation of stuff while processing, instead all tracking/doing objects are *created* up front
+        - Call methods in the doing objects after all are created so they can be inspected before processes are done
+        - Maybe this will be easier to parallelize later if we decide to do so (???)
+    - 
 
 * Creating a dataset
     - Parameters
