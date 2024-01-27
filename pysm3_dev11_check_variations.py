@@ -1,6 +1,6 @@
 import numpy as np
 import pysm3
-from planck_instrument import PlanckInstrument
+from planck_instrument_old import PlanckInstrument
 from urllib.error import URLError
 from itertools import product
 from http.client import RemoteDisconnected

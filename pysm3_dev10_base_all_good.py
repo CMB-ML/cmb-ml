@@ -8,7 +8,7 @@ import healpy as hp
 import pysm3
 import pysm3.units as u
 from cmb_component import write_cls
-from planck_instrument import PlanckInstrument, PlanckDetector
+from planck_instrument import PlanckInstrument
 from planck_cmap import colombi1_cmap
 from urllib.error import URLError
 

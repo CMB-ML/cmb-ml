@@ -8,7 +8,7 @@ from matplotlib.colors import ListedColormap
 from tqdm import tqdm
 from planck_cmap import colombi1_cmap
 from cmb_component import write_cls
-from planck_instrument import PlanckInstrument
+from planck_instrument_old import PlanckInstrument
 
 
 # Dev path 1 goal: Show simplest map
