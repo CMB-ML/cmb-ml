@@ -7,7 +7,7 @@ from time import time
 from matplotlib.colors import ListedColormap
 from tqdm import tqdm
 from planck_cmap import colombi1_cmap
-from cmb_component import write_cls
+from cmb_component_old import write_cls
 from planck_instrument_old import PlanckInstrument
 
 

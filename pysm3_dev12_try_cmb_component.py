@@ -6,7 +6,7 @@ import pysm3
 import pysm3.units as u
 import matplotlib.pyplot as plt
 from planck_cmap import colombi1_cmap
-from cmb_component import create_cmb_lensed_from_params
+from cmb_component_old import create_cmb_lensed_from_params
 
 from cosmo_params import get_params_from_wmap_chains
 
