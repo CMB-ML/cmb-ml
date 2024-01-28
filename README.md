@@ -230,9 +230,9 @@ Making simulations principles:
     * Each step is defined by the single data object output.
     * Making a simulation set is a process composed of many steps. 
 - Each step should deterministically follow the previous steps.
-    * Use seeds stored in configuration files.
-- Leave lots of breadcrumbs, leave few loaves of bread.
-    * Save the small files. Save the large files only if they're to be used in the end analysis.
+    * ~~Use seeds stored in configuration files.~~
+    * Compose seeds from names of levels, store those in config files.
+- Save the small files. Save the large files only if they're to be used in the end analysis.
     * Save configuration files, even if they're only used to produce other configuration files.
     - Specifically, keep as individual files:
         - cosmo params
@@ -258,7 +258,8 @@ Making simulations principles:
         - Minimal creation of stuff while processing, instead all tracking/doing objects are *created* up front
         - Call methods in the doing objects after all are created so they can be inspected before processes are done
         - Maybe this will be easier to parallelize later if we decide to do so (???)
-    - 
+- Make manipulation objects at a global level, which serve up components at local level (???)
+    - Global level stuff reads from the hydra config, so local stuff doesn't need access
 
 * Creating a dataset
     - Parameters

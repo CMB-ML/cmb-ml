@@ -54,7 +54,7 @@ class DatasetFiles:
         except:
             raise FileNotFoundError(f"Dataset root directory does not exist: {self.root}")
 
-    def get_split(self, split):
+    def get_split(self, split:str):
         try: 
             assert split in self.split_structures.keys()
         except AssertionError:
@@ -106,7 +106,7 @@ class SplitFiles:
     def cfg_path(self):
         return self.path / self.cfg_fn
 
-    def get_sim(self, sim_num):
+    def get_sim(self, sim_num:int):
         try:
             f"{sim_num:03d}"
         except Exception as e:
@@ -172,39 +172,39 @@ class SimFiles:
         self.obs_map_fn = self.dfl.obs_map_fn
 
     @property
-    def sim_config_path(self):
+    def sim_config_path(self) -> Path:
         return self.path / self.sim_config_fn
 
     @property
-    def cosmo_param_path(self):
+    def cosmo_param_path(self) -> Path:
         if self.ps_fidu_fixed:
             return self.sfl.path / self.cosmo_param_fn
         else:
             return self.path / self.cosmo_param_fn
 
     @property
-    def cmb_map_fid_path(self):
+    def cmb_map_fid_path(self) -> Path:
         return self.path / self.cmb_map_fid_fn
 
     @property
-    def cmb_ps_fid_path(self):
+    def cmb_ps_fid_path(self) -> Path:
         if self.ps_fidu_fixed:
             return self.sfl.path / self.cmb_ps_fid_fn
         else:
             return self.path / self.cmb_ps_fid_fn
 
     @property
-    def cmb_ps_der_path(self):
+    def cmb_ps_der_path(self) -> Path:
         return self.path / self.cmb_ps_der_fn
 
-    def obs_map_path(self, detector:int):
+    def obs_map_path(self, detector:int) -> Path:
         try:
             assert detector in self.sfl.dfl.detectors
         except AssertionError:
             raise ValueError(f"Detector {detector} not found in configuration.")
         return self.path / self.obs_map_fn.format(det=detector)
 
-    def make_folder(self):
+    def make_folder(self) -> None:
         self.path.mkdir(parents=True, exist_ok=True)
 
     def write_sim_conf_file(self, config: DictConfig) -> None:

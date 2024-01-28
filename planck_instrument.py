@@ -81,3 +81,6 @@ def make_planck_instrument(conf):
                                     cache_name_getter=planck_instr_fs.cache.get_path_for,
                                     nside=nside)
     return PlanckInstrument(detectors=detectors)
+
+def make_noise_component():
+    pass
