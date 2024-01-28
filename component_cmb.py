@@ -1,8 +1,9 @@
 from pathlib import Path
-import tempfile
+import logging
 import inspect
 from pysm3 import CMBLensed
 import camb
+from omegaconf.errors import ConfigAttributeError
 
 from hydra_filesets import SimFiles
 
@@ -10,54 +11,7 @@ from hydra_filesets import SimFiles
 # Based on https://camb.readthedocs.io/en/latest/CAMBdemo.html
 
 
-# def create_cmb_lensed_from_(conf) -> CMBLensed:
-#     # lmax, 
-#     # nside,
-#     # cmb_ps_file_out=None,
-#     # max_nside=None,
-#     # cmb_seed=None, 
-#     # apply_delens=False,
-#     # delensing_ells=None,
-#     # map_dist=None
-
-#     #Set up a new set of parameters for CAMB
-#     pars = camb.CAMBparams()
-
-#     # I don't know what CAMB is doing, I just know I've got some lump of parameters to 
-#     #   plug in to two different functions, so I read signatures to split the params up
-#     set_cosmology_params = get_param_names(pars.set_cosmology)
-#     init_power_params = get_param_names(pars.InitPower.set_params)
-
-#     # Split the cosmo_params dictionary
-#     set_cosmology_args = {k: v for k, v in cosmo_params.items() if k in set_cosmology_params}
-#     init_power_args = {k: v for k, v in cosmo_params.items() if k in init_power_params}
-
-#     # Set the parameters
-#     pars.set_cosmology(**set_cosmology_args)
-#     pars.InitPower.set_params(r=0, **init_power_args)
-#     pars.set_for_lmax(lmax, lens_potential_accuracy=0)
-    
-#     results = camb.get_results(pars)
-
-    # def get_cmb_lensed(fn):
-    #     return CMBLensed(nside=nside,
-    #                      cmb_spectra=fn,
-    #                      max_nside=max_nside,
-    #                      cmb_seed=cmb_seed,
-    #                      apply_delens=apply_delens,
-    #                      delensing_ells=delensing_ells,
-    #                      map_dist=map_dist)
-
-#     if cmb_ps_file_out is None:
-#         with tempfile.NamedTemporaryFile(mode='w+', delete=True) as tmp_file:
-#             results.save_cmb_power_spectra(filename=tmp_file)
-#             tmp_file.flush()
-#             cmb_lensed = get_cmb_lensed(tmp_file.name)
-#     else:
-#         results.save_cmb_power_spectra(filename=cmb_ps_file_out)
-#         cmb_lensed = get_cmb_lensed(cmb_ps_file_out)
-
-#     return cmb_lensed
+logger = logging.getLogger(__name__)
 
 
 def make_cmb_ps(cosmo_params, lmax, cmb_ps_fp: Path) -> None:
@@ -85,8 +39,6 @@ def make_cmb_ps(cosmo_params, lmax, cmb_ps_fp: Path) -> None:
     return
 
 
-# Janky way of handling not knowing what's what in CAMB
-# TODO: Remove the need for this
 def get_param_names(method):
     sig = inspect.signature(method)
     return [param.name for param in sig.parameters.values() if param.name != 'self']
@@ -103,10 +55,11 @@ class CMBMaker:
         if make_ps_if_absent is None:
             try:
                 self.make_ps_if_absent = conf.simulation.cmb.make_ps_if_absent
-            except Exception as e:
-                # Update with Exception type, then remove re-raise
+            except ConfigAttributeError as e:
+                logger.error(f"CMBMaker needs either a make_ps_if_absent flag in the cmb " \
+                             f"configuration yaml OR a make_ps_if absent argument to init.")
+                logger.exception(e)
                 raise e
-                self.make_ps_if_absent = False
 
     def make_cmb_lensed(self, seed, sim_files: SimFiles) -> CMBLensed:
         # Get the ps path only after you know it exists

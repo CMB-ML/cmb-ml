@@ -1,0 +1,4 @@
+wmap_params       : ['H0', 'omegach2', 'omegabh2', 'ns002', 'tau']
+ell_max           : 8150
+seed_string       : cmb
+make_ps_if_absent : true

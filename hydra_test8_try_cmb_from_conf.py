@@ -9,7 +9,12 @@ import pysm3
 
 from utils.hydra_log_helper import *
 from hydra_filesets import DatasetFiles
-from planck_instrument import PlanckInstrument, make_planck_instrument, make_noise_component
+from planck_instrument import (
+    InstrumentNoise, 
+    InstrumentNoiseMaker, 
+    PlanckInstrument, 
+    make_noise_maker, 
+    make_planck_instrument )
 from component_cmb import CMBMaker, make_cmb_maker
 
 # Goal: Use a conf to make the CMB component
@@ -51,8 +56,9 @@ def try_cmb_from_conf(cfg):
 
     planck: PlanckInstrument = make_planck_instrument(cfg)
     cmb_maker: CMBMaker = make_cmb_maker(cfg)
+    noise_maker: InstrumentNoiseMaker = make_noise_maker(cfg, planck)
 
-    # Pretend to be at sim level
+    # Pretend to be at sim level (no dependence on config)
     pretend_split = dataset_files.get_split("Dummy0")
     pretend_sim = pretend_split.get_sim(0)
     seed = 0
@@ -62,6 +68,7 @@ def try_cmb_from_conf(cfg):
                     component_objects=[cmb],
                     preset_strings=preset_strings, 
                     output_unit="uK_RJ")
+    noise: InstrumentNoise = noise_maker.make_instrument_noise()
 
     for nom_freq in planck_freqs:
         beam = planck.get_beam(nom_freq)
@@ -70,7 +77,7 @@ def try_cmb_from_conf(cfg):
             if nom_freq in [545, 857] and field_str != "T":
                 continue
             map_smoothed = pysm3.apply_smoothing_and_coord_transform(skymap, beam.fwhm)
-            noise_map = planck.get_noise(nom_freq, field_str, seed)
+            noise_map = noise.get_noise_map(nom_freq, field_str, seed)
             final_map = map_smoothed + noise_map
             logger.info(f"Success! Made map for {nom_freq} GHz.")
 

@@ -8,7 +8,7 @@ from hydra.core.config_store import ConfigStore
 import pysm3
 
 from utils.hydra_log_helper import *
-from planck_instrument import PlanckInstrument, make_planck_instrument
+from planck_instrument import InstrumentNoise, InstrumentNoiseMaker, PlanckInstrument, make_planck_instrument
 
 
 # Goal: Use the Planck Instrument
@@ -41,14 +41,20 @@ cs.store(name="this_config", node=DummyConfig)
 @hydra.main(version_base=None, config_path="cfg", config_name="this_config")
 def try_planck_instrument(cfg):
     logger.debug(f"Running {__name__} in {__file__}")
+    
+    # Making global setup - the only place I want to pull from the conf
     # simple_trial(cfg)
     nside = cfg.simulation.nside
     preset_strings = ["d9"]
-    sky = pysm3.Sky(nside=nside, preset_strings=preset_strings, output_unit="uK_RJ")
-    planck_freqs = [100, 217, 545, 857]
+    planck_freqs = [100]
+    
     planck:PlanckInstrument = make_planck_instrument(cfg)
-
+    noise_maker = InstrumentNoiseMaker(cfg, planck)
+    
+    # Pretend to be at sim level (no dependence on config)
     seed = 0
+    sky = pysm3.Sky(nside=nside, preset_strings=preset_strings, output_unit="uK_RJ")
+    noise: InstrumentNoise = noise_maker.make_instrument_noise()
 
     for nom_freq in planck_freqs:
         beam = planck.get_beam(nom_freq)
@@ -57,7 +63,7 @@ def try_planck_instrument(cfg):
             if nom_freq in [545, 857] and field_str != "T":
                 continue
             map_smoothed = pysm3.apply_smoothing_and_coord_transform(skymap, beam.fwhm)
-            noise_map = planck.get_noise(nom_freq, field_str, seed)
+            noise_map = noise.get_noise_map(nom_freq, field_str, seed)
             final_map = map_smoothed + noise_map
             logger.info(f"Success! Made map for {nom_freq} GHz.")
 
@@ -70,7 +76,6 @@ def simple_trial(cfg):
         planck.get_noise(857, "Q", seed=0)
     except ValueError:
         logger.info("Correctly found that detector 857 has no polarization.")
-
 
 
 if __name__ == "__main__":
