@@ -2,10 +2,11 @@ defaults:
   - local_system: jim_lab
   - file_system : common_fs
   - simulation  : base_sim
-  - override hydra/job_logging: custom_log
+  - override hydra/job_logging: custom_log_with_extra_seed
   - _self_
 
-create_dirs: false
+create_dirs       : false
 create_noise_cache: false
-dataset_name: dummy
-splits: none
+dataset_name      : dummy
+splits            : none
+seed_base_string  : '8675309'

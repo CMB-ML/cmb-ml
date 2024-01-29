@@ -3,9 +3,10 @@ defaults:
   - file_system : common_fs
   - simulation  : base_sim
   - splits      : two_two
-  - override hydra/job_logging: custom_log
+  - override hydra/job_logging: custom_log_with_extra_seed
   - _self_
 
+seed_base_string: '8675309'
 create_dirs: false
 create_noise_cache: false
 dataset_name: dummy

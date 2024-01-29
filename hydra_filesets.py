@@ -157,8 +157,7 @@ class SimFiles:
         self.sim_num = sim_num
 
         sim_folder_prefix = self.dfl.sim_folder_prefix
-        str_num_digits = self.dfl.sim_str_num_digits
-        sim_folder = f"{sim_folder_prefix}{sim_num:0{str_num_digits}d}"
+        sim_folder = f"{sim_folder_prefix}{self.sim_num_str}"
         dir_str = self.dfl.dir_to_sim_template.format(sim_folder=sim_folder)
         self.path = self.sfl.path / dir_str
 
@@ -170,6 +169,12 @@ class SimFiles:
         self.cmb_ps_fid_fn = self.dfl.cmb_ps_fid_fn
         self.cmb_ps_der_fn = self.dfl.cmb_ps_der_fn
         self.obs_map_fn = self.dfl.obs_map_fn
+
+    @property
+    def sim_num_str(self) -> str:
+        str_num_digits = self.dfl.sim_str_num_digits
+        _sim_num_str = f"{self.sim_num:0{str_num_digits}d}"
+        return _sim_num_str
 
     @property
     def sim_config_path(self) -> Path:
