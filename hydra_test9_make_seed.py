@@ -82,8 +82,9 @@ def try_cmb_from_conf(cfg):
                 continue
             map_smoothed = pysm3.apply_smoothing_and_coord_transform(skymap, beam.fwhm)
             noise_seed = noise_seed_maker.get_seed(pretend_split,
-                                                         pretend_sim, 
-                                                         field_str)
+                                                   pretend_sim, 
+                                                   nom_freq,
+                                                   field_str)
             noise_map = noise.get_noise_map(nom_freq, field_str, noise_seed)
             final_map = map_smoothed + noise_map
             logger.info(f"Success! Made map for {nom_freq} GHz.")

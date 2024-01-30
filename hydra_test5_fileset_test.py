@@ -11,7 +11,7 @@ from hydra_filesets import (
     DatasetFiles, 
     NoiseSrcFiles, 
     NoiseCacheFiles,
-    InstrumentFiles,
+    PlanckInstrumentFiles,
     WMAPFiles
     )
 
@@ -43,7 +43,7 @@ cs.store(name="this_config", node=DummyConfig)
 @hydra.main(version_base=None, config_path="cfg", config_name="this_config")
 def try_fs_locators(cfg):
     logger.debug(f"Running {__name__} in {__file__}")
-    # print(OmegaConf.to_yaml(cfg))
+    print(OmegaConf.to_yaml(cfg))
     try_dataset_files(cfg)
     try_noise_files(cfg)
     try_wmap_files(cfg)
@@ -87,7 +87,7 @@ def try_wmap_files(cfg):
 
 
 def try_instr_files(cfg):
-    instr_files = InstrumentFiles(cfg)
+    instr_files = PlanckInstrumentFiles(cfg)
     print(instr_files.instr_table_path)
 
 

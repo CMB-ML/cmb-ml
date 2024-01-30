@@ -308,7 +308,7 @@ Making simulations principles:
         - Validate local and splits configurations, making directories as needed
         - Generate WMAP indices list
         - Generate split configurations
-        - Generate simulation configurations
+        - ~~Generate simulation configurations~~
         - Generate power spectra based on WMAP cosmo parameters
         - Generate noise cache files
         - Generate maps
