@@ -24,7 +24,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class SplitsDummy:
     ps_fidu_fixed: bool = False
-    n_sims: int = 2
+    n_sims: int = 1
 
 @dataclass
 class DummyConfig:
@@ -33,7 +33,7 @@ class DummyConfig:
         "_self_"
         ])
     splits: Dict[str, SplitsDummy] = field(default_factory=lambda: {
-        "Dummy0": SplitsDummy,
+        # "Dummy0": SplitsDummy,
         "Dummy1": SplitsDummy(ps_fidu_fixed=True)
     })
     dataset_name: str = "Dummy"
@@ -62,7 +62,8 @@ def try_make_all_configs(cfg):
     preset_strings = list(cfg.simulation.preset_strings)
     planck_freqs = list(cfg.simulation.detector_freqs)
     field_strings = list(cfg.simulation.fields)
-    lmax = int(cfg.simulation.cmb.derived_ps_nsmax_x * nside)
+    lmax_pysm3_smoothing = int(cfg.simulation.cmb.derived_ps_nsmax_x * nside)
+    lmax_derived_ps = int(cfg.simulation.cmb.derived_ps_nsmax_x * nside)
 
     planck: PlanckInstrument = make_planck_instrument(cfg)
 
@@ -84,8 +85,8 @@ def try_make_all_configs(cfg):
             noise: InstrumentNoise = noise_maker.make_instrument_noise()
 
             save_fid_cmb_map(cmb, sim)
-            logger.info(f"Writing derived ps at ell_max = {lmax}")
-            save_der_cmb_ps(cmb, sim, lmax=lmax)
+            logger.info(f"Writing derived ps at ell_max = {lmax_derived_ps}")
+            save_der_cmb_ps(cmb, sim, lmax=lmax_derived_ps)
 
             for nom_freq in planck_freqs:
                 beam = planck.get_beam(nom_freq)
@@ -94,7 +95,7 @@ def try_make_all_configs(cfg):
                 for skymap, field_str in zip(skymaps, field_strings):
                     if nom_freq in [545, 857] and field_str != "T":
                         continue
-                    map_smoothed = pysm3.apply_smoothing_and_coord_transform(skymap, beam.fwhm)
+                    map_smoothed = pysm3.apply_smoothing_and_coord_transform(skymap, beam.fwhm, lmax=lmax_pysm3_smoothing)
                     noise_seed = noise_seed_maker.get_seed(split,
                                                         sim, 
                                                         nom_freq,
