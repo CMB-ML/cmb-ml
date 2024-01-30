@@ -226,18 +226,20 @@ class SimFiles:
         return read_conf_file(self.cosmo_param_path)
     
     def write_fid_map(self, cmb_map) -> None:
+        map_unit = str(cmb_map.unit)
         hp.write_map(filename=self.cmb_map_fid_path,
                      m=cmb_map,
-                     column_units=["K_CMB"],
+                     column_units=map_unit,
                      dtype=cmb_map.dtype,
                      overwrite=True)
 
     def write_obs_map(self, obs_map, freq) -> None:
         if isinstance(obs_map, list):
             obs_map = np.stack(obs_map, axis=0)
+        map_unit = str(obs_map.unit)
         hp.write_map(filename=self.obs_map_path(freq),
                      m=obs_map,
-                     column_units=["K_CMB"],
+                     column_units=map_unit,
                      dtype=obs_map.dtype,
                      overwrite=True)
 
