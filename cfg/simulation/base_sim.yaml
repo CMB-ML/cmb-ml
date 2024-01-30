@@ -2,7 +2,7 @@ defaults:
   - cmb:   base_cmb
   - noise: base_noise
 nside            : 128
-preset_strings   : ["d9"]
+preset_strings   : ["c1", "d9", "s4", "f1", "a1", "co1", "cib1", "ksz1", "tsz1", "rg1"]
 detector_freqs   : [30, 44, 70, 100, 143, 217, 353, 545, 857]
 fields           : "TQU"
 component_objects:

@@ -7,6 +7,6 @@ defaults:
 
 create_dirs       : false
 create_noise_cache: false
-dataset_name      : dummy
+dataset_name      : dummy_map_check
 splits            : none
-seed_base_string  : '8675309'
+seed_base_string  : 'dummy_map_check'
