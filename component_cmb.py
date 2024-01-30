@@ -5,6 +5,8 @@ from pysm3 import CMBLensed
 import camb
 from omegaconf.errors import ConfigAttributeError
 
+import healpy as hp
+
 from hydra_filesets import SimFiles
 
 
@@ -91,3 +93,16 @@ def make_cmb_maker(conf) -> CMBMaker:
     # make whatever path keeper-tracker
     cmb_maker = CMBMaker(conf)
     return cmb_maker
+
+
+def save_fid_cmb_map(cmb: CMBLensed, sim: SimFiles):
+    fid_cmb_map = cmb.map
+    sim.write_fid_map(fid_cmb_map)
+
+
+def save_der_cmb_ps(cmb: CMBLensed, sim: SimFiles, lmax: int):
+    fid_cmb_map = cmb.map
+    ps = hp.anafast(fid_cmb_map, lmax=lmax)
+    hp.fitsfunc.write_cl(filename=sim.cmb_ps_der_path,
+                         cl=ps,
+                         overwrite=True)

@@ -2,22 +2,21 @@ from typing import *
 import logging
 from dataclasses import dataclass, field
 
-import numpy as np
-
 import hydra
 from hydra.core.config_store import ConfigStore
 
 import pysm3
 
 from utils.hydra_log_helper import *
-from hydra_filesets import DatasetConfigsBuilder, DatasetFiles
+from hydra_filesets import DatasetFiles
+from component_seed_maker import SimLevelSeedMaker, FieldLevelSeedMaker
 from planck_instrument import (
     InstrumentNoise, 
     InstrumentNoiseMaker, 
     PlanckInstrument, 
     make_noise_maker, 
     make_planck_instrument )
-from component_cmb import CMBMaker, make_cmb_maker
+from component_cmb import CMBMaker, make_cmb_maker, save_der_cmb_ps, save_fid_cmb_map
 
 # Goal: Use a conf to make the CMB component
 
@@ -50,45 +49,56 @@ cs.store(name="this_config", node=DummyConfig)
 def try_cmb_from_conf(cfg):
     logger.debug(f"Running {__name__} in {__file__}")
     
-    rng = np.random.default_rng(seed=0)
-    dataset_configs_builder = DatasetConfigsBuilder(cfg)
-    dataset_configs_builder.setup_folders()
-    chain_idcs_dict = dataset_configs_builder.make_chain_idcs_per_split(rng)
-    dataset_configs_builder.make_split_configs(chain_idcs_dict)
-    dataset_configs_builder.make_cosmo_param_configs()
-
     # Making global setup - the only place I want to pull from the conf
     dataset_files = DatasetFiles(cfg)
+
     nside = cfg.simulation.nside
-    preset_strings = ["d9"]  # Instead of getting from conf, for trial only
-    planck_freqs = [100]     # Instead of getting from conf, for trial only
+    preset_strings = list(cfg.simulation.preset_strings)
+    planck_freqs = list(cfg.simulation.detector_freqs)
+    field_strings = list(cfg.simulation.fields)
+    lmax = int(cfg.simulation.cmb.derived_ps_nsmax_x * nside)
 
     planck: PlanckInstrument = make_planck_instrument(cfg)
+
     cmb_maker: CMBMaker = make_cmb_maker(cfg)
+    cmb_seed_maker = SimLevelSeedMaker(cfg, "cmb")
+
     noise_maker: InstrumentNoiseMaker = make_noise_maker(cfg, planck)
+    noise_seed_maker = FieldLevelSeedMaker(cfg, "noise")
 
     # Pretend to be at sim level (no dependence on config)
-    pretend_split = dataset_files.get_split("Dummy0")
-    pretend_sim = pretend_split.get_sim(0)
-    seed = 0
+    split = dataset_files.get_split("Dummy1")
+    sim = split.get_sim(1)
+    cmb_seed = cmb_seed_maker.get_seed(split, sim)
 
-    cmb: pysm3.CMBLensed = cmb_maker.make_cmb_lensed(seed, pretend_sim)
+    cmb: pysm3.CMBLensed = cmb_maker.make_cmb_lensed(cmb_seed, sim)
     sky = pysm3.Sky(nside=nside, 
                     component_objects=[cmb],
                     preset_strings=preset_strings, 
                     output_unit="uK_RJ")
     noise: InstrumentNoise = noise_maker.make_instrument_noise()
 
+    save_fid_cmb_map(cmb, sim)
+    logger.info(f"Writing derived ps at ell_max = {lmax}")
+    save_der_cmb_ps(cmb, sim, lmax=lmax)
+
     for nom_freq in planck_freqs:
         beam = planck.get_beam(nom_freq)
         skymaps = sky.get_emission(beam.cen_freq)
-        for skymap, field_str in zip(skymaps, "TQU"):
+        obs_map = []
+        for skymap, field_str in zip(skymaps, field_strings):
             if nom_freq in [545, 857] and field_str != "T":
                 continue
             map_smoothed = pysm3.apply_smoothing_and_coord_transform(skymap, beam.fwhm)
-            noise_map = noise.get_noise_map(nom_freq, field_str, seed)
+            noise_seed = noise_seed_maker.get_seed(split,
+                                                   sim, 
+                                                   nom_freq,
+                                                   field_str)
+            noise_map = noise.get_noise_map(nom_freq, field_str, noise_seed)
             final_map = map_smoothed + noise_map
-            logger.info(f"Success! Made map for {nom_freq} GHz.")
+            obs_map.append(final_map)
+        sim.write_obs_map(obs_map, nom_freq)
+        logger.info(f"Success! Made map for {nom_freq} GHz.")
 
 
 if __name__ == "__main__":

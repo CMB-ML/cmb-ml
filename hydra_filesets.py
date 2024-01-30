@@ -4,8 +4,9 @@ import logging
 
 import numpy as np
 
+import healpy as hp
+
 from omegaconf import DictConfig, OmegaConf
-import hydra
 from astropy.table import QTable
 
 from get_wmap_params import get_indices, pull_params_from_file
@@ -27,7 +28,7 @@ class DatasetFiles:
         dir_str_template = conf.file_system.dir_to_dataset
         dir_str = dir_str_template.format(dataset_name=self.name)
         self.path = self.root / dir_str
-        self.detectors: List[int] = conf.simulation.detector_freqs
+        self.freqs: List[int] = conf.simulation.detector_freqs
 
         # For use in SplitFolderLocator
         self.split_structures: Dict[str, Any] = dict(conf.splits)
@@ -204,7 +205,7 @@ class SimFiles:
 
     def obs_map_path(self, detector:int) -> Path:
         try:
-            assert detector in self.sfl.dfl.detectors
+            assert detector in self.sfl.dfl.freqs
         except AssertionError:
             raise ValueError(f"Detector {detector} not found in configuration.")
         return self.path / self.obs_map_fn.format(det=detector)
@@ -223,6 +224,22 @@ class SimFiles:
 
     def read_wmap_params_file(self) -> DictConfig:
         return read_conf_file(self.cosmo_param_path)
+    
+    def write_fid_map(self, cmb_map) -> None:
+        hp.write_map(filename=self.cmb_map_fid_path,
+                     m=cmb_map,
+                     column_units=["K_CMB"],
+                     dtype=cmb_map.dtype,
+                     overwrite=True)
+
+    def write_obs_map(self, obs_map, freq) -> None:
+        if isinstance(obs_map, list):
+            obs_map = np.stack(obs_map, axis=0)
+        hp.write_map(filename=self.obs_map_path(freq),
+                     m=obs_map,
+                     column_units=["K_CMB"],
+                     dtype=obs_map.dtype,
+                     overwrite=True)
 
 
 class NoiseGenericFiles:
@@ -331,7 +348,7 @@ class DatasetConfigsBuilder:
                  conf: DictConfig):
         self.dsf = DatasetFiles(conf)
         self.wmap_files = WMAPFiles(conf)
-        self.wmap_param_labels = conf.simulation.wmap_params
+        self.wmap_param_labels = conf.simulation.cmb.wmap_params
 
     def setup_folders(self):
         # Ensure correct filesystem before creating folders in strange places
@@ -373,9 +390,6 @@ class DatasetConfigsBuilder:
             wmap_params = pull_params_from_file(wmap_chain_path=self.wmap_files.wmap_chains_dir,
                                                 chain_idcs=split_conf.wmap_chain_idcs,
                                                 params_to_get=self.wmap_param_labels)
-
-            # pprint(split_conf)
-            # pprint(wmap_params)
 
             if split.ps_fidu_fixed:
                 n_sims_to_process = 1

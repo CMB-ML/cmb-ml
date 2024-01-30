@@ -63,8 +63,8 @@ def try_cmb_from_conf(cfg):
     noise_maker: InstrumentNoiseMaker = make_noise_maker(cfg, planck)
 
     # Pretend to be at sim level (no dependence on config)
-    pretend_split = dataset_files.get_split("Dummy0")
-    pretend_sim = pretend_split.get_sim(0)
+    pretend_split = dataset_files.get_split("Dummy1")
+    pretend_sim = pretend_split.get_sim(1)
     cmb_seed = cmb_seed_maker.get_seed(pretend_split, pretend_sim)
 
     cmb: pysm3.CMBLensed = cmb_maker.make_cmb_lensed(cmb_seed, pretend_sim)

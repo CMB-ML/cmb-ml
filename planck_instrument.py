@@ -96,20 +96,20 @@ class InstrumentNoiseMaker:
         self.instrument: PlanckInstrument = planck
         self.src_name_getter=planck_instr_fs.src.get_path_for
         self.cache_name_getter=planck_instr_fs.cache.get_path_for
+        self.nside = conf.simulation.nside
 
     def make_instrument_noise(self):
         detector_noises = {}
         for detector in self.instrument.iter_detectors():
             freq = detector.nom_freq
             detector_noises[freq] = DetectorNoise(detector,
-                                                          src_name_getter=self.src_name_getter,
-                                                          cache_name_getter=self.cache_name_getter,
-                                                          nside=None)
+                                                  src_name_getter=self.src_name_getter,
+                                                  cache_name_getter=self.cache_name_getter,
+                                                  nside=self.nside)
         instrument_noise = InstrumentNoise(detector_noises)
         return instrument_noise
 
 
 def make_noise_maker(conf, instrument):
-    
     noise_maker = InstrumentNoiseMaker(conf, instrument)
     return noise_maker

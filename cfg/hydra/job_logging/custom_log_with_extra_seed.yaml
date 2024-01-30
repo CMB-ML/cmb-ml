@@ -18,6 +18,9 @@ handlers:
     formatter: simple
     filename: ${hydra.runtime.output_dir}/${hydra.job.name}_seeds.log
 loggers:
+  healpy:
+    level: WARNING
+    propagate: false
   seed_logger:
     handlers:
     - console

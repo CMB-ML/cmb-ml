@@ -313,3 +313,9 @@ Making simulations principles:
         - Generate noise cache files
         - Generate maps
         
+Conventions I'd love to have stuck with:
+- When referring to detectors
+  - adding an "s" is the plural of the following
+  - "freq" is an integer. "frq" and "frequency" are not used.
+  - "detector" is the object. "det" is used in lower level functions for brevity.
+  
