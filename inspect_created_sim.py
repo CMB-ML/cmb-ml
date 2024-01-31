@@ -190,21 +190,27 @@ class WholeSimPSPlotMaker:
 
     def viz_fid_cmb_ps(self, sim: SimFiles) -> None:
         in_ps_path = sim.cmb_ps_fid_path
-        self._viz_ps(in_ps_path, sim)
+        title = "Fiducial Power Spectrum, {field_str}"
+        namer = self.namer.ps_fid_path
+        self._viz_ps(in_ps_path, sim, title, namer)
 
     def viz_der_cmb_ps(self, sim:SimFiles) -> None:
         in_ps_path = sim.cmb_ps_der_path
-        self._viz_ps(in_ps_path, sim)
+        title = "Derived Power Spectrum, {field_str}"
+        namer = self.namer.ps_der_path
+        self._viz_ps(in_ps_path, sim, title, namer)
 
-    def _viz_ps(self, in_ps, sim:SimFiles):
+    def _viz_ps(self, in_ps, sim:SimFiles, title: str, namer):
         n_fields = self.get_n_fields_ps(in_ps)
         ps = self.load_ps(in_ps)
         ells = ps[2:, 0]
         field_strs = ["L", "TT", "EE", "BB"]
         for field_idx in range(1, 1 + n_fields):
             this_ps = ps[2:, field_idx]
+            field_str = field_strs[field_idx]
             plt.plot(ells, this_ps)
-            out_img_path = self.namer.ps_fid_path(sim, field_idx)
+            plt.title(label=title.format(field_str=field_str))
+            out_img_path = namer(sim, field_idx)
             plt.savefig(out_img_path)
             plt.close()
 
