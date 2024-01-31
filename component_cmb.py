@@ -5,6 +5,7 @@ from pysm3 import CMBLensed
 import camb
 from omegaconf.errors import ConfigAttributeError
 
+import numpy as np
 import healpy as hp
 
 from hydra_filesets import SimFiles
@@ -103,6 +104,13 @@ def save_fid_cmb_map(cmb: CMBLensed, sim: SimFiles):
 def save_der_cmb_ps(cmb: CMBLensed, sim: SimFiles, lmax: int):
     fid_cmb_map = cmb.map
     ps = hp.anafast(fid_cmb_map, lmax=lmax)
-    hp.fitsfunc.write_cl(filename=sim.cmb_ps_der_path,
-                         cl=ps,
-                         overwrite=True)
+    ps = ps.T
+    ell = np.atleast_2d(np.arange(start=0, stop=ps.shape[0])).T
+    factor = ell * (ell + 1) / (2 * np.pi)
+    ps = ps * factor
+    camb.results.save_cmb_power_array(sim.cmb_ps_der_path,
+                                      array=ps,
+                                      labels="TT EE BB TE EB TB")
+    # hp.fitsfunc.write_cl(filename=sim.cmb_ps_der_path,
+    #                      cl=ps,
+    #                      overwrite=True)

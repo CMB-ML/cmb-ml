@@ -33,10 +33,10 @@ class DummyConfig:
         "_self_"
         ])
     splits: Dict[str, SplitsDummy] = field(default_factory=lambda: {
-        # "Dummy0": SplitsDummy,
-        "Dummy1": SplitsDummy(ps_fidu_fixed=True)
+        "Dummy0": SplitsDummy,
+        # "Dummy1": SplitsDummy(ps_fidu_fixed=True)
     })
-    dataset_name: str = "Dummy"
+    dataset_name: str = "DummyCMB"
 
 cs = ConfigStore.instance()
 cs.store(name="this_config", node=DummyConfig)
@@ -80,7 +80,6 @@ def try_make_all_configs(cfg):
             cmb: pysm3.CMBLensed = cmb_maker.make_cmb_lensed(cmb_seed, sim)
             sky = pysm3.Sky(nside=nside, 
                             component_objects=[cmb],
-                            preset_strings=preset_strings, 
                             output_unit="uK_RJ")
             noise: InstrumentNoise = noise_maker.make_instrument_noise()
 
