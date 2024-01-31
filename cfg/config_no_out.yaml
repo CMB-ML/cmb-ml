@@ -1,5 +1,5 @@
 defaults:
-  - local_system: jim_lab
+  - local_system: jim_laptop
   - file_system : common_fs
   - simulation  : base_sim
   - override hydra/job_logging: custom_log_with_extra_seed

@@ -8,8 +8,11 @@ from hydra.core.config_store import ConfigStore
 
 from astropy.io import fits
 
+import numpy as np
 import healpy as hp
 import matplotlib.pyplot as plt
+
+from pysm3.models.template import read_txt as pysm_read_txt
 
 from utils.hydra_log_helper import *
 from hydra_filesets import DatasetFiles, SimFiles
@@ -37,6 +40,8 @@ class VizFileSystem:
     viz_dir: str = "viz"
     viz_cmb_name: str = "cmb_{field}"
     viz_obs_name: str = "obs_{freq}_{field}"
+    viz_ps_fid_name: str = "ps_fid_{field}"
+    viz_ps_der_name: str = "ps_der_{field}"
 
 @dataclass
 class DummyConfig:
@@ -49,7 +54,7 @@ class DummyConfig:
         # "Dummy1": SplitsDummy(ps_fidu_fixed=True)
     })
     file_system: VizFileSystem = field(default_factory=VizFileSystem)
-    dataset_name: str = "Dummy_CMB_Map_Check"
+    dataset_name: str = "DummyCMB"
 
 cs = ConfigStore.instance()
 cs.store(name="this_config", node=DummyConfig)
@@ -63,25 +68,20 @@ def try_cmb_from_conf(cfg):
     dataset_files = DatasetFiles(cfg)
 
     # Visualize maps
-    viz_maker = VizMaker(cfg)
-    # viz_namer = VizNamer(cfg)
+    map_maker = WholeSimMapVizMaker(cfg)
+    ps_plot_maker = WholeSimPSPlotMaker(cfg)
 
-    # Check power spectra
-
-    # planck_freqs = list(cfg.simulation.detector_freqs)
-
-    # # Pretend to be at sim level (no dependence on config)
+    # Look at Dummy0:0 sim only
     split = dataset_files.get_split("Dummy0")
     sim = split.get_sim(0)
-    viz_maker.make(sim)
+    
+    map_maker.make(sim)
+    ps_plot_maker.make(sim)
 
-    # examine_cmb_map(sim, viz_namer)
-    # examine_obs_maps(sim, planck_freqs, viz_namer)
 
-
-class VizMaker:
+class WholeSimMapVizMaker:
     def __init__(self, cfg) -> None:
-        self.namer = VizFiles(cfg)
+        self.namer = WholeSimVizFiles(cfg)
         self.dsf = DatasetFiles(cfg)
         self.freqs = list(cfg.simulation.detector_freqs)
 
@@ -92,7 +92,7 @@ class VizMaker:
 
     def make(self, sim: SimFiles) -> None:
         # Pretend to be at sim level (no dependence on config)
-        logger.info(f"Making vizualizations for {sim.sfl.name}:{sim.sim_num}")
+        logger.info(f"Making map vizualizations for {sim.sfl.name}:{sim.sim_num}")
         self.curr_sim = sim
         self.viz_cmb_map()
         self.viz_obs_maps()
@@ -152,21 +152,68 @@ class VizMaker:
         return path
 
 
-class VizFiles:
+class WholeSimVizFiles:
     def __init__(self, cfg):
         self.dir = cfg.file_system.viz_dir
         self.cmb_name = cfg.file_system.viz_cmb_name
-        self.obs_name_template = cfg.file_system.viz_obs_name
+        self.obs_name = cfg.file_system.viz_obs_name
+        self.ps_fid_name = cfg.file_system.viz_ps_fid_name
+        self.ps_der_name = cfg.file_system.viz_ps_der_name
 
     def cmb_path(self, sim: SimFiles, map_field):
-        path:Path = sim.path / self.dir / self.cmb_name.format(field=map_field)
+        return self._make_path(sim, self.cmb_name.format(field=map_field))
+
+    def obs_path(self, sim: SimFiles, freq, map_field):
+        return self._make_path(sim, self.obs_name.format(freq=freq, field=map_field))
+
+    def ps_fid_path(self, sim: SimFiles, map_field):
+        return self._make_path(sim, self.ps_fid_name.format(field=map_field))
+
+    def ps_der_path(self, sim: SimFiles, map_field):
+        return self._make_path(sim, self.ps_der_name.format(field=map_field))
+
+    def _make_path(self, sim, fn):
+        path: Path = sim.path / self.dir / fn
         path.parent.mkdir(exist_ok=True, parents=True)
         return path
 
-    def obs_path(self, sim: SimFiles, freq, map_field):
-        path:Path = sim.path / self.dir / self.obs_name_template.format(freq=freq, field=map_field)
-        path.parent.mkdir(exist_ok=True, parents=True)
-        return path
+
+class WholeSimPSPlotMaker:
+    def __init__(self, cfg):
+        self.namer = WholeSimVizFiles(cfg)
+        self.dsf = DatasetFiles(cfg)
+
+    def make(self, sim: SimFiles):
+        logger.info(f"Making power spectrum visualizations for {sim.sfl.name}:{sim.sim_num}")
+        self.viz_fid_cmb_ps(sim)
+        self.viz_der_cmb_ps(sim)
+
+    def viz_fid_cmb_ps(self, sim: SimFiles) -> None:
+        in_ps_path = sim.cmb_ps_fid_path
+        self._viz_ps(in_ps_path, sim)
+
+    def viz_der_cmb_ps(self, sim:SimFiles) -> None:
+        in_ps_path = sim.cmb_ps_der_path
+        self._viz_ps(in_ps_path, sim)
+
+    def _viz_ps(self, in_ps, sim:SimFiles):
+        n_fields = self.get_n_fields_ps(in_ps)
+        ps = self.load_ps(in_ps)
+        ells = ps[2:, 0]
+        field_strs = ["L", "TT", "EE", "BB"]
+        for field_idx in range(1, 1 + n_fields):
+            this_ps = ps[2:, field_idx]
+            plt.plot(ells, this_ps)
+            out_img_path = self.namer.ps_fid_path(sim, field_idx)
+            plt.savefig(out_img_path)
+            plt.close()
+
+    def get_n_fields_ps(self, in_path: Path):
+        # TODO Unbreak
+        return 3
+
+    def load_ps(self, in_path: Path) -> np.ndarray:
+        return pysm_read_txt(in_path)
 
 
 if __name__ == "__main__":

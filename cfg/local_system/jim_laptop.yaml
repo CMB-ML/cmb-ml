@@ -1,5 +1,5 @@
-datasets_root: "/Users/jimcamato/Data/SPACE_datasets"
-noise_files: "./planck_assets/"
-instr_table: "./planck_assets/planck_deltabandpass.tbl"
-wmap_chains: "./wmap_assets/wmap_chains/"
-noise_cache_dir         : ./local_files/noise/
+datasets_root    : "/Users/jimcamato/Data/SPACE_datasets"
+instr_table_path : "./planck_assets/planck_deltabandpass.tbl"
+noise_src_dir    : "./planck_assets/"
+wmap_chains_dir  : "./wmap_assets/wmap_chains/"
+noise_cache_dir  : "./local_files/noise/"
