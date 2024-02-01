@@ -2,17 +2,51 @@
 Rough development repository for PySM simulations for ML project
 
 # Installation
-## Library Set Up
 
-(This Section is a DRAFT)
+The installation process is generally:
+- Set up your local file system locations
+- Get the repositories
+- Set up your python environment
+- Get file assets
 
-- Clone the repositories (both ml_cmb_pysm_sims and the dependency, pysm3) into separate directories.
+Note that the repository depends heavily on PySM3, which currently must be used directly from the current repository.
+
+## File System Considerations
+
+I suggest using the following directory structure for this local project in your home folder. This keeps data assets separate from the created datasets and from the code used to create it.
+
+```
+CMB_Project/
+│
+├── ml_cmb_pysm_sims/                  # This repository for ML-driven CMB simulations with PySM
+├── pysm3/                             # PySM3
+│
+├── SourceDataAssets/                  # Raw data from various sources
+│   ├── Planck/                        # Data from the Planck mission
+│   ├── WMAP_Chains/                   # Data from the WMAP mission
+│   └── ProcessedData/                 # Intermediate data processed for simulation use
+│
+└── DatasetsRoot/                      # Root directory for datasets generated
+    └── [Other Dataset Folders]        # Other directories for organized datasets
+```
+
+Clearly systems vary. Configuration files may be changed to describe your local structure. I suggest creating your own configuration file by copying one included (after getting the repo, in conf/local_system).
+
+If you're regularly pulling from the repo, add `export CMB_SIMS_LOCAL_SYSTEM=your_system` to the end of your `.bashrc` file and then either `source ~/.bashrc` or restart your terminal. If using a Mac, use `.zshrc` instead of `.bashrc` (or whatever... Jim is moving on but one day these will be good general instructions).
+
+If you won't be actively pulling from the repo (how I long for that day), simply change all top-level configurations, e.g. config.yaml, to `defaults: - local_system: your_system` where `your_system` is the filename of your configuration.
+
+## Get Repositories
+
+- Clone the repositories into the directories as set up above.
     - Either (git with HTTPS)
     - `git clone https://github.com/JamesAmato/ml_cmb_pysm_sims.git`
     - `git clone https://github.com/galsci/pysm.git`
     - Or (git with SSH):
     - `git clone git@github.com:JamesAmato/ml_cmb_pysm_sims.git`
     - `git clone git@github.com:galsci/pysm.git`
+
+## Library Set Up
 
 - Create and activate a conda environment
     - `conda create --name ml_cmb_pysm_sims python=3.8`
@@ -45,11 +79,15 @@ Rough development repository for PySM simulations for ML project
 
 ## Needed files
 
-"planck_assets/" files are needed for noise generation. There's a lot of data there (~2GB?). "fidu_noise/" files are only for comparisons of noise. WMAP 9 chains are not yet used. 
+Needed files are stored on Markov, in `/bigdata/cmb_project/data/assets/`. This is the fastest way to get them, if you have access.
 
-There are two ways to get the planck_assets maps. I found that the ESA Planck page is slower than CalTech, but there could be many reasons for that. I'm not sure if the CalTech maps are Bandpass Corrected (TODO below). I'm pretty sure the Planck Maps are all Bandpass corrected.
+"SourceDataAssets/WMAP_Chains/" files are used to create the CMB power spectrum. They can be downloaded from [Chain Files Direct Link](https://lambda.gsfc.nasa.gov/data/map/dr5/dcp/chains/wmap_lcdm_wmap9_chains_v5.tar.gz), as listed at the [NASA WMAP page](https://lambda.gsfc.nasa.gov/product/wmap/dr5/params/lcdm_wmap9.html).
 
-Option 1: Use either get_planck_maps_caltech.sh or get_and_symlink_planck_maps to get the observation maps (the latter is suggested; it was created because I store huge files outside the repository for use with other code). Option 2: From [ESA Planck Page](https://pla.esac.esa.int/#results), choose Maps, then Advanced Search, using the terms "LFI_SkyMap_%-BPassCorrected_1024_R3.00_full.fits" and "HFI_SkyMap_%_2048_R3.01_full.fits" (note that the 353 should be with "-psb", as the version without that has some issue mentioned in the Planck Wiki).
+"SourceDataAssets/Planck/" files are needed for noise generation. 
+
+There are three ways to get the planck_assets maps. The fastest is from Markov. I found that the ESA Planck page is slower than CalTech, but there could be many reasons for that.
+
+Option 2: Use either get_planck_maps_caltech.sh or get_and_symlink_planck_maps to get the observation maps (the latter is suggested; it was created because I store huge files outside the repository for use with other code). Option 3: From [ESA Planck Page](https://pla.esac.esa.int/#results), choose Maps, then Advanced Search, using the terms "LFI_SkyMap_%-BPassCorrected_1024_R3.00_full.fits" and "HFI_SkyMap_%_2048_R3.01_full.fits" (note that the 353 should be with "-psb", as the version without that has some issue mentioned in the Planck Wiki).
 
 These maps are needed:
 - Observation map files:
@@ -73,8 +111,6 @@ These maps are needed:
   - fidu_noise/ffp10_noise_545_full_map_mc_00000.fits
   - fidu_noise/ffp10_noise_857_full_map_mc_00000.fits
   - fidu_noise/ffp10_noise_353_psb_full_map_mc_00000.fits
-
-From [NASA WMAP page](https://lambda.gsfc.nasa.gov/product/wmap/dr5/params/lcdm_wmap9.html), [Chain Files Direct Link](https://lambda.gsfc.nasa.gov/data/map/dr5/dcp/chains/wmap_lcdm_wmap9_chains_v5.tar.gz)
 
 # Descriptions of Python Scripts
 
@@ -304,4 +340,4 @@ Making simulations principles:
         - Generate power spectra based on WMAP cosmo parameters
         - Generate noise cache files
         - Generate maps
-        
+
