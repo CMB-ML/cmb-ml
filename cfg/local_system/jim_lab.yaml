@@ -1,3 +1,4 @@
+test_key         : "jim_lab"
 datasets_root    : "/home/jim/cmb_datasets/"
 instr_table_path : "./planck_assets/planck_deltabandpass.tbl"
 noise_src_dir    : "./planck_assets/"
