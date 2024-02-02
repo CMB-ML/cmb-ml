@@ -19,6 +19,13 @@ logger = logging.getLogger(__name__)
 
 def make_cmb_ps(cosmo_params, lmax, cmb_ps_fp: Path) -> None:
     #Set up a new set of parameters for CAMB
+    pars = setup_camb(cosmo_params, lmax)
+    results = run_camb(pars)
+    results.save_cmb_power_spectra(filename=cmb_ps_fp)
+    return
+
+
+def setup_camb(cosmo_params, lmax) -> camb.CAMBparams:
     pars = camb.CAMBparams()
 
     # I don't know what CAMB is doing, I just know I've got some lump of parameters to 
@@ -35,11 +42,12 @@ def make_cmb_ps(cosmo_params, lmax, cmb_ps_fp: Path) -> None:
     pars.set_cosmology(**set_cosmology_args)
     pars.InitPower.set_params(r=0, **init_power_args)
     pars.set_for_lmax(lmax, lens_potential_accuracy=0)
-    
-    results = camb.get_results(pars)
+    return pars
 
-    results.save_cmb_power_spectra(filename=cmb_ps_fp)
-    return
+
+def run_camb(pars: camb.CAMBparams) -> camb.CAMBdata:
+    results = camb.get_results(pars)
+    return results
 
 
 def get_param_names(method):

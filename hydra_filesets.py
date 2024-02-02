@@ -326,12 +326,12 @@ class NoiseCacheFiles(NoiseGenericFiles):
 class PlanckInstrumentFiles:
     def __init__(self, conf: DictConfig) -> None:
         logger.debug(f"Running {__name__} in {__file__}")
+        self.instr_table_path = Path(conf.local_system.instr_table_path)
+        self.table = self.instr_table_path
         self.noise_src_files = NoiseSrcFiles(conf)
         self.src = self.noise_src_files
         self.noise_cache_files = NoiseCacheFiles(conf)
         self.cache = self.noise_cache_files
-        self.instr_table_path = Path(conf.local_system.instr_table_path)
-        self.table = self.instr_table_path
 
     def read_instr_table(self) -> QTable:
         planck_beam_info = QTable.read(self.table, format="ascii.ipac")
