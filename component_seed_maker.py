@@ -60,7 +60,7 @@ class SeedMaker:
         return seed
 
 
-class SimLevelSeedMaker(SeedMaker):
+class SimLevelSeedFactory(SeedMaker):
     def __init__(self, conf, sky_component) -> None:
         super().__init__(conf, sky_component)
 
@@ -70,7 +70,7 @@ class SimLevelSeedMaker(SeedMaker):
         return self._get_seed(split_str, sim_str, self.component)
 
 
-class FieldLevelSeedMaker(SeedMaker):
+class FieldLevelSeedFactory(SeedMaker):
     def __init__(self, conf, sky_component) -> None:
         super().__init__(conf, sky_component)
 

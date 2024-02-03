@@ -1,7 +1,14 @@
+from typing import Dict
+
+import numpy as np
 import healpy as hp
 from astropy.io import fits
 import matplotlib.pyplot as plt
 from pathlib import Path
+from pprint import pprint
+
+
+ASSUME_FITS_HEADER = 1
 
 
 def print_out_header(fits_fn):
@@ -15,18 +22,61 @@ def print_out_header(fits_fn):
             print("\n" + "-"*50 + "\n")
 
 
-def get_num_fields(fits_fn):
+def get_num_fields_in_hdr(fits_fn, hdu) -> int:
+    with fits.open(fits_fn) as hdul:
+        n_fields = len(hdul[hdu].columns)
+    return n_fields
+
+
+def lookup_field_idx(field_str, fits_fn, hdu):
+    n_fields = get_num_fields_in_hdr(fits_fn, hdu)
+    T_n_fields = 3
+    TQU_n_fields = 10
+    
+    if n_fields == T_n_fields:
+        field_str_to_idx = {"T": 2}
+    elif n_fields == TQU_n_fields:
+        field_str_to_idx = {"T": 4,
+                            "Q": 7,
+                            "U": 9}
+    else:
+        raise ValueError(f"Unexpected number of fields in fits file.")
+
+    try:
+        field_idx = field_str_to_idx[field_str]
+    except KeyError:
+        ok_field_strs = ", ".join(field_str_to_idx.keys())
+        raise ValueError(f"FITS file has only {ok_field_strs}, but {field_str} was requested.")
+    return field_idx    
+
+
+def get_field_unit(fits_fn, hdu, field_idx):
+    with fits.open(fits_fn) as hdul:
+        try:
+            field_num = field_idx + 1
+            unit = hdul[hdu].header[f"TUNIT{field_num}"]
+        except KeyError:
+            unit = ""
+    return unit
+
+
+def get_num_fields(fits_fn) -> Dict[int, int]:
     # Open the FITS file
     n_fields = {}
     with fits.open(fits_fn) as hdul:
         # Loop over all HDUs in the FITS file
         for i, hdu in enumerate(hdul):
             if i == 0:
-                continue
+                continue  # skip 0; it's fits boilerplate
             for card in hdu.header.cards:
                 if card.keyword == "TFIELDS":
                     n_fields[i] = card.value
     return n_fields
+
+
+def print_fits_information(fits_fn) -> None:
+    fits_info = get_fits_information(fits_fn)
+    pprint(fits_info)
 
 
 def get_fits_information(fits_fn):
@@ -64,11 +114,6 @@ def get_fits_information(fits_fn):
     return maps_info
 
 
-def pretty_print_dict(this_dict):
-    from pprint import pprint
-    pprint(this_dict) 
-
-
 def show_all_maps(fits_fn):
     n_fields_per_hdu = get_num_fields(fits_fn)
     for hdu_n, n_fields in n_fields_per_hdu.items():
@@ -83,18 +128,19 @@ def show_one_map(fits_fn, hdu_n, field_n):
     this_map = hp.read_map(fits_fn, hdu=hdu_n, field=field_n)
     hp.mollview(this_map)
     plt.show()
-  
-
-def main():
-    maybe_ok_fn = "planck_assets/LFI_SkyMap_070-BPassCorrected_1024_R3.00_full.fits"
-    if Path(maybe_ok_fn).exists():
-        print("Exists!")
-    else:
-        print("No exists!")
-
-    pretty_print_dict(get_fits_information(maybe_ok_fn))
-    show_all_maps(maybe_ok_fn)
 
 
-if __name__ == "__main__":
-    main()
+def get_map_dtype(m: np.ndarray):
+    # From PySM3 template.py's read_map function, with minimal alteration:
+    dtype = m.dtype
+    # numba only supports little endian
+    if dtype.byteorder == ">":
+        dtype = dtype.newbyteorder()
+    # mpi4py has issues if the dtype is a string like ">f4"
+    if dtype == np.dtype(np.float32):
+        dtype = np.dtype(np.float32)
+    elif dtype == np.dtype(np.float64):
+        dtype = np.dtype(np.float64)
+    # End of used portion
+    return dtype
+    

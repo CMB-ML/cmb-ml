@@ -8,7 +8,7 @@ from omegaconf.errors import ConfigAttributeError
 import numpy as np
 import healpy as hp
 
-from hydra_filesets import SimFiles
+from namer_dataset_output import SimFilesNamer
 
 
 # Based on https://camb.readthedocs.io/en/latest/CAMBdemo.html
@@ -45,17 +45,17 @@ def setup_camb(cosmo_params, lmax) -> camb.CAMBparams:
     return pars
 
 
-def run_camb(pars: camb.CAMBparams) -> camb.CAMBdata:
-    results = camb.get_results(pars)
-    return results
-
-
 def get_param_names(method):
     sig = inspect.signature(method)
     return [param.name for param in sig.parameters.values() if param.name != 'self']
 
 
-class CMBMaker:
+def run_camb(pars: camb.CAMBparams) -> camb.CAMBdata:
+    results = camb.get_results(pars)
+    return results
+
+
+class CMBFactory:
     def __init__(self, conf, make_ps_if_absent=None):
         self.nside = conf.simulation.nside
         self.max_ell_for_camb = conf.simulation.cmb.ell_max
@@ -72,7 +72,7 @@ class CMBMaker:
                 logger.exception(e)
                 raise e
 
-    def make_cmb_lensed(self, seed, sim_files: SimFiles) -> CMBLensed:
+    def make_cmb_lensed(self, seed, sim_files: SimFilesNamer) -> CMBLensed:
         # Get the ps path only after you know it exists
         cmb_ps_fid_path = self._get_or_make_ps_path(sim_files)
         return CMBLensed(nside=self.nside,
@@ -83,7 +83,7 @@ class CMBMaker:
                          delensing_ells=self.delensing_ells,
                          map_dist=self.map_dist)
     
-    def _get_or_make_ps_path(self, sim_files: SimFiles) -> Path:
+    def _get_or_make_ps_path(self, sim_files: SimFilesNamer) -> Path:
         path = sim_files.cmb_ps_fid_path
         if not path.exists():
             if self.make_ps_if_absent:
@@ -92,24 +92,23 @@ class CMBMaker:
                 raise FileNotFoundError(f"Cannot find {path}.")
         return path
     
-    def make_ps(self, sim_files: SimFiles) -> None:
+    def make_ps(self, sim_files: SimFilesNamer) -> None:
         cosmo_params = sim_files.read_wmap_params_file()
         out_path = sim_files.cmb_ps_fid_path
         make_cmb_ps(cosmo_params, self.max_ell_for_camb, out_path)
 
 
-def make_cmb_maker(conf) -> CMBMaker:
-    # make whatever path keeper-tracker
-    cmb_maker = CMBMaker(conf)
+def make_cmb_maker(conf) -> CMBFactory:
+    cmb_maker = CMBFactory(conf)
     return cmb_maker
 
 
-def save_fid_cmb_map(cmb: CMBLensed, sim: SimFiles):
+def save_fid_cmb_map(cmb: CMBLensed, sim: SimFilesNamer):
     fid_cmb_map = cmb.map
     sim.write_fid_map(fid_cmb_map)
 
 
-def save_der_cmb_ps(cmb: CMBLensed, sim: SimFiles, lmax: int):
+def save_der_cmb_ps(cmb: CMBLensed, sim: SimFilesNamer, lmax: int):
     fid_cmb_map = cmb.map
     ps = hp.anafast(fid_cmb_map, lmax=lmax)
     ps = ps.T
@@ -119,6 +118,3 @@ def save_der_cmb_ps(cmb: CMBLensed, sim: SimFiles, lmax: int):
     camb.results.save_cmb_power_array(sim.cmb_ps_der_path,
                                       array=ps,
                                       labels="TT EE BB TE EB TB")
-    # hp.fitsfunc.write_cl(filename=sim.cmb_ps_der_path,
-    #                      cl=ps,
-    #                      overwrite=True)

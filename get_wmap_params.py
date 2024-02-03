@@ -1,6 +1,4 @@
 import os
-from pathlib import Path
-from pprint import pprint
 import numpy as np
 
 
@@ -47,34 +45,6 @@ def pull_params_from_file(wmap_chain_path, chain_idcs, params_to_get):
     return param_vals
 
 
-def get_indices(n_indcs, rng: np.random.Generator):
+def get_wmap_indices(n_indcs, seed:int):
+    rng = np.random.default_rng(seed=seed)
     return rng.integers(low=1, high=ROWS_IN_CHAINS, size=n_indcs, endpoint=True)
-
-
-# Demo code from here to bottom
-
-def try_getting_wmap_params():
-    wmap_path = Path("wmap_assets/wmap_lcdm_wmap9_chains_v5")
-    chain_idcs = [1, 2, 3, 4, 5, ROWS_IN_CHAINS]
-    params_to_get = ['H0', 'omegam', 'omegab', 'sigma8', 'ns002', 'tau', 'a002']
-    res = pull_params_from_file(wmap_path, chain_idcs, params_to_get)
-    pprint(res)
-
-
-def try_get_indices():
-    res = get_indices(10, np.random.default_rng(seed=0))
-    print(res)
-
-
-def try_getting_wmap_params2():
-    wmap_path = Path("wmap_assets/wmap_lcdm_wmap9_chains_v5")
-    chain_idcs = get_indices(10, np.random.default_rng(seed=0))
-    params_to_get = ['H0', 'omegam', 'omegab', 'sigma8', 'ns002', 'tau', 'a002']
-    res = pull_params_from_file(wmap_path, chain_idcs, params_to_get)
-    pprint(res)
-
-
-if __name__ == "__main__":
-    # try_getting_wmap_params()
-    # try_get_indices()
-    try_getting_wmap_params2()

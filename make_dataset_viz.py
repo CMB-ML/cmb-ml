@@ -12,23 +12,16 @@ import matplotlib.pyplot as plt
 
 from pysm3.models.template import read_txt as pysm_read_txt
 
-from hydra_filesets import DatasetFiles, SimFiles
+from namer_dataset_output import DatasetFilesNamer, SimFilesNamer
 from utils.planck_cmap import colombi1_cmap
-from utils.inspect_fits_file import get_num_fields
-
-# Goal: Use a conf to make the CMB component
+from utils.fits_inspection import get_num_fields
 
 
 logger = logging.getLogger(__name__)
 
 
 @dataclass
-class SplitsDummy:
-    ps_fidu_fixed: bool = False
-    n_sims: int = 1
-
-@dataclass
-class VizFileSystem:
+class VizFilesCfg:
     viz_dir: str = "viz"
     viz_cmb_name: str = "cmb_{field}"
     viz_obs_name: str = "obs_{freq}_{field}"
@@ -36,20 +29,15 @@ class VizFileSystem:
     viz_ps_der_name: str = "ps_der_{field}"
 
 @dataclass
-class DummyConfig:
+class LocalConfig:
     defaults: List[Any] = field(default_factory=lambda: [
-        "config_no_out",
+        "config",
         "_self_"
         ])
-    splits: Dict[str, SplitsDummy] = field(default_factory=lambda: {
-        "Dummy0": SplitsDummy,
-        # "Dummy1": SplitsDummy(ps_fidu_fixed=True)
-    })
-    file_system: VizFileSystem = field(default_factory=VizFileSystem)
-    dataset_name: str = "DummyCMB"
+    file_system: VizFilesCfg = field(default_factory=VizFilesCfg)
 
 cs = ConfigStore.instance()
-cs.store(name="this_config", node=DummyConfig)
+cs.store(name="this_config", node=LocalConfig)
 
 
 @hydra.main(version_base=None, config_path="cfg", config_name="this_config")
@@ -57,11 +45,11 @@ def try_cmb_from_conf(cfg):
     logger.debug(f"Running {__name__} in {__file__}")
     
     # Making global setup - the only place I want to pull from the conf
-    dataset_files = DatasetFiles(cfg)
+    dataset_files = DatasetFilesNamer(cfg)
 
     # Visualize maps
-    map_maker = WholeSimMapVizMaker(cfg)
-    ps_plot_maker = WholeSimPSPlotMaker(cfg)
+    map_maker = MapVizMaker(cfg)
+    ps_plot_maker = PSVizMaker(cfg)
 
     # Look at Dummy0:0 sim only
     split = dataset_files.get_split("Dummy0")
@@ -71,10 +59,36 @@ def try_cmb_from_conf(cfg):
     ps_plot_maker.make(sim)
 
 
-class WholeSimMapVizMaker:
+class VizFilesNamer:
+    def __init__(self, cfg):
+        self.dir = cfg.file_system.viz_dir
+        self.cmb_name = cfg.file_system.viz_cmb_name
+        self.obs_name = cfg.file_system.viz_obs_name
+        self.ps_fid_name = cfg.file_system.viz_ps_fid_name
+        self.ps_der_name = cfg.file_system.viz_ps_der_name
+
+    def cmb_path(self, sim: SimFilesNamer, map_field):
+        return self._make_path(sim, self.cmb_name.format(field=map_field))
+
+    def obs_path(self, sim: SimFilesNamer, freq, map_field):
+        return self._make_path(sim, self.obs_name.format(freq=freq, field=map_field))
+
+    def ps_fid_path(self, sim: SimFilesNamer, map_field):
+        return self._make_path(sim, self.ps_fid_name.format(field=map_field))
+
+    def ps_der_path(self, sim: SimFilesNamer, map_field):
+        return self._make_path(sim, self.ps_der_name.format(field=map_field))
+
+    def _make_path(self, sim, fn):
+        path: Path = sim.path / self.dir / fn
+        path.parent.mkdir(exist_ok=True, parents=True)
+        return path
+
+
+class MapVizMaker:
     def __init__(self, cfg) -> None:
-        self.namer = WholeSimVizFiles(cfg)
-        self.dsf = DatasetFiles(cfg)
+        self.namer = VizFilesNamer(cfg)
+        self.dsf = DatasetFilesNamer(cfg)
         self.freqs = list(cfg.simulation.detector_freqs)
 
         self.curr_sim = None
@@ -82,7 +96,7 @@ class WholeSimMapVizMaker:
         self.curr_freq = None
         self.curr_field = None
 
-    def make(self, sim: SimFiles) -> None:
+    def make(self, sim: SimFilesNamer) -> None:
         # Pretend to be at sim level (no dependence on config)
         logger.info(f"Making map vizualizations for {sim.sfl.name}:{sim.sim_num}")
         self.curr_sim = sim
@@ -144,55 +158,29 @@ class WholeSimMapVizMaker:
         return path
 
 
-class WholeSimVizFiles:
+class PSVizMaker:
     def __init__(self, cfg):
-        self.dir = cfg.file_system.viz_dir
-        self.cmb_name = cfg.file_system.viz_cmb_name
-        self.obs_name = cfg.file_system.viz_obs_name
-        self.ps_fid_name = cfg.file_system.viz_ps_fid_name
-        self.ps_der_name = cfg.file_system.viz_ps_der_name
+        self.namer = VizFilesNamer(cfg)
+        self.dsf = DatasetFilesNamer(cfg)
 
-    def cmb_path(self, sim: SimFiles, map_field):
-        return self._make_path(sim, self.cmb_name.format(field=map_field))
-
-    def obs_path(self, sim: SimFiles, freq, map_field):
-        return self._make_path(sim, self.obs_name.format(freq=freq, field=map_field))
-
-    def ps_fid_path(self, sim: SimFiles, map_field):
-        return self._make_path(sim, self.ps_fid_name.format(field=map_field))
-
-    def ps_der_path(self, sim: SimFiles, map_field):
-        return self._make_path(sim, self.ps_der_name.format(field=map_field))
-
-    def _make_path(self, sim, fn):
-        path: Path = sim.path / self.dir / fn
-        path.parent.mkdir(exist_ok=True, parents=True)
-        return path
-
-
-class WholeSimPSPlotMaker:
-    def __init__(self, cfg):
-        self.namer = WholeSimVizFiles(cfg)
-        self.dsf = DatasetFiles(cfg)
-
-    def make(self, sim: SimFiles):
+    def make(self, sim: SimFilesNamer):
         logger.info(f"Making power spectrum visualizations for {sim.sfl.name}:{sim.sim_num}")
         self.viz_fid_cmb_ps(sim)
         self.viz_der_cmb_ps(sim)
 
-    def viz_fid_cmb_ps(self, sim: SimFiles) -> None:
+    def viz_fid_cmb_ps(self, sim: SimFilesNamer) -> None:
         in_ps_path = sim.cmb_ps_fid_path
         title = "Fiducial Power Spectrum, {field_str}"
         namer = self.namer.ps_fid_path
         self._viz_ps(in_ps_path, sim, title, namer)
 
-    def viz_der_cmb_ps(self, sim:SimFiles) -> None:
+    def viz_der_cmb_ps(self, sim:SimFilesNamer) -> None:
         in_ps_path = sim.cmb_ps_der_path
         title = "Derived Power Spectrum, {field_str}"
         namer = self.namer.ps_der_path
         self._viz_ps(in_ps_path, sim, title, namer)
 
-    def _viz_ps(self, in_ps, sim:SimFiles, title: str, namer):
+    def _viz_ps(self, in_ps, sim:SimFilesNamer, title: str, namer):
         n_fields = self.get_n_fields_ps(in_ps)
         ps = self.load_ps(in_ps)
         ells = ps[2:, 0]

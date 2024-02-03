@@ -6,7 +6,7 @@ defaults:
   - override hydra/job_logging: custom_log_with_extra_seed
   - _self_
 
-seed_base_string: 'dummydataset'
 create_dirs: false
 create_noise_cache: false
-dataset_name: dummy
+dataset_name: Dummy
+seed_base_string: 'dummy'

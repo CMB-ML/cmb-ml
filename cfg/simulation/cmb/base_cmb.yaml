@@ -3,3 +3,4 @@ ell_max            : 8150
 derived_ps_nsmax_x : 2.0
 seed_string        : cmb
 make_ps_if_absent  : true
+wmap_indcs_seed    : 8675309

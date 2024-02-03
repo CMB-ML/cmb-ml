@@ -1,54 +1,37 @@
-from typing import Dict, List
+from typing import Dict
 from pathlib import Path
 
 import healpy as hp
 
-from hydra_filesets import PlanckInstrumentFiles
-from planck_instrument_noise_maker import NoiseCacheCreator, random_noise_map_maker
+import utils.fits_inspection as fits_inspect
+from component_instrument import Detector, Instrument, InstrumentFilesNamer
+from physics_instrument_noise import planck_result_to_sd_map, make_random_noise_map
 
 
-class PlanckInstrument:
-    def __init__(self, detectors) -> None:
-        self.detectors: Dict[int, Detector] = detectors
-    
-    def get_beam(self, freq):
-        return self.detectors[freq]
-    
-    def iter_detectors(self):
-        for detector in self.detectors:
-            yield self.detectors[detector]
+class NoiseCacheCreator:
+    def __init__(self, source_path: Path, nside: int, center_frequency):
+        self.hdr: int = fits_inspect.ASSUME_FITS_HEADER
+        self.ref_path = source_path
+        self.nside = nside
+        self.center_frequency = center_frequency
 
+    def create_noise_cache(self, field_str, cache_path) -> None:
+        field_idx = fits_inspect.lookup_field_idx(field_str)
+        
+        st_dev_skymap = planck_result_to_sd_map(self.ref_path, field_idx, self.nside)
 
-class Detector:
-    def __init__(self, nom_freq: int, cen_freq, fwhm):
-        self.nom_freq = nom_freq
-        self.cen_freq = cen_freq
-        self.fwhm = fwhm
-
-
-def make_planck_instrument(conf):
-    planck_instr_fs = PlanckInstrumentFiles(conf)
-    freqs: List(int) = conf.simulation.detector_freqs
-
-    table = planck_instr_fs.read_instr_table()
-
-    detectors: Dict[int, Detector] = {}
-    for band in freqs:
-        band_str = str(band)
-
-        try:
-            assert band_str in table["band"]
-        except AssertionError:
-            raise KeyError(f"A detector specified in the configs, {band} " \
-                            f"(converted to {band_str}) does not exist in " \
-                            f"the QTable ({planck_instr_fs.table}).")
-
-        center_frequency = table.loc[band_str]["center_frequency"]
-        fwhm = table.loc[band_str]["fwhm"]
-        detectors[band] = Detector(nom_freq=band,
-                                    cen_freq=center_frequency,
-                                    fwhm=fwhm)
-    return PlanckInstrument(detectors=detectors)
+        col_names = {"T": "II", "Q": "QQ", "U": "UU"}
+        hp.write_map(filename=str(cache_path),
+                     m=st_dev_skymap,
+                     nest=False,
+                     column_names=[col_names[field_str]],
+                     column_units=["K_CMB"],
+                     dtype=st_dev_skymap.dtype,
+                     overwrite=True
+                    # TODO: figure out how to add a comment to hp's map... or switch with astropy equivalent 
+                    #  extra_header=f"Variance map pulled from {self.ref_map_fn}, {col_names[field_str]}"
+                     )
+        return st_dev_skymap
 
 
 class InstrumentNoise:
@@ -82,17 +65,17 @@ class DetectorNoise:
         return hp.read_map(cache_path)
     
     def make_noise_map(self, sd_map, random_seed):
-        return random_noise_map_maker(sd_map, 
+        return make_random_noise_map(sd_map, 
                                       random_seed, 
                                       center_frequency=self.detector.cen_freq)
 
 
-class InstrumentNoiseMaker:
+class InstrumentNoiseFactory:
     def __init__(self, 
                  conf,
-                 planck: PlanckInstrument) -> None:
-        planck_instr_fs = PlanckInstrumentFiles(conf)
-        self.instrument: PlanckInstrument = planck
+                 planck: Instrument) -> None:
+        planck_instr_fs = InstrumentFilesNamer(conf)
+        self.instrument: Instrument = planck
         self.src_name_getter=planck_instr_fs.src.get_path_for
         self.cache_name_getter=planck_instr_fs.cache.get_path_for
         self.nside = conf.simulation.nside
@@ -110,5 +93,5 @@ class InstrumentNoiseMaker:
 
 
 def make_noise_maker(conf, instrument):
-    noise_maker = InstrumentNoiseMaker(conf, instrument)
+    noise_maker = InstrumentNoiseFactory(conf, instrument)
     return noise_maker

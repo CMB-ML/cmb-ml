@@ -112,82 +112,31 @@ These maps are needed:
   - fidu_noise/ffp10_noise_857_full_map_mc_00000.fits
   - fidu_noise/ffp10_noise_353_psb_full_map_mc_00000.fits
 
-# Descriptions of Python Scripts
+# Code Organization
 
-There's a few families of files in the repo currently (to be cleaned eventually), described in individual sections below
-- pysm3_devX files: exploring how to use PySM3
-- hydra_testX files: developing how to use Hydra with simulation generation
+Look at tutorial.ipynb (this shows the creation of many different maps, replacing the dev_# files that we had before).
 
-Need to rename or collect the following logically:
-- inspect_ files: looking at specific issues in fits files (maybe these are utilities?)
-- cosmo_params.py: classes for cosmological parameters (single set & batch)
-- planck_instrument.py: classes for the planck instrument
-- get_wmap_params.py: accessing wmap_chains to pull values
+The file `make_dataset.py` is what would generally be considered the main entrypoint into the software.
 
-Utilities (should relocate these?)
-- check_pysm_version.py
-- planck_cmap.py : colormap for plotting in a way that looks like all Planck results
-- planck_colormap.txt : accessory for prev
 
-One-off junk (?)
-- camb_write_cl.py: initial CAMB test (remove?)
-- polarization_plotting_issue.py: when plotting polarization as is done by Planck, they apply a 1 degree beam window function 
-- pol_plotting_more.py: plotting something ??
-- try_make_cmb_map_pysm3.py: early version of pysm3_dev8
-- tut_camb_make_cl.py: initial CAMB test (remove, preserve reference to the tutorial somewhere)
+I've tried to separate code based on the developer working on it.
 
-## PySM3_Dev files
+These are some general functionalities of the python files:
+- Components: Contain classes that manage components of the simulation
+- Namers: Determine file system names
+- Physics: Contains physics-business logic
+- Make: Makes output data assets
+- Try: Scripts that try something out (test code, but not used with formal testing framework)
 
-Short version of pysm3_devX...py, where X is 1-12:
-- 1: Basic test of PySM3
-- 2: Run PySM3 with multiple preset strings together
-- 3: Run PySM3 with the three tiers of foreground complexity
-- 4: Adding simple noise (fixed level)
-- 5: Adding simple beam convolution (fixed beam property)
-- 6: Tries the different CMB preset string options
-- 7: Uses the seedable CMB PySM3 object (CMBLensed)
-- 8: Applies beam convolution based on actual instrument properties
-- 9: Applies noise based on actual noise estimates
-- 10: Combines good beam convolution, good noise, seedable CMB, and uses almost all forground contaminants
-- 11: Tries other contaminants, shows that no variation occurs when preset_strings are used
-- 12: Creates a CMBLensed based on cosmological parameters
+Generally, the kind of class you'd see in those files would be what you expect. There are also:
+- Factory: These produce objects and are set up the same way regardless of data split or sim number
+- Seed Factory: These produce seeds to be used for components instantiation.
+  - Sim Level - most components are initialized within PySM3, which handles T, Q, and U fields at once
+  - Field Level - noise components are not handled by PySM3, so different seeds are needed for each field (in hindsight, this is easily fixed...)
 
-In more detail:
-- pysm3_dev1 and pysm3_dev2 are just for initial testing of PySM3 to ensure correct installation.
-- pysm3_dev3_compared_sims.py uses the foregrounds of varied tiers as introducted here: https://galsci.github.io/blog/2022/common-fiducial-sky/ and here: https://galsci.github.io/blog/2022/common-fiducial-extragalactic-cmb/
-- pysm3_dev4 and pysm3_dev5 were looking at the methods introduced in the CMB summer camp repository to add beam convolution and instrumentation noise. Note that beam convolution is performed before instrumentation noise is added.
-- pysm3_dev7 adds the CMB component ("Syn"). Currently I use CAMB to get a power spectrum. Currently, cosmological parameters are hard-coded. Later they will be drawn from WMAP9 Chains. Beam convolution is done poorly with a hard-coded beam fwhm roughly corresponding to the 100 GHz detector.
-- pysm3_dev8 adds beam convolutions which match values pulled from a PySM3 data table for the Planck Mission. Ideally, these would be pulled from Planck assets instead. That's a future update.
-- pysm3_dev9 adds noise. Noise is generated using official Planck observation maps. 
-  - Those maps have the following fields
-    - TTYPE1  = 'I_STOKES'
-    - TTYPE2  = 'Q_STOKES'
-    - TTYPE3  = 'U_STOKES'
-    - TTYPE4  = 'HITS    '
-    - TTYPE5  = 'II_COV  '
-    - TTYPE6  = 'IQ_COV  '
-    - TTYPE7  = 'IU_COV  '
-    - TTYPE8  = 'QQ_COV  '
-    - TTYPE9  = 'QU_COV  '
-    - TTYPE10 = 'UU_COV  '
-  * I use the II_COV, QQ_COV, and UU_COV fields, following the precedent set by Petroff. Those values are (if I understand correctly) the variance values per pixel for that field; it's covariance only in terms of the different I/Q/U, not how the pixels covary. I can draw random values using a Numpy RNG, which uses a scale parameter that's the standard deviation. Thus, I take the square root of the map values. I'm kinda out of my depth on that.
+I need a better term for components, the lines are blurry there. The CMB component currently contains a lot of physics logic and should get untangled. 
 
-  * The noise in the polarization maps is extreme compared to the CMB signal. I checked that this is reasonable in two ways. The magnitude of CMB anisotropy in T is ~300 uK; for Q and U it's ~2.5 uK. Compare that to the variance maps: for instance, at 100 GHz the median T noise sd value is 44 uK (makes sense); Q is 68 uK; U is 67 uK. I also looked at the 2018 release noise simulations. In this case I think a good marker is the IQR. I see similar results: T: 59 uK, Q:89 uK, U:88 uK.
-
-- The comparison to variance results are generated by "inspect_planck_fits.py" and saved in "inspect_planck_results.txt". The comparison to noise simulations results are generated by "inspect_noise_fits.py" and saved in "inspect_noise_results.txt". 
-
-- pysm3_dev10 combines everything made so far (good noise, good convolution, seedable CMB, all foregrounds, at all frequencies). It requires downloading all files (~63.2 GB). Unfortunately, I'm having trouble with getting some files (timing out? it downloads for a while, then bails every time. Need to revisit testing at UTD/Markov)
- * http://www.astropy.org/astropy-data/websky/0.4/radio/radio_0584.0.fits
- * https://portal.nersc.gov/project/cmb/pysm-data/websky/0.4/radio/radio_0584.0.fits
-
-- pysm3_dev11 loads each working component (by string) and creates two sky simulations without resetting numpy's random seed (deliberately, TODO verify). Findings: no variation exists by default.
-
-- pysm3_dev12 produces a pysm3 CMB component using WMAP chains information. It demonstrates also gives the option to save the power spectrum file.
-
-## hydra_test files
-
-- hydra_test1: print the config file
-- hydra_test2: make config objects from config file
+I tried to remove filename tracking from anything that isn't a Namer. However, especially in the case of the namer_dataset_output Namers, there's a lot of management code shoehorned in that needs to be cleaned out. For instance, an outside management class should keep track of current split and simulation. File IO should also be handled elsewhere. A similar system should be used for the WMAP_chains accessor. And the Seed tracking stuff should be incorporated into the management class... and have a different filename.
 
 # To do
 
