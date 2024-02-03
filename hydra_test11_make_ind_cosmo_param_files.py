@@ -38,7 +38,6 @@ cs.store(name="this_config", node=DummyConfig)
 def try_make_all_configs(cfg):
     logger.debug(f"Running {__name__} in {__file__}")
     rng = np.random.default_rng(seed=8675309)
-    # print(OmegaConf.to_yaml(cfg))
 
     dataset_configs_builder = DatasetConfigsBuilder(cfg)
     dataset_configs_builder.setup_folders()

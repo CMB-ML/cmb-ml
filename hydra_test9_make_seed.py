@@ -7,7 +7,6 @@ from hydra.core.config_store import ConfigStore
 
 import pysm3
 
-from utils.hydra_log_helper import *
 from hydra_filesets import DatasetFiles
 from component_seed_maker import SimLevelSeedMaker, FieldLevelSeedMaker
 from planck_instrument import (

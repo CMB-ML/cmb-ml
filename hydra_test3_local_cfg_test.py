@@ -3,7 +3,7 @@ import hydra
 from typing import *
 from hydra.core.config_store import ConfigStore
 from dataclasses import dataclass, field
-from utils.hydra_log_helper import *
+from omegaconf import OmegaConf
 
 
 logger = logging.getLogger(__name__)

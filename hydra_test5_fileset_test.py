@@ -6,7 +6,6 @@ from typing import *
 from hydra.core.config_store import ConfigStore
 from dataclasses import dataclass, field
 
-from utils.hydra_log_helper import *
 from hydra_filesets import (
     DatasetFiles, 
     NoiseSrcFiles, 
@@ -43,7 +42,6 @@ cs.store(name="this_config", node=DummyConfig)
 @hydra.main(version_base=None, config_path="cfg", config_name="this_config")
 def try_fs_locators(cfg):
     logger.debug(f"Running {__name__} in {__file__}")
-    print(OmegaConf.to_yaml(cfg))
     try_dataset_files(cfg)
     try_noise_files(cfg)
     try_wmap_files(cfg)

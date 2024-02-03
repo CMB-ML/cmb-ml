@@ -1,4 +1,4 @@
-from typing import *
+from typing import List, Dict, Any
 import logging
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -6,23 +6,15 @@ from pathlib import Path
 import hydra
 from hydra.core.config_store import ConfigStore
 
-from astropy.io import fits
-
 import numpy as np
 import healpy as hp
 import matplotlib.pyplot as plt
 
 from pysm3.models.template import read_txt as pysm_read_txt
 
-from utils.hydra_log_helper import *
 from hydra_filesets import DatasetFiles, SimFiles
-# from component_seed_maker import SimLevelSeedMaker, FieldLevelSeedMaker
-from planck_instrument import (
-    PlanckInstrument, 
-    make_planck_instrument )
-from planck_cmap import colombi1_cmap
-from inspect_fits_file import get_num_fields
-# from component_cmb import CMBMaker, make_cmb_maker, save_der_cmb_ps, save_fid_cmb_map
+from utils.planck_cmap import colombi1_cmap
+from utils.inspect_fits_file import get_num_fields
 
 # Goal: Use a conf to make the CMB component
 

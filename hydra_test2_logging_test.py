@@ -1,6 +1,5 @@
 import logging
 import hydra
-from utils.hydra_log_helper import *
 from hydra_test2_logging_testhelper import DatasetFilepaths
 
 

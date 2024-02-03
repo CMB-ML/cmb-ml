@@ -7,15 +7,7 @@ import numpy as np
 import hydra
 from hydra.core.config_store import ConfigStore
 
-from utils.hydra_log_helper import *
-from hydra_filesets import (
-    DatasetFiles,
-    # NoiseSrcFiles, 
-    # NoiseCacheFiles,
-    # InstrumentFiles,
-    # WMAPFiles,
-    DatasetConfigsBuilder
-    )
+from hydra_filesets import DatasetConfigsBuilder
 
 
 logger = logging.getLogger(__name__)
@@ -45,7 +37,6 @@ cs.store(name="this_config", node=DummyConfig)
 @hydra.main(version_base=None, config_path="cfg", config_name="this_config")
 def try_make_split_configs(cfg):
     logger.debug(f"Running {__name__} in {__file__}")
-    # print(OmegaConf.to_yaml(cfg))
 
     dataset_configs_builder = DatasetConfigsBuilder(cfg)
 

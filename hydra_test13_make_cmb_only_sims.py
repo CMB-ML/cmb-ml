@@ -11,11 +11,7 @@ from component_cmb import CMBMaker, make_cmb_maker, save_der_cmb_ps, save_fid_cm
 from component_seed_maker import FieldLevelSeedMaker, SimLevelSeedMaker
 from planck_instrument import InstrumentNoise, InstrumentNoiseMaker, PlanckInstrument, make_noise_maker, make_planck_instrument
 
-from utils.hydra_log_helper import *
-from hydra_filesets import (
-    DatasetFiles,
-    DatasetConfigsBuilder
-    )
+from hydra_filesets import DatasetFiles, DatasetConfigsBuilder
 
 
 logger = logging.getLogger(__name__)
@@ -59,7 +55,6 @@ def try_make_all_configs(cfg):
     dataset_files = DatasetFiles(cfg)
 
     nside = cfg.simulation.nside
-    preset_strings = list(cfg.simulation.preset_strings)
     planck_freqs = list(cfg.simulation.detector_freqs)
     field_strings = list(cfg.simulation.fields)
     lmax_pysm3_smoothing = int(cfg.simulation.cmb.derived_ps_nsmax_x * nside)
