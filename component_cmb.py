@@ -1,58 +1,14 @@
-from pathlib import Path
+from typing import Dict, Any
 import logging
-import inspect
+from pathlib import Path
 from pysm3 import CMBLensed
 import camb
 from omegaconf.errors import ConfigAttributeError
 
-import numpy as np
-import healpy as hp
-
 from namer_dataset_output import SimFilesNamer
-
-
-# Based on https://camb.readthedocs.io/en/latest/CAMBdemo.html
-
+from physics_cmb import make_cmb_ps, map2ps, convert_to_log_power_spectrum
 
 logger = logging.getLogger(__name__)
-
-
-def make_cmb_ps(cosmo_params, lmax, cmb_ps_fp: Path) -> None:
-    #Set up a new set of parameters for CAMB
-    pars = setup_camb(cosmo_params, lmax)
-    results = run_camb(pars)
-    results.save_cmb_power_spectra(filename=cmb_ps_fp)
-    return
-
-
-def setup_camb(cosmo_params, lmax) -> camb.CAMBparams:
-    pars = camb.CAMBparams()
-
-    # I don't know what CAMB is doing, I just know I've got some lump of parameters to 
-    #   plug in to two different functions, so I read signatures to split the params up
-    #   this is a bit hacky, but is more flexible for now.
-    set_cosmology_params = get_param_names(pars.set_cosmology)
-    init_power_params = get_param_names(pars.InitPower.set_params)
-
-    # Split the cosmo_params dictionary
-    set_cosmology_args = {k: v for k, v in cosmo_params.items() if k in set_cosmology_params}
-    init_power_args = {k: v for k, v in cosmo_params.items() if k in init_power_params}
-
-    # Set the parameters
-    pars.set_cosmology(**set_cosmology_args)
-    pars.InitPower.set_params(r=0, **init_power_args)
-    pars.set_for_lmax(lmax, lens_potential_accuracy=0)
-    return pars
-
-
-def get_param_names(method):
-    sig = inspect.signature(method)
-    return [param.name for param in sig.parameters.values() if param.name != 'self']
-
-
-def run_camb(pars: camb.CAMBparams) -> camb.CAMBdata:
-    results = camb.get_results(pars)
-    return results
 
 
 class CMBFactory:
@@ -84,6 +40,8 @@ class CMBFactory:
                          map_dist=self.map_dist)
     
     def _get_or_make_ps_path(self, sim_files: SimFilesNamer) -> Path:
+        # returns the path for the power spectrum, but first,
+        #    creates a power spectrum file if it does not exist
         path = sim_files.cmb_ps_fid_path
         if not path.exists():
             if self.make_ps_if_absent:
@@ -93,6 +51,7 @@ class CMBFactory:
         return path
     
     def make_ps(self, sim_files: SimFilesNamer) -> None:
+        logger.debug(f"Making power spectrum for f{sim_files.name}.")
         cosmo_params = sim_files.read_wmap_params_file()
         out_path = sim_files.cmb_ps_fid_path
         make_cmb_ps(cosmo_params, self.max_ell_for_camb, out_path)
@@ -105,16 +64,16 @@ def make_cmb_maker(conf) -> CMBFactory:
 
 def save_fid_cmb_map(cmb: CMBLensed, sim: SimFilesNamer):
     fid_cmb_map = cmb.map
+    logger.debug(f"Saving fiducial cmb_map for {sim.name}")
     sim.write_fid_map(fid_cmb_map)
 
 
 def save_der_cmb_ps(cmb: CMBLensed, sim: SimFilesNamer, lmax: int):
+    logger.debug(f"Getting derived cmb_ps for {sim.name}")
     fid_cmb_map = cmb.map
-    ps = hp.anafast(fid_cmb_map, lmax=lmax)
-    ps = ps.T
-    ell = np.atleast_2d(np.arange(start=0, stop=ps.shape[0])).T
-    factor = ell * (ell + 1) / (2 * np.pi)
-    ps = ps * factor
+    ps_cl = map2ps(fid_cmb_map, lmax)
+    ps_dl = convert_to_log_power_spectrum(ps_cl)
+    logger.debug(f"Saving fiducial cmb_ps for {sim.name}")
     camb.results.save_cmb_power_array(sim.cmb_ps_der_path,
-                                      array=ps,
+                                      array=ps_dl,
                                       labels="TT EE BB TE EB TB")
