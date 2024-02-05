@@ -67,25 +67,30 @@ def make_all_simulations(cfg):
             
             noise: InstrumentNoise = noise_factory.make_instrument_noise()
             
+            logger.debug(f"Making sky for {sim.name}")
             sky = pysm3.Sky(nside=nside, 
                             component_objects=[cmb],
                             preset_strings=preset_strings, 
                             output_unit="uK_RJ")
+            logger.debug(f"Done making sky for {sim.name}")
 
             save_fid_cmb_map(cmb, sim)
-            logger.info(f"Writing derived ps at ell_max = {lmax_derived_ps}")
+            logger.debug(f"Writing derived ps at ell_max = {lmax_derived_ps} for {sim.name}")
             save_der_cmb_ps(cmb, sim, lmax=lmax_derived_ps)
 
             for nom_freq in planck_freqs:
                 beam = planck.get_beam(nom_freq)
+                logger.debug(f"For {sim.name}, {nom_freq} GHz: Getting sky emission.")
                 skymaps = sky.get_emission(beam.cen_freq)
+                logger.debug(f"For {sim.name}, {nom_freq} GHz: Getting sky emission done.")
                 obs_map = []
                 for skymap, field_str in zip(skymaps, field_strings):
-                    logger.debug(f"Writing simulation map for {split.name}:{sim.sim_num}, {nom_freq} GHz, {field_str} field.")
                     if nom_freq in [545, 857] and field_str != "T":
-                        logger.debug(f"Skipping combination of {nom_freq}, {field_str}; source data at these frequencies was not found.")
+                        logger.debug(f"For {sim.name}, {nom_freq} GHz, {field_str}: Skipping output; source data at these frequencies was not found.")
                         continue
+                    logger.debug(f"For {sim.name}, {nom_freq} GHz, {field_str}: applying beam effects.")
                     map_smoothed = pysm3.apply_smoothing_and_coord_transform(skymap, beam.fwhm, lmax=lmax_pysm3_smoothing)
+                    logger.debug(f"For {sim.name}, {nom_freq} GHz, {field_str}: making noise.")
                     noise_seed = noise_seed_factory.get_seed(split,
                                                         sim, 
                                                         nom_freq,
@@ -93,8 +98,11 @@ def make_all_simulations(cfg):
                     noise_map = noise.get_noise_map(nom_freq, field_str, noise_seed)
                     final_map = map_smoothed + noise_map
                     obs_map.append(final_map)
+                    logger.debug(f"For {sim.name}, {nom_freq} GHz, {field_str}: done with field.")
+                logger.debug(f"For {sim.name}, {nom_freq} GHz: writing file.")
                 sim.write_obs_map(obs_map, nom_freq)
-                logger.info(f"Success! Made map for {nom_freq} GHz.")
+                logger.info(f"For {sim.name}, {nom_freq} GHz: done with channel.")
+            logger.debug(f"For {sim.name}: done with simulation.")
 
 
 if __name__ == "__main__":

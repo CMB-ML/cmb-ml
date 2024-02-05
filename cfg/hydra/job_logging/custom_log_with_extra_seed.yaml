@@ -21,6 +21,9 @@ loggers:
   healpy:
     level: WARNING
     propagate: false
+  numba:
+    level: INFO
+    propagate: false
   seed_logger:
     handlers:
     - console

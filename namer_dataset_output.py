@@ -175,6 +175,10 @@ class SimFilesNamer:
         return _sim_num_str
 
     @property
+    def name(self) -> str:
+        return f"{self.sfl.name}:{self.sim_num_str}"
+
+    @property
     def sim_config_path(self) -> Path:
         return self.path / self.sim_config_fn
 
