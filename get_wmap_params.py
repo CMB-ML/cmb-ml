@@ -2,15 +2,15 @@ import os
 import numpy as np
 
 
-ROWS_IN_CHAINS = 1296570
+# ROWS_IN_CHAINS = 1296570
 
-def pull_params_from_file(wmap_chain_path, chain_idcs, params_to_get):
+def pull_params_from_file(wmap_chain_path, chain_idcs, params_to_get, wmap_chain_length):
     """
     Get parameters from wmap chains.
     
     For a tiny bit of speed, we do a single pass through the data files.
     """
-    n_chain_rows = ROWS_IN_CHAINS
+    n_chain_rows = wmap_chain_length
     n_vals = len(chain_idcs)
 
     # chain_idcs are not ordered
@@ -45,6 +45,6 @@ def pull_params_from_file(wmap_chain_path, chain_idcs, params_to_get):
     return param_vals
 
 
-def get_wmap_indices(n_indcs, seed:int):
+def get_wmap_indices(n_indcs, seed:int, wmap_chain_length: int):
     rng = np.random.default_rng(seed=seed)
-    return rng.integers(low=1, high=ROWS_IN_CHAINS, size=n_indcs, endpoint=True)
+    return rng.integers(low=1, high=wmap_chain_length, size=n_indcs, endpoint=True)

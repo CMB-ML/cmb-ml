@@ -12,6 +12,7 @@ class DatasetConfigsMaker:
         self.dsf = DatasetFilesNamer(conf)
         self.wmap_files = WMAPFilesNamer(conf)
         self.wmap_param_labels = conf.simulation.cmb.wmap_params
+        self.wmap_chain_length = conf.simulation.cmb.wmap_chain_length
 
     def setup_folders(self):
         # Ensure correct filesystem before creating folders in strange places
@@ -22,7 +23,7 @@ class DatasetConfigsMaker:
 
     def make_chain_idcs_for_each_split(self, seed:int) -> Dict[str, List[int]]:
         n_indices_total = self.dsf.total_n_ps
-        all_chain_indices = get_wmap_indices(n_indices_total, seed)
+        all_chain_indices = get_wmap_indices(n_indices_total, seed, wmap_chain_length=self.wmap_chain_length)
         # convert from numpy array of np.int64 to List[int] for OmegaConf
         all_chain_indices = getattr(all_chain_indices, "tolist", lambda: all_chain_indices)()
         
@@ -51,7 +52,8 @@ class DatasetConfigsMaker:
             split_conf = split.read_split_conf_file()
             wmap_params = pull_params_from_file(wmap_chain_path=self.wmap_files.wmap_chains_dir,
                                                 chain_idcs=split_conf.wmap_chain_idcs,
-                                                params_to_get=self.wmap_param_labels)
+                                                params_to_get=self.wmap_param_labels,
+                                                wmap_chain_length=self.wmap_chain_length)
 
             if split.ps_fidu_fixed:
                 n_sims_to_process = 1
