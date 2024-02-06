@@ -1,12 +1,19 @@
+from typing import List, Any
 from hashlib import sha256
 from omegaconf.errors import ConfigAttributeError
+from omegaconf import DictConfig
 import logging
+
+from namer_dataset_output import SplitFilesNamer, SimFilesNamer
 
 
 logger = logging.getLogger("seed_logger")
 
 class SeedMaker:
-    def __init__(self, conf, sky_component, use_backup_strs=False) -> None:
+    def __init__(self, 
+                 conf: DictConfig, 
+                 sky_component: Any, 
+                 use_backup_strs: bool=False) -> None:
         self.base: str = self.get_base_string(conf)
         self.component: str = self.get_component_string(conf, sky_component)
         self.use_backup_strs = use_backup_strs
@@ -15,7 +22,8 @@ class SeedMaker:
         except TypeError as e:
             raise e
 
-    def get_base_string(self, conf):
+    def get_base_string(self, 
+                        conf: DictConfig):
         try:
             base_string = conf.seed_base_string
         except ConfigAttributeError as e:
@@ -27,7 +35,9 @@ class SeedMaker:
                 raise e
         return str(base_string)
 
-    def get_component_string(self, conf, sky_component):
+    def get_component_string(self, 
+                             conf: DictConfig, 
+                             sky_component: Any) -> str:
         try:
             base_string = conf.simulation[sky_component].seed_string
             pass
@@ -40,7 +50,7 @@ class SeedMaker:
                 raise e
         return str(base_string)
 
-    def _get_seed(self, *args):
+    def _get_seed(self, *args: List[str]) -> int:
         try:
             str_list = [self.base, *args]
             seed_str = "_".join(str_list)
@@ -50,7 +60,7 @@ class SeedMaker:
         return seed_int
 
     @staticmethod
-    def string_to_seed(input_string):
+    def string_to_seed(input_string: str) -> int:
         hash_object = sha256(input_string.encode())
         # Convert the hash to an integer
         hash_integer = int(hash_object.hexdigest(), 16)
@@ -61,20 +71,30 @@ class SeedMaker:
 
 
 class SimLevelSeedFactory(SeedMaker):
-    def __init__(self, conf, sky_component) -> None:
+    def __init__(self, 
+                 conf: DictConfig, 
+                 sky_component: Any) -> None:
         super().__init__(conf, sky_component)
 
-    def get_seed(self, split, sim):
+    def get_seed(self, 
+                 split: SplitFilesNamer, 
+                 sim: SimFilesNamer) -> int:
         split_str = split.name
         sim_str = sim.sim_num_str
         return self._get_seed(split_str, sim_str, self.component)
 
 
 class FieldLevelSeedFactory(SeedMaker):
-    def __init__(self, conf, sky_component) -> None:
+    def __init__(self, 
+                 conf: DictConfig, 
+                 sky_component: Any) -> None:
         super().__init__(conf, sky_component)
 
-    def get_seed(self, split, sim, freq, field_str):
+    def get_seed(self, 
+                 split: SplitFilesNamer, 
+                 sim: SimFilesNamer, 
+                 freq: int, 
+                 field_str: str):
         split_str = split.name
         sim_str = sim.sim_num_str
         freq_str = str(freq)
