@@ -102,17 +102,6 @@ These maps are needed:
   - planck_assets/HFI_SkyMap_353-psb_2048_R3.01_full.fits
   - planck_assets/HFI_SkyMap_545_2048_R3.01_full.fits
   - planck_assets/HFI_SkyMap_857_2048_R3.01_full.fits
-- Noise files (found with "ffp10_noise_%%%_full_map_mc_00000.fits" on the ESA archive; unknown if CalTech has these.):
-  - fidu_noise/ffp10_noise_030_full_map_mc_00000.fits
-  - fidu_noise/ffp10_noise_044_full_map_mc_00000.fits
-  - fidu_noise/ffp10_noise_070_full_map_mc_00000.fits
-  - fidu_noise/ffp10_noise_100_full_map_mc_00000.fits
-  - fidu_noise/ffp10_noise_143_full_map_mc_00000.fits
-  - fidu_noise/ffp10_noise_217_full_map_mc_00000.fits
-  - fidu_noise/ffp10_noise_353_full_map_mc_00000.fits
-  - fidu_noise/ffp10_noise_545_full_map_mc_00000.fits
-  - fidu_noise/ffp10_noise_857_full_map_mc_00000.fits
-  - fidu_noise/ffp10_noise_353_psb_full_map_mc_00000.fits
 
 # Code Organization
 
@@ -159,6 +148,8 @@ I tried to remove filename tracking from anything that isn't a Namer. However, e
 - [ ] Run simulations v1
 - [ ] Make dev_pathX...py files into ... python notebooks and test scripts
 - [ ] Clean up (better names for files, get rid of testing/learning one-offs)
+  - [ ] Currently, "instrument" is in component_instrument; is that right?
+  - [ ] Should noise be made as a PySM3 Model so that it is more consistent?
 - [ ] Use or remove configuration items
 - [ ] Are the CalTech maps the same as the ESA maps? Just need to load the maps and calculate the difference.
 - [x] Change the CalTech shell script to get the LFI maps as well. Or just... make a different script to get them from ESA.
@@ -189,21 +180,7 @@ Downloading https://portal.nersc.gov/project/cmb/pysm-data/websky/0.4/cib/cib_08
 File not found, please make sure you are using the latest version of PySM 3
 While working on lowplus, error in detector 857.
 <urlopen error Unable to open any source! Exceptions were {'https://portal.nersc.gov/project/cmb/pysm-data/websky/0.4/cib/cib_0857.0.fits': ContentTooShortError('File was supposed to be 1610619840 bytes but we only got 1090100572 bytes. Download failed.'), 'http://www.astropy.org/astropy-data/websky/0.4/cib/cib_0857.0.fits': <HTTPError 404: 'Not Found'>}>
-No physical unit associated with file /Users/jimcamato/.astropy/cache/download/url/a6997a166010916ce04ada58b4872b86/contents
-No physical unit associated with file /Users/jimcamato/.astropy/cache/download/url/1a77be884471968effb02a9e53c2a236/contents
-545
-857
-No physical unit associated with file /Users/jimcamato/.astropy/cache/download/url/2233e1624d4c24ef8100824b8c088c68/contents
-No physical unit associated with file /Users/jimcamato/.astropy/cache/download/url/ca73bb01bc98b80a5f50b6066aa9c8fe/contents
-No physical unit associated with file /Users/jimcamato/.astropy/cache/download/url/2233e1624d4c24ef8100824b8c088c68/contents
-No physical unit associated with file /Users/jimcamato/.astropy/cache/download/url/ca73bb01bc98b80a5f50b6066aa9c8fe/contents
-No physical unit associated with file /Users/jimcamato/.astropy/cache/download/url/a6997a166010916ce04ada58b4872b86/contents
-No physical unit associated with file /Users/jimcamato/.astropy/cache/download/url/1a77be884471968effb02a9e53c2a236/contents
-545
-857
-(ml_cmb_pysm_sims) jimcamato@Jims-Laptop ml_cmb_pysm_sims % 
 ```
-
 
 # Credit / References
 
@@ -233,8 +210,6 @@ Making simulations principles:
 - Have two sets of configurations to look up for any step
     - The first set is common across all simulations, the other is everything else.
     - There are no intermediate levels.
-    - The common set is a set.
-    - The varied set may be a set (power spectra cosmo params 😓)
     - For specfic steps:
         - For making Power Spectra, this is common set and whatever contains WMAP parameters
 - Process is data
