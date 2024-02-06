@@ -1,4 +1,4 @@
-from typing import List, Any
+from typing import List
 from hashlib import sha256
 from omegaconf.errors import ConfigAttributeError
 from omegaconf import DictConfig
@@ -12,7 +12,7 @@ logger = logging.getLogger("seed_logger")
 class SeedMaker:
     def __init__(self, 
                  conf: DictConfig, 
-                 sky_component: Any, 
+                 sky_component: str, 
                  use_backup_strs: bool=False) -> None:
         self.base: str = self.get_base_string(conf)
         self.component: str = self.get_component_string(conf, sky_component)
@@ -37,7 +37,7 @@ class SeedMaker:
 
     def get_component_string(self, 
                              conf: DictConfig, 
-                             sky_component: Any) -> str:
+                             sky_component: str) -> str:
         try:
             base_string = conf.simulation[sky_component].seed_string
             pass
@@ -73,7 +73,7 @@ class SeedMaker:
 class SimLevelSeedFactory(SeedMaker):
     def __init__(self, 
                  conf: DictConfig, 
-                 sky_component: Any) -> None:
+                 sky_component: str) -> None:
         super().__init__(conf, sky_component)
 
     def get_seed(self, 
@@ -87,7 +87,7 @@ class SimLevelSeedFactory(SeedMaker):
 class FieldLevelSeedFactory(SeedMaker):
     def __init__(self, 
                  conf: DictConfig, 
-                 sky_component: Any) -> None:
+                 sky_component: str) -> None:
         super().__init__(conf, sky_component)
 
     def get_seed(self, 
