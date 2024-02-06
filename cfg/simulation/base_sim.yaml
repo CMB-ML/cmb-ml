@@ -1,5 +1,5 @@
 defaults:
-  - cmb:   base_cmb
+  - cmb:   wmap9_mnu
   - noise: base_noise
 nside            : 128
 preset_strings   : ["d9", "s4", "f1", "a1", "co1", "ksz1", "tsz1"]

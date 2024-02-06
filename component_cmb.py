@@ -15,6 +15,8 @@ class CMBFactory:
     def __init__(self, conf, make_ps_if_absent=None):
         self.nside = conf.simulation.nside
         self.max_ell_for_camb = conf.simulation.cmb.ell_max
+        self.wmap_param_labels = conf.simulation.cmb.wmap_params
+        self.camb_param_labels = conf.simulation.cmb.camb_params_equiv
         self.max_nside_pysm_component = None
         self.apply_delens = False
         self.delensing_ells = None
@@ -51,10 +53,28 @@ class CMBFactory:
         return path
     
     def make_ps(self, sim_files: SimFilesNamer) -> None:
-        logger.debug(f"Making power spectrum for f{sim_files.name}.")
+        logger.debug(f"Making power spectrum for {sim_files.name}.")
         cosmo_params = sim_files.read_wmap_params_file()
         out_path = sim_files.cmb_ps_fid_path
+
+        cosmo_params = self._translate_params_keys(cosmo_params)
+
         make_cmb_ps(cosmo_params, self.max_ell_for_camb, out_path)
+
+    def _param_translation_dict(self):
+        translation = {}
+        for i in range(len(self.wmap_param_labels)):
+            translation[self.wmap_param_labels[i]] = self.camb_param_labels[i]
+        return translation
+    
+    def _translate_params_keys(self, src_params):
+        translation_dict = self._param_translation_dict()
+        target_dict = {}
+        for k in src_params:
+            if k == "chain_idx":
+                continue
+            target_dict[translation_dict[k]] = src_params[k]
+        return target_dict
 
 
 def make_cmb_maker(conf) -> CMBFactory:

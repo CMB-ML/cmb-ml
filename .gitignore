@@ -15,6 +15,7 @@ cmb_spectrum.txt
 
 # Ignore potentially large files and symlinks
 wmap_assets/wmap_chains
+wmap_assets/wmap_lcdm_mnu_wmap9_chains_v5
 *.fits
 *.tar.gz
 
