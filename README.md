@@ -61,7 +61,7 @@ If you won't be actively pulling from the repo (how I long for that day), simply
 
 - Try to install all of pysm3 with pip
      - Within the repo, install using `pip install .`
-     - That may fail for healpy, but install everything else except pysm3 itself
+     - That may fail for healpy, but install everything else except pysm3 itself (not the case in Ubuntu docker ?)
      - Then do `pip install --no-deps .`
 
 - Still missing numba and toml

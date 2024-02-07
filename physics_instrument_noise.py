@@ -10,7 +10,7 @@ def planck_result_to_sd_map(fits_fn, hdu, field_idx, nside_out, cen_freq):
     source_skymap = hp.read_map(fits_fn, hdu=hdu, field=field_idx)
 
     m = _change_map_resolution(source_skymap, nside_out)
-    m = np.sqrt(source_skymap)
+    m = np.sqrt(m)
     
     src_unit = fits_inspect.get_field_unit(fits_fn, hdu, field_idx)
     sqrt_unit = _get_sqrt_unit(src_unit)

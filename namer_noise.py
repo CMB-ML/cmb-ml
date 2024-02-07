@@ -9,9 +9,16 @@ logger = logging.getLogger(__name__)
 
 
 class NoiseGenericFilesNamer:
-    def __init__(self, conf: DictConfig) -> None:
-        self.noise_dir: Path = None
+    def __init__(self, conf: DictConfig, root_dir: str) -> None:
+        self.root_dir = Path(root_dir)
         self.detectors: List[int] = conf.simulation.detector_freqs
+        self.assume_root_dir_exists()
+
+    def assume_root_dir_exists(self) -> None:
+        try:
+            assert self.root_dir.exists()
+        except:
+            raise FileNotFoundError(f"Cache root directory does not exist: {self.root_dir}")
 
     @staticmethod
     def _det_str(detector):
@@ -27,15 +34,14 @@ class NoiseGenericFilesNamer:
             raise ValueError(f"Detectors {detector} not in config file ({self.detectors}).")
 
     def _get_path(self, noise_fn: str):
-        noise_src_path = self.noise_dir / noise_fn
+        noise_src_path = self.root_dir / noise_fn
         return noise_src_path
 
 
 class NoiseSrcFilesNamer(NoiseGenericFilesNamer):
     def __init__(self, conf: DictConfig) -> None:
         logger.debug(f"Running {self.__class__.__name__} in {__name__}")
-        super().__init__(conf)
-        self.noise_dir = Path(conf.local_system.noise_src_dir)
+        super().__init__(conf, root_dir=conf.local_system.noise_src_dir)
 
         self.noise_files: Dict[str, str] = dict(conf.simulation.noise)
 
@@ -60,8 +66,7 @@ class NoiseSrcFilesNamer(NoiseGenericFilesNamer):
 class NoiseCacheFilesNamer(NoiseGenericFilesNamer):
     def __init__(self, conf: DictConfig) -> None:
         logger.debug(f"Running {self.__class__.__name__} in {__name__}")
-        super().__init__(conf)
-        self.noise_dir = Path(conf.local_system.noise_cache_dir)
+        super().__init__(conf, root_dir=conf.local_system.noise_cache_dir)
 
         self.cache_noise_fn_template: str = conf.file_system.noise_cache_fn_template
         self.create_noise_cache: bool = conf.create_noise_cache

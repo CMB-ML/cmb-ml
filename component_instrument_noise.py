@@ -10,15 +10,19 @@ from physics_instrument_noise import planck_result_to_sd_map, make_random_noise_
 
 class NoiseCacheCreator:
     def __init__(self, source_path: Path, nside: int, center_frequency):
-        self.hdr: int = fits_inspect.ASSUME_FITS_HEADER
+        self.hdu: int = fits_inspect.ASSUME_FITS_HEADER
         self.ref_path = source_path
         self.nside = nside
         self.center_frequency = center_frequency
 
     def create_noise_cache(self, field_str, cache_path) -> None:
-        field_idx = fits_inspect.lookup_field_idx(field_str)
+        field_idx = fits_inspect.lookup_field_idx(field_str, self.ref_path, self.hdu)
         
-        st_dev_skymap = planck_result_to_sd_map(self.ref_path, field_idx, self.nside)
+        st_dev_skymap = planck_result_to_sd_map(fits_fn=self.ref_path, 
+                                                hdu=self.hdu,
+                                                field_idx=field_idx, 
+                                                nside_out=self.nside,
+                                                cen_freq=self.center_frequency)
 
         col_names = {"T": "II", "Q": "QQ", "U": "UU"}
         hp.write_map(filename=str(cache_path),

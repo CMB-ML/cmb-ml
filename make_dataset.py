@@ -54,6 +54,7 @@ def make_all_simulations(cfg):
 
     noise_factory: InstrumentNoiseFactory = make_noise_maker(cfg, planck)
     noise_seed_factory = FieldLevelSeedFactory(cfg, "noise")
+    noise: InstrumentNoise = noise_factory.make_instrument_noise()
 
     logger.debug("Done with source configuration files")
 
@@ -64,8 +65,6 @@ def make_all_simulations(cfg):
 
             cmb_seed = cmb_seed_factory.get_seed(split, sim)
             cmb: pysm3.CMBLensed = cmb_factory.make_cmb_lensed(cmb_seed, sim)
-            
-            noise: InstrumentNoise = noise_factory.make_instrument_noise()
             
             logger.debug(f"Making sky for {sim.name}")
             sky = pysm3.Sky(nside=nside, 

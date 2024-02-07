@@ -3,4 +3,4 @@ datasets_root    : "/home/jim/cmb_datasets/"
 instr_table_path : "./planck_assets/planck_deltabandpass.tbl"
 noise_src_dir    : "./planck_assets/"
 wmap_chains_dir  : "./wmap_assets/wmap_lcdm_mnu_wmap9_chains_v5/"
-noise_cache_dir  : ./local_files/noise/
+noise_cache_dir  : ./cache/noise/
