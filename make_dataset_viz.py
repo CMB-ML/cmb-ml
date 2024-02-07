@@ -27,6 +27,7 @@ class VizFilesCfg:
     viz_obs_name: str = "obs_{freq}_{field}"
     viz_ps_fid_name: str = "ps_fid_{field}"
     viz_ps_der_name: str = "ps_der_{field}"
+    viz_ps_combo_name: str = "ps_combo_{field}"
 
 @dataclass
 class LocalConfig:
@@ -66,6 +67,7 @@ class VizFilesNamer:
         self.obs_name = cfg.file_system.viz_obs_name
         self.ps_fid_name = cfg.file_system.viz_ps_fid_name
         self.ps_der_name = cfg.file_system.viz_ps_der_name
+        self.ps_combo_name = cfg.file_system.viz_ps_combo_name
 
     def cmb_path(self, sim: SimFilesNamer, map_field):
         return self._make_path(sim, self.cmb_name.format(field=map_field))
@@ -78,6 +80,9 @@ class VizFilesNamer:
 
     def ps_der_path(self, sim: SimFilesNamer, map_field):
         return self._make_path(sim, self.ps_der_name.format(field=map_field))
+
+    def ps_combo_path(self, sim: SimFilesNamer, map_field):
+        return self._make_path(sim, self.ps_combo_name.format(field=map_field))
 
     def _make_path(self, sim, fn):
         path: Path = sim.path / self.dir / fn
@@ -167,6 +172,7 @@ class PSVizMaker:
         logger.info(f"Making power spectrum visualizations for {sim.sfl.name}:{sim.sim_num}")
         self.viz_fid_cmb_ps(sim)
         self.viz_der_cmb_ps(sim)
+        self.viz_der_and_fid_ps(sim)
 
     def viz_fid_cmb_ps(self, sim: SimFilesNamer) -> None:
         in_ps_path = sim.cmb_ps_fid_path
@@ -180,9 +186,9 @@ class PSVizMaker:
         namer = self.namer.ps_der_path
         self._viz_ps(in_ps_path, sim, title, namer)
 
-    def _viz_ps(self, in_ps, sim:SimFilesNamer, title: str, namer):
-        n_fields = self.get_n_fields_ps(in_ps)
-        ps = self.load_ps(in_ps)
+    def _viz_ps(self, in_ps_path, sim:SimFilesNamer, title: str, namer):
+        n_fields = self.get_n_fields_ps(in_ps_path)
+        ps = self.load_ps(in_ps_path)
         ells = ps[2:, 0]
         field_strs = ["L", "TT", "EE", "BB"]
         for field_idx in range(1, 1 + n_fields):
@@ -191,6 +197,49 @@ class PSVizMaker:
             plt.plot(ells, this_ps)
             plt.title(label=title.format(field_str=field_str))
             out_img_path = namer(sim, field_idx)
+            plt.savefig(out_img_path)
+            plt.close()
+
+    def viz_der_and_fid_ps(self, sim: SimFilesNamer):
+        in_ps_paths = [sim.cmb_ps_fid_path, sim.cmb_ps_der_path]
+        title = "Both Power Spectra, {field_str}"
+        namer = self.namer.ps_combo_path
+        self._viz_many_ps(in_ps_paths, sim, title, namer)
+
+    def _viz_many_ps(self, 
+                     in_ps_paths: List[np.ndarray], 
+                     sim:SimFilesNamer, 
+                     title: str, 
+                     namer):
+        ps_s = []
+        n_fields = None
+        ell_max = None
+        for in_ps_path in in_ps_paths:
+            n_fields_in = self.get_n_fields_ps(in_ps_path)
+            if n_fields is None:
+                n_fields = n_fields_in
+            else:
+                try: 
+                    assert n_fields == n_fields_in
+                except AssertionError as e:
+                    print(f"Different numbers of fields; unsure how to handle this. Paths with conflict: {in_ps_paths[0]}, {in_ps_path}")
+            ps = self.load_ps(in_ps_path)
+            if ell_max is None:
+                ell_max = ps.shape[0]
+            else:
+                if ps.shape[0] < ell_max: 
+                    ell_max = ps.shape[0]
+            ps_s.append(ps)
+        ells = ps[2:ell_max, 0]
+        field_strs = ["L", "TT", "EE", "BB"]
+        del ps
+        for field_idx in range(1, 1 + n_fields):
+            for ps in ps_s:
+                this_ps = ps[2:ell_max, field_idx]
+                plt.plot(ells, this_ps)
+            field_str = field_strs[field_idx]
+            plt.title(label=title.format(field_str=field_str))
+            out_img_path = namer(sim, field_str)
             plt.savefig(out_img_path)
             plt.close()
 
