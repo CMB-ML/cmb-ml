@@ -2,7 +2,7 @@ defaults:
   - local_system: ${oc.env:CMB_SIMS_LOCAL_SYSTEM}
   - file_system : common_fs
   - simulation  : base_sim
-  - splits      : one_one
+  - splits      : two_two
   - override hydra/job_logging: custom_log_with_extra_seed
   - _self_
 

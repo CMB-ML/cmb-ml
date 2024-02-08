@@ -64,6 +64,15 @@ def make_all_simulations(cfg):
 
     logger.debug("Done with source configuration files")
 
+    placeholder = pysm3.Model(nside=nside,
+                              max_nside=nside)
+
+    logger.debug("Creating sky.")
+    sky = pysm3.Sky(nside=nside, 
+                    component_objects=[placeholder],
+                    preset_strings=preset_strings, 
+                    output_unit="uK_RJ")
+
     logger.debug("Creating datasets")
     for split in dataset_files.iter_splits():
         for sim in split.iter_sims():
@@ -72,12 +81,9 @@ def make_all_simulations(cfg):
             cmb_seed = cmb_seed_factory.get_seed(split, sim)
             cmb: pysm3.CMBLensed = cmb_factory.make_cmb_lensed(cmb_seed, sim)
             
-            logger.debug(f"Making sky for {sim.name}")
-            sky = pysm3.Sky(nside=nside, 
-                            component_objects=[cmb],
-                            preset_strings=preset_strings, 
-                            output_unit="uK_RJ")
-            logger.debug(f"Done making sky for {sim.name}")
+            logger.debug(f"Hotswapping CMB in sky for {sim.name}")
+            sky.components[0] = cmb
+            logger.debug(f"Done hotswapping CMB in sky for {sim.name}")
 
             save_fid_cmb_map(cmb, sim)
             logger.debug(f"Writing derived ps at ell_max = {lmax_derived_ps} for {sim.name}")
