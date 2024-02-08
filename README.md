@@ -280,4 +280,6 @@ Conventions I'd love to have stuck with:
   - adding an "s" is the plural of the following
   - "freq" is an integer. "frq" and "frequency" are not used.
   - "detector" is the object. "det" is used in lower level functions for brevity.
-  
+- When dealing with files
+  - Use full words "source" and "destination"
+  - Use abbreviation "dir" for "directory"
