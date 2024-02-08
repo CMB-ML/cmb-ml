@@ -53,7 +53,7 @@ def try_cmb_from_conf(cfg):
     ps_plot_maker = PSVizMaker(cfg)
 
     # Look at Dummy0:0 sim only
-    split = dataset_files.get_split("Dummy0")
+    split = dataset_files.get_split(0)
     sim = split.get_sim(0)
     
     map_maker.make(sim)

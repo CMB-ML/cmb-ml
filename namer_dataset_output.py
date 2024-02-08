@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Union
 import logging
 
 import numpy as np
@@ -52,12 +52,22 @@ class DatasetFilesNamer:
         except:
             raise FileNotFoundError(f"Dataset root directory does not exist: {self.root}")
 
-    def get_split(self, split:str):
-        try: 
-            assert split in self.split_structures.keys()
-        except AssertionError:
-            raise ValueError(f"Split {split} is not specified in configuration files.")
-        return SplitFilesNamer(parent_dfl=self, split_name=split)
+    def get_split(self, split_id: Union[str, int]):
+        if isinstance(split_id, int):
+            try: 
+                split_str = self.split_structures.keys()[split_id]
+            except IndexError:
+                n_splits = len(self.split_structures.keys())
+                raise ValueError(f"Configuration files specify only {n_splits} keys; {split_id} requested.")
+        elif isinstance(split_id, str):
+            try: 
+                assert split_id in self.split_structures.keys()
+                split_str = split_id
+            except AssertionError:
+                raise ValueError(f"Split {split_id} is not specified in configuration files.")
+        else:
+            raise TypeError("split must be an int or str.")
+        return SplitFilesNamer(parent_dfl=self, split_name=split_str)
 
     def iter_splits(self):
         for split in self.split_structures:
