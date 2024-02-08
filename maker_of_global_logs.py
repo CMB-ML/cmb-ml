@@ -24,7 +24,8 @@ class LogMaker:
         base_path = self._find_common_paths(imported_local_py_files)
 
         for py_path in imported_local_py_files:
-            relative_py_path = py_path.relative_to(base_path)
+            # resolve() is needed; absolute path not guaranteed
+            relative_py_path = py_path.resolve().relative_to(base_path)
             target_path = target_root / relative_py_path
 
             target_path.parent.mkdir(parents=True, exist_ok=True)
