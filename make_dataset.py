@@ -72,6 +72,7 @@ def make_all_simulations(cfg):
                     component_objects=[placeholder],
                     preset_strings=preset_strings, 
                     output_unit="uK_RJ")
+    logger.debug("Done creating sky.")
 
     logger.debug("Creating datasets")
     for split in dataset_files.iter_splits():
