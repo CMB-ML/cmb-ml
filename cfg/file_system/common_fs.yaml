@@ -14,3 +14,6 @@ cmb_ps_der_fn           : cmb_ps_der.txt
 obs_map_fn              : "obs_{det}_map.fits"
 sim_config_fn           : config.txt
 noise_cache_fn_template : "sd_map_{det}_{field_char}_{nside}.fits"
+
+subdir_for_logs         : "Raw"
+subdir_for_log_scripts  : "scripts"

@@ -4,6 +4,7 @@ out4/
 out5/
 out_old/
 outputs/
+creation_logs/
 
 # Ignnore all output figures (for now)
 # TODO: Fix this?

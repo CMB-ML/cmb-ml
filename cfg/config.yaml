@@ -2,7 +2,7 @@ defaults:
   - local_system: ${oc.env:CMB_SIMS_LOCAL_SYSTEM}
   - file_system : common_fs
   - simulation  : base_sim
-  - splits      : two_two
+  - splits      : one_one
   - override hydra/job_logging: custom_log_with_extra_seed
   - _self_
 
@@ -10,3 +10,8 @@ create_dirs: false
 create_noise_cache: false
 dataset_name: Dummy
 seed_base_string: 'dummy'
+hydra:
+  run:
+    dir: creation_logs/${now:%Y-%m-%d-%H-%M-%S}
+  sweep:
+    dir: creation_logs_multirun/${now:%Y-%m-%d-%H-%M-%S}

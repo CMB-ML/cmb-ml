@@ -17,6 +17,7 @@ from component_instrument_noise import (InstrumentNoise,
 
 from namer_dataset_output import DatasetFilesNamer
 from maker_of_configs import DatasetConfigsMaker
+from maker_of_global_logs import LogMaker
 
 
 logger = logging.getLogger(__name__)
@@ -25,7 +26,12 @@ logger = logging.getLogger(__name__)
 @hydra.main(version_base=None, config_path="cfg", config_name="config")
 def make_all_simulations(cfg):
     logger.debug(f"Running {__name__} in {__file__}")
-    
+
+    dataset_files = DatasetFilesNamer(cfg)
+    log_maker = LogMaker(cfg, 
+                         dataset_files_path=dataset_files.path)
+    log_maker.log_scripts_to_hydra(source_script=__file__)
+
     logger.debug("Creating dataset directory structure")
     dataset_configs_builder = DatasetConfigsMaker(cfg)
     dataset_configs_builder.setup_folders()
@@ -39,7 +45,7 @@ def make_all_simulations(cfg):
     dataset_configs_builder.make_cosmo_param_configs()
 
     logger.debug("Creating directing objects from source configuration files")
-    dataset_files = DatasetFilesNamer(cfg)
+
     nside = cfg.simulation.nside
     preset_strings = list(cfg.simulation.preset_strings)
     planck_freqs = list(cfg.simulation.detector_freqs)
@@ -102,6 +108,10 @@ def make_all_simulations(cfg):
                 sim.write_obs_map(obs_map, nom_freq)
                 logger.info(f"For {sim.name}, {nom_freq} GHz: done with channel.")
             logger.debug(f"For {sim.name}: done with simulation.")
+        logger.debug(f"For {split.name}: done with split.")
+    logger.debug(f"For {dataset_files.name}: done with dataset.")
+    
+    log_maker.copy_hydra_run_to_dataset_log()
 
 
 if __name__ == "__main__":
