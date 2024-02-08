@@ -55,7 +55,7 @@ class DatasetFilesNamer:
     def get_split(self, split_id: Union[str, int]):
         if isinstance(split_id, int):
             try: 
-                split_str = self.split_structures.keys()[split_id]
+                split_str = list(self.split_structures.keys())[split_id]
             except IndexError:
                 n_splits = len(self.split_structures.keys())
                 raise ValueError(f"Configuration files specify only {n_splits} keys; {split_id} requested.")
