@@ -1,11 +1,15 @@
 from typing import Dict
 from pathlib import Path
+import logging
 
 import healpy as hp
 
 import utils.fits_inspection as fits_inspect
 from component_instrument import Detector, Instrument, InstrumentFilesNamer
 from physics_instrument_noise import planck_result_to_sd_map, make_random_noise_map
+
+
+logger = logging.getLogger(__name__)
 
 
 class NoiseCacheCreator:
@@ -16,6 +20,7 @@ class NoiseCacheCreator:
         self.center_frequency = center_frequency
 
     def create_noise_cache(self, field_str, cache_path) -> None:
+        logger.debug(f"component_instrument_noise.create_noise_cache start")
         field_idx = fits_inspect.lookup_field_idx(field_str, self.ref_path, self.hdu)
         
         st_dev_skymap = planck_result_to_sd_map(fits_fn=self.ref_path, 
@@ -35,6 +40,7 @@ class NoiseCacheCreator:
                     # TODO: figure out how to add a comment to hp's map... or switch with astropy equivalent 
                     #  extra_header=f"Variance map pulled from {self.ref_map_fn}, {col_names[field_str]}"
                      )
+        logger.debug(f"component_instrument_noise.create_noise_cache end")
         return st_dev_skymap
 
 

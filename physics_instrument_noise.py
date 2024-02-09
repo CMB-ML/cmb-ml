@@ -1,3 +1,5 @@
+import logging
+
 import numpy as np
 import healpy as hp
 import pysm3.units as u
@@ -6,7 +8,11 @@ from astropy.cosmology import Planck15
 import utils.fits_inspection as fits_inspect
 
 
+logger = logging.getLogger(__name__)
+
+
 def planck_result_to_sd_map(fits_fn, hdu, field_idx, nside_out, cen_freq):
+    logger.debug(f"physics_instrument_noise.planck_result_to_sd_map start")
     source_skymap = hp.read_map(fits_fn, hdu=hdu, field=field_idx)
 
     m = _change_map_resolution(source_skymap, nside_out)
@@ -24,14 +30,17 @@ def planck_result_to_sd_map(fits_fn, hdu, field_idx, nside_out, cen_freq):
              u.K, equivalencies=u.thermodynamic_temperature(cen_freq, Planck15.Tcmb0)
         ).value
 
+    logger.debug(f"physics_instrument_noise.planck_result_to_sd_map end")
     return m
 
 
 def make_random_noise_map(sd_map, random_seed, center_frequency):
+    logger.debug(f"physics_instrument_noise.make_random_noise_map start")
     rng = np.random.default_rng(random_seed)
     noise_map = rng.normal(scale=sd_map, size=sd_map.size)
     noise_map = u.Quantity(noise_map, u.K_CMB, copy=False)
     noise_map = noise_map.to(u.uK_RJ, equivalencies=u.cmb_equivalencies(center_frequency))
+    logger.debug(f"physics_instrument_noise.make_random_noise_map end")
     return noise_map
 
 

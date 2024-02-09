@@ -16,9 +16,11 @@ logger = logging.getLogger(__name__)
 
 def make_cmb_ps(cosmo_params, lmax, cmb_ps_fp: Path) -> None:
     #Set up a new set of parameters for CAMB
+    logger.debug(f"Beginning CAMB")
     pars = setup_camb(cosmo_params, lmax)
     results = run_camb(pars)
     results.save_cmb_power_spectra(filename=cmb_ps_fp)
+    logger.debug(f"Done with CAMB")
     return
 
 
