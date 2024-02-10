@@ -15,7 +15,7 @@ def planck_result_to_sd_map(fits_fn, hdu, field_idx, nside_out, cen_freq):
     logger.debug(f"physics_instrument_noise.planck_result_to_sd_map start")
     source_skymap = hp.read_map(fits_fn, hdu=hdu, field=field_idx)
 
-    m = _change_map_resolution(source_skymap, nside_out)
+    m = _change_variance_map_resolution(source_skymap, nside_out)
     m = np.sqrt(m)
     
     src_unit = fits_inspect.get_field_unit(fits_fn, hdu, field_idx)
@@ -44,14 +44,17 @@ def make_random_noise_map(sd_map, random_seed, center_frequency):
     return noise_map
 
 
-def _change_map_resolution(m, nside_out):
-    # From PySM3 template.py's read_map function, with minimal alteration:
+def _change_variance_map_resolution(m, nside_out):
+    # For variance maps, because statistics
+    power = 2
+
+    # From PySM3 template.py's read_map function, with minimal alteration (added 'power'):
     m_dtype = fits_inspect.get_map_dtype(m)
     nside_in = hp.get_nside(m)
     if nside_out < nside_in:  # do downgrading in double precision
-        m = hp.ud_grade(m.astype(np.float64), nside_out=nside_out)
+        m = hp.ud_grade(m.astype(np.float64), power=power, nside_out=nside_out)
     elif nside_out > nside_in:
-        m = hp.ud_grade(m, nside_out=nside_out)
+        m = hp.ud_grade(m, power=power, nside_out=nside_out)
     m = m.astype(m_dtype, copy=False)
     # End of used portion
     return m
