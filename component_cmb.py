@@ -6,14 +6,14 @@ import camb
 from omegaconf.errors import ConfigAttributeError
 
 from namer_dataset_output import SimFilesNamer
-from physics_cmb import make_cmb_ps, map2ps, convert_to_log_power_spectrum
+from physics_cmb import make_cmb_ps, map2ps, convert_to_log_power_spectrum, scale_fiducial_cmb
 
 logger = logging.getLogger(__name__)
 
 
 class CMBFactory:
     def __init__(self, conf, make_ps_if_absent=None):
-        self.nside = conf.simulation.nside
+        self.nside = conf.simulation.nside_sky
         self.max_ell_for_camb = conf.simulation.cmb.ell_max
         self.wmap_param_labels = conf.simulation.cmb.wmap_params
         self.camb_param_labels = conf.simulation.cmb.camb_params_equiv
@@ -84,8 +84,13 @@ def make_cmb_maker(conf) -> CMBFactory:
 
 def save_fid_cmb_map(cmb: CMBLensed, sim: SimFilesNamer):
     fid_cmb_map = cmb.map
+    units = fid_cmb_map.unit        # Astropy being all clever and tracking unity
+    values = fid_cmb_map.value       # The numbers in the array
+    nside_out = sim.dfl.nside_out
+    scaled_map = scale_fiducial_cmb(values, nside_out)
+    scaled_map = scaled_map * units
     logger.debug(f"Saving fiducial cmb_map for {sim.name}")
-    sim.write_fid_map(fid_cmb_map)
+    sim.write_fid_map(scaled_map)
 
 
 def save_der_cmb_ps(cmb: CMBLensed, sim: SimFilesNamer, lmax: int):

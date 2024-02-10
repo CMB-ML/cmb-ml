@@ -88,7 +88,7 @@ class InstrumentNoiseFactory:
         self.instrument: Instrument = planck
         self.src_name_getter=planck_instr_fs.src.get_path_for
         self.cache_name_getter=planck_instr_fs.cache.get_path_for
-        self.nside = conf.simulation.nside
+        self.nside = conf.simulation.nside_out
 
     def make_instrument_noise(self):
         detector_noises = {}

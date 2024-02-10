@@ -8,10 +8,11 @@ defaults:
 
 create_dirs: false
 create_noise_cache: false
-dataset_name: Dummy
+dataset_name: Dummy_nside_tests
 seed_base_string: 'dummy'
 hydra:
   run:
     dir: creation_logs/${now:%Y-%m-%d-%H-%M-%S}
   sweep:
     dir: creation_logs_multirun/${now:%Y-%m-%d-%H-%M-%S}
+  verbose: true
