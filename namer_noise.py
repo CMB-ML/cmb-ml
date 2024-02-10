@@ -69,7 +69,6 @@ class NoiseCacheFilesNamer(NoiseGenericFilesNamer):
         super().__init__(conf, root_dir=conf.local_system.noise_cache_dir)
 
         self.cache_noise_fn_template: str = conf.file_system.noise_cache_fn_template
-        self.create_noise_cache: bool = conf.create_noise_cache
         self.nside: int = conf.simulation.nside_out
 
     def _get_noise_fn(self, detector: int, field: str) -> str:
