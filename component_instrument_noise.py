@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Dict, Callable
 from pathlib import Path
 import logging
 
@@ -53,27 +53,64 @@ class InstrumentNoise:
 
 
 class DetectorNoise:
-    def __init__(self, detector:Detector, src_name_getter, cache_name_getter, nside):
+    def __init__(self, 
+                 detector:Detector, 
+                 src_name_getter: Callable, 
+                 cache_name_getter: Callable, 
+                 nside: int, 
+                 force_new_cache: bool):
         self.detector = detector
         self.cache_name_getter = cache_name_getter
         self.cache_creator = NoiseCacheCreator(src_name_getter(self.detector.nom_freq),
                                                nside,
                                                self.detector.cen_freq)
+        self.force_new_cache = force_new_cache
+        self.new_cache_made = {}
 
     def get_noise_map(self, field, seed):
         sd_map =  self._get_or_make_sd_map(field)
-        try:
-            noise_map = self.make_noise_map(sd_map, seed)
-        except NotImplementedError as e:
-            raise e
+        noise_map = self.make_noise_map(sd_map, seed)
         return noise_map
 
     def _get_or_make_sd_map(self, field):
         cache_path: Path = self.cache_name_getter(self.detector.nom_freq, field)
-        if not cache_path.exists():
+        made: bool = self.was_cache_already_made(field)
+        exists: bool = cache_path.exists()
+        force: bool = self.force_new_cache
+        need: bool
+
+        # if we've marked the noise as made and it was deleted, we have an issue
+        if made and not exists:
+            raise FileNotFoundError(f"Cached noise at {cache_path} reportedly made but does not currently exist.")
+        
+        # If the noise cache hasn't been made, and doesn't exist, we need to make it
+        #    if we're forcing the creation of the cache, and we didn't make it 
+        #    (for this run of simulations), we need to make it.
+        # made  force  exists  |  need
+        #  F      F      F     |    T 
+        #  F      F      T     |    F
+        #  F      T      F     |    T
+        #  F      T      T     |    T
+        #  T      F      F     |    F
+        #  T      F      T     |    F
+        #  T      T      F     |    F
+        #  T      T      T     |    F
+
+        need = False
+        if not made and (force or not exists):
+            need = True
+
+        if need:
             self.cache_creator.create_noise_cache(field, cache_path)
+            self.mark_cache_made(field)
         return hp.read_map(cache_path)
     
+    def was_cache_already_made(self, field) -> bool:
+        return self.new_cache_made.get(field, False)
+
+    def mark_cache_made(self, field) -> None:
+        self.new_cache_made[field] = True
+
     def make_noise_map(self, sd_map, random_seed):
         return make_random_noise_map(sd_map, 
                                       random_seed, 
@@ -89,6 +126,7 @@ class InstrumentNoiseFactory:
         self.src_name_getter=planck_instr_fs.src.get_path_for
         self.cache_name_getter=planck_instr_fs.cache.get_path_for
         self.nside = conf.simulation.nside_out
+        self.force_new_cache = conf.force_new_noise_cache
 
     def make_instrument_noise(self):
         detector_noises = {}
@@ -97,7 +135,8 @@ class InstrumentNoiseFactory:
             detector_noises[freq] = DetectorNoise(detector,
                                                   src_name_getter=self.src_name_getter,
                                                   cache_name_getter=self.cache_name_getter,
-                                                  nside=self.nside)
+                                                  nside=self.nside,
+                                                  force_new_cache=self.force_new_cache)
         instrument_noise = InstrumentNoise(detector_noises)
         return instrument_noise
 

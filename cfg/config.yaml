@@ -7,9 +7,9 @@ defaults:
   - _self_
 
 create_dirs: false
-create_noise_cache: false
-dataset_name: Dummy_nside_tests
-seed_base_string: 'dummy'
+force_new_noise_cache: true
+dataset_name: TQU_128
+seed_base_string: 'TQU_128'
 hydra:
   run:
     dir: creation_logs/${now:%Y-%m-%d-%H-%M-%S}
