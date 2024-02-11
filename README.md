@@ -137,29 +137,77 @@ I tried to remove filename tracking from anything that isn't a Namer. However, e
 - [x] CMB component determined by cosmological parameter draws from WMAP 9 chains. 
 - [x] Output, per component, default variation (requires 2 runs); compare them (see check_variation_in_base.py)
 - [x] Switch to uK_CMB instead of uK_RJ 
-    - [x] simple fix: when initializing Sky(), include "output_unit='uK_CMB'"
-    - [ ] uglier fix: noise is broken (see fixed_map_synth3.py [not 4] results)
+  - [x] simple fix: when initializing Sky(), include "output_unit='uK_CMB'"
+  - [ ] uglier fix: noise is broken (see fixed_map_synth3.py [not 4] results)
 - [x] Organize development scripts for others to follow the trail of work 
-- [ ] Where not enough variation exists (read: same thing), use PySM component_objects interface instead of preset_strings 
 - [ ] Make presentation of the above
-- [ ] Replace the cmb_component.py code that relies on fixed cosmo_params
-- [ ] Traceability/reproducability (this is a lot of stuff, todo: break down further)
-- [ ] Move to Markov
+- [x] Replace the cmb_component.py code that relies on fixed cosmo_params
+- [x] Traceability/reproducability (this is a lot of stuff, todo: break down further)
+- [x] Move to Markov
 - [ ] Run simulations v1
-- [ ] Make dev_pathX...py files into ... python notebooks and test scripts
-- [ ] Clean up (better names for files, get rid of testing/learning one-offs)
-  - [ ] Currently, "instrument" is in component_instrument; is that right?
-  - [ ] Should noise be made as a PySM3 Model so that it is more consistent?
-- [ ] Use or remove configuration items
-- [ ] Are the CalTech maps the same as the ESA maps? Just need to load the maps and calculate the difference.
-- [x] Change the CalTech shell script to get the LFI maps as well. Or just... make a different script to get them from ESA.
+  - [x] Timing & size tests
+  - [x] 128T, Full Suite (1250 Training, 200 Test varied ps, 1000 Test [10 ps sets of 100 each])
+  - [ ] 512T, Full Suite (1250 Training, 200 Test varied ps, 1000 Test [10 ps sets of 100 each])
+- [x] Make dev_pathX...py files into python notebook
+- [x] Clean up
+  - [x] Better names
+  - [x] Get rid of testing/learning one-offs
+  - [ ] Make instrumentation noise as a PySM3 Model
+- [x] Change the CalTech shell script to get the LFI maps (Planck Assets) as well
 
-Physics questions:
-* Does this method work?
-* Why do maps look weird (especially polarization) re: smoothing?
-* Why do maps look weird (especially polarization) re: instrument noise?
-* Are unit conversions correct?
-* Is variance correct?
+Markov:
+- [ ] Mount astropy outside Docker
+- [x] Timing tests (shell script still needed)
+- [ ] Autorun Python code in Docker
+
+# UG Ready
+
+- [ ] Where not enough variation exists (read: same thing), use PySM component_objects interface instead of preset_strings 
+- [ ] Make tests
+- [ ] Review: use or remove configuration items
+- [ ] Make a script to get Planck Assets from ESA
+- [ ] Time how long each preset string adds
+- [ ] How much time does each preset string add?
+- [ ] For each preset string, at each freq, in each field, what is the max and minimum value? What is the median, Q1, Q3, and sd?
+- [ ] Are the CalTech maps the same as the ESA maps? Just need to load the maps and calculate the difference.
+- [ ] Ensure variation between: sims, components, fields, noise
+- [x] Local_system config tracking (I think I meant backing up the config files)
+- [ ] Demonstration of smiley-face thing
+- [ ] Convert dev path files (dev#, hydra#) to tutorial notebooks & tests
+- [ ] Fiducial & Derived PS on a single plot in inspect_simulations.py
+- [ ] Backup of script with created dataset (possibly to be used even after DVC is in place)
+- [ ] Make noise as a pysm3.Model instead of ... what it is now
+- [ ] Check if hydra sweeps work with the current logging setup (probably not, in hindsight)
+- [ ] Ensure use of create_dirs flags in config file
+- [ ] Ensure use of create_cache flag in config file
+- [ ] Shell script to automatically get sizes and run times:
+  - Clear noise cache (and others, if they exist)
+  - Run 128_1_1 (create new noise cache)
+  - Run 128_2_2 (get timing)
+  - Run 512_1_1
+  - Run 512_2_2
+  - Run 2048_1_1
+  - Run 2048_2_2
+  - Get run time for each resolution @ 2_2
+  - Get file size for each resolution, per sim
+  - Without changing NUMBA_NUM_THREADS and OMP_NUM_THREADS ??? Or with? Or check =10, =100 for each?
+  - Run 128_2_2 with non-recommended nside_sky of 128 or 256?
+
+# Credit / References
+
+https://camb.readthedocs.io/en/latest/CAMBdemo.html
+
+
+# Structure
+    
+Conventions I'd love to have stuck with:
+- When referring to detectors
+  - adding an "s" is the plural of the following
+  - "freq" is an integer. "frq" and "frequency" are not used.
+  - "detector" is the object. "det" is used in lower level functions for brevity.
+- When dealing with files
+  - Use full words "source" and "destination"
+  - Use abbreviation "dir" for "directory"
 
 
 # Full output of URLErrors (temporary section):
@@ -181,105 +229,3 @@ File not found, please make sure you are using the latest version of PySM 3
 While working on lowplus, error in detector 857.
 <urlopen error Unable to open any source! Exceptions were {'https://portal.nersc.gov/project/cmb/pysm-data/websky/0.4/cib/cib_0857.0.fits': ContentTooShortError('File was supposed to be 1610619840 bytes but we only got 1090100572 bytes. Download failed.'), 'http://www.astropy.org/astropy-data/websky/0.4/cib/cib_0857.0.fits': <HTTPError 404: 'Not Found'>}>
 ```
-
-# Credit / References
-
-https://camb.readthedocs.io/en/latest/CAMBdemo.html
-
-
-# Structure
-
-Making simulations principles:
-- Define the steps
-    * Each step is defined by the single data object output.
-    * Making a simulation set is a process composed of many steps. 
-- Each step should deterministically follow the previous steps.
-    * ~~Use seeds stored in configuration files.~~
-    * Compose seeds from names of levels, store those in config files.
-- Save the small files. Save the large files only if they're to be used in the end analysis.
-    * Save configuration files, even if they're only used to produce other configuration files.
-    - Specifically, keep as individual files:
-        - cosmo params
-        - full dataset setup configuration
-        - each split setup configuration
-        - each simulation setup configuration
-        - power spectra
-        - contaminated maps at each frequency
-    - Do not keep:
-        - Individual contaminants at each frequency
-- Have two sets of configurations to look up for any step
-    - The first set is common across all simulations, the other is everything else.
-    - There are no intermediate levels.
-    - For specfic steps:
-        - For making Power Spectra, this is common set and whatever contains WMAP parameters
-- Process is data
-    * Ensure the scripts used to produce some data are associated with and recoverable for the data.
-- Object hierarchy
-    - Prefer external initialization 
-        - I'm not sure the right way to go, but I'd rather attempt to be consistent
-        - Minimal creation of stuff while processing, instead all tracking/doing objects are *created* up front
-        - Call methods in the doing objects after all are created so they can be inspected before processes are done
-        - Maybe this will be easier to parallelize later if we decide to do so (???)
-- Make manipulation objects at a global level, which serve up components at local level (???)
-    - Global level stuff reads from the hydra config, so local stuff doesn't need access
-
-* Creating a dataset
-    - Parameters
-        - local configuration
-            - datasets root directory
-            - source data locations
-                - wmap_chains_files
-                - map files (noise data)
-                - planck detector information
-        - file system
-            - DatasetName/Raw/SplitName/SimulationNum
-                * At Raw/ level: cfg for splits
-                * At SplitName level: cfg for this split, ps if needed
-                * At SimulationNum level: cfg for this simulation
-            - common filenames
-                - fiducial cmb map, clean
-                - derived cmb map, lensing only (TBD)
-                - derived cmb power spectrum (function of the fiducial map)
-                - derived cmb power spectrum (function of the derived w/ lensing map) (TBD)
-                - obs maps fn format (include {} for detector frequency)
-        - splits configuration
-            - names of splits
-            - number of simulations for each split
-            - if split has single cosmo_param_set
-        - simulation configuration
-            - contaminant strings
-            - Contaminant classes and parameters (possibly in subconfigs) (TBD, none currently)
-            - wmap parameters to draw (list of strings)
-            - detector frequencies
-
-        * Autogenerated configurations:
-        - split configuration (autogenerated)
-            - name of split
-            - number of simulations
-            - if split has single cosmo_param_set
-            - split PySM3 base seed (x10^6 for each split)
-            - reference to autogeneration script
-            - WMAP param indices (end of file)
-        - simulation configuration (autogenerated)
-            - WMAP param index
-            - WMAP-sourced cosmo params
-            - PySM3 seeds (x10^2 for each simulation)
-            - power spectrum filename (relative to DatasetName/, meaning it always includes Raw/SplitName for clarity)
-
-    * Procedure
-        - Validate local and splits configurations, making directories as needed
-        - Generate WMAP indices list
-        - Generate split configurations
-        - ~~Generate simulation configurations~~
-        - Generate power spectra based on WMAP cosmo parameters
-        - Generate noise cache files
-        - Generate maps
-        
-Conventions I'd love to have stuck with:
-- When referring to detectors
-  - adding an "s" is the plural of the following
-  - "freq" is an integer. "frq" and "frequency" are not used.
-  - "detector" is the object. "det" is used in lower level functions for brevity.
-- When dealing with files
-  - Use full words "source" and "destination"
-  - Use abbreviation "dir" for "directory"
