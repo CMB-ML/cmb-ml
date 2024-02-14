@@ -16,9 +16,11 @@ logger = logging.getLogger(__name__)
 
 def make_cmb_ps(cosmo_params, lmax, cmb_ps_fp: Path) -> None:
     #Set up a new set of parameters for CAMB
+    logger.debug(f"Beginning CAMB")
     pars = setup_camb(cosmo_params, lmax)
     results = run_camb(pars)
     results.save_cmb_power_spectra(filename=cmb_ps_fp)
+    logger.debug(f"Done with CAMB")
     return
 
 
@@ -81,9 +83,14 @@ def map2ps(skymap: np.ndarray, lmax: int) -> np.ndarray:
     return ps
 
 
-def convert_to_log_power_spectrum(ps_cl):
+def convert_to_log_power_spectrum(ps_cl: np.ndarray):
     # Converts from "Cl" to "Dl", also called the "Log Power Spectrum"
     ell = np.atleast_2d(np.arange(start=0, stop=ps_cl.shape[0])).T
     factor = ell * (ell + 1) / (2 * np.pi)
     ps_dl = ps_cl * factor
     return ps_dl
+
+
+def scale_fiducial_cmb(cmb_map: np.ndarray, nside_out: int):
+    scaled_map = hp.ud_grade(cmb_map, nside_out=nside_out, dtype=cmb_map.dtype)
+    return scaled_map

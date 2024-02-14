@@ -26,6 +26,7 @@ class DatasetFilesNamer:
         dir_str = dir_str_template.format(dataset_name=self.name)
         self.path = self.root / dir_str
         self.freqs: List[int] = conf.simulation.detector_freqs
+        self.nside_out = conf.simulation.nside_out
 
         # For use in SplitFolderLocator
         self.split_structures: Dict[str, Any] = dict(conf.splits)

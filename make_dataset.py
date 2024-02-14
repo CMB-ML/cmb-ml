@@ -46,12 +46,15 @@ def make_all_simulations(cfg):
 
     logger.debug("Creating directing objects from source configuration files")
 
-    nside = cfg.simulation.nside
+    nside_out = cfg.simulation.nside_out
+    nside_sky = cfg.simulation.nside_sky
+    assert nside_sky > nside_out, "nside of sky should be greater than nside of target output by at least a factor of 2"
+
     preset_strings = list(cfg.simulation.preset_strings)
     planck_freqs = list(cfg.simulation.detector_freqs)
     field_strings = list(cfg.simulation.fields)
-    lmax_pysm3_smoothing = int(cfg.simulation.cmb.derived_ps_nsmax_x * nside)
-    lmax_derived_ps = int(cfg.simulation.cmb.derived_ps_nsmax_x * nside)
+    lmax_pysm3_smoothing = int(cfg.simulation.cmb.derived_ps_nsmax_x * nside_out)
+    lmax_derived_ps = int(cfg.simulation.cmb.derived_ps_nsmax_x * nside_out)
 
     planck: Instrument = make_planck_instrument(cfg)
 
@@ -64,20 +67,29 @@ def make_all_simulations(cfg):
 
     logger.debug("Done with source configuration files")
 
+    placeholder = pysm3.Model(nside=nside_sky,
+                              max_nside=nside_sky)
+
+    logger.debug("Creating sky.")
+    sky = pysm3.Sky(nside=nside_sky, 
+                    component_objects=[placeholder],
+                    preset_strings=preset_strings, 
+                    output_unit="uK_RJ")
+    logger.debug("Done creating sky.")
+
     logger.debug("Creating datasets")
     for split in dataset_files.iter_splits():
         for sim in split.iter_sims():
             logger.debug(f"Creating simulation {split.name}:{sim.sim_num}")
 
             cmb_seed = cmb_seed_factory.get_seed(split, sim)
+            logger.debug(f"Making CMB")
             cmb: pysm3.CMBLensed = cmb_factory.make_cmb_lensed(cmb_seed, sim)
-            
-            logger.debug(f"Making sky for {sim.name}")
-            sky = pysm3.Sky(nside=nside, 
-                            component_objects=[cmb],
-                            preset_strings=preset_strings, 
-                            output_unit="uK_RJ")
-            logger.debug(f"Done making sky for {sim.name}")
+            logger.debug(f"Done making CMB")
+
+            logger.debug(f"Hotswapping CMB in sky for {sim.name}")
+            sky.components[0] = cmb
+            logger.debug(f"Done hotswapping CMB in sky for {sim.name}")
 
             save_fid_cmb_map(cmb, sim)
             logger.debug(f"Writing derived ps at ell_max = {lmax_derived_ps} for {sim.name}")
@@ -94,12 +106,12 @@ def make_all_simulations(cfg):
                         logger.debug(f"For {sim.name}, {nom_freq} GHz, {field_str}: Skipping output; source data at these frequencies was not found.")
                         continue
                     logger.debug(f"For {sim.name}, {nom_freq} GHz, {field_str}: applying beam effects.")
-                    map_smoothed = pysm3.apply_smoothing_and_coord_transform(skymap, beam.fwhm, lmax=lmax_pysm3_smoothing)
+                    map_smoothed = pysm3.apply_smoothing_and_coord_transform(skymap, beam.fwhm, lmax=lmax_pysm3_smoothing, output_nside=nside_out)
                     logger.debug(f"For {sim.name}, {nom_freq} GHz, {field_str}: making noise.")
                     noise_seed = noise_seed_factory.get_seed(split,
-                                                        sim, 
-                                                        nom_freq,
-                                                        field_str)
+                                                             sim, 
+                                                             nom_freq,
+                                                             field_str)
                     noise_map = noise.get_noise_map(nom_freq, field_str, noise_seed)
                     final_map = map_smoothed + noise_map
                     obs_map.append(final_map)
