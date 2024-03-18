@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 
 from pysm3.models.template import read_txt as pysm_read_txt
 
-from namer_dataset_output import DatasetFilesNamer, SimFilesNamer
+from src.sims.namer_dataset_output import DatasetFilesNamer, SimFilesNamer
 from utils.planck_cmap import colombi1_cmap
 from utils.fits_inspection import get_num_fields
 

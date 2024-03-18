@@ -1,0 +1,9 @@
+Train:
+  ps_fidu_fixed: false
+  n_sims: 3
+Test1:
+  ps_fidu_fixed: true
+  n_sims: 3
+Test2:
+  ps_fidu_fixed: false
+  n_sims: 3

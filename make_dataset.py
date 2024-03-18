@@ -15,9 +15,9 @@ from component_instrument_noise import (InstrumentNoise,
                                         InstrumentNoiseFactory, 
                                         make_noise_maker)
 
-from namer_dataset_output import DatasetFilesNamer
-from maker_of_configs import DatasetConfigsMaker
-from maker_of_global_logs import LogMaker
+from src.sims.namer_dataset_output import DatasetFilesNamer
+from src.sims.maker_of_configs import DatasetConfigsMaker
+from src.core.maker_of_global_logs_OLD import LogMaker
 
 
 logger = logging.getLogger(__name__)

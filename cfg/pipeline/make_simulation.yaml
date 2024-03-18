@@ -1,0 +1,127 @@
+# Format of this config:
+#  - The pipeline is a sequence of stages
+#  - The top-level key is the name of a stage (string) in the pipeline
+#  - Each stage is a dictionary with the following keys:
+#    - assets_out: dictionary of assets produced by this stage
+#       - Each asset_out is a key-value pair
+#         - The key (string) is the name of the asset
+#         - The value (dictionary) contains the following (for now, one key):
+#           - fn (the string "fn"): name (string) of file to store the asset
+#    - assets_in: dictionary of assets required by this stage
+#       - Each asset_in is a key-value pair
+#         - The key (string) is the name of the asset
+#         - The value (dictionary) contains the following (for now, one):
+#           - stage (the string "stage"): name (string) of stage that produced the asset
+#           - The value MUST appear as a stage name preceding the current stage!
+#              - e.g. preprocess can only use "raw" and "make_normalization"
+#    - splits: list of splits to process
+#      - Each split is a string
+#    - dir_name (string): name of the directory to store the assets 
+#  - The first stage should be "raw" (not simulation)
+make_configs:
+  assets_out:
+  assets_in:
+  splits:
+    - train
+    - test
+  dir_name: Simulation
+make_noise:
+  assets_out:
+    noise_cache:
+      fn: "asdfasdfasdf{}"
+      handler: ManyHealpyMaps
+      path_template: "{path}{to}{raw}{assets}"
+  assets_in:
+    noise_source:
+      fn: "{instr}_SkyMap_{det}{optionalflag}_{nside}_R3.0{version}_full.fits"
+      handler: ManyHealpyMaps
+      path_template: "{path}{to}{raw}{assets}"
+  splits:
+    - train
+    - test
+  dir_name: NoiseCache
+simulation:
+  assets_out:
+    cmb_map: 
+      fn: cmb_map_fid.fits
+      handler: HealpyMap
+    obs_maps: 
+      fn: "obs_{det}_map.fits"
+      handler: ManyHealpyMaps
+    cmb_ps_fidu: 
+      fn: cmb_ps_fid.txt
+      handler: HealpyPS
+    cmb_ps_der: 
+      fn: cmb_ps_der.txt
+      handler: HealpyPS
+  assets_in:
+    noise_cache:
+      fn: "asdfasdfa{}"
+      handler: ManyHealpyMaps
+      path_template: "{path}{to}{raw}{assets}"
+  splits:
+    - train
+    - test
+  dir_name: Simulation
+# make_normalization:
+#   assets_out:
+#     norm_file: 
+#       fn: normalization.yaml
+#       handler: Config
+#       path_template: "{root}/{dataset}/{stage}/{fn}"
+#   assets_in:
+#     cmb_map: {stage: raw}
+#     obs_maps: {stage: raw}
+#   splits:
+#     - train
+#   dir_name: Petroff_A_Extrema
+# preprocess:
+#   assets_out:
+#     cmb_map: 
+#       fn: cmb_map.fits
+#       handler: HealpyMap
+#     obs_maps: 
+#       fn: "obs_{det}_map.fits"
+#       handler: ManyHealpyMaps
+#   assets_in:
+#     norm_file: {stage: make_normalization}
+#     cmb_map: {stage: raw}
+#     obs_maps: {stage: raw}
+#   splits:
+#     - train
+#     - test
+#   dir_name: Petroff_B_Preprocess
+# train:
+#   assets_out:
+#     model: 
+#       fn: "model_{epoch}.pth"
+#       handler: PyTorchModel
+#       path_template: "{root}/{dataset}/{stage}/{fn}"
+#   assets_in:
+#     cmb_map: {stage: preprocess}
+#     obs_maps: {stage: preprocess}
+#   splits:
+#     - train
+#   dir_name: Petroff_C_Model
+# predict:
+#   assets_out:
+#     cmb_map: 
+#       fn: "cmb_map_pred.fits"
+#       handler: HealpyMap
+#   assets_in:
+#     model: {stage: train}
+#     obs_maps: {stage: preprocess}
+#   splits:
+#     - test
+#   dir_name: Petroff_D_Predict
+# postprocess:
+#   assets_out:
+#     post_cmb_map: 
+#       fn: "cmb_map_post.fits"
+#       handler: HealpyMap
+#   assets_in:
+#     norm_file: {stage: make_normalization}
+#     cmb_map: {stage: predict}
+#   splits:
+#     - test
+#   dir_name: Petroff_E_Postprocess

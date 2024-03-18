@@ -1,5 +1,6 @@
 # Ignore data folders
 creation_logs/
+Logs/
 Data/
 
 # Ignore potentially large files

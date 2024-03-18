@@ -1,19 +1,22 @@
-dir_to_dataset          : "{dataset_name}"
-dir_to_split            : "Raw/{split_name}"
-dir_to_sim              : "{sim_folder}"
+# dir_to_dataset          : "{dataset_name}"
+# dir_to_split            : "Raw/{split_name}"
+# dir_to_sim              : "{sim_folder}"
 sim_folder_prefix       : "sim"
 sim_str_num_digits      : 4
 
-split_cfg_fn            : split_config.yaml
+# split_cfg_fn            : split_config.yaml
 # Keep a copy of the wmap parameters in the directory with the power spectra if ps_fidu_fixed
-cosmo_param_fn          : wmap_param.yaml
+# cosmo_param_fn          : wmap_param.yaml
 
 cmb_map_fid_fn          : cmb_map_fid.fits
 cmb_ps_fid_fn           : cmb_ps_fid.txt
 cmb_ps_der_fn           : cmb_ps_der.txt
 obs_map_fn              : "obs_{det}_map.fits"
-sim_config_fn           : config.txt
-noise_cache_fn_template : "sd_map_{det}_{field_char}_{nside}.fits"
+# sim_config_fn           : config.txt
+# noise_cache_fn_template : "sd_map_{det}_{field_char}_{nside}.fits"
 
-subdir_for_logs         : "Raw"
+# subdir_for_logs         : "Logs"
 subdir_for_log_scripts  : "scripts"
+log_dataset_template_str: "{root}/{dataset}/{hydra_run_dir}"
+
+default_path_template   : "{root}/{dataset}/{stage}/{split}/{sim}/{fn}"

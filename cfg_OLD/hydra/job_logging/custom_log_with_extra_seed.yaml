@@ -13,10 +13,10 @@ handlers:
     class: logging.FileHandler
     formatter: simple
     filename: ${hydra.runtime.output_dir}/${hydra.job.name}.log
-  stage_file:
+  seed_file:
     class: logging.FileHandler
     formatter: simple
-    filename: ${hydra.runtime.output_dir}/${hydra.job.name}_stages.log
+    filename: ${hydra.runtime.output_dir}/${hydra.job.name}_seeds.log
 loggers:
   healpy:
     level: WARNING
@@ -24,11 +24,11 @@ loggers:
   numba:
     level: INFO
     propagate: false
-  stages:
+  seed_logger:
     handlers:
     - console
     - file
-    - stage_file
+    - seed_file
     level: INFO
     propagate: false
 root:

@@ -5,7 +5,7 @@ from pysm3 import CMBLensed
 import camb
 from omegaconf.errors import ConfigAttributeError
 
-from namer_dataset_output import SimFilesNamer
+from src.sims.namer_dataset_output import SimFilesNamer
 from physics_cmb import make_cmb_ps, map2ps, convert_to_log_power_spectrum, scale_fiducial_cmb
 
 logger = logging.getLogger(__name__)

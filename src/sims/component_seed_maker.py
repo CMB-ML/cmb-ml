@@ -4,7 +4,7 @@ from omegaconf.errors import ConfigAttributeError
 from omegaconf import DictConfig
 import logging
 
-from namer_dataset_output import SplitFilesNamer, SimFilesNamer
+from src.sims.namer_dataset_output import SplitFilesNamer, SimFilesNamer
 
 
 logger = logging.getLogger("seed_logger")

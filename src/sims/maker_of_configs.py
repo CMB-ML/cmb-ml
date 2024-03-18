@@ -1,9 +1,9 @@
 from typing import List, Dict
 from omegaconf import DictConfig, OmegaConf
 
-from namer_dataset_output import DatasetFilesNamer
+from src.sims.namer_dataset_output import DatasetFilesNamer
 from namer_wmap import WMAPFilesNamer
-from get_wmap_params import get_wmap_indices, pull_params_from_file
+from src.sims.get_wmap_params import get_wmap_indices, pull_params_from_file
 
 
 class DatasetConfigsMaker:

@@ -1,0 +1,8 @@
+wmap_params        : ['H0', 'omegach2', 'omegabh2', 'ns002', 'tau', 'mnu']
+camb_params_equiv  : ['H0', 'omch2', 'ombh2', 'ns', 'tau', 'mnu']
+ell_max            : 8150
+derived_ps_nsmax_x : 2.0
+seed_string        : cmb
+make_ps_if_absent  : true
+wmap_indcs_seed    : 8675309
+wmap_chain_length  : 603936

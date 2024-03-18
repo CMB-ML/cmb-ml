@@ -3,7 +3,7 @@ from pprint import pprint
 
 import numpy as np
 
-from get_wmap_params import (ROWS_IN_CHAINS, 
+from src.sims.get_wmap_params import (ROWS_IN_CHAINS, 
                              pull_params_from_file,
                              get_wmap_indices)
 

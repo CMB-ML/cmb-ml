@@ -6,7 +6,7 @@ from os.path import commonpath
 from omegaconf import DictConfig, OmegaConf
 from hydra.core.hydra_config import HydraConfig
 
-from namer_logs import LogsNamer
+from src.core.namer_logs import LogsNamer
 
 
 class LogMaker:

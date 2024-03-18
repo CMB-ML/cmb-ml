@@ -2,9 +2,7 @@ defaults:
   - local_system: ${oc.env:CMB_SIMS_LOCAL_SYSTEM}
   - file_system : common_fs
   - simulation  : base_sim
-  - experiment  : simple_experiment
   - splits      : three_three
-  - pipeline    : make_simulation
   - override hydra/job_logging: custom_log_with_extra_seed
   - _self_
 
@@ -14,7 +12,7 @@ dataset_name: TQU_32_3_3
 seed_base_string: 'TQU-32-3-3'
 hydra:
   run:
-    dir: Logs/${now:%Y-%m-%d-%H-%M-%S}
+    dir: creation_logs/${now:%Y-%m-%d-%H-%M-%S}
   sweep:
-    dir: Logs_multirun/${now:%Y-%m-%d-%H-%M-%S}
+    dir: creation_logs_multirun/${now:%Y-%m-%d-%H-%M-%S}
   verbose: true
