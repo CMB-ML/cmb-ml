@@ -1,10 +1,10 @@
 defaults:
-  - local_system: ${oc.env:CMB_SIMS_LOCAL_SYSTEM}
+  - local_system: ammar_laptop
   - file_system : common_fs
   - simulation  : base_sim
   - experiment  : simple_experiment
   - splits      : three_three
-  - pipeline    : make_simulation
+  - pipeline    : sample_pipe
   - override hydra/job_logging: custom_log_with_extra_seed
   - _self_
 

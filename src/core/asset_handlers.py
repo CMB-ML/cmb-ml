@@ -103,6 +103,14 @@ class Config(GenericHandler):
         with open(path, 'w') as outfile:
             yaml.dump(unnumpy_data, outfile, default_flow_style=False)
 
+class Directory(GenericHandler):
+    def read(self, path: Path) -> None:
+        pass
+
+    def write(self, path: Path, data: Any = None) -> None:
+        path = Path(path)
+        print(f'path to write: {path}')
+        path.mkdir(exist_ok=True, parents=True)
 
 # class PyTorchModel(GenericHandler):
 #     def read(self, path: Path, model: torch.nn.Module, epoch: str) -> Dict:

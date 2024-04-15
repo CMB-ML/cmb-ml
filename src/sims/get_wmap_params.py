@@ -47,4 +47,7 @@ def pull_params_from_file(wmap_chain_path, chain_idcs, params_to_get, wmap_chain
 
 def get_wmap_indices(n_indcs, seed:int, wmap_chain_length: int):
     rng = np.random.default_rng(seed=seed)
-    return rng.integers(low=1, high=wmap_chain_length, size=n_indcs, endpoint=True)
+    set_of_indices = set(rng.integers(low=1, high=wmap_chain_length, size=n_indcs, endpoint=True))
+    while len(set_of_indices) != n_indcs:
+        set_of_indices.add(rng.integers(low=1, high=wmap_chain_length, size=1, endpoint=True)[0])
+    return [int(idx)for idx in set_of_indices]

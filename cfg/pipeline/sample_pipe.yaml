@@ -1,0 +1,34 @@
+create-directories:
+  assets_out:
+    simulation_dir:
+      fn: ""
+      handler: Directory
+      path_template: "{root}/{dataset}/{stage}/{split}"
+    configs_dir:
+      fn: "Configs"
+      handler: Directory
+      path_template: "{root}/{dataset}/{fn}"
+    noise_cache_dir:
+      fn: "NoiseCache"
+      handler: Directory
+      path_template: "{root}/{dataset}/{fn}"
+  splits:
+    - train
+    - test
+  dir_name: Simulation
+create-configs:
+  assets_out:
+    split_configs:
+      fn: "cfg.yaml"
+      handler: Config
+      path_template: "{root}/{dataset}/{stage}/{split}_{fn}"
+    param_configs:
+      fn: "params.yaml"
+      handler: Config
+      path_template: "{root}/{dataset}/{stage}/{fn}"
+  assets_in:
+    configs_dir: {stage: create-directories}
+  splits:
+    - train
+    - test
+  dir_name: Configs

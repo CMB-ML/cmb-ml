@@ -61,7 +61,8 @@ class BaseStageExecutor:
         cfg_stage = cfg_pipeline[self.stage_str]
         cfg_assets_out = cfg_stage.assets_out
         assets_out = self.make_assets_out(cfg_assets_out)
-
+        if cfg_stage.get("assets_in", None) is None:
+            return None, assets_out
         cfg_assets_in = cfg_stage.assets_in
         assets_in = self.make_assets_in(cfg_assets_in)
         return assets_in, assets_out

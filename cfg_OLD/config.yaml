@@ -1,5 +1,5 @@
 defaults:
-  - local_system: ${oc.env:CMB_SIMS_LOCAL_SYSTEM}
+  - local_system: ammar_laptop
   - file_system : common_fs
   - simulation  : base_sim
   - splits      : three_three
