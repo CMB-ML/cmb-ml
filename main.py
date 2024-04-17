@@ -9,10 +9,10 @@ from src.core import (
                       )
 # from src.sims import DirectoryExecutor 
 
-from src.sims.stage_executors.A_make_dirs import DirectoryExecutor 
-# from src.sims.stage_executors.B_make_configs import ConfigExecutor
-from src.sims.stage_executors.asdf import ConfigExecutor
 
+from src.sims.stage_executors.A_make_configs import ConfigExecutor
+from src.sims.stage_executors.B_make_noise_cache import NoiseCacheExecutor
+# from src.sims.stage_executors.asdf import ConfigExecutor
 logger = logging.getLogger(__name__)
 
 
@@ -25,8 +25,8 @@ def make_all_simulations(cfg):
 
     pipeline_context = PipelineContext(cfg)
 
-    pipeline_context.add_pipe(DirectoryExecutor)
-    pipeline_context.add_pipe(ConfigExecutor)
+    # pipeline_context.add_pipe(ConfigExecutor)
+    pipeline_context.add_pipe(NoiseCacheExecutor)
     # pipeline_context.add_pipe(PreprocessExecutor)
     # pipeline_context.add_pipe(TrainingExecutor)
     # pipeline_context.add_pipe(PredictionExecutor)

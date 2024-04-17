@@ -6,7 +6,7 @@ from omegaconf import DictConfig
 from omegaconf import errors as OmegaErrors
 
 from .experiment import ExperimentParameters
-from .asset_base_cosmo import Asset
+from .asset import Asset
 from .namers import Namer
 from .split import Split
 

@@ -45,10 +45,11 @@ class ConfigExecutor(BaseStageExecutor):
             path = self.out_split_config.path
             print(f'writing to path: {path}')
             print(split_cfg_dict)
-            split_yaml = OmegaConf.create(split_cfg_dict)
+            # split_yaml = OmegaConf.create(split_cfg_dict)
 
-            with open(path, 'w') as f:
-                OmegaConf.save(config=split_yaml, f=f)
+            # with open(path, 'w') as f:
+            #     OmegaConf.save(config=split_yaml, f=f)
+            self.out_split_config.write(split_cfg_dict)
 
         self.make_cosmo_param_configs(split_cfg_dict['wmap_chain_idcs'], split)
 
@@ -100,6 +101,8 @@ class ConfigExecutor(BaseStageExecutor):
         for i in range(n_sims_to_process):
             these_params = {key: values[i] for key, values in wmap_params.items()}
             print(these_params)
+            with self.name_tracker.set_context("sim_num", i):
+                self.out_param_config.write(these_params)
             # sim = split.get_sim(i)
             # sim.write_wmap_params_file(these_params)
 

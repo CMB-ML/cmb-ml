@@ -5,7 +5,7 @@ from omegaconf import errors as OmegaErrors
 
 from .namers import Namer
 from .asset_handlers import *
-
+from .asset_handler_registration import get_handler
 
 class Asset:
     def __init__(self, cfg, source_stage, asset_name, name_tracker, experiment, in_or_out):
@@ -44,11 +44,3 @@ class Asset:
         if self.can_write:
             return self.handler.write(self.path, data, *args, **kwargs)
 
-
-def get_handler(asset_info):
-    handler_name = asset_info.get("handler")
-    try:
-        handler_class = globals()[handler_name]
-    except KeyError:
-        raise KeyError(f"Handler {handler_name} not available. Ensure it's correct.")
-    return handler_class

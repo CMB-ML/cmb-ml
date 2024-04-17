@@ -1,0 +1,20 @@
+create-configs:
+  assets_out:
+    split_configs:
+      fn: "cfg.yaml"
+      handler: Config
+      path_template: "{root}/{dataset}/{stage}/{split}/{split}_{fn}"
+    wmap_config_fixed:
+      fn: "params.yaml"
+      handler: Config
+      path_template: "{root}/{dataset}/{stage}/{fn}"
+    wmap_config_varied:
+      fn: "params.yaml"
+      handler: Config
+      path_template: "{root}/{dataset}/{stage}/{split}/{split}_{fn}"
+  assets_in:
+    configs_dir: {stage: create-directories}
+  splits:
+    - train
+    - test
+  dir_name: Configs

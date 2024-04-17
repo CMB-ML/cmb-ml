@@ -4,11 +4,10 @@ import yaml
 import logging
 
 import numpy as np
-# import torch
 import healpy as hp
 
 from .experiment import ExperimentParameters
-
+from .asset_handler_registration import register_handler
 
 logger = logging.getLogger(__name__)
 
@@ -22,6 +21,13 @@ class GenericHandler:
 
     def write(self, path: Path, data: Any):
         raise NotImplementedError("This write() should be implemented by children classes.")
+
+class NoHandler(GenericHandler):
+    def read(self, path: Path):
+        raise NotImplementedError("This is a no-operation placeholder and has no read() function.")
+
+    def write(self, path: Path, data: Any):
+        raise NotImplementedError("This is a no-operation placeholder and has no write() function.")
 
 
 class HealpyMap(GenericHandler):
@@ -145,3 +151,11 @@ def _make_directories(path: Union[Path, str]) -> None:
     path = Path(path)
     folders = path.parent
     folders.mkdir(exist_ok=True, parents=True)
+
+
+register_handler("NoHandler", NoHandler)
+register_handler("HealpyMap", HealpyMap)
+register_handler("ManyHealpyMaps", ManyHealpyMaps)
+register_handler("HealpyPS", HealpyPS)
+register_handler("Config", Config)
+register_handler("Directory", Directory)
