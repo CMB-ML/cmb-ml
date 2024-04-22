@@ -1,6 +1,7 @@
 defaults:
   - cmb:   wmap9_mnu
   - noise: base_noise
+# PySM needs to run internal calculations at a resolution greater than the output nside (output nside set in experiment.yaml)
 nside_sky        : 32
 # nside_out        : 32  # Redundant with experiment
 preset_strings   : ["f1"]

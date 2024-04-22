@@ -1,3 +1,10 @@
+raw:
+  assets_out:
+    planck_deltabandpass:
+      fn: planck_deltabandpass.tbl
+      handler: QTable
+      path_template: "{src_root}/{fn}"
+  dir_name: Raw
 create-configs:
   assets_out:
     split_configs:
@@ -11,7 +18,7 @@ create-configs:
     wmap_config_varied:
       fn: "wmap_params.yaml"
       handler: Config
-      path_template: "{root}/{dataset}/{stage}/{split}/{sim_num}_{fn}"
+      path_template: "{root}/{dataset}/{stage}/{split}/{sim}/{fn}"
   splits:
     - train
     - test
@@ -20,11 +27,56 @@ create-noise:
   assets_out:
     noise_cache:
       fn: "noise_sd_map.fits"
-      handler: HealpyMap
-      path_template: "{root}/{dataset}/{stage}/{freq}_{field}_{nside}_{fn}"
+      handler: NoiseCache
+      path_template: "{root}/{dataset}/{stage}/{freq}_{field}_{fn}"
   assets_in:
-    split_configs: {stage: create-configs}
+    planck_deltabandpass: {stage: raw}
   splits:
     - train
     - test
   dir_name: NoiseCache
+create-fid-ps:
+  assets_out:
+    cmb_ps_fid_fixed:
+      fn: "cmb_ps_fid.txt"
+      handler: NoHandler
+      path_template: "{root}/{dataset}/{stage}/{split}/{fn}"
+    cmb_ps_fid_varied:
+      fn: "cmb_ps_fid.txt"
+      handler: NoHandler
+      path_template: "{root}/{dataset}/{stage}/{split}/{sim}/{fn}"
+  assets_in:
+    split_configs: {stage: create-configs}
+    wmap_config_fixed: {stage: create-configs}
+    wmap_config_varied: {stage: create-configs}
+    noise_cache: {stage: create-noise}
+  splits:
+    - train
+    - test
+  dir_name: Simulations
+create-sims:
+  assets_out:
+    cmb_map_fid:
+      fn: "cmb_map_fid.fits"
+      handler: HealpyMapTemp
+      path_template: "{root}/{dataset}/{stage}/{split}/{sim}/{fn}"
+    cmb_ps_der:
+      fn: "cmb_ps_der.txt"
+      handler: NoHandler
+      path_template: "{root}/{dataset}/{stage}/{split}/{sim}/{fn}"
+    sims:
+      fn: "obs_{det}_map.fits"
+      handler: ManyHealpyMapsTemp
+      path_template: "{root}/{dataset}/{stage}/{split}/{sim}/{fn}"
+  assets_in:
+    split_configs: {stage: create-configs}
+    wmap_config_fixed: {stage: create-configs}
+    wmap_config_varied: {stage: create-configs}
+    noise_cache: {stage: create-noise}
+    cmb_ps_fid_fixed: {stage: create-fid-ps}
+    cmb_ps_fid_varied: {stage: create-fid-ps}
+    planck_deltabandpass: {stage: raw}
+  splits:
+    - train
+    - test
+  dir_name: Simulations
