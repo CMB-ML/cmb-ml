@@ -27,9 +27,9 @@ def make_all_simulations(cfg):
 
     pipeline_context = PipelineContext(cfg)
 
-    # pipeline_context.add_pipe(ConfigExecutor)
-    # pipeline_context.add_pipe(NoiseCacheExecutor)
-    # pipeline_context.add_pipe(FidPSExecutor)
+    pipeline_context.add_pipe(ConfigExecutor)
+    pipeline_context.add_pipe(NoiseCacheExecutor)
+    pipeline_context.add_pipe(FidPSExecutor)
     pipeline_context.add_pipe(SimCreatorExecutor)
   
 

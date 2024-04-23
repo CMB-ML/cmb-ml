@@ -6,25 +6,13 @@ import hydra
 from omegaconf import DictConfig
 from pathlib import Path
 
-from astropy.table import QTable
-
 from .noise_cache import Detector
 import utils.fits_inspection as fits_inspect
 from ..physics_instrument_noise import planck_result_to_sd_map
 
-
-# from ..component_instrument_noise import NoiseCacheCreator
-# from ..component_seed_maker import (SimLevelSeedFactory,
-#                                   FieldLevelSeedFactory)
-# from ..component_instrument import Instrument, make_planck_instrument
-# from ..component_instrument_noise import (InstrumentNoise, 
-#                                         InstrumentNoiseFactory, 
-#                                         make_noise_maker)
-
 from ...core import (
     BaseStageExecutor,
     ExperimentParameters,
-    Split,
     Asset
 )
 
@@ -54,6 +42,9 @@ class NoiseCacheExecutor(BaseStageExecutor):
             detector = self.make_detector(freq)
             src_path = self.get_src_path(freq)
             for field_str in field_strings:
+                if freq in [545, 857] and field_str != 'T':
+                    logger.debug(f"Skipping {freq} GHz, {field_str}: source data not found at frequency.")
+                    continue
                 hdu = fits_inspect.ASSUME_FITS_HEADER
                 field_idx = fits_inspect.lookup_field_idx(field_str, src_path, hdu)
                 st_dev_skymap = planck_result_to_sd_map(fits_fn=src_path, hdu=hdu, field_idx=field_idx, nside_out=nside, cen_freq=detector.cen_freq)
@@ -68,11 +59,6 @@ class NoiseCacheExecutor(BaseStageExecutor):
         det_key = f'det{detector:03d}'
         fn = self.noise_files[det_key]
         return Path(self.noise_src) / fn
-    
-    def read_instr_table(self) -> QTable:
-        planck_beam_info = QTable.read(self.table, format="ascii.ipac")
-        planck_beam_info.add_index("band")
-        return planck_beam_info
 
     def make_detector(self, band):
         # table = self.read_instr_table()

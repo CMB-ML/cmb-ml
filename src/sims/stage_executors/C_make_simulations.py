@@ -75,9 +75,10 @@ class SimCreatorExecutor(BaseStageExecutor):
     
     def process_split(self, split: Split) -> None:
         if split.ps_fidu_fixed:
+            logger.debug(f"Working in {split.name}, fixed ps")
             self.process_sims(split, self.in_ps_fixed)
         else:
-            
+            logger.debug(f"Working in {split.name}, varied ps")
             self.process_sims(split, self.in_ps_varied)
         
     
@@ -115,12 +116,8 @@ class SimCreatorExecutor(BaseStageExecutor):
 
                         noise_seed = self.noise_seed_factory.get_seed(split, sim, freq, field_str)
                         noise_map = self.get_noise_map(freq, field_str, noise_seed, detector.cen_freq)
-                        print(len(map_smoothed))
-                        print(len(noise_map))
                         final_map = map_smoothed + noise_map
                         obs_map.append(final_map)
-                    print(obs_map)
-                    print(len(obs_map))
                     self.out_sims.write({str(freq): obs_map})
 
     def make_detector(self, band):
@@ -146,17 +143,17 @@ class SimCreatorExecutor(BaseStageExecutor):
         nside_out = self.nside_out
         scaled_map = scale_fiducial_cmb(values, nside_out)
         scaled_map = scaled_map * units
-        logger.debug(f"Saving fiducial cmb_map for {asset.path.parent}")
+        logger.debug(f"Saving fiducial cmb_map for {asset.path.parent.name}")
         # TODO: Get answer of asset handler healpymap vs sim.write_fid_map
         asset.write(scaled_map)
 
 
     def save_der_cmb_ps(self, cmb: CMBLensed, asset: Asset, lmax: int):
-        logger.debug(f"Getting derived cmb_ps for {asset.path.parent}")
+        logger.debug(f"Getting derived cmb_ps for {asset.path.parent.name}")
         fid_cmb_map = cmb.map
         ps_cl = map2ps(fid_cmb_map, lmax)
         ps_dl = convert_to_log_power_spectrum(ps_cl)
-        logger.debug(f"Saving fiducial cmb_ps for {asset.path.parent}")
+        logger.debug(f"Saving fiducial cmb_ps for {asset.path.parent.name}")
         camb.results.save_cmb_power_array(asset.path,
                                         array=ps_dl,
                                         labels="TT EE BB TE EB TB")
@@ -171,6 +168,7 @@ class SimCreatorExecutor(BaseStageExecutor):
 
     def _make_random_noise_map(self, sd_map, random_seed, center_frequency=None):
         #TODO: set units when redoing this function
+        logger.debug(f'Seed being used: {random_seed}')
         logger.debug(f"physics_instrument_noise.make_random_noise_map start")
         rng = np.random.default_rng(random_seed)
         noise_map = rng.normal(scale=sd_map, size=sd_map.size)

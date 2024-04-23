@@ -32,7 +32,7 @@ class CMBFactory:
                 raise e
     
     def make_cmb_lensed(self, seed, sim_files: Asset) -> CMBLensed:
-        # Get the ps path only after you know it exists
+        logger.debug(f'Seed used for CMB: {seed}.')
         cmb_ps_fid_path = sim_files.path
         return CMBLensed(nside=self.nside,
                          cmb_spectra=cmb_ps_fid_path,
