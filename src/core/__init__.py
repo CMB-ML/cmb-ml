@@ -5,4 +5,4 @@ from .experiment import ExperimentParameters
 from .asset import Asset
 from .asset_handlers import HealpyMap, ManyHealpyMaps
 from .asset_handler_registration import register_handler
-from .log_maker_OLD import LogMaker
+from .log_maker import LogMaker

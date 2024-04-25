@@ -8,7 +8,7 @@ from pysm3 import CMBLensed
 
 from omegaconf.errors import ConfigAttributeError
 
-from ...core import Split, Asset
+from ..core import Split, Asset
 
 logger = logging.getLogger(__name__)
 

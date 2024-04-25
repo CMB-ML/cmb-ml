@@ -39,11 +39,11 @@ create-fid-ps:
   assets_out:
     cmb_ps_fid_fixed:
       fn: "cmb_ps_fid.txt"
-      handler: NoHandler
+      handler: PowerSpectrum
       path_template: "{root}/{dataset}/{stage}/{split}/{fn}"
     cmb_ps_fid_varied:
       fn: "cmb_ps_fid.txt"
-      handler: NoHandler
+      handler: PowerSpectrum
       path_template: "{root}/{dataset}/{stage}/{split}/{sim}/{fn}"
   assets_in:
     split_configs: {stage: create-configs}

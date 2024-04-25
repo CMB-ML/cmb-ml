@@ -4,17 +4,23 @@ import hydra
 
 from src.core import (
                       PipelineContext,
-                    #   BaseStageExecutor,
                       LogMaker
                       )
-# from src.sims import DirectoryExecutor 
 
 
-from src.sims.stage_executors.A_make_configs import ConfigExecutor
-from src.sims.stage_executors.B_make_noise_cache import NoiseCacheExecutor
-from src.sims.stage_executors.C_make_ps import FidPSExecutor
-from src.sims.stage_executors.C_make_simulations import SimCreatorExecutor
-# from src.sims.stage_executors.asdf import ConfigExecutor
+# from src.sims.stage_executors.A_make_configs import ConfigExecutor
+# from src.sims.stage_executors.B_make_noise_cache import NoiseCacheExecutor
+# from src.sims.stage_executors.C_make_ps import FidPSExecutor
+# from src.sims.stage_executors.D_make_simulations import SimCreatorExecutor
+
+from src.sims import (
+    ConfigExecutor,
+    NoiseCacheExecutor,
+    FidPSExecutor,
+    SimCreatorExecutor
+)
+
+
 logger = logging.getLogger(__name__)
 
 
@@ -35,7 +41,7 @@ def make_all_simulations(cfg):
 
     pipeline_context.run_pipeline()
 
-    logger.info("Petroff pipeline completed.")
+    logger.info("Simulation pipeline completed.")
     log_maker.copy_hydra_run_to_dataset_log()
 
 

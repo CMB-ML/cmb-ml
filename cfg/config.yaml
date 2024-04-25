@@ -3,15 +3,15 @@ defaults:
   - file_system : common_fs
   - simulation  : base_sim
   - experiment  : simple_experiment
-  - splits      : three_three
+  - splits      : two_two
   - pipeline    : sample_pipe
   - override hydra/job_logging: custom_log_with_extra_seed
   - _self_
 
 create_dirs: false
 force_new_noise_cache: true
-dataset_name: TQU_32_3_3
-seed_base_string: 'TQU-32-3-3'
+dataset_name: Junk_32
+seed_base_string: 'TQU-128'
 hydra:
   run:
     dir: Logs/${now:%Y-%m-%d-%H-%M-%S}

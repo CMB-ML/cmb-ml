@@ -1,6 +1,6 @@
-Dummy0:
+Train:
   ps_fidu_fixed: false
   n_sims: 2
-Dummy1:
+Test1:
   ps_fidu_fixed: true
   n_sims: 2

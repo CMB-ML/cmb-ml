@@ -14,8 +14,7 @@ from ...core import (
     Asset
 )
 
-from ..physics_cmb import make_cmb_ps
-from ...core.asset_handlers import _make_directories
+from ..specific_handlers.psmaker_handler import PSHandler # Import to register handler
 
 class FidPSExecutor(BaseStageExecutor):
     def __init__(self, cfg: DictConfig, experiment: ExperimentParameters) -> None:
@@ -37,21 +36,18 @@ class FidPSExecutor(BaseStageExecutor):
     
     def process_split(self, split: Split) -> None:
         if split.ps_fidu_fixed:
-            path = self.out_ps_fixed.path
-            self.make_ps(self.in_wmap_fixed, path)
+            self.make_ps(self.in_wmap_fixed, self.out_ps_fixed)
         else:
             for sim in split.iter_sims():
                 with self.name_tracker.set_context("sim_num", sim):
-                    path = self.out_ps_varied.path
-                    self.make_ps(self.in_wmap_varied, path)
+                    self.make_ps(self.in_wmap_varied, self.out_ps_varied)
     
-    def make_ps(self, wmap_params: Asset, out_path: Path) -> None:
+    def make_ps(self, wmap_params: Asset, ps_asset: Asset) -> None:
+        #TODO: REDO INTO ASSET HANDLER
         cosmo_params = wmap_params.read()
-        _make_directories(out_path)
-
         cosmo_params = self._translate_params_keys(cosmo_params)
 
-        make_cmb_ps(cosmo_params, self.max_ell_for_camb, out_path)
+        ps_asset.write(cosmo_params, self.max_ell_for_camb)
 
     def _param_translation_dict(self):
         translation = {}

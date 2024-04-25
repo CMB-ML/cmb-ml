@@ -6,6 +6,7 @@ import logging
 import numpy as np
 import healpy as hp
 
+#TODO: QTable handler move elsewhere
 from astropy.table import QTable
 
 from .experiment import ExperimentParameters
@@ -120,27 +121,28 @@ class QTableHandler(GenericHandler):
 
     def write(self, path: Path) -> None:
         raise NotImplementedError("QTables currently store information only.")
-class NoiseCache(GenericHandler):
-    def read(self, path: Union[Path, str]):
-        # Check with jim of this is the right way to read in the noise cache
-        path = Path(path)
-        sd_map = hp.read_map(path)
-        return sd_map
+    
+# class NoiseCache(GenericHandler):
+#     def read(self, path: Union[Path, str]):
+#         # Check with jim of this is the right way to read in the noise cache
+#         path = Path(path)
+#         sd_map = hp.read_map(path)
+#         return sd_map
 
-    def write(self, path: Union[Path, str], st_dev_skymap, field_str):
-        path = Path(path)
-        _make_directories(path)
-        col_names = {"T": "II", "Q": "QQ", "U": "UU"}
-        hp.write_map(filename=str(path),
-                     m=st_dev_skymap,
-                     nest=False,
-                     column_names=[col_names[field_str]],
-                     column_units=["K_CMB"],
-                     dtype=st_dev_skymap.dtype,
-                     overwrite=True
-                    # TODO: figure out how to add a comment to hp's map... or switch with astropy equivalent 
-                    #  extra_header=f"Variance map pulled from {self.ref_map_fn}, {col_names[field_str]}"
-                     )
+#     def write(self, path: Union[Path, str], st_dev_skymap, field_str):
+#         path = Path(path)
+#         _make_directories(path)
+#         col_names = {"T": "II", "Q": "QQ", "U": "UU"}
+#         hp.write_map(filename=str(path),
+#                      m=st_dev_skymap,
+#                      nest=False,
+#                      column_names=[col_names[field_str]],
+#                      column_units=["K_CMB"],
+#                      dtype=st_dev_skymap.dtype,
+#                      overwrite=True
+#                     # TODO: figure out how to add a comment to hp's map... or switch with astropy equivalent 
+#                     #  extra_header=f"Variance map pulled from {self.ref_map_fn}, {col_names[field_str]}"
+#                      )
 
 class HealpyMapTemp(GenericHandler):
     def read(self, path: Union[Path, str]):
@@ -240,7 +242,7 @@ register_handler("HealpyMap", HealpyMap)
 register_handler("ManyHealpyMaps", ManyHealpyMaps)
 register_handler("HealpyPS", HealpyPS)
 register_handler("Config", Config)
-register_handler("NoiseCache", NoiseCache)
+# register_handler("NoiseCache", NoiseCache)
 register_handler("QTable", QTableHandler)
 register_handler("HealpyMapTemp", HealpyMapTemp)
 register_handler("ManyHealpyMapsTemp", ManyHealpyMapsTemp)

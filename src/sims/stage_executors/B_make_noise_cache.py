@@ -6,7 +6,10 @@ import hydra
 from omegaconf import DictConfig
 from pathlib import Path
 
-from .noise_cache import Detector
+from ..specific_handlers.noisecache_handler import NoiseCacheHandler # register handler
+from ..specific_handlers.qtable_handler import QTableHandler
+
+from ..detector import make_detector
 import utils.fits_inspection as fits_inspect
 from ..physics_instrument_noise import planck_result_to_sd_map
 
@@ -39,7 +42,7 @@ class NoiseCacheExecutor(BaseStageExecutor):
         nside = self.experiment.nside
         # field_strings = 'TQU'
         for freq in plank_freqs:
-            detector = self.make_detector(freq)
+            detector = make_detector(self.deltabandpass, freq)
             src_path = self.get_src_path(freq)
             for field_str in field_strings:
                 if freq in [545, 857] and field_str != 'T':
@@ -56,25 +59,11 @@ class NoiseCacheExecutor(BaseStageExecutor):
                         logger.debug(f'wrote to path: {self.out_noise_cache.path}')
                     
     def get_src_path(self, detector):
+        #TODO: add detector checks for existence in file
         det_key = f'det{detector:03d}'
         fn = self.noise_files[det_key]
         return Path(self.noise_src) / fn
 
-    def make_detector(self, band):
-        # table = self.read_instr_table()
-        table = self.deltabandpass
-        
-        band_str = str(band)
-        try:
-            assert band_str in table['band']
-        except AssertionError:
-            raise KeyError(f"A detector specified in the configs, {band} " \
-                            f"(converted to {band_str}) does not exist in " \
-                            f"the QTable ({self.table}).")
-        
-        center_frequency = table.loc[band_str]['center_frequency']
-        fwhm = table.loc[band_str]['fwhm']
-        return Detector(nom_freq=band, cen_freq=center_frequency, fwhm=fwhm)
     
     
 
