@@ -7,12 +7,6 @@ from src.core import (
                       LogMaker
                       )
 
-
-# from src.sims.stage_executors.A_make_configs import ConfigExecutor
-# from src.sims.stage_executors.B_make_noise_cache import NoiseCacheExecutor
-# from src.sims.stage_executors.C_make_ps import FidPSExecutor
-# from src.sims.stage_executors.D_make_simulations import SimCreatorExecutor
-
 from src.sims import (
     ConfigExecutor,
     NoiseCacheExecutor,

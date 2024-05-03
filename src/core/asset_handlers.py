@@ -6,9 +6,6 @@ import logging
 import numpy as np
 import healpy as hp
 
-#TODO: QTable handler move elsewhere
-from astropy.table import QTable
-
 from .experiment import ExperimentParameters
 from .asset_handler_registration import register_handler
 
@@ -112,37 +109,6 @@ class Config(GenericHandler):
         with open(path, 'w') as outfile:
             yaml.dump(unnumpy_data, outfile, default_flow_style=False)
 
-class QTableHandler(GenericHandler):
-    def read(self, path: Path) -> Dict:
-        logger.debug(f"Reading model from '{path}'")
-        planck_beam_info = QTable.read(path, format="ascii.ipac")
-        planck_beam_info.add_index("band")
-        return planck_beam_info
-
-    def write(self, path: Path) -> None:
-        raise NotImplementedError("QTables currently store information only.")
-    
-# class NoiseCache(GenericHandler):
-#     def read(self, path: Union[Path, str]):
-#         # Check with jim of this is the right way to read in the noise cache
-#         path = Path(path)
-#         sd_map = hp.read_map(path)
-#         return sd_map
-
-#     def write(self, path: Union[Path, str], st_dev_skymap, field_str):
-#         path = Path(path)
-#         _make_directories(path)
-#         col_names = {"T": "II", "Q": "QQ", "U": "UU"}
-#         hp.write_map(filename=str(path),
-#                      m=st_dev_skymap,
-#                      nest=False,
-#                      column_names=[col_names[field_str]],
-#                      column_units=["K_CMB"],
-#                      dtype=st_dev_skymap.dtype,
-#                      overwrite=True
-#                     # TODO: figure out how to add a comment to hp's map... or switch with astropy equivalent 
-#                     #  extra_header=f"Variance map pulled from {self.ref_map_fn}, {col_names[field_str]}"
-#                      )
 
 class HealpyMapTemp(GenericHandler):
     def read(self, path: Union[Path, str]):
@@ -202,20 +168,6 @@ class ManyHealpyMapsTemp(GenericHandler):
             this_path = path.parent / fn
             self.handler.write(this_path, map_to_write)
 
-# class PyTorchModel(GenericHandler):
-#     def read(self, path: Path, model: torch.nn.Module, epoch: str) -> Dict:
-#         logger.debug(f"Reading model from '{path}'")
-#         fn_template = path.name
-#         fn = fn_template.format(epoch=epoch)
-#         this_path = path.parent / fn
-#         model.load_state_dict(torch.load(this_path))
-
-#     def write(self, path: Path, model: torch.nn.Module, epoch: Union[int, str]) -> None:
-#         new_path = Path(str(path).format(epoch=epoch))
-#         _make_directories(new_path)
-#         logger.debug(f"Writing model to '{new_path}'")
-#         torch.save(model.state_dict(), new_path)
-
 
 def _convert_numpy(obj: Union[Dict[str, Any], List[Any], np.generic]) -> Any:
     # Recursive function
@@ -242,7 +194,7 @@ register_handler("HealpyMap", HealpyMap)
 register_handler("ManyHealpyMaps", ManyHealpyMaps)
 register_handler("HealpyPS", HealpyPS)
 register_handler("Config", Config)
-# register_handler("NoiseCache", NoiseCache)
-register_handler("QTable", QTableHandler)
+
+# TODO: Clarify about these
 register_handler("HealpyMapTemp", HealpyMapTemp)
 register_handler("ManyHealpyMapsTemp", ManyHealpyMapsTemp)

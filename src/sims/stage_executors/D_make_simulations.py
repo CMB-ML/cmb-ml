@@ -22,8 +22,8 @@ from ...core import (
     Asset
 )
 
-from ..specific_handlers.qtable_handler import QTableHandler
-from ..specific_handlers.psmaker_handler import PSHandler
+from ..specific_handlers.qtable_handler import QTableHandler # Import to register handler
+from ..specific_handlers.psmaker_handler import PSHandler # Import to register handler
 
 from ..physics_cmb import map2ps, convert_to_log_power_spectrum, scale_fiducial_cmb
 from ..physics_instrument_noise import make_random_noise_map
@@ -109,8 +109,6 @@ class SimCreatorExecutor(BaseStageExecutor):
                 self.save_der_cmb_ps(cmb, self.out_cmb_ps_der, lmax=self.lmax_derived_ps)
 
                 for freq in self.planck_freqs:
-                    # beam = planck.get_beam(freq)
-                    # TODO: redo detector logic
                     detector = make_detector(self.deltabandpass, freq)
 
                     logger.debug(f"for {sim}, {freq} GHz, getting sky emission")

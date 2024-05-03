@@ -31,9 +31,9 @@ class CMBFactory:
                 logger.exception(e)
                 raise e
     
-    def make_cmb_lensed(self, seed, sim_files: Asset) -> CMBLensed:
+    def make_cmb_lensed(self, seed, powerspectrum: Asset) -> CMBLensed:
         logger.debug(f'Seed used for CMB: {seed}.')
-        cmb_ps_fid_path = sim_files.path
+        cmb_ps_fid_path = powerspectrum.path
         return CMBLensed(nside=self.nside,
                          cmb_spectra=cmb_ps_fid_path,
                          cmb_seed=seed,

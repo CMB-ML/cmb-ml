@@ -43,7 +43,6 @@ class FidPSExecutor(BaseStageExecutor):
                     self.make_ps(self.in_wmap_varied, self.out_ps_varied)
     
     def make_ps(self, wmap_params: Asset, ps_asset: Asset) -> None:
-        #TODO: REDO INTO ASSET HANDLER
         cosmo_params = wmap_params.read()
         cosmo_params = self._translate_params_keys(cosmo_params)
 
