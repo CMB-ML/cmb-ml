@@ -51,16 +51,6 @@ class LogMaker:
             with _filename.open("r") as file:
                 tree = ast.parse(file.read(), filename=str(_filename))
 
-            # for node in ast.walk(tree):
-            #     if isinstance(node, (ast.Import, ast.ImportFrom)):
-            #         for alias in (node.names if isinstance(node, ast.Import) else [node]):
-            #             module_name = alias.name if isinstance(node, ast.Import) else node.module
-            #             if module_name is None:
-            #                 continue  # Skip relative import without 'from'
-            #             module_path = get_full_path(module_name, _base_path)
-            #             if module_path and module_path.exists():
-            #                 find_imports(module_path, _base_path, _visited_files)
-
             # Modified to handle __init__.py files
             for node in ast.walk(tree):
                 if isinstance(node, ast.ImportFrom):
