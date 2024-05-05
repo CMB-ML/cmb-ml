@@ -5,6 +5,18 @@ raw:
       handler: QTable
       path_template: "{src_root}/{fn}"
   dir_name: Raw
+create-noise:
+  assets_out:
+    noise_cache:
+      fn: "noise_sd_map.fits"
+      handler: NoiseCache
+      path_template: "{root}/{dataset}/{stage}/{freq}_{field}_{fn}"
+  assets_in:
+    planck_deltabandpass: {stage: raw}
+  splits:
+    - train
+    - test
+  dir_name: Simulation_B_NoiseCache
 create-configs:
   assets_out:
     split_configs:
@@ -22,19 +34,7 @@ create-configs:
   splits:
     - train
     - test
-  dir_name: Configs
-create-noise:
-  assets_out:
-    noise_cache:
-      fn: "noise_sd_map.fits"
-      handler: NoiseCache
-      path_template: "{root}/{dataset}/{stage}/{freq}_{field}_{fn}"
-  assets_in:
-    planck_deltabandpass: {stage: raw}
-  splits:
-    - train
-    - test
-  dir_name: NoiseCache
+  dir_name: Simulation_C_Configs
 create-fid-ps:
   assets_out:
     cmb_ps_fid_fixed:
@@ -53,7 +53,7 @@ create-fid-ps:
   splits:
     - train
     - test
-  dir_name: Simulations
+  dir_name: Simulations_D_CMB_Power_Spectra
 create-sims:
   assets_out:
     cmb_map_fid:
@@ -69,13 +69,13 @@ create-sims:
       handler: ManyHealpyMapsTemp
       path_template: "{root}/{dataset}/{stage}/{split}/{sim}/{fn}"
   assets_in:
+    planck_deltabandpass: {stage: raw}
+    noise_cache: {stage: create-noise}
     split_configs: {stage: create-configs}
     wmap_config_fixed: {stage: create-configs}
     wmap_config_varied: {stage: create-configs}
-    noise_cache: {stage: create-noise}
     cmb_ps_fid_fixed: {stage: create-fid-ps}
     cmb_ps_fid_varied: {stage: create-fid-ps}
-    planck_deltabandpass: {stage: raw}
   splits:
     - train
     - test

@@ -6,8 +6,8 @@ import hydra
 from omegaconf import DictConfig
 from pathlib import Path
 
-from ..specific_handlers.noisecache_handler import NoiseCacheHandler # register handler
-from ..specific_handlers.qtable_handler import QTableHandler # register handler
+from ..handlers.noisecache_handler import NoiseCacheHandler # register handler
+from ..handlers.qtable_handler import QTableHandler # register handler
 
 from ..detector import make_detector
 import utils.fits_inspection as fits_inspect

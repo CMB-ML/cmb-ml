@@ -33,7 +33,6 @@ class ConfigExecutor(BaseStageExecutor):
                 self.process_split(split, all_idices[split.name])
 
     def process_split(self, split: Split, these_idces) -> None:
-        
         split_cfg_dict = dict(
             ps_fidu_fixed = split.ps_fidu_fixed,
             n_sims = split.n_sims,
@@ -76,10 +75,8 @@ class ConfigExecutor(BaseStageExecutor):
             chain_idcs_dict[split.name] = all_chain_indices[first_index: last_index_used]
 
         return chain_idcs_dict
-        
+
     def make_cosmo_param_configs(self, chain_idcs, split):
-        
-        
         wmap_params = pull_params_from_file(wmap_chain_path=self.wmap_chains_dir,
                                             chain_idcs=chain_idcs,
                                             params_to_get=self.wmap_param_labels,
@@ -93,8 +90,3 @@ class ConfigExecutor(BaseStageExecutor):
                 these_params = {key: values[i] for key, values in wmap_params.items()}
                 with self.name_tracker.set_context("sim_num", i):
                     self.out_varied_param_config.write(these_params)
-        
-
-
-
-  

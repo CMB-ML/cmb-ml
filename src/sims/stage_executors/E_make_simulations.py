@@ -12,7 +12,8 @@ import camb
 
 import logging
 
-from ..sim_stuff import CMBFactory, FieldLevelSeedFactory, SimLevelSeedFactory
+from..cmb_factory import CMBFactory
+from ..random_seed_manager import FieldLevelSeedFactory, SimLevelSeedFactory
 from ..detector import make_detector
 
 from ...core import (
@@ -22,8 +23,8 @@ from ...core import (
     Asset
 )
 
-from ..specific_handlers.qtable_handler import QTableHandler # Import to register handler
-# from ..specific_handlers.psmaker_handler import PSHandler # Handler is not used for simulation.
+from ..handlers.qtable_handler import QTableHandler # Import to register handler
+# from ..handlers.psmaker_handler import PSHandler # Handler is not used for simulation.
 
 from ..physics_cmb import map2ps, convert_to_log_power_spectrum, scale_fiducial_cmb
 from ..physics_instrument_noise import make_random_noise_map

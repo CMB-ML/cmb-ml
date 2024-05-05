@@ -16,7 +16,7 @@ from ...core import (
 
 from ..physics_cmb import make_camb_ps
 
-from ..specific_handlers.psmaker_handler import CambPS # Import to register handler
+from ..handlers.psmaker_handler import CambPS # Import to register handler
 
 
 class FidPSExecutor(BaseStageExecutor):
