@@ -1,5 +1,5 @@
 defaults:
-  - local_system: ammar_laptop
+  - local_system: ${oc.env:CMB_SIMS_LOCAL_SYSTEM}
   - file_system : common_fs
   - simulation  : base_sim
   - experiment  : simple_experiment
@@ -11,7 +11,7 @@ defaults:
 create_dirs: false
 force_new_noise_cache: true
 dataset_name: Junk_32
-seed_base_string: 'TQU-128'
+seed_base_string: 'Junk32'
 hydra:
   run:
     dir: Logs/${now:%Y-%m-%d-%H-%M-%S}
