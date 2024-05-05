@@ -87,14 +87,6 @@ class ManyHealpyMaps(GenericHandler):
             self.handler.write(this_path, map_to_write)
 
 
-class HealpyPS(GenericHandler):
-    def read(self, path: Path) -> None:
-        pass
-
-    def write(self, path: Path, data: Any) -> None:
-        pass
-
-
 class Config(GenericHandler):
     def read(self, path: Path) -> Dict:
         logger.debug(f"Reading config from '{path}'")
@@ -192,7 +184,6 @@ def _make_directories(path: Union[Path, str]) -> None:
 register_handler("NoHandler", NoHandler)
 register_handler("HealpyMap", HealpyMap)
 register_handler("ManyHealpyMaps", ManyHealpyMaps)
-register_handler("HealpyPS", HealpyPS)
 register_handler("Config", Config)
 
 # TODO: Clarify about these
