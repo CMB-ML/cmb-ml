@@ -14,7 +14,10 @@ from ...core import (
     Asset
 )
 
-from ..specific_handlers.psmaker_handler import PSHandler # Import to register handler
+from ..physics_cmb import make_camb_ps
+
+from ..specific_handlers.psmaker_handler import CambPS # Import to register handler
+
 
 class FidPSExecutor(BaseStageExecutor):
     def __init__(self, cfg: DictConfig, experiment: ExperimentParameters) -> None:
@@ -46,14 +49,9 @@ class FidPSExecutor(BaseStageExecutor):
         cosmo_params = wmap_params.read()
         cosmo_params = self._translate_params_keys(cosmo_params)
 
-        ps_asset.write(cosmo_params, self.max_ell_for_camb)
+        camb_results = make_camb_ps(cosmo_params, lmax=self.max_ell_for_camb)
+        ps_asset.write(camb_results)
 
-    def _param_translation_dict(self):
-        translation = {}
-        for i in range(len(self.wmap_param_labels)):
-            translation[self.wmap_param_labels[i]] = self.camb_param_labels[i]
-        return translation
-    
     def _translate_params_keys(self, src_params):
         translation_dict = self._param_translation_dict()
         target_dict = {}
@@ -62,3 +60,9 @@ class FidPSExecutor(BaseStageExecutor):
                 continue
             target_dict[translation_dict[k]] = src_params[k]
         return target_dict
+
+    def _param_translation_dict(self):
+        translation = {}
+        for i in range(len(self.wmap_param_labels)):
+            translation[self.wmap_param_labels[i]] = self.camb_param_labels[i]
+        return translation

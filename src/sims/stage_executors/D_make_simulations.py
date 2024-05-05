@@ -23,7 +23,7 @@ from ...core import (
 )
 
 from ..specific_handlers.qtable_handler import QTableHandler # Import to register handler
-from ..specific_handlers.psmaker_handler import PSHandler # Import to register handler
+# from ..specific_handlers.psmaker_handler import PSHandler # Handler is not used for simulation.
 
 from ..physics_cmb import map2ps, convert_to_log_power_spectrum, scale_fiducial_cmb
 from ..physics_instrument_noise import make_random_noise_map

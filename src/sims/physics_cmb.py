@@ -14,14 +14,12 @@ import healpy as hp
 logger = logging.getLogger(__name__)
 
 
-def make_cmb_ps(cosmo_params, lmax, cmb_ps_fp: Path) -> None:
+def make_camb_ps(cosmo_params, lmax) -> camb.CAMBdata:
     #Set up a new set of parameters for CAMB
     logger.debug(f"Beginning CAMB")
-    pars = setup_camb(cosmo_params, lmax)
-    results = run_camb(pars)
-    results.save_cmb_power_spectra(filename=cmb_ps_fp)
-    logger.debug(f"Done with CAMB")
-    return
+    pars: camb.CAMBparams = setup_camb(cosmo_params, lmax)
+    results: camb.CAMBdata = camb.get_results(pars)
+    return results
 
 
 def setup_camb(cosmo_params: Dict[str, Any], lmax:int) -> camb.CAMBparams:
@@ -71,13 +69,7 @@ def _log_camb_args(set_cosmo_args, init_power_args) -> None:
     logger.debug(f"CAMB init_power args: {init_power_args}")
 
 
-def run_camb(pars: camb.CAMBparams) -> camb.CAMBdata:
-    results = camb.get_results(pars)
-    return results
-
-
 def map2ps(skymap: np.ndarray, lmax: int) -> np.ndarray:
-    # Convert a map to a power spectrum using healpy; alternatives abound.
     ps = hp.anafast(skymap, lmax=lmax)
     ps = ps.T
     return ps
