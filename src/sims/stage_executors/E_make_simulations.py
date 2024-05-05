@@ -41,7 +41,6 @@ class SimCreatorExecutor(BaseStageExecutor):
         
         with self.name_tracker.set_context('src_root', cfg.local_system.noise_src_dir):
             self.deltabandpass = self.planck_deltabandpass.read()
-        
 
         self.in_noise_cache = self.assets_in['noise_cache']
         self.in_wmap_fixed = self.assets_in['wmap_config_fixed']
@@ -50,7 +49,6 @@ class SimCreatorExecutor(BaseStageExecutor):
         self.in_ps_varied = self.assets_in['cmb_ps_fid_varied']
 
         self.out_cmb_map_fid = self.assets_out['cmb_map_fid']
-        self.out_cmb_ps_der = self.assets_out['cmb_ps_der']
         self.out_sims = self.assets_out['sims']
 
         # seed maker objects
@@ -61,8 +59,6 @@ class SimCreatorExecutor(BaseStageExecutor):
         self.nside_out = self.experiment.nside
         self.nside_sky = cfg.simulation.nside_sky
         
-        assert self.nside_sky > self.nside_out, "nside of sky should be greater than nside of target output by at least a factor of 2"
-
         preset_strings = list(cfg.simulation.preset_strings)
         # self.planck_freqs = self.experiment.detector_freqs
         # self.field_strings = self.experiment.map_fields
