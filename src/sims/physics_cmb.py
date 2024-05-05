@@ -69,20 +69,20 @@ def _log_camb_args(set_cosmo_args, init_power_args) -> None:
     logger.debug(f"CAMB init_power args: {init_power_args}")
 
 
-def map2ps(skymap: np.ndarray, lmax: int) -> np.ndarray:
-    ps = hp.anafast(skymap, lmax=lmax)
-    ps = ps.T
-    return ps
+# def map2ps(skymap: np.ndarray, lmax: int) -> np.ndarray:
+#     ps = hp.anafast(skymap, lmax=lmax)
+#     ps = ps.T
+#     return ps
 
 
-def convert_to_log_power_spectrum(ps_cl: np.ndarray):
-    # Converts from "Cl" to "Dl", also called the "Log Power Spectrum"
-    ell = np.atleast_2d(np.arange(start=0, stop=ps_cl.shape[0])).T
-    factor = ell * (ell + 1) / (2 * np.pi)
-    ps_dl = ps_cl * factor
-    return ps_dl
+# def convert_to_log_power_spectrum(ps_cl: np.ndarray):
+#     # Converts from "Cl" to "Dl", also called the "Log Power Spectrum"
+#     ell = np.atleast_2d(np.arange(start=0, stop=ps_cl.shape[0])).T
+#     factor = ell * (ell + 1) / (2 * np.pi)
+#     ps_dl = ps_cl * factor
+#     return ps_dl
 
 
-def scale_fiducial_cmb(cmb_map: np.ndarray, nside_out: int):
+def change_nside_of_map(cmb_map: np.ndarray, nside_out: int):
     scaled_map = hp.ud_grade(cmb_map, nside_out=nside_out, dtype=cmb_map.dtype)
     return scaled_map
