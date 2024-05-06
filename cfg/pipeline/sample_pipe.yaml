@@ -5,6 +5,7 @@ raw:
       handler: QTable
       path_template: "{src_root}/{fn}"
   dir_name: Raw
+check-configs:
 create-noise:
   assets_out:
     noise_cache:
