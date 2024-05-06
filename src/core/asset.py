@@ -12,8 +12,8 @@ class Asset:
         stage_cfg = cfg.pipeline[source_stage]
         asset_info = stage_cfg.assets_out[asset_name]
 
-        self.source_stage_dir = stage_cfg.dir_name
-        self.fn = asset_info.fn
+        self.source_stage_dir = stage_cfg.get('dir_name', None)
+        self.fn = asset_info.get('fn', "")
 
         self.name_tracker:Namer = name_tracker
         self.can_read = False
