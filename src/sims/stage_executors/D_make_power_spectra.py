@@ -21,8 +21,8 @@ from ..handlers.psmaker_handler import CambPS # Import to register handler
 
 class FidPSExecutor(BaseStageExecutor):
     def __init__(self, cfg: DictConfig, experiment: ExperimentParameters) -> None:
-        self.stage_str = 'create-fid-ps'
-        super().__init__(cfg, experiment)
+        # The following stage_str must match the pipeline yaml
+        super().__init__(cfg, experiment, stage_str='make_cmb_power_spectra')
 
         self.max_ell_for_camb = cfg.simulation.cmb.ell_max
         self.wmap_param_labels = cfg.simulation.cmb.wmap_params

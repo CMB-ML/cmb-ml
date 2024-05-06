@@ -13,8 +13,8 @@ from ...core import (
 
 class ConfigExecutor(BaseStageExecutor):
     def __init__(self, cfg: DictConfig, experiment: ExperimentParameters) -> None:
-        self.stage_str = "create-configs"
-        super().__init__(cfg, experiment)
+        # The following stage_str must match the pipeline yaml
+        super().__init__(cfg, experiment, stage_str="make_sim_configs")
 
         self.out_split_config: Asset = self.assets_out['split_configs']
         self.out_fixed_param_config: Asset = self.assets_out['wmap_config_fixed']

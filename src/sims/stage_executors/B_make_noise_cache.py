@@ -22,8 +22,8 @@ from ...core import (
 logger = logging.getLogger(__name__)
 class NoiseCacheExecutor(BaseStageExecutor):
     def __init__(self, cfg: DictConfig, experiment: ExperimentParameters) -> None:
-        self.stage_str = 'create-noise'
-        super().__init__(cfg, experiment)
+        # The following stage_str must match the pipeline yaml
+        super().__init__(cfg, experiment, stage_str='make_noise_cache')
 
         self.planck_deltabandpass = self.assets_in['planck_deltabandpass']
         

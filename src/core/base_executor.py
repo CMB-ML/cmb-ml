@@ -17,13 +17,14 @@ logger = logging.getLogger(__name__)
 class BaseStageExecutor:
     def __init__(self, 
                  cfg: DictConfig, 
-                 experiment: ExperimentParameters) -> None:
+                 experiment: ExperimentParameters,
+                 stage_str: str) -> None:
         self.cfg = cfg
         self.experiment = experiment
 
         self.name_tracker = Namer(cfg)
 
-        self.stage_str: str  = self.stage_str  # Set in child classes
+        self.stage_str: str  = stage_str
         self._ensure_stage_string_in_pipeline_yaml()
 
         self.splits: Union[List[Split], None] = self._get_applicable_splits()
