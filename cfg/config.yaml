@@ -5,7 +5,7 @@ defaults:
   - experiment  : simple_experiment
   - splits      : two_two
   - pipeline    : sample_pipe
-  - override hydra/job_logging: custom_log_with_extra_seed
+  - override hydra/job_logging: custom_log
   - _self_
 
 create_dirs: false

@@ -14,9 +14,6 @@ create-noise:
       path_template: "{root}/{dataset}/{stage}/{freq}_{field}_{fn}"
   assets_in:
     planck_deltabandpass: {stage: raw}
-  splits:
-    - train
-    - test
   dir_name: Simulation_B_NoiseCache
 create-configs:
   assets_out:
