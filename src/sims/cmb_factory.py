@@ -29,7 +29,6 @@ class CMBFactory:
                 raise e
     
     def make_cmb_lensed(self, seed, powerspectrum: Asset) -> CMBLensed:
-        logger.debug(f'Seed used for CMB: {seed}.')
         cmb_ps_fid_path = powerspectrum.path
         return CMBLensed(nside=self.nside,
                          cmb_spectra=cmb_ps_fid_path,
