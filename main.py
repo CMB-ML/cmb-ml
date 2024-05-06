@@ -16,6 +16,7 @@ from src.sims import (
 
 
 logger = logging.getLogger(__name__)
+logging.getLogger('pysm3').setLevel(logging.WARNING)
 
 
 @hydra.main(version_base=None, config_path="cfg", config_name="config")
