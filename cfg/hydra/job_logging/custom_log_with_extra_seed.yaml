@@ -37,7 +37,6 @@ loggers:
     propagate: false
   seed_logger:
     handlers:
-    - console
     - file
     - seed_file
     level: INFO
