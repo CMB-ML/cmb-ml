@@ -47,7 +47,7 @@ class BaseStageExecutor:
 
     def process_split(self, split: Split) -> None:
         # Placeholder method to be overridden by subclasses
-        logger.debug("Executing BaseExecutor process_split() method.")
+        logger.warning("Executing BaseExecutor process_split() method.")
         raise NotImplementedError("Subclasses must implement process_split if it is to be used.")
 
     def _get_stage_element(self, stage_element="assets_out"):
