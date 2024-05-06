@@ -2,7 +2,7 @@ from typing import Dict, List, Tuple, Callable, Union
 import logging
 import re
 
-from omegaconf import DictConfig
+from omegaconf import DictConfig, OmegaConf
 from omegaconf import errors as OmegaErrors
 
 from .experiment import ExperimentParameters
@@ -31,6 +31,9 @@ class BaseStageExecutor:
         self.assets_in:  Union[Dict[str, Asset], None] = self._make_assets_in()
 
     def _ensure_stage_string_in_pipeline_yaml(self):
+        # We do not know the contents of python code (the stage executors) until runtime.
+        #    TODO: Checking this early would require changes to the PipelineContext
+        #    and possibly include making stage_str into a class variable. Probably a good idea, in hindsight.
         assert self.stage_str in self.cfg.pipeline, f"Stage string for child class {self.__class__.__name__} not found." + \
              " Ensure that this particular Executor has set a stage_str matching a stage in the pipeline yaml."
 
@@ -45,27 +48,11 @@ class BaseStageExecutor:
     def process_split(self, split: Split) -> None:
         # Placeholder method to be overridden by subclasses
         logger.debug("Executing BaseExecutor process_split() method.")
-        raise NotImplementedError("Subclasses must implement process_split.")
+        raise NotImplementedError("Subclasses must implement process_split if it is to be used.")
 
-    def _get_applicable_splits(self) -> List[Split]:
-        cfg_pipeline = self.cfg.pipeline
-        try:
-            splits_scope = cfg_pipeline['splits']
-        except OmegaErrors.ConfigKeyError:
-            return None
-        all_splits = self.cfg.splits.keys()
-        kinds_of_splits = [kind.lower() for kind in splits_scope]
-        patterns = [re.compile(f"^{kind}\\d*$", re.IGNORECASE) for kind in kinds_of_splits]
-
-        filtered_names = []
-        for split in all_splits:
-            if any(pattern.match(split) for pattern in patterns):
-                filtered_names.append(split)
-        all_split_objs = [Split(name, self.cfg.splits[name]) for name in filtered_names]
-        return all_split_objs
-
-    def _get_assets_list(self, which_assets="assets_out"):
+    def _get_stage_element(self, stage_element="assets_out"):
         """
+        Supported stage elements are "assets_in", "assets_out", and "splits"
         raises omegaconf.errors.ConfigAttributeError if the stage in the pipeline yaml is empty (e.g. the CheckHydraConfigs stage).
         raises omegaconf.errors.ConfigKeyError if the stage in the pipeline yaml is missing assets_in or assets_out.
         """
@@ -73,14 +60,40 @@ class BaseStageExecutor:
         cfg_stage = cfg_pipeline[self.stage_str]
         if cfg_stage is None:
             raise OmegaErrors.ConfigAttributeError
-        cfg_assets = cfg_stage[which_assets]  # OmegaErrors.ConfigKeyError from here
-        return cfg_assets
+        stage_element = cfg_stage[stage_element]  # OmegaErrors.ConfigKeyError from here
+        return stage_element
+
+    def _get_applicable_splits(self) -> List[Split]:
+        # Pull specific splits for this stage from the pipeline hydra config
+        try:
+            splits_scope = self._get_stage_element(stage_element='splits')
+        except (OmegaErrors.ConfigKeyError, OmegaErrors.ConfigAttributeError):
+            # Or None if the pipeline has no "splits" for this stage
+            return None
+        # Get all possible splits from the splits hydra config
+        all_splits = self.cfg.splits.keys()
+
+        # Make a regex pattern to find "test" in "Test6"
+        kinds_of_splits = [kind.lower() for kind in splits_scope]
+        patterns = [re.compile(f"^{kind}\\d*$", re.IGNORECASE) for kind in kinds_of_splits]
+
+        filtered_names = []
+        for split in all_splits:
+            if any(pattern.match(split) for pattern in patterns):
+                filtered_names.append(split)
+        # Create a Split for all splits to which we want to apply this pipeline stage
+        all_split_objs = [Split(name, self.cfg.splits[name]) for name in filtered_names]
+        return all_split_objs
 
     def _make_assets_out(self) -> Dict[str, Asset]:
+        # Pull the list of output assets for this stage from the pipeline hydra config
         try:
-            cfg_assets_out = self._get_assets_list(which_assets="assets_out")
+            cfg_assets_out = self._get_stage_element(stage_element="assets_out")
         except (OmegaErrors.ConfigKeyError, OmegaErrors.ConfigAttributeError):
+            # Or None if the pipeline has no "assets_out" for this stage
             return None
+        
+        # Create assets directly
         all_assets_out = {}
         for asset in cfg_assets_out:
             all_assets_out[asset] = Asset(cfg=self.cfg,
@@ -92,16 +105,16 @@ class BaseStageExecutor:
         return all_assets_out
 
     def _make_assets_in(self) -> Dict[str, Asset]:
+        # Pull the list of input assets for this stage from the pipeline hydra config
         try:
-            cfg_assets_in = self._get_assets_list(which_assets="assets_in")
+            cfg_assets_in = self._get_stage_element(stage_element="assets_in")
         except (OmegaErrors.ConfigKeyError, OmegaErrors.ConfigAttributeError):
+            # Or None if the pipeline has no "assets_out" for this stage
             return None
         all_assets_in = {}
+        # Create assets by looking up the stage in which the asset was originally created
         for asset in cfg_assets_in:
-            try:
-                source_pipeline = cfg_assets_in[asset]['stage']
-            except OmegaErrors.ConfigAttributeError:
-                raise KeyError(f"Error looking up 'stage' for {asset} in {cfg_assets_in}. 'stage' should exist in your pipeline yaml.")
+            source_pipeline = cfg_assets_in[asset]['stage']
             all_assets_in[asset] = Asset(cfg=self.cfg,
                                           source_stage=source_pipeline,
                                           asset_name=asset,
