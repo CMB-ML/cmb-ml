@@ -1,9 +1,10 @@
 nside            : 32
 # detector_freqs   : [30, 44, 70, 100, 143, 217, 353, 545, 857]
 detector_freqs   : [30, 100, 857]
-map_fields       : "I"
-# map_fields       : "IQU"
+# map_fields       : "I"
+map_fields       : "IQU"
 precision        : float
+units            : K_CMB
 
 full_instrument:
   30 : IQU
