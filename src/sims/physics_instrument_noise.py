@@ -38,13 +38,9 @@ def planck_result_to_sd_map(fits_fn, hdu, field_idx, nside_out, cen_freq):
 
 def make_random_noise_map(sd_map, random_seed, center_frequency):
     #TODO: set units when redoing this function
-    # logger.debug(f"physics_instrument_noise.make_random_noise_map start")
     rng = np.random.default_rng(random_seed)
     noise_map = rng.normal(scale=sd_map)
     noise_map = u.Quantity(noise_map, u.K_CMB, copy=False)
-    #TODO: take units as output instead of the following line.
-    # noise_map = noise_map.to(u.uK_RJ, equivalencies=u.cmb_equivalencies(center_frequency))
-    # logger.debug(f"physics_instrument_noise.make_random_noise_map end")
     return noise_map
 
 
@@ -70,8 +66,6 @@ def _get_sqrt_unit(src_unit):
     ok_units_k_cmb = ["(K_CMB)^2", "Kcmb^2"]
     ok_units_mjysr = ["(Mjy/sr)^2"]
     ok_units = [*ok_units_k_cmb, *ok_units_mjysr]
-    # TODO: Use logging
-    # log.info(f"Units for map {self.ref_map_fn} are {unit}")
     if src_unit not in ok_units:
         raise ValueError(f"Wrong unit found in fits file. Found {src_unit}, expected one of {ok_units}.")
     if src_unit in ok_units_k_cmb:
