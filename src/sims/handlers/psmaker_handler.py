@@ -4,7 +4,7 @@ import pandas as pd
 
 import camb
 
-from ...core.asset_handlers import GenericHandler, _make_directories
+from ...core.asset_handlers import GenericHandler, make_directories
 from ...core.asset_handlers.asset_handler_registration import register_handler
 
 import logging
@@ -39,9 +39,9 @@ class CambPS(GenericHandler):
             raise NotImplementedError("Untested, no use case currently.")
             return df
 
-    def write(self, path: Path, camb_results: camb.CAMBdata) -> None:
-        _make_directories(path)
-        camb_results.save_cmb_power_spectra(filename=path)
+    def write(self, path: Path, data: camb.CAMBdata) -> None:
+        make_directories(path)
+        data.save_cmb_power_spectra(filename=path)
 
 
 register_handler("PowerSpectrum", CambPS)

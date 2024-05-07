@@ -60,7 +60,7 @@ class Namer:
         try:
             result_path_str = path_template.format(**temp_context)
         except KeyError as e:
-            raise KeyError(f"Key {e.args[0]} likely not found in the context. Ensure that the path_template {path_template} is correct.")
+            raise KeyError(f"Key {e.args[0]} not found in the context. Ensure that the path_template {path_template} is correct.")
         return Path(result_path_str)
 
 

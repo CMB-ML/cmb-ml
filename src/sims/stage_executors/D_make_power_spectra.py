@@ -9,48 +9,51 @@ import pysm3
 
 from ...core import (
     BaseStageExecutor,
-    ExperimentParameters,
     Split,
-    Asset
+    AssetWithPathAlts
 )
 
 from ..physics_cmb import make_camb_ps
 
 from ..handlers.psmaker_handler import CambPS # Import to register handler
+from ...core.asset_handlers import Config
 
 
-class FidPSExecutor(BaseStageExecutor):
-    def __init__(self, cfg: DictConfig, experiment: ExperimentParameters) -> None:
+class TheoryPSExecutor(BaseStageExecutor):
+    def __init__(self, cfg: DictConfig) -> None:
         # The following stage_str must match the pipeline yaml
-        super().__init__(cfg, experiment, stage_str='make_cmb_power_spectra')
+        super().__init__(cfg, stage_str='make_cmb_power_spectra')
 
         self.max_ell_for_camb = cfg.simulation.cmb.ell_max
         self.wmap_param_labels = cfg.simulation.cmb.wmap_params
         self.camb_param_labels = cfg.simulation.cmb.camb_params_equiv
 
-        self.in_wmap_fixed: Asset = self.assets_in['wmap_config_fixed']
-        self.in_wmap_varied: Asset = self.assets_in['wmap_config_varied']
+        self.out_cmb_ps_theory: AssetWithPathAlts = self.assets_out['cmb_ps_theory']
+        self.in_wmap_config: AssetWithPathAlts = self.assets_in['wmap_config']
 
-        self.out_ps_fixed: Asset = self.assets_out['cmb_ps_fid_fixed']
-        self.out_ps_varied: Asset = self.assets_out['cmb_ps_fid_varied']
+        out_cmb_ps_theory_handler: CambPS
+        in_wmap_config_handler: Config
 
     def execute(self) -> None:
-        super().execute()
-    
+        self.default_execute()  # In BaseStageExecutor
+
     def process_split(self, split: Split) -> None:
         if split.ps_fidu_fixed:
-            self.make_ps(self.in_wmap_fixed, self.out_ps_fixed)
+            self.make_ps(self.in_wmap_config, self.out_cmb_ps_theory, use_alt_path=True)
         else:
             for sim in split.iter_sims():
                 with self.name_tracker.set_context("sim_num", sim):
-                    self.make_ps(self.in_wmap_varied, self.out_ps_varied)
-    
-    def make_ps(self, wmap_params: Asset, ps_asset: Asset) -> None:
-        cosmo_params = wmap_params.read()
+                    self.make_ps(self.in_wmap_config, self.out_cmb_ps_theory, use_alt_path=False)
+
+    def make_ps(self, 
+                wmap_params: AssetWithPathAlts, 
+                ps_asset: AssetWithPathAlts,
+                use_alt_path) -> None:
+        cosmo_params = wmap_params.read(use_alt_path=use_alt_path)
         cosmo_params = self._translate_params_keys(cosmo_params)
 
         camb_results = make_camb_ps(cosmo_params, lmax=self.max_ell_for_camb)
-        ps_asset.write(camb_results)
+        ps_asset.write(use_alt_path=use_alt_path, data=camb_results)
 
     def _translate_params_keys(self, src_params):
         translation_dict = self._param_translation_dict()

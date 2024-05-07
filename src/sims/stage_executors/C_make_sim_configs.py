@@ -19,10 +19,10 @@ class ConfigExecutor(BaseStageExecutor):
         super().__init__(cfg, stage_str="make_sim_configs")
 
         self.out_split_config: Asset = self.assets_out['split_configs']
-        self.out_cosmo_config: AssetWithPathAlts = self.assets_out['wmap_config']
+        self.out_wmap_config: AssetWithPathAlts = self.assets_out['wmap_config']
 
         out_split_config_handler: Config
-        out_cosmo_config_handler: Config
+        out_wmap_config_handler: Config
 
         self.wmap_param_labels = cfg.simulation.cmb.wmap_params
         self.wmap_chain_length = cfg.simulation.cmb.wmap_chain_length
@@ -88,9 +88,9 @@ class ConfigExecutor(BaseStageExecutor):
 
         if split.ps_fidu_fixed:
             these_params = {key: values[0] for key, values in wmap_params.items()}
-            self.out_cosmo_config.write(use_alt=True, data=these_params)
+            self.out_wmap_config.write(use_alt_path=True, data=these_params)
         else:
             for i in split.iter_sims():
                 these_params = {key: values[i] for key, values in wmap_params.items()}
                 with self.name_tracker.set_context("sim_num", i):
-                    self.out_cosmo_config.write(use_alt=False, data=these_params)
+                    self.out_wmap_config.write(use_alt_path=False, data=these_params)

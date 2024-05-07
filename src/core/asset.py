@@ -65,16 +65,16 @@ class AssetWithPathAlts(Asset):
         with self.name_tracker.set_context("stage", self.source_stage_dir):
             return self.name_tracker.path(self.path_template_alt)
 
-    def read(self, use_alt:bool=False, **kwargs):
+    def read(self, use_alt_path:bool=False, **kwargs):
         if self.can_read:
-            if use_alt:
+            if use_alt_path:
                 return self.handler.read(self.path_alt, **kwargs)
             else:
                 return self.handler.read(self.path, **kwargs)
 
-    def write(self, use_alt:bool=False, **kwargs):
+    def write(self, use_alt_path:bool=False, **kwargs):
         if self.can_write:
-            if use_alt:
+            if use_alt_path:
                 return self.handler.write(self.path_alt, **kwargs)
             else:
                 return self.handler.write(self.path, **kwargs)

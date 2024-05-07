@@ -1,3 +1,4 @@
+from abc import ABC, abstractmethod
 from typing import Dict, List, Tuple, Callable, Union
 import logging
 import re
@@ -37,7 +38,15 @@ class BaseStageExecutor:
         assert self.stage_str in self.cfg.pipeline, f"Stage string for child class {self.__class__.__name__} not found." + \
              " Ensure that this particular Executor has set a stage_str matching a stage in the pipeline yaml."
 
+    @abstractmethod
     def execute(self) -> None:
+        """
+        All executors should implement an execute method for clarity.
+        The default_execute() method below may suffice for many.
+        """
+        pass
+
+    def default_execute(self) -> None:
         # This is the common execution pattern; it may need to be overridden
         logger.debug("Executing BaseExecutor execute() method.")
         assert self.splits is not None, f"Child class, {self.__class__.__name__} has None for splits. Either implement its own execute() or define splits in the pipeline yaml."
