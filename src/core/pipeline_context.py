@@ -1,7 +1,6 @@
 import logging
 
 from .base_executor import BaseStageExecutor
-from .experiment import ExperimentParameters
 
 
 logger = logging.getLogger("stages")
@@ -9,7 +8,6 @@ logger = logging.getLogger("stages")
 class PipelineContext:
     def __init__(self, cfg):
         self.cfg = cfg
-        self.experiment = ExperimentParameters.from_cfg(cfg)
         self.pipeline = []
 
     def add_pipe(self, executor):
@@ -26,6 +24,6 @@ class PipelineContext:
         :param stage: The stage to run; should derive from src.core.stage_executors.base.BaseExecutor
         """
         logger.info(f"Running stage: {stage.__name__}")
-        executor: BaseStageExecutor = stage(self.cfg, self.experiment)
+        executor: BaseStageExecutor = stage(self.cfg)
         executor.execute()
         logger.info(f"Done running stage: {stage.__name__}")

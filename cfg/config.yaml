@@ -2,7 +2,7 @@ defaults:
   - local_system: ${oc.env:CMB_SIMS_LOCAL_SYSTEM}
   - file_system : common_fs
   - simulation  : base_sim
-  - experiment  : simple_experiment
+  - scenario    : simple_scenario
   - splits      : two_two
   - pipeline    : sample_pipe
   - override hydra/job_logging: custom_log

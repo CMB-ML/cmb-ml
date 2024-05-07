@@ -28,26 +28,26 @@ def get_num_fields_in_hdr(fits_fn, hdu) -> int:
     return n_fields
 
 
-def lookup_field_idx(field_str, fits_fn, hdu):
-    n_fields = get_num_fields_in_hdr(fits_fn, hdu)
-    T_n_fields = 3
-    TQU_n_fields = 10
+# def lookup_field_idx(field_str, fits_fn, hdu):
+#     n_fields = get_num_fields_in_hdr(fits_fn, hdu)
+#     T_n_fields = 3
+#     TQU_n_fields = 10
     
-    if n_fields == T_n_fields:
-        field_str_to_idx = {"T": 2}
-    elif n_fields == TQU_n_fields:
-        field_str_to_idx = {"T": 4,
-                            "Q": 7,
-                            "U": 9}
-    else:
-        raise ValueError(f"Unexpected number of fields in fits file.")
+#     if n_fields == T_n_fields:
+#         field_str_to_idx = {"T": 2}
+#     elif n_fields == TQU_n_fields:
+#         field_str_to_idx = {"T": 4,
+#                             "Q": 7,
+#                             "U": 9}
+#     else:
+#         raise ValueError(f"Unexpected number of fields in fits file.")
 
-    try:
-        field_idx = field_str_to_idx[field_str]
-    except KeyError:
-        ok_field_strs = ", ".join(field_str_to_idx.keys())
-        raise ValueError(f"FITS file has only {ok_field_strs}, but {field_str} was requested.")
-    return field_idx    
+#     try:
+#         field_idx = field_str_to_idx[field_str]
+#     except KeyError:
+#         ok_field_strs = ", ".join(field_str_to_idx.keys())
+#         raise ValueError(f"FITS file has only {ok_field_strs}, but {field_str} was requested.")
+#     return field_idx    
 
 
 def get_field_unit(fits_fn, hdu, field_idx):
@@ -99,6 +99,7 @@ def get_fits_information(fits_fn):
                 continue
             maps_info[hdu_n] = dict(hdu.header)
             maps_info[hdu_n]["FIELDS"] = {}
+            print(hdu_n, hdu.data.shape, '\n', hdu.data)
             for field_n in range(1, n_fields_per_hdu[hdu_n] + 1):
                 field_info = {}
                 # Construct the keys for type and unit

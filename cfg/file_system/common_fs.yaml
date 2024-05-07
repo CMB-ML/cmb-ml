@@ -19,4 +19,4 @@ obs_map_fn              : "obs_{det}_map.fits"
 subdir_for_log_scripts  : "scripts"
 log_dataset_template_str: "{root}/{dataset}/{hydra_run_dir}"
 
-default_path_template   : "{root}/{dataset}/{stage}/{split}/{sim}/{fn}"
+# default_path_template   : "{root}/{dataset}/{stage}/{split}/{sim}/{fn}"

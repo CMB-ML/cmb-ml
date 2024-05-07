@@ -1,9 +1,8 @@
-#TODO: REINSTATE USE OF THIS FILE
-
 import logging
 
 import numpy as np
 import healpy as hp
+from astropy.units import Unit
 import pysm3.units as u
 from astropy.cosmology import Planck15
 
@@ -32,6 +31,7 @@ def planck_result_to_sd_map(fits_fn, hdu, field_idx, nside_out, cen_freq):
              u.K, equivalencies=u.thermodynamic_temperature(cen_freq, Planck15.Tcmb0)
         ).value
 
+    m = m * Unit(sqrt_unit)
     logger.debug(f"physics_instrument_noise.planck_result_to_sd_map end")
     return m
 

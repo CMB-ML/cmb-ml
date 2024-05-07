@@ -3,16 +3,17 @@ from typing import Dict
 import healpy as hp
 from astropy.table import QTable
 
-from ...core.asset_handlers import GenericHandler, _make_directories
-from ...core.asset_handler_registration import register_handler
+from ...core.asset_handlers import GenericHandler
+from ...core.asset_handlers.asset_handler_registration import register_handler
 
 import logging
 
 logger = logging.getLogger(__name__)
 
+
 class QTableHandler(GenericHandler):
     def read(self, path: Path) -> Dict:
-        logger.debug(f"Reading model from '{path}'")
+        logger.debug(f"Reading QTable from '{path}'")
         planck_beam_info = QTable.read(path, format="ascii.ipac")
         planck_beam_info.add_index("band")
         return planck_beam_info

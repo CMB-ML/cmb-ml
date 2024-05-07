@@ -1,33 +1,37 @@
 raw:
   assets_out:
     planck_deltabandpass:
-      fn: planck_deltabandpass.tbl
       handler: QTable
+      path_template: "{src_root}/planck_deltabandpass.tbl"
+    noise_src_maps:
+      handler: HealpyMap
       path_template: "{src_root}/{fn}"
+    # wmap_chains:
+    #   handler: WMAPChains
+    #   path_template: "{src_root}/{fn}"
 check_hydra_configs:  # No information needed here
 make_noise_cache:
   assets_out:
     noise_cache:
-      fn: "noise_sd_map.fits"
-      handler: NoiseCache
-      path_template: "{root}/{dataset}/{stage}/{freq}_{field}_{fn}"
+      handler: HealpyMap
+      path_template: "{root}/{dataset}/{stage}/{freq}_{field}_noise_sd_map.fits"
   assets_in:
     planck_deltabandpass: {stage: raw}
+    noise_src_maps: {stage: raw}
   dir_name: Simulation_B_NoiseCache
 make_sim_configs:
   assets_out:
     split_configs:
-      fn: "split_config.yaml"
       handler: Config
-      path_template: "{root}/{dataset}/{stage}/{split}/{fn}"
+      path_template: "{root}/{dataset}/{stage}/{split}/split_config.yaml"
     wmap_config_fixed:
-      fn: "wmap_params.yaml"
       handler: Config
-      path_template: "{root}/{dataset}/{stage}/{split}/{fn}"
+      path_template: "{root}/{dataset}/{stage}/{split}/wmap_params.yaml"
     wmap_config_varied:
-      fn: "wmap_params.yaml"
       handler: Config
-      path_template: "{root}/{dataset}/{stage}/{split}/{sim}/{fn}"
+      path_template: "{root}/{dataset}/{stage}/{split}/{sim}/wmap_params.yaml"
+  # assets_in:
+  #   wmap_chains: {stage: raw}
   splits:
     - train
     - test
@@ -35,13 +39,11 @@ make_sim_configs:
 make_cmb_power_spectra:
   assets_out:
     cmb_ps_fid_fixed:
-      fn: "cmb_ps_fid.txt"
       handler: PowerSpectrum
-      path_template: "{root}/{dataset}/{stage}/{split}/{fn}"
+      path_template: "{root}/{dataset}/{stage}/{split}/cmb_ps_fid.txt"
     cmb_ps_fid_varied:
-      fn: "cmb_ps_fid.txt"
       handler: PowerSpectrum
-      path_template: "{root}/{dataset}/{stage}/{split}/{sim}/{fn}"
+      path_template: "{root}/{dataset}/{stage}/{split}/{sim}/cmb_ps_fid.txt"
   assets_in:
     split_configs: {stage: make_sim_configs}
     wmap_config_fixed: {stage: make_sim_configs}
@@ -54,17 +56,14 @@ make_cmb_power_spectra:
 make_sims:
   assets_out:
     cmb_map_fid:
-      fn: "cmb_map_fid.fits"
       handler: HealpyMapTemp
-      path_template: "{root}/{dataset}/{stage}/{split}/{sim}/{fn}"
+      path_template: "{root}/{dataset}/{stage}/{split}/{sim}/cmb_map_fid.fits"
     cmb_ps_der:
-      fn: "cmb_ps_der.txt"
       handler: NoHandler
-      path_template: "{root}/{dataset}/{stage}/{split}/{sim}/{fn}"
+      path_template: "{root}/{dataset}/{stage}/{split}/{sim}/cmb_ps_der.txt"
     sims:
-      fn: "obs_{det}_map.fits"
-      handler: ManyHealpyMapsTemp
-      path_template: "{root}/{dataset}/{stage}/{split}/{sim}/{fn}"
+      handler: HealpyMapTemp
+      path_template: "{root}/{dataset}/{stage}/{split}/{sim}/obs_{det}_map.fits"
   assets_in:
     planck_deltabandpass: {stage: raw}
     noise_cache: {stage: make_noise_cache}

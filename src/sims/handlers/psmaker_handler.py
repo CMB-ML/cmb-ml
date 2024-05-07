@@ -5,7 +5,7 @@ import pandas as pd
 import camb
 
 from ...core.asset_handlers import GenericHandler, _make_directories
-from ...core.asset_handler_registration import register_handler
+from ...core.asset_handlers.asset_handler_registration import register_handler
 
 import logging
 

@@ -5,7 +5,6 @@ import re
 from omegaconf import DictConfig, OmegaConf
 from omegaconf import errors as OmegaErrors
 
-from .experiment import ExperimentParameters
 from .asset import Asset
 from .namers import Namer
 from .split import Split
@@ -17,10 +16,10 @@ logger = logging.getLogger(__name__)
 class BaseStageExecutor:
     def __init__(self, 
                  cfg: DictConfig, 
-                 experiment: ExperimentParameters,
+                #  experiment: ExperimentParameters,
                  stage_str: str) -> None:
         self.cfg = cfg
-        self.experiment = experiment
+        # self.experiment = experiment
 
         self.name_tracker = Namer(cfg)
 
@@ -101,7 +100,6 @@ class BaseStageExecutor:
                                           source_stage=self.stage_str,
                                           asset_name=asset,
                                           name_tracker=self.name_tracker,
-                                          experiment=self.experiment,
                                           in_or_out="out")
         return all_assets_out
 
@@ -120,6 +118,5 @@ class BaseStageExecutor:
                                           source_stage=source_pipeline,
                                           asset_name=asset,
                                           name_tracker=self.name_tracker,
-                                          experiment=self.experiment,
                                           in_or_out="in")
         return all_assets_in

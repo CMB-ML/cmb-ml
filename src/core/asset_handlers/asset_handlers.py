@@ -6,15 +6,14 @@ import logging
 import numpy as np
 import healpy as hp
 
-from .experiment import ExperimentParameters
 from .asset_handler_registration import register_handler
 
 logger = logging.getLogger(__name__)
 
 
 class GenericHandler:
-    def __init__(self, experiment: ExperimentParameters) -> None:
-        self.experiment = experiment
+    # def __init__(self) -> None:
+    #     pass
 
     def read(self, path: Path):
         raise NotImplementedError("This read() should be implemented by children classes.")
@@ -31,14 +30,13 @@ class NoHandler(GenericHandler):
 
 
 class HealpyMap(GenericHandler):
-    def read(self, path: Union[Path, str]):
+    def read(self, path: Union[Path, str], map_fields=1):
         path = Path(path)
-        map_fields = self.experiment.map_fields_tuple
+        # map_fields = self.experiment.map_fields_tuple
         try:
             this_map: np.ndarray = hp.read_map(path, field=map_fields)
         except IndexError as e:
             if len(map_fields) > 1:
-                # logger.warning("Defaulting to reading a single field from the file. The 857 and 545 maps have no polarization information. Consider suppressing this warning if running a large run.")
                 map_fields = tuple([0])
                 this_map = hp.read_map(path, field=map_fields)
             else:
@@ -57,57 +55,71 @@ class HealpyMap(GenericHandler):
             this_map = this_map.astype(np.float32)
         return this_map
 
-    def write(self, path: Union[Path, str], data: List[np.ndarray]):
+    def write(self, 
+              path: Union[Path, str], 
+              data: List[np.ndarray],
+              nest: bool = None,
+              column_names: List[str] = None,
+              column_units: List[str] = None,
+              overwrite: bool = True
+              ):
+        column_units = [str(unit) for unit in column_units]
         path = Path(path)
-        _make_directories(path)
-        hp.write_map(path, data, dtype=data[0].dtype, overwrite=True)
+        make_directories(path)
+        hp.write_map(filename=path, 
+                     m=data, 
+                     nest=nest,
+                     column_names=column_names,
+                     column_units=column_units,
+                     dtype=data[0].dtype, 
+                     overwrite=overwrite)
 
-class HealpyMapTemp(HealpyMap):
-    def write(self, path: Union[Path, str], cmb_map):
-        # Note the difference is the addition of map_unit
-        map_unit = str(cmb_map.unit)
-        path = Path(path)
-        _make_directories(path)
-        hp.write_map(path, m=cmb_map, column_units=map_unit, dtype=cmb_map.dtype, overwrite=True)
+# class HealpyMapTemp(HealpyMap):
+#     def write(self, path: Union[Path, str], cmb_map):
+#         # Note the difference is the addition of map_unit
+#         map_unit = str(cmb_map.unit)
+#         path = Path(path)
+#         _make_directories(path)
+#         hp.write_map(path, m=cmb_map, column_units=map_unit, dtype=cmb_map.dtype, overwrite=True)
 
-class ManyHealpyMaps(GenericHandler):
-    def __init__(self, experiment: ExperimentParameters) -> None:
-        super().__init__(experiment)
-        self.handler: GenericHandler = HealpyMap(experiment)
+# class ManyHealpyMaps(GenericHandler):
+#     def __init__(self) -> None:
+#         super().__init__()
+#         self.handler: GenericHandler = HealpyMap()
 
-    def read(self, path: Union[Path, str]) -> Dict[str, np.ndarray]:
-        path = Path(path)
-        maps = {}
-        for det in self.experiment.detector_freqs:
-            fn_template = path.name
-            fn = fn_template.format(det=det)
-            this_path = path.parent / fn
-            maps[det] = self.handler.read(this_path)
-        return maps
+#     def read(self, path: Union[Path, str]) -> Dict[str, np.ndarray]:
+#         path = Path(path)
+#         maps = {}
+#         for det in self.experiment.detector_freqs:
+#             fn_template = path.name
+#             fn = fn_template.format(det=det)
+#             this_path = path.parent / fn
+#             maps[det] = self.handler.read(this_path)
+#         return maps
 
-    def write(self, path: Union[Path, str], data: Dict[str, np.ndarray]) -> None:
-        path = Path(path)
-        for det, map_to_write in data.items():
-            fn_template = path.name
-            fn = fn_template.format(det=det)
-            this_path = path.parent / fn
-            self.handler.write(this_path, map_to_write)
+#     def write(self, path: Union[Path, str], data: Dict[str, np.ndarray]) -> None:
+#         path = Path(path)
+#         for det, map_to_write in data.items():
+#             fn_template = path.name
+#             fn = fn_template.format(det=det)
+#             this_path = path.parent / fn
+#             self.handler.write(this_path, map_to_write)
 
-class ManyHealpyMapsTemp(ManyHealpyMaps):
-    def __init__(self, experiment: ExperimentParameters) -> None:
-        super().__init__(experiment)
-        self.handler: GenericHandler = HealpyMapTemp(experiment)
+# class ManyHealpyMapsTemp(ManyHealpyMaps):
+#     def __init__(self) -> None:
+#         super().__init__()
+#         self.handler: GenericHandler = HealpyMapTemp()
 
-    def write(self, path: Union[Path, str], data: Dict[str, np.ndarray]) -> None:
-        path = Path(path)
-        for det, map_to_write in data.items():
-            # Note the difference is the addition of... the list check.
-            if isinstance(map_to_write, list):
-                map_to_write = np.stack(map_to_write, axis=0)
-            fn_template = path.name
-            fn = fn_template.format(det=det)
-            this_path = path.parent / fn
-            self.handler.write(this_path, map_to_write)
+#     def write(self, path: Union[Path, str], data: Dict[str, np.ndarray]) -> None:
+#         path = Path(path)
+#         for det, map_to_write in data.items():
+#             # Note the difference is the addition of... the list check.
+#             if isinstance(map_to_write, list):
+#                 map_to_write = np.stack(map_to_write, axis=0)
+#             fn_template = path.name
+#             fn = fn_template.format(det=det)
+#             this_path = path.parent / fn
+#             self.handler.write(this_path, map_to_write)
 
 class Config(GenericHandler):
     def read(self, path: Path) -> Dict:
@@ -118,7 +130,7 @@ class Config(GenericHandler):
 
     def write(self, path, data) -> None:
         logger.debug(f"Writing config to '{path}'")
-        _make_directories(path)
+        make_directories(path)
         unnumpy_data = _convert_numpy(data)
         with open(path, 'w') as outfile:
             yaml.dump(unnumpy_data, outfile, default_flow_style=False)
@@ -137,7 +149,7 @@ def _convert_numpy(obj: Union[Dict[str, Any], List[Any], np.generic]) -> Any:
         return obj
 
 
-def _make_directories(path: Union[Path, str]) -> None:
+def make_directories(path: Union[Path, str]) -> None:
     path = Path(path)
     folders = path.parent
     folders.mkdir(exist_ok=True, parents=True)
@@ -145,9 +157,9 @@ def _make_directories(path: Union[Path, str]) -> None:
 
 register_handler("NoHandler", NoHandler)
 register_handler("HealpyMap", HealpyMap)
-register_handler("ManyHealpyMaps", ManyHealpyMaps)
+# register_handler("ManyHealpyMaps", ManyHealpyMaps)
 register_handler("Config", Config)
 
 # TODO: Clarify about these
-register_handler("HealpyMapTemp", HealpyMapTemp)
-register_handler("ManyHealpyMapsTemp", ManyHealpyMapsTemp)
+# register_handler("HealpyMapTemp", HealpyMapTemp)
+# register_handler("ManyHealpyMapsTemp", ManyHealpyMapsTemp)

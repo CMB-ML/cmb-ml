@@ -1,5 +1,7 @@
+from typing import Dict
+
 from pathlib import Path
-from contextlib import contextmanager
+from contextlib import contextmanager, ExitStack
 
 
 class Namer:
@@ -24,6 +26,14 @@ class Namer:
                 del self.context[level]
             else:
                 self.context[level] = original_value
+
+    @contextmanager
+    def set_contexts(self, contexts_dict: Dict[str, str]):
+        with ExitStack() as stack:
+            # Create and enter all context managers
+            for level, value in contexts_dict.items():
+                stack.enter_context(self.set_context(level, value))
+            yield
 
     def sim_name(self, sim_idx=None):
         if sim_idx is None:
