@@ -14,13 +14,15 @@ class CMBFactory:
                 #  , make_ps_if_absent=None
                  ):
         self.nside = conf.simulation.nside_sky
-        self.max_ell_for_camb = conf.simulation.cmb.ell_max
-        self.wmap_param_labels = conf.simulation.cmb.wmap_params
-        self.camb_param_labels = conf.simulation.cmb.camb_params_equiv
         self.max_nside_pysm_component = None
         self.apply_delens = False
         self.delensing_ells = None
         self.map_dist = None
+
+        # Remove?:
+        # self.max_ell_for_camb = conf.simulation.cmb.ell_max
+        # self.wmap_param_labels = conf.simulation.cmb.wmap_params
+        # self.camb_param_labels = conf.simulation.cmb.camb_params_equiv
         # if make_ps_if_absent is None:
         #     try:
         #         self.make_ps_if_absent = conf.simulation.cmb.make_ps_if_absent
@@ -30,8 +32,7 @@ class CMBFactory:
         #         logger.exception(e)
         #         raise e
     
-    def make_cmb_lensed(self, seed, powerspectrum: Asset) -> CMBLensed:
-        cmb_ps_fid_path = powerspectrum.path
+    def make_cmb_lensed(self, seed, cmb_ps_fid_path) -> CMBLensed:
         return CMBLensed(nside=self.nside,
                          cmb_spectra=cmb_ps_fid_path,
                          cmb_seed=seed,

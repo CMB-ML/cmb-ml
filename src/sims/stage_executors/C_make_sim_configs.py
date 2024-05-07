@@ -44,7 +44,7 @@ class ConfigExecutor(BaseStageExecutor):
         )
 
         with self.name_tracker.set_context("split", split.name):
-            self.out_split_config.write(split_cfg_dict)
+            self.out_split_config.write(data=split_cfg_dict)
 
         self.make_cosmo_param_configs(split_cfg_dict['wmap_chain_idcs'], split)
 

@@ -36,7 +36,7 @@ make_sim_configs:
   dir_name: Simulation_C_Configs
 make_cmb_power_spectra:
   assets_out:
-    cmb_ps_theory:
+    cmb_ps:
       handler: PowerSpectrum
       path_template: "{root}/{dataset}/{stage}/{split}/{sim}/cmb_ps_fid.txt"
       path_template_alt: "{root}/{dataset}/{stage}/{split}/cmb_ps_fid.txt"
@@ -46,24 +46,19 @@ make_cmb_power_spectra:
     - train
     - test
   dir_name: Simulations_D_CMB_Power_Spectra
-# make_sims:
-#   assets_out:
-#     cmb_map_fid:
-#       handler: HealpyMapTemp
-#       path_template: "{root}/{dataset}/{stage}/{split}/{sim}/cmb_map_fid.fits"
-#     cmb_ps_der:
-#       handler: NoHandler
-#       path_template: "{root}/{dataset}/{stage}/{split}/{sim}/cmb_ps_der.txt"
-#     sims:
-#       handler: HealpyMapTemp
-#       path_template: "{root}/{dataset}/{stage}/{split}/{sim}/obs_{det}_map.fits"
-#   assets_in:
-#     planck_deltabandpass: {stage: raw}
-#     noise_cache: {stage: make_noise_cache}
-#     split_configs: {stage: make_sim_configs}
-#     wmap_config: {stage: make_sim_configs}  # Why is this here?
-#     cmb_ps_theory: {stage: make_cmb_power_spectra}
-#   splits:
-#     - train
-#     - test
-#   dir_name: Simulations
+make_sims:
+  assets_out:
+    cmb_map:
+      handler: HealpyMap
+      path_template: "{root}/{dataset}/{stage}/{split}/{sim}/cmb_map_fid.fits"
+    obs_maps:
+      handler: HealpyMap
+      path_template: "{root}/{dataset}/{stage}/{split}/{sim}/obs_{freq}_map.fits"
+  assets_in:
+    planck_deltabandpass: {stage: raw}
+    noise_cache: {stage: make_noise_cache}
+    cmb_ps: {stage: make_cmb_power_spectra}
+  splits:
+    - train
+    - test
+  dir_name: Simulations

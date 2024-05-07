@@ -5,6 +5,7 @@ import logging
 
 import numpy as np
 import healpy as hp
+from astropy.units import Quantity
 
 from .asset_handler_registration import register_handler
 
@@ -30,13 +31,14 @@ class NoHandler(GenericHandler):
 
 
 class HealpyMap(GenericHandler):
-    def read(self, path: Union[Path, str], map_fields=1):
+    def read(self, path: Union[Path, str], map_fields=None, precision=None):
         path = Path(path)
-        # map_fields = self.experiment.map_fields_tuple
         try:
             this_map: np.ndarray = hp.read_map(path, field=map_fields)
         except IndexError as e:
-            if len(map_fields) > 1:
+            if isinstance(map_fields, int):
+                raise e
+            elif len(map_fields) > 1:
                 map_fields = tuple([0])
                 this_map = hp.read_map(path, field=map_fields)
             else:
@@ -49,21 +51,32 @@ class HealpyMap(GenericHandler):
             # The byteswap() method swaps the byte order of the array elements
             # The newbyteorder() method changes the dtype to native byte order without changing the actual data
             this_map = this_map.byteswap().newbyteorder()
-        if len(map_fields) == 1:
+        if map_fields is None or map_fields is int or len(map_fields) == 1:
             this_map = this_map.reshape(1, -1)
-        if self.experiment.precision == "float":
+        if precision == "float":
             this_map = this_map.astype(np.float32)
         return this_map
 
     def write(self, 
               path: Union[Path, str], 
-              data: List[np.ndarray],
+              data: Union[List[Union[np.ndarray, Quantity]], np.ndarray],
               nest: bool = None,
               column_names: List[str] = None,
               column_units: List[str] = None,
               overwrite: bool = True
               ):
-        column_units = [str(unit) for unit in column_units]
+        # Format data as np.ndarray without singular dimensions
+        if isinstance(data, list):
+            if isinstance(data[0], Quantity):
+                data = [datum.value for datum in data]
+            data = np.stack(data, axis=0)
+        data = np.squeeze(data)
+        # Get column units as a list of strings
+        if column_units:
+            column_units = [str(unit) for unit in column_units]
+        elif isinstance(data, list):
+            if isinstance(data[0], Quantity):
+                column_units = [datum.unit.to_string() for datum in data]
         path = Path(path)
         make_directories(path)
         hp.write_map(filename=path, 
@@ -73,53 +86,6 @@ class HealpyMap(GenericHandler):
                      column_units=column_units,
                      dtype=data[0].dtype, 
                      overwrite=overwrite)
-
-# class HealpyMapTemp(HealpyMap):
-#     def write(self, path: Union[Path, str], cmb_map):
-#         # Note the difference is the addition of map_unit
-#         map_unit = str(cmb_map.unit)
-#         path = Path(path)
-#         _make_directories(path)
-#         hp.write_map(path, m=cmb_map, column_units=map_unit, dtype=cmb_map.dtype, overwrite=True)
-
-# class ManyHealpyMaps(GenericHandler):
-#     def __init__(self) -> None:
-#         super().__init__()
-#         self.handler: GenericHandler = HealpyMap()
-
-#     def read(self, path: Union[Path, str]) -> Dict[str, np.ndarray]:
-#         path = Path(path)
-#         maps = {}
-#         for det in self.experiment.detector_freqs:
-#             fn_template = path.name
-#             fn = fn_template.format(det=det)
-#             this_path = path.parent / fn
-#             maps[det] = self.handler.read(this_path)
-#         return maps
-
-#     def write(self, path: Union[Path, str], data: Dict[str, np.ndarray]) -> None:
-#         path = Path(path)
-#         for det, map_to_write in data.items():
-#             fn_template = path.name
-#             fn = fn_template.format(det=det)
-#             this_path = path.parent / fn
-#             self.handler.write(this_path, map_to_write)
-
-# class ManyHealpyMapsTemp(ManyHealpyMaps):
-#     def __init__(self) -> None:
-#         super().__init__()
-#         self.handler: GenericHandler = HealpyMapTemp()
-
-#     def write(self, path: Union[Path, str], data: Dict[str, np.ndarray]) -> None:
-#         path = Path(path)
-#         for det, map_to_write in data.items():
-#             # Note the difference is the addition of... the list check.
-#             if isinstance(map_to_write, list):
-#                 map_to_write = np.stack(map_to_write, axis=0)
-#             fn_template = path.name
-#             fn = fn_template.format(det=det)
-#             this_path = path.parent / fn
-#             self.handler.write(this_path, map_to_write)
 
 class Config(GenericHandler):
     def read(self, path: Path) -> Dict:

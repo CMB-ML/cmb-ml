@@ -15,17 +15,18 @@ import logging
 
 from..cmb_factory import CMBFactory
 from ..random_seed_manager import FieldLevelSeedFactory, SimLevelSeedFactory
-from ..detector import make_detector
+from ..planck_instrument import make_instrument, Instrument
 
 from ...core import (
     BaseStageExecutor,
-    ExperimentParameters,
     Split,
-    Asset
+    Asset, AssetWithPathAlts
 )
 
 from ..handlers.qtable_handler import QTableHandler # Import to register handler
 # from ..handlers.psmaker_handler import PSHandler # Handler is not used for simulation.
+from core.asset_handlers import HealpyMap
+from ..handlers.psmaker_handler import CambPS # Import for typing hint
 
 from ..physics_cmb import change_nside_of_map
 from ..physics_instrument_noise import make_random_noise_map
@@ -33,96 +34,93 @@ from ..physics_instrument_noise import make_random_noise_map
 logger = logging.getLogger(__name__)
 
 class SimCreatorExecutor(BaseStageExecutor):
-    def __init__(self, cfg: DictConfig, experiment: ExperimentParameters) -> None:
+    def __init__(self, cfg: DictConfig) -> None:
         # The following stage_str must match the pipeline yaml
-        super().__init__(cfg, experiment, stage_str='make_sims')
+        super().__init__(cfg, stage_str='make_sims')
 
-        self.planck_deltabandpass = self.assets_in['planck_deltabandpass']
-        
+        self.out_cmb_map: Asset = self.assets_out['cmb_map']
+        self.out_obs_maps: Asset = self.assets_out['obs_maps']
+        out_cmb_map_handler: HealpyMap
+        out_obs_maps_handler: HealpyMap
+
+        self.in_noise_cache: Asset = self.assets_in['noise_cache']
+        self.in_cmb_ps: AssetWithPathAlts = self.assets_in['cmb_ps']
+        in_det_table: Asset = self.assets_in['planck_deltabandpass']
+        in_noise_cache_handler: HealpyMap
+        in_cmb_ps_handler: CambPS
+        in_det_table_handler: QTableHandler
+
         with self.name_tracker.set_context('src_root', cfg.local_system.noise_src_dir):
-            self.deltabandpass = self.planck_deltabandpass.read()
-
-        self.in_noise_cache = self.assets_in['noise_cache']
-        self.in_wmap_fixed = self.assets_in['wmap_config_fixed']
-        self.in_wmap_varied = self.assets_in['wmap_config_varied']
-        self.in_ps_fixed = self.assets_in['cmb_ps_fid_fixed']
-        self.in_ps_varied = self.assets_in['cmb_ps_fid_varied']
-
-        self.out_cmb_map_fid = self.assets_out['cmb_map_fid']
-        self.out_sims = self.assets_out['sims']
+            det_info = in_det_table.read()
+        self.instrument: Instrument = make_instrument(cfg=cfg, det_info=det_info)
 
         # seed maker objects
-        self.cmb_seed_factory = SimLevelSeedFactory(cfg, 'cmb')
-        self.noise_seed_factory = FieldLevelSeedFactory(cfg, 'noise')
+        self.cmb_seed_factory     = SimLevelSeedFactory(cfg, cfg.simulation.cmb.seed_string)
+        self.noise_seed_factory   = FieldLevelSeedFactory(cfg, cfg.simulation.noise.seed_string)
 
         # Initialize constants from configs
-        self.nside_out = self.experiment.nside
-        self.nside_sky = cfg.simulation.nside_sky
-        self.planck_freqs = self.experiment.detector_freqs
-        self.field_strings = self.experiment.map_fields
-        preset_strings = list(cfg.simulation.preset_strings)
+        self.nside_out            = cfg.scenario.nside
+        self.nside_sky            = cfg.simulation.nside_sky
         self.lmax_pysm3_smoothing = int(cfg.simulation.cmb.derived_ps_nsmax_x * self.nside_out)
 
-        self.placeholder = pysm3.Model(nside=self.nside_sky, max_nside=self.nside_sky)
+        self.units = cfg.scenario.units
+
+        placeholder = pysm3.Model(nside=self.nside_sky, max_nside=self.nside_sky)
         logger.debug('Creating PySM3 Sky object')
         self.sky = pysm3.Sky(nside=self.nside_sky,
-                            component_objects=[self.placeholder],
-                            preset_strings=preset_strings,
-                            output_unit='K_CMB')
+                             component_objects=[placeholder],
+                             preset_strings=list(cfg.simulation.preset_strings),
+                             output_unit=cfg.scenario.units)
         logger.debug('Done creating PySM3 Sky object')
         self.cmb_factory = CMBFactory(cfg)
 
     def execute(self) -> None:
-        super().execute()
+        self.default_execute()
 
     def process_split(self, split: Split) -> None:
-        if split.ps_fidu_fixed:
-            logger.debug(f"Working in {split.name}, fixed ps")
-            self.process_sims(split, self.in_ps_fixed)
-        else:
-            logger.debug(f"Working in {split.name}, varied ps")
-            self.process_sims(split, self.in_ps_varied)
-
-    def process_sims(self, split, ps) -> None:
         for sim in split.iter_sims():
             with self.name_tracker.set_context("sim_num", sim):
-                logger.debug(f"Creating simulation {split.name}:{sim}")
-                cmb_seed = self.cmb_seed_factory.get_seed(split, sim)
-                cmb = self.cmb_factory.make_cmb_lensed(cmb_seed, ps)
-                self.sky.components[0] = cmb
-                self.save_cmb_map_realization(cmb, self.out_cmb_map_fid)
+                self.process_sim(split, sim_num=sim)
 
-                for freq in self.planck_freqs:
-                    detector = make_detector(self.deltabandpass, freq)
-                    skymaps = self.sky.get_emission(detector.cen_freq)
+    def process_sim(self, split: Split, sim_num: int) -> None:
+        sim_name = self.name_tracker.sim_name()
+        logger.debug(f"Creating simulation {split.name}:{sim_name}")
+        cmb_seed = self.cmb_seed_factory.get_seed(split, sim_num)
+        ps_path = self.in_cmb_ps.path_alt if split.ps_fidu_fixed else self.in_cmb_ps.path
+        cmb = self.cmb_factory.make_cmb_lensed(cmb_seed, ps_path)
+        self.sky.components[0] = cmb
+        self.save_cmb_map_realization(cmb)
 
-                    obs_map = []
-                    for skymap, field_str in zip(skymaps, self.field_strings):
-                        if freq in [545, 857] and field_str != "T":
-                            continue
-                        map_smoothed = pysm3.apply_smoothing_and_coord_transform(skymap, 
-                                                                                 detector.fwhm, 
-                                                                                 lmax=self.lmax_pysm3_smoothing, 
-                                                                                 output_nside=self.nside_out)
-                        noise_seed = self.noise_seed_factory.get_seed(split, sim, freq, field_str)
-                        noise_map = self.get_noise_map(freq, field_str, noise_seed)
-                        final_map = map_smoothed + noise_map
-                        obs_map.append(final_map)
+        for freq, detector in self.instrument.dets.items():
+            skymaps = self.sky.get_emission(detector.cen_freq)
 
-                    self.out_sims.write({str(freq): obs_map})
-                    logger.debug(f"For {split.name}:{sim}, {freq} GHz: done with channel")
-                logger.debug(f"For {split.name}:{sim}, done with simulation")
+            obs_map = []
+            column_names = []
+            for skymap, field_str in zip(skymaps, detector.fields):
+                map_smoothed = pysm3.apply_smoothing_and_coord_transform(skymap, 
+                                                                         detector.fwhm, 
+                                                                         lmax=self.lmax_pysm3_smoothing, 
+                                                                         output_nside=self.nside_out)
+                noise_seed = self.noise_seed_factory.get_seed(split, sim_num, freq, field_str)
+                noise_map = self.get_noise_map(freq, field_str, noise_seed)
+                final_map = map_smoothed + noise_map
+                obs_map.append(final_map)
 
-    def save_cmb_map_realization(self, cmb: CMBLensed, asset: Asset):
+                column_names.append(field_str + "_STOKES")
+
+            with self.name_tracker.set_contexts(dict(freq=freq)):
+                self.out_obs_maps.write(data=obs_map,
+                                        column_names=column_names)
+            logger.debug(f"For {split.name}:{sim_name}, {freq} GHz: done with channel")
+        logger.debug(f"For {split.name}:{sim_name}, done with simulation")
+
+    def save_cmb_map_realization(self, cmb: CMBLensed):
         cmb_realization: Quantity = cmb.map
-        cmb_realization_units = cmb_realization.unit
+        cmb_realization_units = cmb_realization.unit.to_string()
         cmb_realization_data = cmb_realization.value  # The map itself
         nside_out = self.nside_out
         scaled_map = change_nside_of_map(cmb_realization_data, nside_out)
-        scaled_map = scaled_map * cmb_realization_units
-        # logger.debug(f"For {self.name_tracker.context['split']}:{self.name_tracker.context['sim_num']}, saving fiducial cmb_map")
-        # TODO: Get answer of asset handler healpymap vs sim.write_fid_map
-        asset.write(scaled_map)
+        self.out_cmb_map.write(data=scaled_map, column_units=cmb_realization_units)
 
     def get_noise_map(self, freq, field_str, noise_seed, center_frequency=None):
         with self.name_tracker.set_context('freq', freq):

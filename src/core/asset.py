@@ -48,9 +48,9 @@ class Asset:
         if self.can_read:
             return self.handler.read(self.path, **kwargs)
 
-    def write(self, data, **kwargs):
+    def write(self, **kwargs):
         if self.can_write:
-            return self.handler.write(self.path, data, **kwargs)
+            return self.handler.write(self.path, **kwargs)
 
 
 class AssetWithPathAlts(Asset):
