@@ -62,8 +62,8 @@ class NoiseCacheExecutor(BaseStageExecutor):
         logger.debug(f'Writing NoiseCache map to path: {self.out_noise_cache.path}')
         self.out_noise_cache.write(data=data,
                                    column_names=[col_name],
-                                   column_units=[units]
-                                   )
+                                   column_units=[units])
+        # TODO: Test load this file; see if column names and units match expectation.
         logger.debug(f'Wrote NoiseCache map to path: {self.out_noise_cache.path}')
 
     def get_field_idx(self, src_path, field_str) -> int:
