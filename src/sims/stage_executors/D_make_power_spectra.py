@@ -28,10 +28,10 @@ class TheoryPSExecutor(BaseStageExecutor):
         self.wmap_param_labels = cfg.simulation.cmb.wmap_params
         self.camb_param_labels = cfg.simulation.cmb.camb_params_equiv
 
-        self.out_cmb_ps_theory: AssetWithPathAlts = self.assets_out['cmb_ps_theory']
+        self.out_cmb_ps: AssetWithPathAlts = self.assets_out['cmb_ps']
         self.in_wmap_config: AssetWithPathAlts = self.assets_in['wmap_config']
 
-        out_cmb_ps_theory_handler: CambPS
+        out_cmb_ps_handler: CambPS
         in_wmap_config_handler: Config
 
     def execute(self) -> None:
@@ -39,11 +39,11 @@ class TheoryPSExecutor(BaseStageExecutor):
 
     def process_split(self, split: Split) -> None:
         if split.ps_fidu_fixed:
-            self.make_ps(self.in_wmap_config, self.out_cmb_ps_theory, use_alt_path=True)
+            self.make_ps(self.in_wmap_config, self.out_cmb_ps, use_alt_path=True)
         else:
             for sim in split.iter_sims():
                 with self.name_tracker.set_context("sim_num", sim):
-                    self.make_ps(self.in_wmap_config, self.out_cmb_ps_theory, use_alt_path=False)
+                    self.make_ps(self.in_wmap_config, self.out_cmb_ps, use_alt_path=False)
 
     def make_ps(self, 
                 wmap_params: AssetWithPathAlts, 
