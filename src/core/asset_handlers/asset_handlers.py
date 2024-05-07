@@ -1,4 +1,5 @@
 from typing import Any, Dict, List, Union
+import shutil
 from pathlib import Path
 import yaml
 import logging
@@ -101,6 +102,26 @@ class Config(GenericHandler):
         with open(path, 'w') as outfile:
             yaml.dump(unnumpy_data, outfile, default_flow_style=False)
 
+
+class Mover(GenericHandler):
+    def read(self, path: Path) -> None:
+        raise NotImplementedError("No read method implemented for Mover Handler; implement a handler for files to be read.")
+
+    def write(self, path: Path, source_location: Union[Path, str]) -> None:
+        make_directories(path)
+        # Move the file from the temporary location
+        destination_path = Path(path).parent / str(source_location)
+        logger.debug(f"Moving from {source_location} to {destination_path}")
+        try:
+            # Duck typing for more meaningful error messages
+            source_path = Path(source_location)
+        except Exception as e:
+            # TODO: Better except here
+            raise e
+        shutil.copy(source_path, destination_path)
+        source_path.unlink()
+
+
 def _convert_numpy(obj: Union[Dict[str, Any], List[Any], np.generic]) -> Any:
     # Recursive function
     # The `Any`s in the above signature should be the same as the signature itself
@@ -123,9 +144,5 @@ def make_directories(path: Union[Path, str]) -> None:
 
 register_handler("NoHandler", NoHandler)
 register_handler("HealpyMap", HealpyMap)
-# register_handler("ManyHealpyMaps", ManyHealpyMaps)
 register_handler("Config", Config)
-
-# TODO: Clarify about these
-# register_handler("HealpyMapTemp", HealpyMapTemp)
-# register_handler("ManyHealpyMapsTemp", ManyHealpyMapsTemp)
+register_handler("Mover", Mover)
