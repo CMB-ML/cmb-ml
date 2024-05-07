@@ -8,14 +8,11 @@ from pathlib import Path
 
 from astropy.units import Quantity
 
-from ..handlers.noisecache_handler import NoiseCacheHandler # register handler
-from ..handlers.qtable_handler import QTableHandler # register handler
-
+from ...core import BaseStageExecutor, Asset
 from ..planck_instrument import make_instrument, Instrument
 from utils.fits_inspection import get_num_fields_in_hdr
 from ..physics_instrument_noise import planck_result_to_sd_map
 
-from ...core import BaseStageExecutor, Asset
 from ...core.asset_handlers import HealpyMap
 from ..handlers.qtable_handler import QTableHandler
 
