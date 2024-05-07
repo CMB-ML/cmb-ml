@@ -52,3 +52,29 @@ class Asset:
         if self.can_write:
             return self.handler.write(self.path, data, **kwargs)
 
+
+class AssetWithPathAlts(Asset):
+    def __init__(self, cfg, source_stage, asset_name, name_tracker, in_or_out):
+        super().__init__(cfg, source_stage, asset_name, name_tracker, in_or_out)
+        stage_cfg = cfg.pipeline[source_stage]
+        asset_info = stage_cfg.assets_out[asset_name]
+        self.path_template_alt = asset_info.path_template_alt
+    
+    @property
+    def path_alt(self):
+        with self.name_tracker.set_context("stage", self.source_stage_dir):
+            return self.name_tracker.path(self.path_template_alt)
+
+    def read(self, use_alt:bool=False, **kwargs):
+        if self.can_read:
+            if use_alt:
+                return self.handler.read(self.path_alt, **kwargs)
+            else:
+                return self.handler.read(self.path, **kwargs)
+
+    def write(self, use_alt:bool=False, **kwargs):
+        if self.can_write:
+            if use_alt:
+                return self.handler.write(self.path_alt, **kwargs)
+            else:
+                return self.handler.write(self.path, **kwargs)

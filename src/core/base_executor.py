@@ -5,7 +5,7 @@ import re
 from omegaconf import DictConfig, OmegaConf
 from omegaconf import errors as OmegaErrors
 
-from .asset import Asset
+from .asset import Asset, AssetWithPathAlts
 from .namers import Namer
 from .split import Split
 
@@ -50,14 +50,14 @@ class BaseStageExecutor:
         logger.warning("Executing BaseExecutor process_split() method.")
         raise NotImplementedError("Subclasses must implement process_split if it is to be used.")
 
-    def _get_stage_element(self, stage_element="assets_out"):
+    def _get_stage_element(self, stage_element="assets_out", stage_str=None):
         """
         Supported stage elements are "assets_in", "assets_out", and "splits"
         raises omegaconf.errors.ConfigAttributeError if the stage in the pipeline yaml is empty (e.g. the CheckHydraConfigs stage).
         raises omegaconf.errors.ConfigKeyError if the stage in the pipeline yaml is missing assets_in or assets_out.
         """
         cfg_pipeline = self.cfg.pipeline
-        cfg_stage = cfg_pipeline[self.stage_str]
+        cfg_stage = cfg_pipeline[stage_str]
         if cfg_stage is None:
             raise OmegaErrors.ConfigAttributeError
         stage_element = cfg_stage[stage_element]  # OmegaErrors.ConfigKeyError from here
@@ -66,7 +66,8 @@ class BaseStageExecutor:
     def _get_applicable_splits(self) -> List[Split]:
         # Pull specific splits for this stage from the pipeline hydra config
         try:
-            splits_scope = self._get_stage_element(stage_element='splits')
+            splits_scope = self._get_stage_element(stage_element='splits', 
+                                                   stage_str=self.stage_str)
         except (OmegaErrors.ConfigKeyError, OmegaErrors.ConfigAttributeError):
             # Or None if the pipeline has no "splits" for this stage
             return None
@@ -88,7 +89,8 @@ class BaseStageExecutor:
     def _make_assets_out(self) -> Dict[str, Asset]:
         # Pull the list of output assets for this stage from the pipeline hydra config
         try:
-            cfg_assets_out = self._get_stage_element(stage_element="assets_out")
+            cfg_assets_out = self._get_stage_element(stage_element="assets_out",
+                                                     stage_str=self.stage_str)
         except (OmegaErrors.ConfigKeyError, OmegaErrors.ConfigAttributeError):
             # Or None if the pipeline has no "assets_out" for this stage
             return None
@@ -96,27 +98,38 @@ class BaseStageExecutor:
         # Create assets directly
         all_assets_out = {}
         for asset in cfg_assets_out:
-            all_assets_out[asset] = Asset(cfg=self.cfg,
-                                          source_stage=self.stage_str,
-                                          asset_name=asset,
-                                          name_tracker=self.name_tracker,
-                                          in_or_out="out")
+            if 'path_template_alt' in cfg_assets_out[asset]:
+                use_asset = AssetWithPathAlts
+            else:
+                use_asset = Asset
+            all_assets_out[asset] = use_asset(cfg=self.cfg,
+                                              source_stage=self.stage_str,
+                                              asset_name=asset,
+                                              name_tracker=self.name_tracker,
+                                              in_or_out="out")
         return all_assets_out
 
     def _make_assets_in(self) -> Dict[str, Asset]:
         # Pull the list of input assets for this stage from the pipeline hydra config
         try:
-            cfg_assets_in = self._get_stage_element(stage_element="assets_in")
+            cfg_assets_in = self._get_stage_element(stage_element="assets_in",
+                                                    stage_str=self.stage_str)
         except (OmegaErrors.ConfigKeyError, OmegaErrors.ConfigAttributeError):
             # Or None if the pipeline has no "assets_out" for this stage
             return None
         all_assets_in = {}
         # Create assets by looking up the stage in which the asset was originally created
         for asset in cfg_assets_in:
-            source_pipeline = cfg_assets_in[asset]['stage']
-            all_assets_in[asset] = Asset(cfg=self.cfg,
-                                          source_stage=source_pipeline,
-                                          asset_name=asset,
-                                          name_tracker=self.name_tracker,
-                                          in_or_out="in")
+            source_stage = cfg_assets_in[asset]['stage']
+            cfg_assets_out = self._get_stage_element(stage_element="assets_out", 
+                                                     stage_str=source_stage)
+            if 'path_template_alt' in cfg_assets_out[asset]:
+                use_asset = AssetWithPathAlts
+            else:
+                use_asset = Asset
+            all_assets_in[asset] = use_asset(cfg=self.cfg,
+                                             source_stage=source_stage,
+                                             asset_name=asset,
+                                             name_tracker=self.name_tracker,
+                                             in_or_out="in")
         return all_assets_in

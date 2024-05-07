@@ -6,7 +6,7 @@ raw:
     noise_src_maps:
       handler: HealpyMap
       path_template: "{src_root}/{fn}"
-    # wmap_chains:
+    # wmap_chains:  # TODO
     #   handler: WMAPChains
     #   path_template: "{src_root}/{fn}"
 check_hydra_configs:  # No information needed here
@@ -24,12 +24,10 @@ make_sim_configs:
     split_configs:
       handler: Config
       path_template: "{root}/{dataset}/{stage}/{split}/split_config.yaml"
-    wmap_config_fixed:
-      handler: Config
-      path_template: "{root}/{dataset}/{stage}/{split}/wmap_params.yaml"
-    wmap_config_varied:
+    wmap_config:
       handler: Config
       path_template: "{root}/{dataset}/{stage}/{split}/{sim}/wmap_params.yaml"
+      path_template_alt: "{root}/{dataset}/{stage}/{split}/wmap_params.yaml"
   # assets_in:
   #   wmap_chains: {stage: raw}
   splits:
@@ -46,8 +44,7 @@ make_cmb_power_spectra:
       path_template: "{root}/{dataset}/{stage}/{split}/{sim}/cmb_ps_fid.txt"
   assets_in:
     split_configs: {stage: make_sim_configs}
-    wmap_config_fixed: {stage: make_sim_configs}
-    wmap_config_varied: {stage: make_sim_configs}
+    wmap_config: {stage: make_sim_configs}
     noise_cache: {stage: make_noise_cache}
   splits:
     - train
@@ -68,8 +65,7 @@ make_sims:
     planck_deltabandpass: {stage: raw}
     noise_cache: {stage: make_noise_cache}
     split_configs: {stage: make_sim_configs}
-    wmap_config_fixed: {stage: make_sim_configs}
-    wmap_config_varied: {stage: make_sim_configs}
+    wmap_config: {stage: make_sim_configs}  # Why is this here?
     cmb_ps_fid_fixed: {stage: make_cmb_power_spectra}
     cmb_ps_fid_varied: {stage: make_cmb_power_spectra}
   splits:

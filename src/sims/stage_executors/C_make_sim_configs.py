@@ -4,26 +4,30 @@ from typing import Dict, List
 from ..get_wmap_params import get_wmap_indices, pull_params_from_file
 from pathlib import Path
 
+from ...core.asset_handlers import Config
+
 from ...core import (
     BaseStageExecutor,
-    ExperimentParameters,
     Split,
-    Asset
+    Asset,
+    AssetWithPathAlts
 )
 
 class ConfigExecutor(BaseStageExecutor):
-    def __init__(self, cfg: DictConfig, experiment: ExperimentParameters) -> None:
+    def __init__(self, cfg: DictConfig) -> None:
         # The following stage_str must match the pipeline yaml
-        super().__init__(cfg, experiment, stage_str="make_sim_configs")
+        super().__init__(cfg, stage_str="make_sim_configs")
 
         self.out_split_config: Asset = self.assets_out['split_configs']
-        self.out_fixed_param_config: Asset = self.assets_out['wmap_config_fixed']
-        self.out_varied_param_config: Asset = self.assets_out['wmap_config_varied']
+        self.out_cosmo_config: AssetWithPathAlts = self.assets_out['wmap_config']
+
+        out_split_config_handler: Config
+        out_cosmo_config_handler: Config
 
         self.wmap_param_labels = cfg.simulation.cmb.wmap_params
         self.wmap_chain_length = cfg.simulation.cmb.wmap_chain_length
         self.wmap_chains_dir = Path(cfg.local_system.wmap_chains_dir)
-        
+
         self.seed = cfg.simulation.cmb.wmap_indcs_seed
 
     def execute(self) -> None:
@@ -63,7 +67,7 @@ class ConfigExecutor(BaseStageExecutor):
         # For each power spectrum to be generated, we'll need a set of WMAP parameters.
         all_chain_indices = get_wmap_indices(n_indices_total, seed, wmap_chain_length=self.wmap_chain_length)
         
-        # convert from numpy array of np.int64 to List[int] for OmegaConf
+        # Convert from numpy array of np.int64 to List[int] for OmegaConf
         all_chain_indices = getattr(all_chain_indices, "tolist", lambda: all_chain_indices)()
         
         # Give the appropriate number of indices to each split
@@ -84,9 +88,9 @@ class ConfigExecutor(BaseStageExecutor):
 
         if split.ps_fidu_fixed:
             these_params = {key: values[0] for key, values in wmap_params.items()}
-            self.out_fixed_param_config.write(these_params)
+            self.out_cosmo_config.write(use_alt=True, data=these_params)
         else:
             for i in split.iter_sims():
                 these_params = {key: values[i] for key, values in wmap_params.items()}
                 with self.name_tracker.set_context("sim_num", i):
-                    self.out_varied_param_config.write(these_params)
+                    self.out_cosmo_config.write(use_alt=False, data=these_params)
