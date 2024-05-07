@@ -2,8 +2,6 @@ import os
 import numpy as np
 
 
-# ROWS_IN_CHAINS = 1296570
-
 def pull_params_from_file(wmap_chain_path, chain_idcs, params_to_get, wmap_chain_length):
     """
     Get parameters from wmap chains.
