@@ -75,6 +75,7 @@ class SimCreatorExecutor(BaseStageExecutor):
         self.cmb_factory = CMBFactory(cfg)
 
     def execute(self) -> None:
+        logger.debug(f"Executing SimCreatorExecutor execute()")
         self.default_execute()
 
     def process_split(self, split: Split) -> None:
@@ -97,6 +98,7 @@ class SimCreatorExecutor(BaseStageExecutor):
             obs_map = []
             column_names = []
             for skymap, field_str in zip(skymaps, detector.fields):
+                # Use pysm3.apply_smoothing_...  to convolve the map with the planck detector beam
                 map_smoothed = pysm3.apply_smoothing_and_coord_transform(skymap, 
                                                                          detector.fwhm, 
                                                                          lmax=self.lmax_pysm3_smoothing, 
