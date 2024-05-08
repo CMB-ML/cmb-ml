@@ -16,6 +16,7 @@ from core import (
 from tqdm import tqdm
 from core.asset_handlers import Mover, HealpyMap
 from ..planck_instrument import make_instrument, Instrument
+from utils import planck_cmap
 
 
 logger = logging.getLogger(__name__)
@@ -43,6 +44,8 @@ class ShowSimsExecutor(BaseStageExecutor):
         # Only produce visualizations for a subset of sims
         self.sim_ns = self.get_override_sim_nums(cfg.pipeline[self.stage_str].override_n_sims)
         self.min_max = self.get_plot_min_max(cfg.pipeline[self.stage_str].plot_min_max)
+        self.plot_rot = cfg.pipeline[self.stage_str].plot_rot
+        self.gnom_plot_res = cfg.pipeline[self.stage_str].plot_gnom_res
 
     def get_override_sim_nums(self, sim_nums: Union[None, list, int]):
         # Returns either a list of sims, or None
@@ -120,6 +123,8 @@ class ShowSimsExecutor(BaseStageExecutor):
         plot_params = dict(
             min=self.min_max[0], 
             max=self.min_max[1],
+            rot=self.plot_rot,
+            cmap=planck_cmap.colombi1_cmap,
             hold=True
         )
         hp.mollview(some_map, **plot_params)
@@ -129,7 +134,9 @@ class ShowSimsExecutor(BaseStageExecutor):
         plot_params = dict(
             min=self.min_max[0], 
             max=self.min_max[1],
-            reso=12,
+            rot=self.plot_rot,
+            reso=self.gnom_plot_res,
+            cmap=planck_cmap.colombi1_cmap,
             hold=True
         )
         hp.gnomview(some_map, **plot_params)
