@@ -8,8 +8,6 @@ defaults:
   - override hydra/job_logging: custom_log
   - _self_
 
-create_dirs: false
-force_new_noise_cache: true
 dataset_name: Junk_32
 seed_base_string: 'Junk32'
 hydra:
