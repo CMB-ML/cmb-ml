@@ -9,9 +9,9 @@ logger = logging.getLogger(__name__)
 @dataclass(frozen=True)
 class Detector:
     nom_freq: int
-    cen_freq: Optional[float]
-    fwhm: Optional[float]
     fields: str
+    cen_freq: Optional[float] = None
+    fwhm: Optional[float] = None
 
 @dataclass(frozen=True)
 class Instrument:
