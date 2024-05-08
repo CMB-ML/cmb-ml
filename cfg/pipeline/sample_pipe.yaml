@@ -62,3 +62,18 @@ make_sims:
     - train
     - test
   dir_name: Simulations
+show_sims:
+  assets_out:
+    cmb_map_render:
+      handler: Mover
+      path_template: "{root}/{dataset}/{stage}/{split}/{sim}/{view}_cmb_{field}.png"
+    obs_map_render:
+      handler: Mover
+      path_template: "{root}/{dataset}/{stage}/{split}/{sim}/{view}_obs_{freq}_{field}.png"
+  assets_in:
+    cmb_map: {stage: make_sims}
+    obs_maps: {stage: make_sims}
+  splits:
+    - train
+  override_n_sims: 1            # int: first n_sims; null: all sims; list: particular sims by index
+  dir_name: Analysis_1_Render
