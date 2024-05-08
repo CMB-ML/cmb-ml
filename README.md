@@ -229,3 +229,11 @@ File not found, please make sure you are using the latest version of PySM 3
 While working on lowplus, error in detector 857.
 <urlopen error Unable to open any source! Exceptions were {'https://portal.nersc.gov/project/cmb/pysm-data/websky/0.4/cib/cib_0857.0.fits': ContentTooShortError('File was supposed to be 1610619840 bytes but we only got 1090100572 bytes. Download failed.'), 'http://www.astropy.org/astropy-data/websky/0.4/cib/cib_0857.0.fits': <HTTPError 404: 'Not Found'>}>
 ```
+
+
+# Views
+
+- It's interesting to look at radio galaxies alone (no cmb, no other contaminants) at resolution 128 and 512; ringing
+  - plot_rot=(280, -60) for low frequencies (30 GHz)
+  - plot_rot=(250, -50) for high frequencies (857 GHz) to see the impact of ringing (due to detector fwhm?)
+  - better coordinates needed; levels seem to vary greatly by rotation
