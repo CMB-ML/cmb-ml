@@ -42,6 +42,7 @@ class ShowSimsExecutor(BaseStageExecutor):
 
         # Only produce visualizations for a subset of sims
         self.sim_ns = self.get_override_sim_nums(cfg.pipeline[self.stage_str].override_n_sims)
+        self.min_max = self.get_plot_min_max(cfg.pipeline[self.stage_str].plot_min_max)
 
     def get_override_sim_nums(self, sim_nums: Union[None, list, int]):
         # Returns either a list of sims, or None
@@ -49,6 +50,17 @@ class ShowSimsExecutor(BaseStageExecutor):
             return list(range(sim_nums))
         except TypeError:
             return sim_nums
+
+    def get_plot_min_max(self, min_max):
+        if min_max is None:
+            plot_min = plot_max = None
+        elif isinstance(min_max, int):
+            plot_min = -min_max
+            plot_max = min_max
+        elif isinstance(min_max, list):
+            plot_min = min_max[0]
+            plot_max = min_max[1]
+        return plot_min, plot_max
 
     def execute(self) -> None:
         logger.debug(f"Executing SinglePxFigExecutor execute()")
@@ -106,8 +118,8 @@ class ShowSimsExecutor(BaseStageExecutor):
     def make_mollview(self, some_map):
         fig = plt.figure(figsize=(8, 6))
         plot_params = dict(
-            # min=min_intensity, 
-            # max=max_intensity,
+            min=self.min_max[0], 
+            max=self.min_max[1],
             hold=True
         )
         hp.mollview(some_map, **plot_params)
@@ -115,8 +127,8 @@ class ShowSimsExecutor(BaseStageExecutor):
     def make_gnomview(self, some_map):
         fig = plt.figure(figsize=(8, 6))
         plot_params = dict(
-            # min=min_intensity, 
-            # max=max_intensity,
+            min=self.min_max[0], 
+            max=self.min_max[1],
             reso=12,
             hold=True
         )
