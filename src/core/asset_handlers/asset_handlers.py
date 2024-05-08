@@ -52,7 +52,9 @@ class HealpyMap(GenericHandler):
             # The byteswap() method swaps the byte order of the array elements
             # The newbyteorder() method changes the dtype to native byte order without changing the actual data
             this_map = this_map.byteswap().newbyteorder()
-        if map_fields is None or map_fields is int or len(map_fields) == 1:
+        # If a single field was requested, healpy.read_map with produce it as a 1D array
+        #    for consistency, we want a 2D array
+        if len(this_map.shape) == 1:
             this_map = this_map.reshape(1, -1)
         if precision == "float":
             this_map = this_map.astype(np.float32)
@@ -66,18 +68,36 @@ class HealpyMap(GenericHandler):
               column_units: List[str] = None,
               overwrite: bool = True
               ):
-        # Format data as np.ndarray without singular dimensions
+        # Format data as either a single np.ndarray or lists of np.ndarray without singular dimensions
+
+        # Handle Quantity objects first
         if isinstance(data, list):
             if isinstance(data[0], Quantity):
+                if column_units is None:
+                    column_units = [datum.unit for datum in data]
                 data = [datum.value for datum in data]
-            data = np.stack(data, axis=0)
-        data = np.squeeze(data)
-        # Get column units as a list of strings
-        if column_units:
-            column_units = [str(unit) for unit in column_units]
-        elif isinstance(data, list):
-            if isinstance(data[0], Quantity):
-                column_units = [datum.unit.to_string() for datum in data]
+        if isinstance(data, Quantity):
+            if column_units is None:
+                column_units = data.unit
+            data = data.value
+
+        # Convert np.ndarrays of higher dimension to a list of 1D np.ndarrays (we really should use hdf5 instead...)
+        if isinstance(data, np.ndarray) and data.shape[0] == 3:
+            temp_data = []
+            for i in range(3):
+                temp_data.append(data[i, :])
+            data = temp_data
+
+        # For lists of np.ndarrays (most conditions from above), squeeze out extra dimensions
+        if isinstance(data, list):
+            data = [datum.squeeze() for datum in data]
+        # For singular np.ndarrays (the remaining conditions), squeeze out extra dimensions
+        if isinstance(data, np.ndarray) and data.shape[0] == 1:
+            data = data.squeeze()
+
+        # Ensure that column units are strings, and not astropy Units, which don't have a good __str__
+        column_units = [str(unit) for unit in column_units]
+
         path = Path(path)
         make_directories(path)
         hp.write_map(filename=path, 
