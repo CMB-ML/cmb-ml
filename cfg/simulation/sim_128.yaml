@@ -2,14 +2,9 @@ defaults:
   - cmb:   wmap9_mnu
   - noise: base_noise
 # PySM needs to run internal calculations at a resolution greater than the output nside (output nside set in experiment.yaml)
-nside_sky        : 64
-# nside_out        : 32  # Redundant with experiment
-preset_strings   : ["f1"]
-# preset_strings   : ["d9", "s4", "f1", "a1", "co1", "ksz1", "tsz1"]
+nside_sky        : 256
+preset_strings   : ["d9", "s4", "f1", "a1", "co1", "ksz1", "tsz1"]
 # preset_strings   : ["d9", "s4", "f1", "a1", "co1", "cib1", "ksz1", "tsz1", "rg1"]  # Issues with getting cib and rg assets for websky (404 Error)
-# detector_freqs   : [30, 143, 857]  # Redundant with experiment
-# detector_freqs   : [30, 44, 70, 100, 143, 217, 353, 545, 857]
-# fields           : "TQU"  # Redundant with experiment
 component_objects:
   - cmb
   - noise

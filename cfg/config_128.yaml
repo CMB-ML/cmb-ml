@@ -1,15 +1,17 @@
 defaults:
   - local_system: ${oc.env:CMB_SIMS_LOCAL_SYSTEM}
   - file_system : common_fs
-  - simulation  : base_sim
-  - scenario    : simple_scenario
-  - splits      : two_two
+  - simulation  : simple_sim_128
+  - scenario    : simple_scenario_128
+  - splits      : all
   - pipeline    : sample_pipe
   - override hydra/job_logging: custom_log
   - _self_
 
-dataset_name: Junk_32
-seed_base_string: 'Junk32'
+create_dirs: false
+force_new_noise_cache: true
+dataset_name: T_128_2450
+seed_base_string: 'T-128-2450'
 hydra:
   run:
     dir: Logs/${now:%Y-%m-%d-%H-%M-%S}

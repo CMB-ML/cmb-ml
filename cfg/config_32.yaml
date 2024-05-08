@@ -1,0 +1,20 @@
+defaults:
+  - local_system: ${oc.env:CMB_SIMS_LOCAL_SYSTEM}
+  - file_system : common_fs
+  - simulation  : simple_sim_32
+  - scenario    : simple_scenario_32
+  - splits      : three_three
+  - pipeline    : sample_pipe
+  - override hydra/job_logging: custom_log
+  - _self_
+
+create_dirs: false
+force_new_noise_cache: true
+dataset_name: T_32_3_3
+seed_base_string: 'T-32-3-3'
+hydra:
+  run:
+    dir: Logs/${now:%Y-%m-%d-%H-%M-%S}
+  sweep:
+    dir: Logs_multirun/${now:%Y-%m-%d-%H-%M-%S}
+  verbose: true
