@@ -10,8 +10,8 @@ logger = logging.getLogger(__name__)
 
 
 class CMBFactory:
-    def __init__(self, cfg):
-        self.nside = cfg.simulation.nside_sky
+    def __init__(self, nside_sky):
+        self.nside = nside_sky
         self.max_nside_pysm_component = None
         self.apply_delens = False
         self.delensing_ells = None
