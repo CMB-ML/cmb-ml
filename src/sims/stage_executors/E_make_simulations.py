@@ -72,10 +72,14 @@ class SimCreatorExecutor(BaseStageExecutor):
         logger.info(f"Simulations will have units of {self.units}")
 
         placeholder = pysm3.Model(nside=self.nside_sky, max_nside=self.nside_sky)
+
+        preset_strings = list(cfg.simulation.preset_strings)
+        logger.info(f"Preset strings are {preset_strings}")
+        
         logger.debug('Creating PySM3 Sky object')
         self.sky = pysm3.Sky(nside=self.nside_sky,
                              component_objects=[placeholder],
-                             preset_strings=list(cfg.simulation.preset_strings),
+                             preset_strings=preset_strings,
                              output_unit=cfg.scenario.units)
         logger.debug('Done creating PySM3 Sky object')
         self.cmb_factory = CMBFactory(self.nside_sky)
