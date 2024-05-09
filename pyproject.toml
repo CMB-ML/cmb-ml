@@ -1,0 +1,26 @@
+[tool.poetry]
+name = "cmml"
+version = "0.0.0"
+description = ""
+authors = ["JamesAmato <116766236+JamesAmato@users.noreply.github.com>"]
+readme = "README.md"
+packages = [
+    { include = "core", from = "src" },
+    { include = "sims", from = "src" }
+]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+torch = "1.12.1"
+hydra-core = "^1.3.2"
+healpy = "^1.16.6"
+tqdm = "^4.66.2"
+pysm3 = "^3.4.0"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.0.1"
+pylint = "^3.0.3"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
