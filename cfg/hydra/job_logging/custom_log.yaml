@@ -25,6 +25,12 @@ loggers:
   healpy:
     level: WARNING
     propagate: false
+  matplotlib:
+    level: INFO
+    propagate: false
+  PIL:
+    level: INFO
+    propagate: false
   numba:
     level: INFO
     propagate: false

@@ -20,8 +20,6 @@ from utils import planck_cmap
 
 
 logger = logging.getLogger(__name__)
-logging.getLogger("PIL").setLevel(logging.WARNING)
-logging.getLogger("matplotlib").setLevel(logging.WARNING)
 
 
 class ShowSimsExecutor(BaseStageExecutor):
