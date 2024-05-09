@@ -3,19 +3,14 @@ import ast
 from pathlib import Path
 from os.path import commonpath
 
-from omegaconf import DictConfig, OmegaConf
+from omegaconf import DictConfig
 from hydra.core.hydra_config import HydraConfig
 
 import logging
-# from pathlib import Path
-
-# from omegaconf import DictConfig
-# from hydra.core.hydra_config import HydraConfig
 from .namers import Namer
 
 
 logger = logging.getLogger(__name__)
-
 
 
 class LogMaker:
