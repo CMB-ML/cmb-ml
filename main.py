@@ -22,8 +22,9 @@ logging.getLogger('pysm3').setLevel(logging.WARNING)
 
 
 # @hydra.main(version_base=None, config_path="cfg", config_name="config_32")
-@hydra.main(version_base=None, config_path="cfg", config_name="config_128")
-# @hydra.main(version_base=None, config_path="cfg", config_name="config_512")
+# @hydra.main(version_base=None, config_path="cfg", config_name="config_128")
+@hydra.main(version_base=None, config_path="cfg", config_name="config_512")
+# @hydra.main(version_base=None, config_path="cfg", config_name="config_2048")
 def make_all_simulations(cfg):
     logger.debug(f"Running {__name__} in {__file__}")
 

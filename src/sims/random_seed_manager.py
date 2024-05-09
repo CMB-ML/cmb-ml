@@ -14,13 +14,11 @@ logger = logging.getLogger('seed_logger')
 
 class SeedMaker:
     def __init__(self, 
-                 conf: DictConfig, 
-                 sky_component: str, 
-                 use_backup_strs: bool=False) -> None:
-        self.base: str = self.get_base_string(conf)
-        self.component: str = self.get_component_string(conf, sky_component)
-        self.use_backup_strs = use_backup_strs
-        self.str_num_digits = conf.file_system.sim_str_num_digits
+                 cfg: DictConfig, 
+                 sky_component: str) -> None:
+        self.base: str = self.get_base_string(cfg)
+        self.component: str = self.get_component_string(cfg, sky_component)
+        self.str_num_digits = cfg.file_system.sim_str_num_digits
         try:
             "".join([self.base, ""])
         except TypeError as e:
@@ -30,23 +28,15 @@ class SeedMaker:
         return f"{sim:0{self.str_num_digits}d}"
     
     def get_base_string(self, 
-                        conf: DictConfig):
-        try:
-            base_string = conf.seed_base_string
-        except ConfigAttributeError as e:
-            if self.use_backup_strs:
-                logger.info(f"No seed string set for seed_base_string in yaml; using conf.dataset_name:'{conf.dataset_name}'")
-                base_string = conf.dataset_name
-            else:
-                logger.error(f"No seed string set for seed_base_string in yaml; backup string disabled.")
-                raise e
+                        cfg: DictConfig):
+        base_string = cfg.simulation.seed_base_string
         return str(base_string)
 
     def get_component_string(self, 
-                             conf: DictConfig, 
+                             cfg: DictConfig, 
                              sky_component: str) -> str:
         try:
-            base_string = conf.simulation[sky_component].seed_string
+            base_string = cfg.simulation[sky_component].seed_string
             pass
         except ConfigAttributeError as e:
             if self.use_backup_strs:
@@ -79,9 +69,9 @@ class SeedMaker:
 
 class SimLevelSeedFactory(SeedMaker):
     def __init__(self, 
-                 conf: DictConfig, 
+                 cfg: DictConfig, 
                  sky_component: str) -> None:
-        super().__init__(conf, sky_component)
+        super().__init__(cfg, sky_component)
 
     def get_seed(self, 
                  split: Split, 
@@ -93,9 +83,9 @@ class SimLevelSeedFactory(SeedMaker):
 
 class FieldLevelSeedFactory(SeedMaker):
     def __init__(self, 
-                 conf: DictConfig, 
+                 cfg: DictConfig, 
                  sky_component: str) -> None:
-        super().__init__(conf, sky_component)
+        super().__init__(cfg, sky_component)
 
     def get_seed(self, 
                  split: Split, 

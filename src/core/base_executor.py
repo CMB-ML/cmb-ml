@@ -81,9 +81,9 @@ class BaseStageExecutor:
             # Or None if the pipeline has no "splits" for this stage
             return None
         # Get all possible splits from the splits hydra config
-        all_splits = self.cfg.splits.keys()
+        all_splits = [key for key in self.cfg.splits.keys() if key != 'name']
 
-        # Make a regex pattern to find "test" in "Test6"
+        # Make a regex pattern to find, e.g., "test" in "Test6"
         kinds_of_splits = [kind.lower() for kind in splits_scope]
         patterns = [re.compile(f"^{kind}\\d*$", re.IGNORECASE) for kind in kinds_of_splits]
 

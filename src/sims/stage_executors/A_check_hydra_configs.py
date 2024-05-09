@@ -42,8 +42,22 @@ class HydraConfigCheckerExecutor(BaseStageExecutor):
                 self.issues.append(f"Detector {freq} not in simulation.noise yaml.")
 
     def check_simulation_yaml(self) -> None:
-        if self.cfg.simulation.nside_sky > self.cfg.scenario.nside:
-            self.issues.append("nside of sky should be greater than nside of target output by at least a factor of 2 in simulation yaml")
+        nside_out = self.cfg.scenario.nside
+        nside_sky_set = self.cfg.simulation.get("nside_sky", None)
+        nside_sky_factor = self.cfg.simulation.get("nside_sky_factor", None)
+        if nside_sky_set is None and nside_sky_factor is None:
+            self.issues.append("Either nside_sky or nside_sky_factor must be set in simulation yaml.")
+        elif nside_sky_set is not None and nside_sky_factor is not None:
+            self.issues.append("Either nside_sky or nside_sky_factor must be set in simulation yaml.")
+        else:
+            nside_sky = nside_sky_set if nside_sky_set else nside_out * nside_sky_factor
+            if nside_sky > 8192:
+                self.issues.append("PySM3 does not support these resolutions")
+            elif nside_sky == 8192:
+                # Largest supported, but cannot use higher scale map. Not for the faint of heart!
+                pass
+            elif nside_sky < 2 * nside_out:
+                self.issues.append("nside of sky should be greater than nside of target output by at least a factor of 2 in simulation yaml")
 
     def check_pipeline_yaml(self) -> None:
         pipeline = self.cfg.pipeline

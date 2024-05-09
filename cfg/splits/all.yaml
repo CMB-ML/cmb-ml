@@ -1,18 +1,7 @@
+name: "1450"
 Train:
-  ps_fidu_fixed: false
-  n_sims: 1250
-Test0: &fixed_test
-  ps_fidu_fixed: true
-  n_sims: 100
-Test1: *fixed_test
-Test2: *fixed_test
-Test3: *fixed_test
-Test4: *fixed_test
-Test5: *fixed_test
-Test6: *fixed_test
-Test7: *fixed_test
-Test8: *fixed_test
-Test9: *fixed_test
-Test10:
-  ps_fidu_fixed: false
+  n_sims: 1000
+Valid:
+  n_sims: 250
+Test:
   n_sims: 200

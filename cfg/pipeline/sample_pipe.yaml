@@ -30,8 +30,9 @@ make_sim_configs:
       path_template_alt: "{root}/{dataset}/{stage}/{split}/wmap_params.yaml"
   # assets_in:
   #   wmap_chains: {stage: raw}
-  splits:
+  splits: &all_splits
     - train
+    - valid
     - test
   dir_name: Simulation_C_Configs
 make_cmb_power_spectra:
@@ -42,9 +43,7 @@ make_cmb_power_spectra:
       path_template_alt: "{root}/{dataset}/{stage}/{split}/cmb_ps_fid.txt"
   assets_in:
     wmap_config: {stage: make_sim_configs}
-  splits:
-    - train
-    - test
+  splits: *all_splits
   dir_name: Simulation_D_CMB_Power_Spectra
 make_sims:
   assets_out:
@@ -58,9 +57,7 @@ make_sims:
     planck_deltabandpass: {stage: raw}
     noise_cache: {stage: make_noise_cache}
     cmb_ps: {stage: make_cmb_power_spectra}
-  splits:
-    - train
-    - test
+  splits: *all_splits
   dir_name: Simulation
 show_sims:
   assets_out:

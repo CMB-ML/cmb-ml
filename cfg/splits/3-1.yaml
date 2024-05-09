@@ -1,0 +1,10 @@
+name: "3-1"
+Train:
+  ps_fidu_fixed: false
+  n_sims: 1
+Valid:
+  ps_fidu_fixed: false
+  n_sims: 1
+Test:
+  ps_fidu_fixed: true
+  n_sims: 1
