@@ -60,13 +60,13 @@ class SimCreatorExecutor(BaseStageExecutor):
 
         # Initialize constants from configs
         self.nside_sky = self.get_nside_sky()
-        logger.info(f"Simulations will generated at {self.nside_sky}.")
+        logger.info(f"Simulations will generated at nside_sky = {self.nside_sky}.")
 
         self.nside_out = cfg.scenario.nside
-        logger.info(f"Simulations will be output at {self.nside_out}")
+        logger.info(f"Simulations will be output at nside_out = {self.nside_out}")
         
         self.lmax_pysm3_smoothing = int(cfg.simulation.cmb.derived_ps_nsmax_x * self.nside_out)
-        logger.info(f"Simulation beam convolution will occur with lmax={self.lmax_pysm3_smoothing}.")
+        logger.info(f"Simulation beam convolution will occur with lmax = {self.lmax_pysm3_smoothing}.")
         
         self.units = cfg.scenario.units
         logger.info(f"Simulations will have units of {self.units}")
