@@ -10,7 +10,8 @@ nside_sky          : 4096
 nside_sky_factor   : null
 
 # See https://galsci.github.io/blog/2022/common-fiducial-sky/ and https://galsci.github.io/blog/2022/common-fiducial-extragalactic-cmb/ for more suggestions
-preset_strings   : ["d9", "s4", "f1", "a1", "co1", "cib1", "ksz1", "tsz1", "rg1"]
+# preset_strings   : ["d9", "s4" "f1", "a1", "co1", "cib1", "ksz1", "tsz1", "rg1"]  # d9 is causing a 404 error right now
+preset_strings   : ["s4", "f1", "a1", "co1", "cib1", "ksz1", "tsz1", "rg1"]
 component_objects:
   - cmb
   - noise
