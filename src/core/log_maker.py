@@ -24,10 +24,13 @@ class LogMaker:
 
         self.namer = LogsNamer(cfg, HydraConfig.get())
 
-    def log_scripts_to_hydra(self, source_script) -> None:
+    def log_code_to_hydra(self, source_script) -> None:
         target_root = self.namer.hydra_scripts_path
         target_root.mkdir(parents=True, exist_ok=True)
+        self.log_py_to_hydra(source_script, target_root)
+        self.log_cfgs_to_hydra(target_root)
 
+    def log_py_to_hydra(self, source_script, target_root):
         imported_local_py_files = self._find_local_imports(source_script)
         base_path = self._find_common_paths(imported_local_py_files)
 
@@ -35,9 +38,60 @@ class LogMaker:
             # resolve() is needed; absolute path not guaranteed
             relative_py_path = py_path.resolve().relative_to(base_path)
             target_path = target_root / relative_py_path
-
             target_path.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy(py_path, target_path)
+
+    def log_cfgs_to_hydra(self, target_root):
+        relevant_config_files = self.extract_relevant_config_paths()
+        base_path = self._find_common_paths(relevant_config_files)
+        # We want to include the parent of all configs in the path for organization. 
+        #   Otherwise they're alongside the python files.
+        base_path = base_path.parent
+
+        for config_file in relevant_config_files:
+            # resolve() is needed; absolute path not guaranteed
+            relative_cfg_path = config_file.resolve().relative_to(base_path)
+            target_path = target_root / relative_cfg_path
+            target_path.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy(config_file, target_path)
+
+    def extract_relevant_config_paths(self):
+        hydra_cfg = HydraConfig.get()
+
+        # Filtering relevant choices
+        relevant_choices = {}
+        for k, v in hydra_cfg.runtime.choices.items():
+            if 'hydra/' not in k:
+                if v in ['default', 'null', 'basic']:
+                    continue
+                relevant_choices[k] = v
+
+        # Extracting paths that are not provided by 'hydra' or 'schema'
+        config_paths = [
+            Path(source['path']) for source in hydra_cfg.runtime.config_sources
+            if source['provider'] not in ['hydra', 'schema'] and source['path']
+        ]
+
+        relevant_files = []
+        missing_combinations = []
+
+        # Attempting to find each choice in the available config paths
+        for choice_key, choice_value in relevant_choices.items():
+            found = False
+            for config_dir in config_paths:
+                config_file = config_dir / f"{choice_key}/{choice_value}.yaml"
+                if config_file.exists():
+                    relevant_files.append(config_file)
+                    found = True
+                    break
+            if not found:
+                missing_combinations.append((choice_key, choice_value))
+
+        # Logging or handling missing configurations
+        if missing_combinations:
+            logger.warning("Missing configuration files for:", missing_combinations)
+
+        return relevant_files
 
     def _find_local_imports(self, source_script):
         def find_imports(_filename, _base_path, _visited_files):
@@ -106,11 +160,11 @@ class LogMaker:
         absolute_paths = [path.resolve() for path in paths]
         # Use os.path.commonpath to find the common base directory
         common_base = commonpath(absolute_paths)
-        return Path(common_base)    
+        return Path(common_base)
 
     def copy_hydra_run_to_dataset_log(self):
         self.namer.dataset_logs_path.mkdir(parents=True, exist_ok=True)
-        
+
         for item in self.namer.hydra_path.iterdir():
             destination = self.namer.dataset_logs_path / item.name
             if item.is_dir():
