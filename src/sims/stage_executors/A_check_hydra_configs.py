@@ -1,6 +1,8 @@
 import logging
 from omegaconf import DictConfig
 
+import numpy as np
+
 from ...core import (
     BaseStageExecutor,
     Split,
@@ -52,12 +54,21 @@ class HydraConfigCheckerExecutor(BaseStageExecutor):
         else:
             nside_sky = nside_sky_set if nside_sky_set else nside_out * nside_sky_factor
             if nside_sky > 8192:
-                self.issues.append("PySM3 does not support these resolutions")
+                self.issues.append("PySM3 does not support resolutions above 8192.")
             elif nside_sky == 8192:
-                # Largest supported, but cannot use higher scale map. Not for the faint of heart!
+                # Largest supported. If this is used, the nside_out can be 8192. Not for the faint of heart!
                 pass
             elif nside_sky < 2 * nside_out:
                 self.issues.append("nside of sky should be greater than nside of target output by at least a factor of 2 in simulation yaml")
+            if not self._is_power_of_two(nside_sky):
+                self.issues.append("nside_sky must be a power of 2")
+            if not self._is_power_of_two(nside_out):
+                self.issues.append("nside_out must be a power of 2")
+
+    def _is_power_of_two(n):
+        if n <= 0:
+            return False
+        return (n & (n - 1)) == 0
 
     def check_pipeline_yaml(self) -> None:
         pipeline = self.cfg.pipeline
