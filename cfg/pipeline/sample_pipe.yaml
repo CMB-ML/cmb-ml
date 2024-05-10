@@ -35,6 +35,7 @@ make_sim_configs:
     - valid
     - test
   dir_name: Simulation_C_Configs
+  make_stage_log: True
 make_cmb_power_spectra:
   assets_out:
     cmb_ps:
@@ -45,6 +46,7 @@ make_cmb_power_spectra:
     wmap_config: {stage: make_sim_configs}
   splits: *all_splits
   dir_name: Simulation_D_CMB_Power_Spectra
+  make_stage_log: True
 make_sims:
   assets_out:
     cmb_map:
@@ -59,6 +61,7 @@ make_sims:
     cmb_ps: {stage: make_cmb_power_spectra}
   splits: *all_splits
   dir_name: Simulation
+  make_stage_log: True
 show_sims:
   assets_out:
     cmb_map_render:
@@ -78,3 +81,4 @@ show_sims:
   plot_rot: null                     # Useful for looking in specific directions; difficult to figure out the values needed
   plot_gnom_res: 12                  # Arcmins per pixel in the gnonomic view
   dir_name: Analysis_1_Render_Simulation_Maps
+  make_stage_log: False

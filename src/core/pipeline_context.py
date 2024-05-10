@@ -6,8 +6,9 @@ from .base_executor import BaseStageExecutor
 logger = logging.getLogger("stages")
 
 class PipelineContext:
-    def __init__(self, cfg):
+    def __init__(self, cfg, log_maker):
         self.cfg = cfg
+        self.log_maker = log_maker
         self.pipeline = []
 
     def add_pipe(self, executor):
@@ -27,3 +28,7 @@ class PipelineContext:
         executor: BaseStageExecutor = stage(self.cfg)
         executor.execute()
         logger.info(f"Done running stage: {stage.__name__}")
+        if executor.make_stage_logs:
+            stage_str = executor.stage_str
+            stage_dir = self.cfg.pipeline[stage_str].dir_name
+            self.log_maker.copy_hydra_run_to_stage_log(stage_dir)

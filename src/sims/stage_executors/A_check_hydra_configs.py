@@ -95,3 +95,9 @@ class HydraConfigCheckerExecutor(BaseStageExecutor):
                 required_stage = asset_data['stage']
                 if required_stage not in outputs or asset_name not in outputs[required_stage]:
                     self.issues.append(f"Asset '{asset_name}' in '{stage_name}' cannot be found in outputs of stage '{required_stage}' in pipeline yaml.")
+
+        for stage_name, stage_data in pipeline.items():
+            if stage_data is None:
+                continue
+            if 'make_stage_log' in stage_data and 'dir_name' not in stage_data:
+                self.issues.append(f"Stage {stage_name} has make_stage_log=True but no directory name in pipeline yaml.")

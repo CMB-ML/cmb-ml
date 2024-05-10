@@ -24,7 +24,7 @@ class BaseStageExecutor:
 
         self.name_tracker = Namer(cfg)
 
-        self.stage_str: str  = stage_str
+        self.stage_str: str = stage_str
         self._ensure_stage_string_in_pipeline_yaml()
 
         self.splits: Union[List[Split], None] = self._get_applicable_splits()
@@ -59,27 +59,21 @@ class BaseStageExecutor:
         logger.warning("Executing BaseExecutor process_split() method.")
         raise NotImplementedError("Subclasses must implement process_split if it is to be used.")
 
-    def _get_stage_element(self, stage_element="assets_out", stage_str=None):
-        """
-        Supported stage elements are "assets_in", "assets_out", and "splits"
-        raises omegaconf.errors.ConfigAttributeError if the stage in the pipeline yaml is empty (e.g. the CheckHydraConfigs stage).
-        raises omegaconf.errors.ConfigKeyError if the stage in the pipeline yaml is missing assets_in or assets_out.
-        """
-        cfg_pipeline = self.cfg.pipeline
-        cfg_stage = cfg_pipeline[stage_str]
-        if cfg_stage is None:
-            raise OmegaErrors.ConfigAttributeError
-        stage_element = cfg_stage[stage_element]  # OmegaErrors.ConfigKeyError from here
-        return stage_element
+    @property
+    def make_stage_logs(self) -> bool:
+        res = self._get_stage_elem_silent("make_stage_log", self.stage_str)
+        if res is None:
+            res = False
+        return res
 
     def _get_applicable_splits(self) -> List[Split]:
         # Pull specific splits for this stage from the pipeline hydra config
-        try:
-            splits_scope = self._get_stage_element(stage_element='splits', 
+        splits_scope = self._get_stage_elem_silent(stage_element='splits', 
                                                    stage_str=self.stage_str)
-        except (OmegaErrors.ConfigKeyError, OmegaErrors.ConfigAttributeError):
-            # Or None if the pipeline has no "splits" for this stage
+
+        if splits_scope is None:
             return None
+
         # Get all possible splits from the splits hydra config
         all_splits = [key for key in self.cfg.splits.keys() if key != 'name']
 
@@ -97,13 +91,11 @@ class BaseStageExecutor:
 
     def _make_assets_out(self) -> Dict[str, Asset]:
         # Pull the list of output assets for this stage from the pipeline hydra config
-        try:
-            cfg_assets_out = self._get_stage_element(stage_element="assets_out",
-                                                     stage_str=self.stage_str)
-        except (OmegaErrors.ConfigKeyError, OmegaErrors.ConfigAttributeError):
-            # Or None if the pipeline has no "assets_out" for this stage
+        cfg_assets_out = self._get_stage_elem_silent(stage_element="assets_out",
+                                                    stage_str=self.stage_str)
+        if cfg_assets_out is None:
             return None
-        
+
         # Create assets directly
         all_assets_out = {}
         for asset in cfg_assets_out:
@@ -120,12 +112,11 @@ class BaseStageExecutor:
 
     def _make_assets_in(self) -> Dict[str, Asset]:
         # Pull the list of input assets for this stage from the pipeline hydra config
-        try:
-            cfg_assets_in = self._get_stage_element(stage_element="assets_in",
+        cfg_assets_in = self._get_stage_elem_silent(stage_element="assets_in",
                                                     stage_str=self.stage_str)
-        except (OmegaErrors.ConfigKeyError, OmegaErrors.ConfigAttributeError):
-            # Or None if the pipeline has no "assets_out" for this stage
+        if cfg_assets_in is None:
             return None
+
         all_assets_in = {}
         # Create assets by looking up the stage in which the asset was originally created
         for asset in cfg_assets_in:
@@ -142,3 +133,24 @@ class BaseStageExecutor:
                                              name_tracker=self.name_tracker,
                                              in_or_out="in")
         return all_assets_in
+
+    def _get_stage_element(self, stage_element="assets_out", stage_str=None):
+        """
+        Supported stage elements are "assets_in", "assets_out", and "splits"
+        raises omegaconf.errors.ConfigAttributeError if the stage in the pipeline yaml is empty (e.g. the CheckHydraConfigs stage).
+        raises omegaconf.errors.ConfigKeyError if the stage in the pipeline yaml is missing assets_in or assets_out.
+        """
+        cfg_pipeline = self.cfg.pipeline
+        cfg_stage = cfg_pipeline[stage_str]
+        if cfg_stage is None:
+            raise OmegaErrors.ConfigAttributeError
+        stage_element = cfg_stage[stage_element]  # OmegaErrors.ConfigKeyError from here
+        return stage_element
+
+    def _get_stage_elem_silent(self, stage_element="assets_out", stage_str=None):
+        try:
+            res = self._get_stage_element(stage_element, stage_str)
+        except (OmegaErrors.ConfigKeyError, OmegaErrors.ConfigAttributeError):
+            # Or None if the pipeline has no "splits" for this stage
+            return None
+        return res

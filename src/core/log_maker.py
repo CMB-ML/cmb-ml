@@ -1,3 +1,6 @@
+import pkg_resources
+import pkg_resources
+from importlib.metadata import distributions
 import shutil
 import ast
 from pathlib import Path
@@ -13,17 +16,43 @@ from .namers import Namer
 logger = logging.getLogger(__name__)
 
 
+
+
 class LogMaker:
     def __init__(self, 
                  cfg: DictConfig) -> None:
 
         self.namer = LogsNamer(cfg, HydraConfig.get())
 
-    def log_code_to_hydra(self, source_script) -> None:
+    def log_procedure_to_hydra(self, source_script) -> None:
         target_root = self.namer.hydra_scripts_path
         target_root.mkdir(parents=True, exist_ok=True)
         self.log_py_to_hydra(source_script, target_root)
         self.log_cfgs_to_hydra(target_root)
+        self.log_poetry_lock(source_script, target_root)
+        self.log_library_versions(target_root)
+
+    def log_library_versions(self, target_root):
+        """
+        Logs the versions of all installed packages in the current environment to a requirements.txt file using importlib.metadata.
+
+        Args:
+        target_root (str): The root directory where the requirements.txt file will be saved.
+        """
+        target_path = Path(target_root) / "requirements.txt"
+        package_list = []
+
+        for dist in distributions():
+            package_list.append(f"{dist.metadata['Name']}=={dist.version}")
+
+        with target_path.open("w") as f:
+            f.write("\n".join(package_list))
+
+    def log_poetry_lock(self, source_script, target_root):
+        poetry_lock_path = Path(source_script).parent / "poetry.lock"
+        if poetry_lock_path.exists():
+            target_path = Path(target_root) / "poetry.lock"
+            shutil.copy(poetry_lock_path, target_path)
 
     def log_py_to_hydra(self, source_script, target_root):
         imported_local_py_files = self._find_local_imports(source_script)
@@ -159,9 +188,16 @@ class LogMaker:
 
     def copy_hydra_run_to_dataset_log(self):
         self.namer.dataset_logs_path.mkdir(parents=True, exist_ok=True)
+        self.copy_hydra_run_to_log(self.namer.dataset_logs_path)
 
+    def copy_hydra_run_to_stage_log(self, stage):
+        stage_path = self.namer.stage_logs_path(stage)
+        stage_path.mkdir(parents=True, exist_ok=True)
+        self.copy_hydra_run_to_log(stage_path)
+
+    def copy_hydra_run_to_log(self, target_root):
         for item in self.namer.hydra_path.iterdir():
-            destination = self.namer.dataset_logs_path / item.name
+            destination = target_root / item.name
             if item.is_dir():
                 shutil.copytree(item, destination, dirs_exist_ok=True)  # For directories
             else:
@@ -178,6 +214,7 @@ class LogsNamer:
         self.scripts_subdir = cfg.file_system.subdir_for_log_scripts
         # self.dataset_logs_dir = cfg.file_system.subdir_for_logs
         self.dataset_template_str = cfg.file_system.log_dataset_template_str
+        self.stage_template_str = cfg.file_system.log_stage_template_str
         self.namer = Namer(cfg)
 
     @property
@@ -192,4 +229,10 @@ class LogsNamer:
     def dataset_logs_path(self) -> Path:
         with self.namer.set_context("hydra_run_dir", self.hydra_run_dir):
             path = self.namer.path(self.dataset_template_str)
+        return path
+
+    def stage_logs_path(self, stage_dir) -> Path:
+        with self.namer.set_contexts({"hydra_run_dir": self.hydra_run_dir,
+                                      "stage": stage_dir}):
+            path = self.namer.path(self.stage_template_str)
         return path
