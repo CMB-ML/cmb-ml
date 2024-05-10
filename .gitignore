@@ -13,3 +13,5 @@ Data/
 __pycache__/
 .DS_Store
 */.DS_Store
+
+junk.py

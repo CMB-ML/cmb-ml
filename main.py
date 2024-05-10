@@ -29,9 +29,9 @@ def make_all_simulations(cfg):
     logger.debug(f"Running {__name__} in {__file__}")
 
     log_maker = LogMaker(cfg)
-    log_maker.log_scripts_to_hydra(source_script=__file__)
+    log_maker.log_procedure_to_hydra(source_script=__file__)
 
-    pipeline_context = PipelineContext(cfg)
+    pipeline_context = PipelineContext(cfg, log_maker)
 
     pipeline_context.add_pipe(HydraConfigCheckerExecutor)
     pipeline_context.add_pipe(NoiseCacheExecutor)
