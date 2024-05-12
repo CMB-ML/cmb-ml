@@ -1,8 +1,8 @@
 import pkg_resources
-import pkg_resources
 from importlib.metadata import distributions
 import shutil
 import ast
+import yaml
 from pathlib import Path
 from os.path import commonpath
 
@@ -103,9 +103,9 @@ class LogMaker:
         for choice_key, choice_value in relevant_choices.items():
             found = False
             for config_dir in config_paths:
-                config_file = config_dir / f"{choice_key}/{choice_value}.yaml"
-                if config_file.exists():
-                    relevant_files.append(config_file)
+                config_path = config_dir / f"{choice_key}/{choice_value}.yaml"
+                if config_path.exists():
+                    relevant_files.append(config_path)
                     found = True
                     break
             if not found:
@@ -115,6 +115,36 @@ class LogMaker:
         if missing_combinations:
             logger.warning("Missing configuration files for:", missing_combinations)
 
+        # We sideload yaml files in some cases; hydra does not add these to the "choices" list.
+        for config_path in relevant_files:
+            config_path = Path(config_path)  # Del this line
+            with open(config_path, 'r') as f:
+                try:
+                    config_data = yaml.safe_load(f)
+                    # if defaults is not a key, continue
+                    defaults = config_data.get('defaults', [])
+                    for item in defaults:
+                        # only consider strings, not k:v pairs (or maybe other things)
+                        if not isinstance(item, str):
+                            continue
+                        # _self_ must appear in the defaults list; this is ok and
+                        if item == '_self_':
+                            continue
+                        # if it's a string, hydra interprets it as a path neighboring the current config
+                        possible_path = config_path.parent / item
+                        # Suffixes in the defaults list are optional ('- test' and '- test.yaml' are equivalent)
+                        if not possible_path.suffix:
+                            possible_path = possible_path.with_suffix('.yaml')
+                        if possible_path.exists():
+                            if possible_path not in relevant_files:
+                                # Generally dangerous, in this case we cannot create an infinite loop
+                                relevant_files.append(possible_path)
+                            else:
+                                logger.warning(f"Circular dependency detected for file: {config_path} for line {item}")
+                        else:
+                            logger.warning(f"File referenced in a defaults was not found: {config_path} for line {item}")
+                except yaml.YAMLError as e:
+                    logger.error(f"Error parsing YAML file {config_path}: {e}")
         return relevant_files
 
     def _find_local_imports(self, source_script):

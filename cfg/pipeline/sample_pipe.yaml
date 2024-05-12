@@ -1,4 +1,4 @@
 defaults:
   - _self_
-  - simulation_pipe.yaml@_here_
-  - sim_analysis_pipe.yaml@_here_
+  - simulation_pipe
+  - sim_analysis_pipe
