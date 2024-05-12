@@ -1,0 +1,20 @@
+show_sims:
+  assets_out:
+    cmb_map_render:
+      handler: Mover
+      path_template: "{root}/{dataset}/{stage}/{split}/{sim}/{view}_cmb_{field}.png"
+    obs_map_render:
+      handler: Mover
+      path_template: "{root}/{dataset}/{stage}/{split}/{sim}/{view}_obs_{field}_{freq}.png"
+  assets_in:
+    cmb_map: {stage: make_sims}
+    obs_maps: {stage: make_sims}
+  splits:
+    - train
+  override_n_sims: 1                 # int: first n_sims; null: all sims; list: particular sims by index
+  plot_min_max: null                 # value, v: plots from -v to +v; null: allow MPL to choose; list (size 2): min and max val
+  # plot_rot: [250, -50]             # Goodish direction for RG
+  plot_rot: null                     # Useful for looking in specific directions; difficult to figure out the values needed
+  plot_gnom_res: 12                  # Arcmins per pixel in the gnonomic view
+  dir_name: Analysis_1_Render_Simulation_Maps
+  make_stage_log: False

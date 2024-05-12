@@ -1,0 +1,64 @@
+raw:
+  assets_out:
+    planck_deltabandpass:
+      handler: QTable
+      path_template: "{src_root}/planck_deltabandpass.tbl"
+    noise_src_maps:
+      handler: HealpyMap
+      path_template: "{src_root}/{fn}"
+    # wmap_chains:  # TODO
+    #   handler: WMAPChains
+    #   path_template: "{src_root}/{fn}"
+check_hydra_configs:  # No information needed here
+make_noise_cache:
+  assets_out:
+    noise_cache:
+      handler: HealpyMap
+      path_template: "{root}/{dataset}/{stage}/{freq}_{field}_noise_sd_map.fits"
+  assets_in:
+    planck_deltabandpass: {stage: raw}
+    noise_src_maps: {stage: raw}
+  dir_name: Simulation_B_NoiseCache
+make_sim_configs:
+  assets_out:
+    split_configs:
+      handler: Config
+      path_template: "{root}/{dataset}/{stage}/{split}/split_config.yaml"
+    wmap_config:
+      handler: Config
+      path_template: "{root}/{dataset}/{stage}/{split}/{sim}/wmap_params.yaml"
+      path_template_alt: "{root}/{dataset}/{stage}/{split}/wmap_params.yaml"
+  # assets_in:
+  #   wmap_chains: {stage: raw}
+  splits: &all_splits
+    - train
+    - valid
+    - test
+  dir_name: Simulation_C_Configs
+  make_stage_log: True
+make_cmb_power_spectra:
+  assets_out:
+    cmb_ps:
+      handler: PowerSpectrum
+      path_template: "{root}/{dataset}/{stage}/{split}/{sim}/cmb_ps_fid.txt"
+      path_template_alt: "{root}/{dataset}/{stage}/{split}/cmb_ps_fid.txt"
+  assets_in:
+    wmap_config: {stage: make_sim_configs}
+  splits: *all_splits
+  dir_name: Simulation_D_CMB_Power_Spectra
+  make_stage_log: True
+make_sims:
+  assets_out:
+    cmb_map:
+      handler: HealpyMap
+      path_template: "{root}/{dataset}/{stage}/{split}/{sim}/cmb_map_fid.fits"
+    obs_maps:
+      handler: HealpyMap
+      path_template: "{root}/{dataset}/{stage}/{split}/{sim}/obs_{freq}_map.fits"
+  assets_in:
+    planck_deltabandpass: {stage: raw}
+    noise_cache: {stage: make_noise_cache}
+    cmb_ps: {stage: make_cmb_power_spectra}
+  splits: *all_splits
+  dir_name: Simulation
+  make_stage_log: True

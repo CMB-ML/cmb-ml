@@ -21,9 +21,9 @@ logger = logging.getLogger(__name__)
 logging.getLogger('pysm3').setLevel(logging.WARNING)
 
 
-# @hydra.main(version_base=None, config_path="cfg", config_name="config_32")
+@hydra.main(version_base=None, config_path="cfg", config_name="config_32")
 # @hydra.main(version_base=None, config_path="cfg", config_name="config_128")
-@hydra.main(version_base=None, config_path="cfg", config_name="config_512")
+# @hydra.main(version_base=None, config_path="cfg", config_name="config_512")
 # @hydra.main(version_base=None, config_path="cfg", config_name="config_2048")
 def make_all_simulations(cfg):
     logger.debug(f"Running {__name__} in {__file__}")
@@ -34,10 +34,10 @@ def make_all_simulations(cfg):
     pipeline_context = PipelineContext(cfg, log_maker)
 
     pipeline_context.add_pipe(HydraConfigCheckerExecutor)
-    pipeline_context.add_pipe(NoiseCacheExecutor)
+    # pipeline_context.add_pipe(NoiseCacheExecutor)
     pipeline_context.add_pipe(ConfigExecutor)
     pipeline_context.add_pipe(TheoryPSExecutor)
-    pipeline_context.add_pipe(SimCreatorExecutor)
+    # pipeline_context.add_pipe(SimCreatorExecutor)
     pipeline_context.add_pipe(ShowSimsExecutor)
 
     pipeline_context.run_pipeline()
