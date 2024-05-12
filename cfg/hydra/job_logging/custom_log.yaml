@@ -22,6 +22,9 @@ handlers:
     formatter: simple
     filename: ${hydra.runtime.output_dir}/${hydra.job.name}_seeds.log
 loggers:
+  pysm3:
+    level: WARNING
+    propagate: false
   healpy:
     level: WARNING
     propagate: false
