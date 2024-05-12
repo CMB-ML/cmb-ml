@@ -39,7 +39,7 @@ class NoiseCacheExecutor(BaseStageExecutor):
         self.noise_src_dir: str            = cfg.local_system.noise_src_dir
 
     def execute(self) -> None:
-        hdu = self.cfg.simulation.noise.hdu_n
+        hdu = self.cfg.model.sim.noise.hdu_n
         nside = self.cfg.scenario.nside
         for freq, detector in self.instrument.dets.items():
             src_path = self.get_src_path(freq)
@@ -77,8 +77,8 @@ class NoiseCacheExecutor(BaseStageExecutor):
         Returns:
         int: The field index corresponding to the field string.
         """
-        hdu = self.cfg.simulation.noise.hdu_n
-        field_idcs_dict = dict(self.cfg.simulation.noise.field_idcs)
+        hdu = self.cfg.model.sim.noise.hdu_n
+        field_idcs_dict = dict(self.cfg.model.sim.noise.field_idcs)
         # Get number of fields in map
         n_map_fields = get_num_fields_in_hdr(fits_fn=src_path, hdu=hdu)
         # Lookup field index based on config file
@@ -96,7 +96,7 @@ class NoiseCacheExecutor(BaseStageExecutor):
         Returns:
         str: The path for the fits file containing the noise.
         """
-        fn = self.cfg.simulation.noise.src_files[detector]
+        fn = self.cfg.model.sim.noise.src_files[detector]
         noise_src_dir = self.cfg.local_system.noise_src_dir
         contexts_dict = dict(src_root=noise_src_dir, fn=fn)
         with self.name_tracker.set_contexts(contexts_dict):

@@ -5,7 +5,7 @@ defaults:
   - scenario    : scenario_512
   - splits      : "1-1"
   # simulation must listed be after scenario and splits to build the simulation seed
-  - simulation  : sim_full
+  - model/sim   : sim_full
   - override hydra/job_logging: custom_log
   - _self_
 

@@ -24,9 +24,9 @@ class TheoryPSExecutor(BaseStageExecutor):
         # The following stage_str must match the pipeline yaml
         super().__init__(cfg, stage_str='make_cmb_power_spectra')
 
-        self.max_ell_for_camb = cfg.simulation.cmb.ell_max
-        self.wmap_param_labels = cfg.simulation.cmb.wmap_params
-        self.camb_param_labels = cfg.simulation.cmb.camb_params_equiv
+        self.max_ell_for_camb = cfg.model.sim.cmb.ell_max
+        self.wmap_param_labels = cfg.model.sim.cmb.wmap_params
+        self.camb_param_labels = cfg.model.sim.cmb.camb_params_equiv
 
         self.out_cmb_ps: AssetWithPathAlts = self.assets_out['cmb_ps']
         self.in_wmap_config: AssetWithPathAlts = self.assets_in['wmap_config']

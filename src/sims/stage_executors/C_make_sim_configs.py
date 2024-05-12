@@ -24,11 +24,11 @@ class ConfigExecutor(BaseStageExecutor):
         out_split_config_handler: Config
         out_wmap_config_handler: Config
 
-        self.wmap_param_labels = cfg.simulation.cmb.wmap_params
-        self.wmap_chain_length = cfg.simulation.cmb.wmap_chain_length
+        self.wmap_param_labels = cfg.model.sim.cmb.wmap_params
+        self.wmap_chain_length = cfg.model.sim.cmb.wmap_chain_length
         self.wmap_chains_dir = Path(cfg.local_system.wmap_chains_dir)
 
-        self.seed = cfg.simulation.cmb.wmap_indcs_seed
+        self.seed = cfg.model.sim.cmb.wmap_indcs_seed
 
     def execute(self) -> None:
         all_idices = self.make_chain_idcs_for_each_split(self.seed)

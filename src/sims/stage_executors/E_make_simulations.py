@@ -55,8 +55,8 @@ class SimCreatorExecutor(BaseStageExecutor):
         self.instrument: Instrument = make_instrument(cfg=cfg, det_info=det_info)
 
         # seed maker objects
-        self.cmb_seed_factory     = SimLevelSeedFactory(cfg, cfg.simulation.cmb.seed_string)
-        self.noise_seed_factory   = FieldLevelSeedFactory(cfg, cfg.simulation.noise.seed_string)
+        self.cmb_seed_factory     = SimLevelSeedFactory(cfg, cfg.model.sim.cmb.seed_string)
+        self.noise_seed_factory   = FieldLevelSeedFactory(cfg, cfg.model.sim.noise.seed_string)
 
         # Initialize constants from configs
         self.nside_sky = self.get_nside_sky()
@@ -65,7 +65,7 @@ class SimCreatorExecutor(BaseStageExecutor):
         self.nside_out = cfg.scenario.nside
         logger.info(f"Simulations will be output at nside_out = {self.nside_out}")
         
-        self.lmax_pysm3_smoothing = int(cfg.simulation.cmb.derived_ps_nsmax_x * self.nside_out)
+        self.lmax_pysm3_smoothing = int(cfg.model.sim.cmb.derived_ps_nsmax_x * self.nside_out)
         logger.info(f"Simulation beam convolution will occur with lmax = {self.lmax_pysm3_smoothing}.")
         
         self.units = cfg.scenario.units
@@ -73,7 +73,7 @@ class SimCreatorExecutor(BaseStageExecutor):
 
         placeholder = pysm3.Model(nside=self.nside_sky, max_nside=self.nside_sky)
 
-        preset_strings = list(cfg.simulation.preset_strings)
+        preset_strings = list(cfg.model.sim.preset_strings)
         logger.info(f"Preset strings are {preset_strings}")
         
         logger.debug('Creating PySM3 Sky object')
@@ -144,8 +144,8 @@ class SimCreatorExecutor(BaseStageExecutor):
 
     def get_nside_sky(self):
         nside_out = self.cfg.scenario.nside
-        nside_sky_set = self.cfg.simulation.get("nside_sky", None)
-        nside_sky_factor = self.cfg.simulation.get("nside_sky_factor", None)
+        nside_sky_set = self.cfg.model.sim.get("nside_sky", None)
+        nside_sky_factor = self.cfg.model.sim.get("nside_sky_factor", None)
 
         nside_sky = nside_sky_set if nside_sky_set else nside_out * nside_sky_factor
         return nside_sky

@@ -29,14 +29,14 @@ class SeedMaker:
     
     def get_base_string(self, 
                         cfg: DictConfig):
-        base_string = cfg.simulation.seed_base_string
+        base_string = cfg.model.sim.seed_base_string
         return str(base_string)
 
     def get_component_string(self, 
                              cfg: DictConfig, 
                              sky_component: str) -> str:
         try:
-            base_string = cfg.simulation[sky_component].seed_string
+            base_string = cfg.model.sim[sky_component].seed_string
             pass
         except ConfigAttributeError as e:
             if self.use_backup_strs:

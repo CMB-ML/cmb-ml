@@ -40,13 +40,13 @@ class HydraConfigCheckerExecutor(BaseStageExecutor):
 
     def check_noise_yaml(self) -> None:
         for freq in self.cfg.scenario.detector_freqs:
-            if freq not in self.cfg.simulation.noise.src_files:
+            if freq not in self.cfg.model.sim.noise.src_files:
                 self.issues.append(f"Detector {freq} not in simulation.noise yaml.")
 
     def check_simulation_yaml(self) -> None:
         nside_out = self.cfg.scenario.nside
-        nside_sky_set = self.cfg.simulation.get("nside_sky", None)
-        nside_sky_factor = self.cfg.simulation.get("nside_sky_factor", None)
+        nside_sky_set = self.cfg.model.sim.get("nside_sky", None)
+        nside_sky_factor = self.cfg.model.sim.get("nside_sky_factor", None)
         if nside_sky_set is None and nside_sky_factor is None:
             self.issues.append("Either nside_sky or nside_sky_factor must be set in simulation yaml.")
         elif nside_sky_set is not None and nside_sky_factor is not None:
