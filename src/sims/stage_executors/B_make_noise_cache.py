@@ -8,13 +8,13 @@ from pathlib import Path
 
 from astropy.units import Quantity
 
-from ...core import BaseStageExecutor, Asset
-from ..planck_instrument import make_instrument, Instrument
+from core import BaseStageExecutor, Asset
+from utils.planck_instrument import make_instrument, Instrument
 from utils.fits_inspection import get_num_fields_in_hdr
 from ..physics_instrument_noise import planck_result_to_sd_map
 
-from ...core.asset_handlers import HealpyMap
-from ..handlers.qtable_handler import QTableHandler
+from core.asset_handlers import HealpyMap
+from core.asset_handlers.qtable_handler import QTableHandler
 
 
 logger = logging.getLogger(__name__)

@@ -15,8 +15,8 @@ from ...core import (
 
 from ..physics_cmb import make_camb_ps
 
-from ..handlers.psmaker_handler import CambPS # Import to register handler
-from ...core.asset_handlers import Config
+from ...core.asset_handlers.psmaker_handler import PowerSpectrum # Import to register handler
+from core.asset_handlers import Config
 
 
 class TheoryPSExecutor(BaseStageExecutor):
@@ -31,7 +31,7 @@ class TheoryPSExecutor(BaseStageExecutor):
         self.out_cmb_ps: AssetWithPathAlts = self.assets_out['cmb_ps']
         self.in_wmap_config: AssetWithPathAlts = self.assets_in['wmap_config']
 
-        out_cmb_ps_handler: CambPS
+        out_cmb_ps_handler: PowerSpectrum
         in_wmap_config_handler: Config
 
     def execute(self) -> None:

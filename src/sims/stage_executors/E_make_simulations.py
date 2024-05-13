@@ -15,18 +15,18 @@ import logging
 
 from..cmb_factory import CMBFactory
 from ..random_seed_manager import FieldLevelSeedFactory, SimLevelSeedFactory
-from ..planck_instrument import make_instrument, Instrument
+from utils.planck_instrument import make_instrument, Instrument
 
-from ...core import (
+from core import (
     BaseStageExecutor,
     Split,
     Asset, AssetWithPathAlts
 )
 
-from ..handlers.qtable_handler import QTableHandler # Import to register handler
-# from ..handlers.psmaker_handler import PSHandler # Handler is not used for simulation.
-from core.asset_handlers import HealpyMap
-from ..handlers.psmaker_handler import CambPS # Import for typing hint
+from core.asset_handlers.qtable_handler import QTableHandler # Import to register handler
+from core.asset_handlers.psmaker_handler import PowerSpectrum # Import for typing hint
+
+from core.asset_handlers import HealpyMap # Import for VS Code hints
 
 from ..physics_cmb import change_nside_of_map
 from ..physics_instrument_noise import make_random_noise_map
@@ -47,7 +47,7 @@ class SimCreatorExecutor(BaseStageExecutor):
         self.in_cmb_ps: AssetWithPathAlts = self.assets_in['cmb_ps']
         in_det_table: Asset = self.assets_in['planck_deltabandpass']
         in_noise_cache_handler: HealpyMap
-        in_cmb_ps_handler: CambPS
+        in_cmb_ps_handler: PowerSpectrum
         in_det_table_handler: QTableHandler
 
         with self.name_tracker.set_context('src_root', cfg.local_system.noise_src_dir):

@@ -16,6 +16,7 @@ class HydraConfigCheckerExecutor(BaseStageExecutor):
     def __init__(self, cfg: DictConfig) -> None:
         # The following stage_str must match the pipeline yaml
         super().__init__(cfg, stage_str='check_hydra_configs')
+        # TODO: Use logging import configs logic to check for duplicate pipeline stage names
         self.issues = []
 
     def execute(self) -> None:

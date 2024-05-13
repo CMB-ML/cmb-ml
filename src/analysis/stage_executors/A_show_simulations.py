@@ -15,7 +15,7 @@ from core import (
     )
 from tqdm import tqdm
 from core.asset_handlers import Mover, HealpyMap
-from ..planck_instrument import make_instrument, Instrument
+from utils.planck_instrument import make_instrument, Instrument
 from utils import planck_cmap
 
 
