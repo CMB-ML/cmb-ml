@@ -13,7 +13,7 @@ from core import (
     Split,
     Asset
     )
-from tqdm import tqdm
+# from tqdm import tqdm
 from core.asset_handlers import Mover, HealpyMap
 from utils.planck_instrument import make_instrument, Instrument
 from utils import planck_cmap
@@ -77,7 +77,8 @@ class ShowSimsExecutor(BaseStageExecutor):
         else:
             sim_iter = self.sim_ns
 
-        for sim in tqdm(sim_iter):
+        # for sim in tqdm(sim_iter):
+        for sim in sim_iter:
             with self.name_tracker.set_context("sim_num", sim):
                 self.process_sim()
 

@@ -5,21 +5,21 @@ from ..utils.suppress_print import SuppressPrint
 
 def make_unet(cfg, nside=None):
     if nside is None:
-        nside = cfg.experiment.nside
-    max_filters = cfg.model.max_filters
-    input_channels = cfg.experiment.detector_freqs
-    kernels_size = cfg.model.kernels_size
-    strides = cfg.model.strides
-    mainActive = cfg.model.mainActive
-    finalActive = cfg.model.finalActive
-    finalBN = cfg.model.finalBN
+        nside = cfg.scenario.nside
+    max_filters = cfg.model.cmbnncs.unet.max_filters
+    input_channels = cfg.scenario.detector_freqs
+    kernels_size = cfg.model.cmbnncs.unet.kernels_size
+    strides = cfg.model.cmbnncs.unet.strides
+    mainActive = cfg.model.cmbnncs.unet.mainActive
+    finalActive = cfg.model.cmbnncs.unet.finalActive
+    finalBN = cfg.model.cmbnncs.unet.finalBN
 
     log_max_filters = int(np.log2(max_filters))
 
-    if cfg.model.unet_to_make == "unet5":
+    if cfg.model.cmbnncs.unet.unet_to_make == "unet5":
         log_channels_min = log_max_filters - 4
         unet_class = unet.UNet5
-    elif cfg.model.unet_to_make == "unet8":
+    elif cfg.model.cmbnncs.unet.unet_to_make == "unet8":
         log_channels_min = log_max_filters - 7
         unet_class = unet.UNet8
 

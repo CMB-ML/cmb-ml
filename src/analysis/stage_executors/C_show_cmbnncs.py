@@ -1,5 +1,4 @@
 from typing import List, Dict, Union
-from typing import List, Dict, Union
 import logging
 
 import numpy as np
@@ -14,7 +13,6 @@ from core import (
     Split,
     Asset
     )
-from tqdm import tqdm
 from core.asset_handlers import Mover
 from src.cmbnncs_local.handler_npymap import NumpyMap
 from utils.planck_instrument import make_instrument, Instrument
@@ -24,24 +22,14 @@ from utils import planck_cmap
 logger = logging.getLogger(__name__)
 
 
-class ShowSimsExecutor(BaseStageExecutor):
-    def __init__(self, cfg: DictConfig) -> None:
+class ShowSimsCMBNNCSExecutor(BaseStageExecutor):
+    def __init__(self, cfg: DictConfig, stage_str: str) -> None:
         # The following stage_str must match the pipeline yaml
-        super().__init__(cfg, stage_str="show_sims_cmbnncs_prep")
+        super().__init__(cfg, stage_str=stage_str)
 
-        self.out_cmb_figure: Asset = self.assets_out["cmb_map_render"]
-        self.out_obs_figure: Asset = self.assets_out["obs_map_render"]
-        out_cmb_figure_handler: Mover
-        out_obs_figure_handler: Mover
-
-        # self.in_cmb_map: Asset = self.assets_in["cmb_map"]
-        # self.in_obs_map: Asset = self.assets_in["obs_maps"]
-        in_cmb_map_handler: NumpyMap
-        in_obs_map_handler: NumpyMap
-        self.in_cmb_map_sim: Asset = self.assets_in["cmb_map_sim"]
-        self.in_obs_map_sim: Asset = self.assets_in["obs_maps_sim"]
-        self.in_cmb_map_prep: Asset = self.assets_in["cmb_map_prep"]
-        self.in_obs_map_prep: Asset = self.assets_in["obs_maps_prep"]
+        if self.__class__.__name__ == "ShowSimsCMBNNCSExecutor":
+            # TODO: Can I ABC this?
+            raise NotImplementedError("This is a base class. Kinda. Sorta. Not sure if I can ABC this.")
 
         self.instrument: Instrument = make_instrument(cfg=cfg)
 
@@ -85,19 +73,13 @@ class ShowSimsExecutor(BaseStageExecutor):
         else:
             sim_iter = self.sim_ns
 
-        for sim in tqdm(sim_iter):
+        for sim in sim_iter:
+        # for sim in tqdm(sim_iter):
             with self.name_tracker.set_context("sim_num", sim):
                 self.process_sim()
 
-    def process_sim(self) -> None:
-        cmb_map_sim = self.in_cmb_map_sim.read()
-        cmb_map_prep = self.in_cmb_map_prep.read()
-        self.make_maps_per_field(cmb_map_sim, cmb_map_prep, det="cmb", out_asset=self.out_cmb_figure)
-        for freq in self.instrument.dets:
-            with self.name_tracker.set_context("freq", freq):
-                obs_map_sim = self.in_obs_map_sim.read()
-                obs_map_prep = self.in_obs_map_prep.read()
-                self.make_maps_per_field(obs_map_sim, obs_map_prep, det=freq, out_asset=self.out_obs_figure)
+    def process_sim(self):
+        pass
 
     def make_maps_per_field(self, map_sim, map_prep, det, out_asset):
         split = self.name_tracker.context['split']
@@ -142,7 +124,7 @@ class ShowSimsExecutor(BaseStageExecutor):
             cmap=planck_cmap.colombi1_cmap,
         )
         plt.imshow(some_map, **plot_params)
-        plt.title("Preprocessed")
+        plt.title(self.right_subplot_title)
         ax.set_axis_off()
         plt.colorbar
 
@@ -157,3 +139,58 @@ class ShowSimsExecutor(BaseStageExecutor):
         )
         hp.mollview(some_map, **plot_params)
         plt.title("Raw Simulation")
+
+
+class ShowSimsPrepExecutor(ShowSimsCMBNNCSExecutor):
+    def __init__(self, cfg: DictConfig) -> None:
+        stage_str = "show_sims_cmbnncs_prep"
+        super().__init__(cfg, stage_str)
+
+        self.right_subplot_title = "Preprocessed"
+
+        self.out_cmb_figure: Asset = self.assets_out["cmb_map_render"]
+        self.out_obs_figure: Asset = self.assets_out["obs_map_render"]
+        out_cmb_figure_handler: Mover
+        out_obs_figure_handler: Mover
+
+        self.in_cmb_map_sim: Asset = self.assets_in["cmb_map_sim"]
+        self.in_cmb_map_prep: Asset = self.assets_in["cmb_map_prep"]
+        self.in_obs_map_sim: Asset = self.assets_in["obs_maps_sim"]
+        self.in_obs_map_prep: Asset = self.assets_in["obs_maps_prep"]
+        in_cmb_map_handler: NumpyMap
+        in_obs_map_handler: NumpyMap
+
+    def process_sim(self) -> None:
+        cmb_map_sim = self.in_cmb_map_sim.read()
+        cmb_map_prep = self.in_cmb_map_prep.read()
+        self.make_maps_per_field(cmb_map_sim, cmb_map_prep, det="cmb", out_asset=self.out_cmb_figure)
+        for freq in self.instrument.dets:
+            with self.name_tracker.set_context("freq", freq):
+                obs_map_sim = self.in_obs_map_sim.read()
+                obs_map_prep = self.in_obs_map_prep.read()
+                self.make_maps_per_field(obs_map_sim, obs_map_prep, det=freq, out_asset=self.out_obs_figure)
+
+
+class ShowSimsPredExecutor(ShowSimsCMBNNCSExecutor):
+    def __init__(self, cfg: DictConfig) -> None:
+        stage_str = "show_sims_cmbnncs_pred"
+        super().__init__(cfg, stage_str)
+
+        self.right_subplot_title = "Predicted"
+
+        self.out_cmb_figure: Asset = self.assets_out["cmb_map_render"]
+        out_cmb_figure_handler: Mover
+
+        self.in_cmb_map_sim: Asset = self.assets_in["cmb_map_sim"]
+        self.in_cmb_map_prep: Asset = self.assets_in["cmb_map_pred"]
+        in_cmb_map_handler: NumpyMap
+
+    def process_sim(self) -> None:
+        for epoch in self.model_epochs:
+            with self.name_tracker.set_context('epoch', epoch):
+                cmb_map_sim = self.in_cmb_map_sim.read()
+                cmb_map_prep = self.in_cmb_map_prep.read()
+                self.make_maps_per_field(cmb_map_sim, 
+                                         cmb_map_prep, 
+                                         det="cmb",
+                                         out_asset=self.out_cmb_figure)

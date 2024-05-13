@@ -27,9 +27,8 @@ preprocess:
 train:
   assets_out:
     model: 
-      fn: "model_{epoch}.pth"
       handler: PyTorchModel
-      path_template: "{root}/{dataset}/{stage}/{fn}"
+      path_template: "{root}/{dataset}/{stage}/model_{epoch}.pth"
   assets_in:
     cmb_map: {stage: preprocess}
     obs_maps: {stage: preprocess}
@@ -39,7 +38,6 @@ train:
 predict:
   assets_out:
     cmb_map: 
-      fn: ""
       handler: NumpyMap
       path_template: "{root}/{dataset}/{stage}/{split}/{sim}/cmb_map_pred_{epoch}.npy"
   assets_in:
@@ -47,17 +45,19 @@ predict:
     obs_maps: {stage: preprocess}
   splits:
     # - train
+    # - valid
     - test
+  epochs: [init, 1]
   dir_name: CMBNNCS_E_Predict
-postprocess:
-  assets_out:
-    cmb_map_post: 
-      fn: ""
-      handler: HealpyMap
-      path_template: "{root}/{dataset}/{stage}/{split}/{sim}/cmb_map_post_{epoch}.fits"
-  assets_in:
-    norm_file: {stage: make_normalization}
-    cmb_map: {stage: predict}
-  splits:
-    - test
-  dir_name: CMBNNCS_F_Postprocess
+# postprocess:
+#   assets_out:
+#     cmb_map_post: 
+#       fn: ""
+#       handler: HealpyMap
+#       path_template: "{root}/{dataset}/{stage}/{split}/{sim}/cmb_map_post_{epoch}.fits"
+#   assets_in:
+#     norm_file: {stage: make_normalization}
+#     cmb_map: {stage: predict}
+#   splits:
+#     - test
+#   dir_name: CMBNNCS_F_Postprocess

@@ -198,6 +198,13 @@ Markov:
 https://camb.readthedocs.io/en/latest/CAMBdemo.html
 
 
+# Common Errors
+
+- When an asset Exception has occurred: TypeError       (note: full exception trace is shown but execution is paused at: _run_module_as_main)
+write() takes 1 positional argument but 2 were given
+  - This usually means that I've forgotten `whatever.\[read/write](data=)` (or `model=`)
+
+
 # Structure
     
 Conventions I'd love to have stuck with:

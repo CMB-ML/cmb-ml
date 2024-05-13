@@ -17,6 +17,7 @@ from core import (
 from ..unet_wrapper import make_unet
 
 from ..handler_model_pytorch import PyTorchModel  # Must be imported to get it registered
+from src.utils import make_instrument, Instrument, Detector
 
 
 logger = logging.getLogger(__name__)
@@ -25,11 +26,12 @@ class BasePyTorchModelExecutor(BaseStageExecutor):
     def __init__(self, cfg: DictConfig, stage_str) -> None:
         logger.debug("Initializing BasePyTorchModelExecutor")
         super().__init__(cfg, stage_str)
+        self.instrument: Instrument = make_instrument(cfg=cfg)
 
-        self.n_dets = len(cfg.experiment.detector_freqs)
-        self.nside = cfg.experiment.nside
-        self.data_precision = cfg.data_precision
-        self.model_precision = cfg.model_precision
+        self.n_dets = len(self.instrument.dets)
+        self.nside = cfg.scenario.nside
+        # self.data_precision = cfg.data_precision
+        self.model_precision = cfg.model.cmbnncs.unet.model_precision
 
     def choose_device(self, force_device=None) -> None:
         if force_device:
@@ -44,10 +46,17 @@ class BasePyTorchModelExecutor(BaseStageExecutor):
             )
 
     def make_fn_template(self, split: Split, asset):
-        with self.name_tracker.set_context("split", split.name):
-            # The following set_context is a bit hacky; we feed the template into itself so it is unchanged
-            with self.name_tracker.set_context("sim", self.name_tracker.sim_name_template):
-                this_path_pattern = str(asset.path)
+        context = dict(
+            split=split.name,
+            sim=self.name_tracker.sim_name_template,
+            freq="{freq}"
+        )
+        with self.name_tracker.set_contexts(contexts_dict=context):
+        # with self.name_tracker.set_context("split", split.name):
+        #     # The following set_context is a bit hacky; we feed the template into itself so it is unchanged
+        #     with self.name_tracker.set_context("sim", self.name_tracker.sim_name_template):
+
+            this_path_pattern = str(asset.path)
         return this_path_pattern
 
     def make_model(self):

@@ -9,13 +9,13 @@ from core import (
 from src.core.A_check_hydra_configs import HydraConfigCheckerExecutor
 from src.cmbnncs_local import (
                          PreprocessMakeScaleExecutor,
-                         PreprocessExecutor,
+                        #  PreprocessExecutor,
                          ParallelPreprocessExecutor,
-                        #  TrainingExecutor,
-                        #  PredictionExecutor,
+                         TrainingExecutor,
+                         PredictionExecutor,
                         #  PostprocessExecutor,
                          )
-from analysis.stage_executors.C_show_preprocessed_cmbnncs import ShowSimsExecutor
+from analysis.stage_executors.C_show_cmbnncs import ShowSimsPrepExecutor, ShowSimsPredExecutor
 
 
 logger = logging.getLogger(__name__)
@@ -32,10 +32,12 @@ def make_all_simulations(cfg):
 
     pipeline_context.add_pipe(HydraConfigCheckerExecutor)
     # pipeline_context.add_pipe(PreprocessMakeScaleExecutor)
-    # pipeline_context.add_pipe(PreprocessExecutor)
     # pipeline_context.add_pipe(ParallelPreprocessExecutor)
-    pipeline_context.add_pipe(ShowSimsExecutor)
-    # pipeline_context.add_pipe(TrainingExecutor)
+    # pipeline_context.add_pipe(ShowSimsPrepExecutor)
+    pipeline_context.add_pipe(TrainingExecutor)
+    # pipeline_context.add_pipe(PredictionExecutor)
+    # pipeline_context.add_pipe(ShowSimsPredExecutor)
+
 
     pipeline_context.run_pipeline()
 

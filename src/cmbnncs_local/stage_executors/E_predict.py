@@ -10,35 +10,34 @@ from omegaconf import DictConfig
 from core import (
     # BaseStageExecutor, 
     Split,
-    ExperimentParameters,
     Asset,
-    HealpyMap, ManyHealpyMaps
+    HealpyMap
     )
 
-from ..handler_npymap import ManyNumpyMaps
 from ..dataset import TestCMBMapDataset
 from .pytorch_model_base_executor import BasePyTorchModelExecutor
+from ..handler_model_pytorch import PyTorchModel  # Import for typing hint
+from ..handler_npymap import NumpyMap             # Import for typing hint
 
 
 logger = logging.getLogger(__name__)
 
 
 class PredictionExecutor(BasePyTorchModelExecutor):
-    def __init__(self,
-                 cfg: DictConfig,
-                 experiment: ExperimentParameters) -> None:
-        self.stage_str = "predict"
-        super().__init__(cfg, experiment)
+    def __init__(self, cfg: DictConfig) -> None:
+        super().__init__(cfg, stage_str="predict")
 
         self.out_cmb_asset: Asset = self.assets_out["cmb_map"]
+        out_cmb_map_handler: NumpyMap
 
-        self.in_model: Asset = self.assets_in["model"]
         self.in_obs_assets: Asset = self.assets_in["obs_maps"]
+        self.in_model: Asset = self.assets_in["model"]
+        in_obs_map_handler: NumpyMap
+        in_model_handler: PyTorchModel
 
-        self.choose_device(cfg.training.predict.device)
+        self.choose_device(cfg.model.cmbnncs.predict.device)
 
-        self.model_epochs = cfg.training.predict.epoch
-        self.batch_size = cfg.training.predict.batch_size
+        self.batch_size = cfg.model.cmbnncs.predict.batch_size
 
     def execute(self) -> None:
         logger.debug(f"Executing Prediction Executor execute()")
@@ -46,12 +45,12 @@ class PredictionExecutor(BasePyTorchModelExecutor):
         for model_epoch in self.model_epochs:
             logger.debug(f"Making predictions based on epoch {model_epoch}")
             model = self.make_model()
-            self.in_model.read(model, model_epoch)
+            with self.name_tracker.set_context("epoch", model_epoch):
+                self.in_model.read(model=model)
             model.eval()
             model.to(self.device)
 
             with self.name_tracker.set_context("epoch", model_epoch):
-
                 for split in tqdm(self.splits):
                     with self.name_tracker.set_context("split", split):
                         self.process_split(model, split)
@@ -68,9 +67,9 @@ class PredictionExecutor(BasePyTorchModelExecutor):
         # TODO: Use parameter for ManyNumpyMaps
         dataset = TestCMBMapDataset(
             n_sims = template_split.n_sims,
-            detectors = self.experiment.detector_freqs,
+            freqs = self.instrument.dets.keys(),
             feature_path_template=obs_path_template,
-            feature_handler=ManyNumpyMaps(self.experiment)
+            file_handler=NumpyMap()
             )
         return dataset
 
@@ -92,4 +91,4 @@ class PredictionExecutor(BasePyTorchModelExecutor):
                         # logger.warning("Is this a hack?")
                         pred_npy = pred.detach().cpu().numpy()
                         # logger.debug(f"Writing {self.out_cmb_asset.path}")
-                        self.out_cmb_asset.write(pred_npy)
+                        self.out_cmb_asset.write(data=pred_npy)

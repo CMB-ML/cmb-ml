@@ -23,6 +23,7 @@ class GenericHandler:
     def write(self, path: Path, data: Any):
         raise NotImplementedError("This write() should be implemented by children classes.")
 
+
 class NoHandler(GenericHandler):
     def read(self, path: Path):
         raise NotImplementedError("This is a no-operation placeholder and has no read() function.")

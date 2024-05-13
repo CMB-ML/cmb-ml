@@ -31,6 +31,8 @@ class BaseStageExecutor:
         self.assets_out: Union[Dict[str, Asset], None] = self._make_assets_out()
         self.assets_in:  Union[Dict[str, Asset], None] = self._make_assets_in()
 
+        self.model_epochs: Union[List[Union[str, int]], None] = self._get_epochs()
+
     def _ensure_stage_string_in_pipeline_yaml(self):
         # We do not know the contents of python code (the stage executors) until runtime.
         #    TODO: Checking this early would require changes to the PipelineContext
@@ -155,11 +157,17 @@ class BaseStageExecutor:
         raises omegaconf.errors.ConfigKeyError if the stage in the pipeline yaml is missing assets_in or assets_out.
         """
         cfg_pipeline = self.cfg.pipeline
+        if stage_str is None:
+            stage_str = self.stage_str
         cfg_stage = cfg_pipeline[stage_str]
         if cfg_stage is None:
             raise OmegaErrors.ConfigAttributeError
         stage_element = cfg_stage[stage_element]  # OmegaErrors.ConfigKeyError from here
         return stage_element
+
+    def _get_epochs(self):
+        epochs = self._get_stage_elem_silent(stage_element="epochs")
+        return epochs
 
     def _get_stage_elem_silent(self, stage_element="assets_out", stage_str=None):
         try:

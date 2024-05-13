@@ -20,7 +20,6 @@ from ..dataset import LabelledCMBMapDataset
 from ..handler_model_pytorch import PyTorchModel  # Import for typing hint
 from ..handler_npymap import NumpyMap             # Import for typing hint
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -37,7 +36,7 @@ class TrainingExecutor(BasePyTorchModelExecutor):
         in_cmb_map_handler: NumpyMap
         in_obs_map_handler: NumpyMap
 
-        self.choose_device(cfg.training.training.device)
+        self.choose_device(cfg.model.cmbnncs.train.device)
 
         self.n_epochs = cfg.model.cmbnncs.train.n_epochs
         self.batch_size = cfg.model.cmbnncs.train.batch_size
@@ -61,8 +60,10 @@ class TrainingExecutor(BasePyTorchModelExecutor):
             shuffle=True
             )
 
+        # TODO: Add training resumption
         model = self.make_model().to(self.device)
-        self.out_model.write(model, epoch="init")
+        with self.name_tracker.set_context("epoch", "init"):
+            self.out_model.write(model=model, epoch="init")
 
         lr_init = self.lr_init
         lr_final = self.lr_final
@@ -104,10 +105,11 @@ class TrainingExecutor(BasePyTorchModelExecutor):
 
             # Checkpoint every so many epochs
             if (epoch + 1) in self.extra_check or (epoch + 1) % self.checkpoint == 0:
-                self.out_model.write(model,
-                                     optimizer=optimizer,
-                                     epoch=epoch + 1,
-                                     loss=epoch_loss)
+                with self.name_tracker.set_context("epoch", epoch + 1):
+                    self.out_model.write(model=model,
+                                         optimizer=optimizer,
+                                         epoch=epoch + 1,
+                                         loss=epoch_loss)
 
 
     def set_up_dataset(self, template_split: Split) -> None:
@@ -120,16 +122,12 @@ class TrainingExecutor(BasePyTorchModelExecutor):
         cmb_path_template = self.make_fn_template(template_split, self.in_cmb_asset)
         obs_path_template = self.make_fn_template(template_split, self.in_obs_assets)
 
-        # TODO: Get label_handler by algorithm from... somewhere!
-        logger.warning("Get asset handlers appropriately in next call!")
-
         dataset = LabelledCMBMapDataset(
             n_sims = template_split.n_sims,
-            detectors = self.experiment.detector_freqs,
+            freqs = self.instrument.dets.keys(),
             label_path_template=cmb_path_template, 
-            label_handler=NumpyMap(self.experiment),
             feature_path_template=obs_path_template,
-            feature_handler=ManyNumpyMaps(self.experiment)
+            file_handler=NumpyMap()
             )
         return dataset
 
