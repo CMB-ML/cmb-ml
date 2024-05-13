@@ -99,10 +99,11 @@ class BaseStageExecutor:
         # Create assets directly
         all_assets_out = {}
         for asset in cfg_assets_out:
-            if 'path_template_alt' in cfg_assets_out[asset]:
-                use_asset = AssetWithPathAlts
-            else:
-                use_asset = Asset
+            use_asset = self._get_asset_type(cfg_assets_out[asset])
+            # if 'path_template_alt' in cfg_assets_out[asset]:
+            #     use_asset = AssetWithPathAlts
+            # else:
+            #     use_asset = Asset
             all_assets_out[asset] = use_asset(cfg=self.cfg,
                                               source_stage=self.stage_str,
                                               asset_name=asset,
@@ -121,18 +122,31 @@ class BaseStageExecutor:
         # Create assets by looking up the stage in which the asset was originally created
         for asset in cfg_assets_in:
             source_stage = cfg_assets_in[asset]['stage']
+
             cfg_assets_out = self._get_stage_element(stage_element="assets_out", 
                                                      stage_str=source_stage)
-            if 'path_template_alt' in cfg_assets_out[asset]:
-                use_asset = AssetWithPathAlts
-            else:
-                use_asset = Asset
+            
+            # If an original name is specified, grab that asset. Otherwise, get this one.
+            orig_name = cfg_assets_in[asset].get('orig_name', asset)
+            use_asset = self._get_asset_type(cfg_assets_out[orig_name])
+            # if 'path_template_alt' in cfg_assets_out[asset]:
+            #     use_asset = AssetWithPathAlts
+            # else:
+            #     use_asset = Asset
             all_assets_in[asset] = use_asset(cfg=self.cfg,
                                              source_stage=source_stage,
-                                             asset_name=asset,
+                                             asset_name=orig_name,
                                              name_tracker=self.name_tracker,
                                              in_or_out="in")
         return all_assets_in
+
+    @staticmethod
+    def _get_asset_type(asset):
+        if 'path_template_alt' in asset:
+            use_asset = AssetWithPathAlts
+        else:
+            use_asset = Asset
+        return use_asset
 
     def _get_stage_element(self, stage_element="assets_out", stage_str=None):
         """
