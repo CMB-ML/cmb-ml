@@ -2,10 +2,11 @@ import logging
 
 import hydra
 
-from src.core import (
+from core import (
                       PipelineContext,
                       LogMaker
                       )
+from src.core.A_check_hydra_configs import HydraConfigCheckerExecutor
 from src.cmbnncs_local import (
                          PreprocessMakeScaleExecutor,
                          PreprocessExecutor,
@@ -14,6 +15,7 @@ from src.cmbnncs_local import (
                         #  PredictionExecutor,
                         #  PostprocessExecutor,
                          )
+from analysis.stage_executors.C_show_preprocessed_cmbnncs import ShowSimsExecutor
 
 
 logger = logging.getLogger(__name__)
@@ -28,9 +30,11 @@ def make_all_simulations(cfg):
 
     pipeline_context = PipelineContext(cfg, log_maker)
 
-    pipeline_context.add_pipe(PreprocessMakeScaleExecutor)
+    pipeline_context.add_pipe(HydraConfigCheckerExecutor)
+    # pipeline_context.add_pipe(PreprocessMakeScaleExecutor)
     # pipeline_context.add_pipe(PreprocessExecutor)
-    pipeline_context.add_pipe(ParallelPreprocessExecutor)
+    # pipeline_context.add_pipe(ParallelPreprocessExecutor)
+    pipeline_context.add_pipe(ShowSimsExecutor)
     # pipeline_context.add_pipe(TrainingExecutor)
 
     pipeline_context.run_pipeline()

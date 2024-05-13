@@ -12,7 +12,7 @@ defaults:
   - override hydra/job_logging: custom_log
   - _self_
 
-dataset_name: ${scenario.map_fields}_${scenario.nside}_${splits.name}_B
+dataset_name: ${scenario.map_fields}_${scenario.nside}_${splits.name}
 hydra:
   run:
     dir: Logs/${now:%Y-%m-%d-%H-%M-%S}

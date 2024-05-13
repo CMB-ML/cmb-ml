@@ -3,3 +3,4 @@ defaults:
   - simulation_pipe
   - sim_analysis_pipe
   - cmbnncs_pipe
+  - analysis_cmbnncs_pipe.yaml

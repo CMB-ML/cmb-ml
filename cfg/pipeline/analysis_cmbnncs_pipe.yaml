@@ -1,0 +1,21 @@
+show_sims_cmbnncs_prep:
+  assets_out:
+    cmb_map_render:
+      handler: Mover
+      path_template: "{root}/{dataset}/{stage}/{split}/{sim}/cmb_{field}.png"
+    obs_map_render:
+      handler: Mover
+      path_template: "{root}/{dataset}/{stage}/{split}/{sim}/obs_{field}_{freq}.png"
+  assets_in:
+    cmb_map: {stage: preprocess}
+    obs_maps: {stage: preprocess}
+    # cmb_map_prep: {stage: make_sims}
+    # cmb_map_sim: {stage: make_sims}
+    # obs_maps_prep: {stage: make_sims}
+    # obs_maps_sim: {stage: make_sims}
+  splits:
+    - train
+  override_n_sims: 1                 # int: first n_sims; null: all sims; list: particular sims by index
+  plot_min_max: null                 # value, v: plots from -v to +v; null: allow MPL to choose; list (size 2): min and max val
+  dir_name: Analysis_CMBNNCS_1_Render_Prep_Maps
+  make_stage_log: False
