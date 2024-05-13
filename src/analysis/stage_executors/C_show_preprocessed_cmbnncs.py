@@ -5,6 +5,7 @@ import logging
 import numpy as np
 
 import matplotlib.pyplot as plt
+import matplotlib.gridspec as gridspec
 from omegaconf import DictConfig
 import healpy as hp
 
@@ -33,14 +34,14 @@ class ShowSimsExecutor(BaseStageExecutor):
         out_cmb_figure_handler: Mover
         out_obs_figure_handler: Mover
 
-        self.in_cmb_map: Asset = self.assets_in["cmb_map"]
-        self.in_obs_map: Asset = self.assets_in["obs_maps"]
+        # self.in_cmb_map: Asset = self.assets_in["cmb_map"]
+        # self.in_obs_map: Asset = self.assets_in["obs_maps"]
         in_cmb_map_handler: NumpyMap
         in_obs_map_handler: NumpyMap
-        # self.in_cmb_map_sim: Asset = self.assets_in["cmb_map_sim"]
-        # self.in_obs_map_sim: Asset = self.assets_in["obs_maps_sim"]
-        # self.in_cmb_map_prep: Asset = self.assets_in["cmb_map_prep"]
-        # self.in_obs_map_prep: Asset = self.assets_in["obs_maps_prep"]
+        self.in_cmb_map_sim: Asset = self.assets_in["cmb_map_sim"]
+        self.in_obs_map_sim: Asset = self.assets_in["obs_maps_sim"]
+        self.in_cmb_map_prep: Asset = self.assets_in["cmb_map_prep"]
+        self.in_obs_map_prep: Asset = self.assets_in["obs_maps_prep"]
 
         self.instrument: Instrument = make_instrument(cfg=cfg)
 
@@ -89,14 +90,16 @@ class ShowSimsExecutor(BaseStageExecutor):
                 self.process_sim()
 
     def process_sim(self) -> None:
-        cmb_map = self.in_cmb_map.read()
-        self.make_maps_per_field(cmb_map, det="cmb", out_asset=self.out_cmb_figure)
+        cmb_map_sim = self.in_cmb_map_sim.read()
+        cmb_map_prep = self.in_cmb_map_prep.read()
+        self.make_maps_per_field(cmb_map_sim, cmb_map_prep, det="cmb", out_asset=self.out_cmb_figure)
         for freq in self.instrument.dets:
             with self.name_tracker.set_context("freq", freq):
-                obs_map = self.in_obs_map.read()
-                self.make_maps_per_field(obs_map, det=freq, out_asset=self.out_obs_figure)
+                obs_map_sim = self.in_obs_map_sim.read()
+                obs_map_prep = self.in_obs_map_prep.read()
+                self.make_maps_per_field(obs_map_sim, obs_map_prep, det=freq, out_asset=self.out_obs_figure)
 
-    def make_maps_per_field(self, some_map, det, out_asset):
+    def make_maps_per_field(self, map_sim, map_prep, det, out_asset):
         split = self.name_tracker.context['split']
         sim_n = f"{self.name_tracker.context['sim_num']:0{self.cfg.file_system.sim_str_num_digits}d}"
         if det == "cmb":
@@ -108,10 +111,18 @@ class ShowSimsExecutor(BaseStageExecutor):
         for field_str in fields:
             with self.name_tracker.set_context("field", field_str):
                 field_idx = {'I': 0, 'Q': 1, 'U': 2}[field_str]
-                fig, (ax1) = plt.subplots(nrows=1, ncols=1)
+                fig = plt.figure(figsize=(12, 6))
+                gs = gridspec.GridSpec(1, 3, width_ratios=[6, 3, 0.1], wspace=0.1)
 
-                self.make_imshow(some_map[field_idx], ax1)
-                # self.make_mollview(some_map[field_idx], ax2)
+                (ax1, ax2, cbar_ax) = [plt.subplot(gs[i]) for i in [0,1,2]]
+
+                self.make_mollview(map_sim[field_idx], ax1)
+                self.make_imshow(map_prep[field_idx], ax2)
+
+                norm = plt.Normalize(vmin=self.min_max[0], vmax=self.min_max[1])
+                sm = plt.cm.ScalarMappable(cmap=planck_cmap.colombi1_cmap, norm=norm)
+                sm.set_array([])
+                fig.colorbar(sm, cax=cbar_ax)
 
                 self.save_figure(title_start, split, sim_n, field_str, out_asset)
 
@@ -128,17 +139,21 @@ class ShowSimsExecutor(BaseStageExecutor):
         plot_params = dict(
             vmin=self.min_max[0],
             vmax=self.min_max[1],
-            cmap=planck_cmap.colombi1_cmap
+            cmap=planck_cmap.colombi1_cmap,
         )
         plt.imshow(some_map, **plot_params)
+        plt.title("Preprocessed")
+        ax.set_axis_off()
         plt.colorbar
 
-    def make_mollview(self, some_map):
+    def make_mollview(self, some_map, ax):
+        plt.axes(ax)
         plot_params = dict(
             min=self.min_max[0], 
             max=self.min_max[1],
-            rot=self.plot_rot,
             cmap=planck_cmap.colombi1_cmap,
-            hold=True
+            hold=True,
+            cbar=False
         )
         hp.mollview(some_map, **plot_params)
+        plt.title("Raw Simulation")

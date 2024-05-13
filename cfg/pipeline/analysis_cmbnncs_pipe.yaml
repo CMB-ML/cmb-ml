@@ -7,12 +7,10 @@ show_sims_cmbnncs_prep:
       handler: Mover
       path_template: "{root}/{dataset}/{stage}/{split}/{sim}/obs_{field}_{freq}.png"
   assets_in:
-    cmb_map: {stage: preprocess}
-    obs_maps: {stage: preprocess}
-    # cmb_map_prep: {stage: make_sims}
-    # cmb_map_sim: {stage: make_sims}
-    # obs_maps_prep: {stage: make_sims}
-    # obs_maps_sim: {stage: make_sims}
+    cmb_map_prep: {stage: preprocess, orig_name: cmb_map}
+    cmb_map_sim: {stage: make_sims, orig_name: cmb_map}
+    obs_maps_prep: {stage: preprocess, orig_name: obs_maps}
+    obs_maps_sim: {stage: make_sims, orig_name: obs_maps}
   splits:
     - train
   override_n_sims: 1                 # int: first n_sims; null: all sims; list: particular sims by index
