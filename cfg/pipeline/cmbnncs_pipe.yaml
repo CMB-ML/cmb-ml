@@ -44,21 +44,18 @@ predict:
     model: {stage: train}
     obs_maps: {stage: preprocess}
   splits:
-    # - train
-    # - valid
     - test
   epochs: [init, 1, 10, 40, 120]
   dir_name: CMBNNCS_E_Predict
-  ghost: asdf
-# postprocess:
-#   assets_out:
-#     cmb_map_post: 
-#       fn: ""
-#       handler: HealpyMap
-#       path_template: "{root}/{dataset}/{stage}/{split}/{sim}/cmb_map_post_{epoch}.fits"
-#   assets_in:
-#     norm_file: {stage: make_normalization}
-#     cmb_map: {stage: predict}
-#   splits:
-#     - test
-#   dir_name: CMBNNCS_F_Postprocess
+postprocess:
+  assets_out:
+    cmb_map: 
+      handler: HealpyMap
+      path_template: "{root}/{dataset}/{stage}/{split}/{sim}/cmb_map_post_{epoch}.fits"
+  assets_in:
+    norm_file: {stage: make_normalization}
+    cmb_map: {stage: predict}
+  splits:
+    - test
+  epochs: [init, 1, 10, 40, 120]
+  dir_name: CMBNNCS_F_Postprocess

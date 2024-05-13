@@ -13,7 +13,7 @@ from core import (
     Split,
     Asset
     )
-from core.asset_handlers import Mover
+from core.asset_handlers import Mover, HealpyMap
 from src.cmbnncs_local.handler_npymap import NumpyMap
 from utils.planck_instrument import make_instrument, Instrument
 from utils import planck_cmap
@@ -75,7 +75,7 @@ class ShowSimsCMBNNCSExecutor(BaseStageExecutor):
                 self.process_sim()
 
     def process_sim(self):
-        pass
+        raise NotImplementedError("This is intended to be an abstract class. process_sim() should be overwritten.")
 
     def make_maps_per_field(self, map_sim, map_prep, det, out_asset):
         split = self.name_tracker.context['split']
@@ -124,17 +124,17 @@ class ShowSimsCMBNNCSExecutor(BaseStageExecutor):
         ax.set_axis_off()
         plt.colorbar
 
-    def make_mollview(self, some_map, ax):
+    def make_mollview(self, some_map, ax, show_cbar=False, title="Raw Simulation"):
         plt.axes(ax)
         plot_params = dict(
             min=self.min_max[0], 
             max=self.min_max[1],
             cmap=planck_cmap.colombi1_cmap,
             hold=True,
-            cbar=False
+            cbar=show_cbar
         )
         hp.mollview(some_map, **plot_params)
-        plt.title("Raw Simulation")
+        plt.title(title)
 
 
 class ShowSimsPrepExecutor(ShowSimsCMBNNCSExecutor):
@@ -178,15 +178,58 @@ class ShowSimsPredExecutor(ShowSimsCMBNNCSExecutor):
         out_cmb_figure_handler: Mover
 
         self.in_cmb_map_sim: Asset = self.assets_in["cmb_map_sim"]
-        self.in_cmb_map_prep: Asset = self.assets_in["cmb_map_pred"]
-        in_cmb_map_handler: NumpyMap
+        self.in_cmb_map_pred: Asset = self.assets_in["cmb_map_pred"]
+        in_cmb_map_sim_handler: HealpyMap
+        in_cmb_map_pred_handler: NumpyMap
 
     def process_sim(self) -> None:
         for epoch in self.model_epochs:
             with self.name_tracker.set_context('epoch', epoch):
                 cmb_map_sim = self.in_cmb_map_sim.read()
-                cmb_map_prep = self.in_cmb_map_prep.read()
+                cmb_map_prep = self.in_cmb_map_pred.read()
                 self.make_maps_per_field(cmb_map_sim, 
                                          cmb_map_prep, 
                                          det="cmb",
                                          out_asset=self.out_cmb_figure)
+
+
+class ShowSimsPostExecutor(ShowSimsCMBNNCSExecutor):
+    def __init__(self, cfg: DictConfig) -> None:
+        stage_str = "show_sims_cmbnncs_post"
+        super().__init__(cfg, stage_str)
+
+        self.right_subplot_title = "Predicted"
+
+        self.out_cmb_figure: Asset = self.assets_out["cmb_map_render"]
+        out_cmb_figure_handler: Mover
+
+        self.in_cmb_map_sim: Asset = self.assets_in["cmb_map_sim"]
+        self.in_cmb_map_post: Asset = self.assets_in["cmb_map_post"]
+        in_cmb_map_handler: HealpyMap
+
+    def process_sim(self) -> None:
+        for epoch in self.model_epochs:
+            with self.name_tracker.set_context('epoch', epoch):
+                cmb_map_sim = self.in_cmb_map_sim.read()
+                cmb_map_post = self.in_cmb_map_post.read()
+                self.make_maps_per_field(cmb_map_sim, 
+                                         cmb_map_post, 
+                                         out_asset=self.out_cmb_figure)
+
+    def make_maps_per_field(self, map_sim, map_post, out_asset):
+        split = self.name_tracker.context['split']
+        sim_n = f"{self.name_tracker.context['sim_num']:0{self.cfg.file_system.sim_str_num_digits}d}"
+        fields = self.cfg.scenario.map_fields
+
+        for field_str in fields:
+            with self.name_tracker.set_context("field", field_str):
+                field_idx = {'I': 0, 'Q': 1, 'U': 2}[field_str]
+                fig = plt.figure(figsize=(12, 6))
+                gs = gridspec.GridSpec(1, 2, width_ratios=[6, 6], wspace=0.1)
+
+                (ax1, ax2) = [plt.subplot(gs[i]) for i in [0,1]]
+
+                self.make_mollview(map_sim[field_idx], ax1, show_cbar=True, title="Realization")
+                self.make_mollview(map_post[field_idx], ax2, show_cbar=True, title="Prediction")
+
+                self.save_figure("CMB Predictions", split, sim_n, field_str, out_asset)

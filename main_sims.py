@@ -8,7 +8,7 @@ from src.core import (
                       )
 from core.A_check_hydra_configs import HydraConfigCheckerExecutor
 from src.sims import (
-    SimsHydraConfigCheckerExecutor,
+    HydraConfigSimsCheckerExecutor,
     NoiseCacheExecutor,
     ConfigExecutor,
     TheoryPSExecutor,
