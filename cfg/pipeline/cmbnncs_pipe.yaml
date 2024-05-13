@@ -47,8 +47,9 @@ predict:
     # - train
     # - valid
     - test
-  epochs: [init, 1]
+  epochs: [init, 1, 10, 40, 120]
   dir_name: CMBNNCS_E_Predict
+  ghost: asdf
 # postprocess:
 #   assets_out:
 #     cmb_map_post: 

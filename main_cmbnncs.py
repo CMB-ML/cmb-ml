@@ -21,7 +21,7 @@ from analysis.stage_executors.C_show_cmbnncs import ShowSimsPrepExecutor, ShowSi
 logger = logging.getLogger(__name__)
 
 
-@hydra.main(version_base=None, config_path="cfg", config_name="config_cmbnncs")
+@hydra.main(version_base=None, config_path="cfg", config_name="config_cmbnncs_32")
 def make_all_simulations(cfg):
     logger.debug(f"Running {__name__} in {__file__}")
 
@@ -33,8 +33,8 @@ def make_all_simulations(cfg):
     pipeline_context.add_pipe(HydraConfigCheckerExecutor)
     # pipeline_context.add_pipe(PreprocessMakeScaleExecutor)
     # pipeline_context.add_pipe(ParallelPreprocessExecutor)
-    # pipeline_context.add_pipe(ShowSimsPrepExecutor)
-    pipeline_context.add_pipe(TrainingExecutor)
+    pipeline_context.add_pipe(ShowSimsPrepExecutor)
+    # pipeline_context.add_pipe(TrainingExecutor)
     # pipeline_context.add_pipe(PredictionExecutor)
     # pipeline_context.add_pipe(ShowSimsPredExecutor)
 

@@ -63,14 +63,14 @@ class BaseStageExecutor:
 
     @property
     def make_stage_logs(self) -> bool:
-        res = self._get_stage_elem_silent("make_stage_log", self.stage_str)
+        res = self.get_stage_elem_silent("make_stage_log", self.stage_str)
         if res is None:
             res = False
         return res
 
     def _get_applicable_splits(self) -> List[Split]:
         # Pull specific splits for this stage from the pipeline hydra config
-        splits_scope = self._get_stage_elem_silent(stage_element='splits', 
+        splits_scope = self.get_stage_elem_silent(stage_element='splits', 
                                                    stage_str=self.stage_str)
 
         if splits_scope is None:
@@ -93,7 +93,7 @@ class BaseStageExecutor:
 
     def _make_assets_out(self) -> Dict[str, Asset]:
         # Pull the list of output assets for this stage from the pipeline hydra config
-        cfg_assets_out = self._get_stage_elem_silent(stage_element="assets_out",
+        cfg_assets_out = self.get_stage_elem_silent(stage_element="assets_out",
                                                     stage_str=self.stage_str)
         if cfg_assets_out is None:
             return None
@@ -115,7 +115,7 @@ class BaseStageExecutor:
 
     def _make_assets_in(self) -> Dict[str, Asset]:
         # Pull the list of input assets for this stage from the pipeline hydra config
-        cfg_assets_in = self._get_stage_elem_silent(stage_element="assets_in",
+        cfg_assets_in = self.get_stage_elem_silent(stage_element="assets_in",
                                                     stage_str=self.stage_str)
         if cfg_assets_in is None:
             return None
@@ -125,7 +125,7 @@ class BaseStageExecutor:
         for asset in cfg_assets_in:
             source_stage = cfg_assets_in[asset]['stage']
 
-            cfg_assets_out = self._get_stage_element(stage_element="assets_out", 
+            cfg_assets_out = self.get_stage_element(stage_element="assets_out", 
                                                      stage_str=source_stage)
             
             # If an original name is specified, grab that asset. Otherwise, get this one.
@@ -150,7 +150,23 @@ class BaseStageExecutor:
             use_asset = Asset
         return use_asset
 
-    def _get_stage_element(self, stage_element="assets_out", stage_str=None):
+    def _get_epochs(self):
+        epochs = self.get_stage_elem_silent(stage_element="epochs")
+        return epochs
+
+    def get_override_sim_nums(self):
+        """
+        Values for this (per the comment) may be a single int, a list of ints, or null.
+
+        Returns either a list of sims, or None
+        """
+        sim_nums = self.get_stage_element('override_n_sims')
+        try:
+            return list(range(sim_nums))
+        except TypeError:
+            return sim_nums
+
+    def get_stage_element(self, stage_element="assets_out", stage_str=None):
         """
         Supported stage elements are "assets_in", "assets_out", and "splits"
         raises omegaconf.errors.ConfigAttributeError if the stage in the pipeline yaml is empty (e.g. the CheckHydraConfigs stage).
@@ -161,17 +177,19 @@ class BaseStageExecutor:
             stage_str = self.stage_str
         cfg_stage = cfg_pipeline[stage_str]
         if cfg_stage is None:
-            raise OmegaErrors.ConfigAttributeError
-        stage_element = cfg_stage[stage_element]  # OmegaErrors.ConfigKeyError from here
+            raise OmegaErrors.ConfigAttributeError(f"The stage '{cfg_stage}' was not found in the pipeline yamls.")
+        try:
+            stage_element = cfg_stage[stage_element]  # OmegaErrors.ConfigKeyError from here
+        except OmegaErrors.ConfigKeyError:
+            raise OmegaErrors.ConfigKeyError(f"The stage '{cfg_stage}' is missing the key '{stage_element}'")
         return stage_element
 
-    def _get_epochs(self):
-        epochs = self._get_stage_elem_silent(stage_element="epochs")
-        return epochs
-
-    def _get_stage_elem_silent(self, stage_element="assets_out", stage_str=None):
+    def get_stage_elem_silent(self, stage_element="assets_out", stage_str=None):
+        """
+        Swallows errors. Use when applying to optional stage elements in the pipeline.
+        """
         try:
-            res = self._get_stage_element(stage_element, stage_str)
+            res = self.get_stage_element(stage_element, stage_str)
         except (OmegaErrors.ConfigKeyError, OmegaErrors.ConfigAttributeError):
             # Or None if the pipeline has no "splits" for this stage
             return None

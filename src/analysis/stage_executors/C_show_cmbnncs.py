@@ -34,21 +34,17 @@ class ShowSimsCMBNNCSExecutor(BaseStageExecutor):
         self.instrument: Instrument = make_instrument(cfg=cfg)
 
         # Only produce visualizations for a subset of sims
-        self.sim_ns = self.get_override_sim_nums(cfg.pipeline[self.stage_str].override_n_sims)
-        self.min_max = self.get_plot_min_max(cfg.pipeline[self.stage_str].plot_min_max)
+        self.sim_ns = self.get_override_sim_nums()
+        if self.sim_ns is None:
+            logger.warning("No particular sim indices specified. Outputs will be produced for all. This is not recommended.")
+        self.min_max = self.get_plot_min_max()
 
-    def get_override_sim_nums(self, sim_nums: Union[None, list, int]):
-        # Returns either a list of sims, or None
-        try:
-            return list(range(sim_nums))
-        except TypeError:
-            return sim_nums
-
-    def get_plot_min_max(self, min_max):
+    def get_plot_min_max(self):
         """
         Handles reading the minimum intensity and maximum intensity from cfg files
         TODO: Better docstring
         """
+        min_max = self.get_stage_element("plot_min_max")
         if min_max is None:
             plot_min = plot_max = None
         elif isinstance(min_max, int):
