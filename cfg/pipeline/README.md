@@ -39,6 +39,8 @@
   - *sim_num*: (list of ints) which simulation nums to process
     - Especially for the purpose of previews
   - *epochs*: (list of ints) which epochs to process
+  - *path_template_alt*: (str) Similar to *path_template*; when defined, allows a flag to dictate which template is used.
+  - assets_in.*orig_name*: In case a pipeline stage needs to pull output assets with the same name from different stages (useful when comparing assets, such as in when comparing CMBNNCS's preprocessing to the original map in C_show_preprocessed_cmbcnns)
 
 # Notes: Multi-file structure
 
