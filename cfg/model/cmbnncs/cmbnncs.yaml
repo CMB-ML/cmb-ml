@@ -1,0 +1,21 @@
+prep:
+# Wang, et al., scale input by a scalar factor
+#   c.f. min_max_scaling or normalization
+#   we create a normalization file similar to Petroff for easier comparison
+  scale_features   : 1
+  scale_target     : 5
+  num_processes    : 10
+training:
+  learning_rate    : 1e-1
+  learning_rate_min: 1e-6
+  repeat_n         : 3
+  n_epochs         : 120   # Wang's method sees 120,000 maps (10,000 x (size 12) batches). 120 epochs * 1000 simulations = 120,000
+  batch_size       : 12    # Matching Wang's paper
+  checkpoint_every : 5     # checkpoint every this number of epochs
+  output_every     : 200   # output every this number of batches (20*12 = 240: 4 outputs per epoch)
+  device           : null  # Goes to None in python
+  extra_check      : [1, 2]
+predict:
+  batch_size       : 50
+  device           : null  # Goes to None in python
+postprocess:

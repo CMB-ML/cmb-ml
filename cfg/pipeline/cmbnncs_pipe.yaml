@@ -1,0 +1,63 @@
+make_normalization:
+  assets_out:
+    norm_file: 
+      handler: Config
+      path_template: "{root}/{dataset}/{stage}/normalization.yaml"
+  assets_in:
+    cmb_map: {stage: make_sims}
+    obs_maps: {stage: make_sims}
+  dir_name: CMBNNCS_B_Extrema
+preprocess:
+  assets_out:
+    cmb_map: 
+      handler: NumpyMap
+      path_template: "{root}/{dataset}/{stage}/{split}/{sim}/cmb_map.npy"
+    obs_maps: 
+      handler: NumpyMap
+      path_template: "{root}/{dataset}/{stage}/{split}/{sim}/obs_{freq}_map.npy"
+  assets_in:
+    norm_file: {stage: make_normalization}
+    cmb_map: {stage: make_sims}
+    obs_maps: {stage: make_sims}
+  splits: &all_splits
+    - train
+    - valid
+    - test
+  dir_name: CMBNNCS_C_Preprocess
+train:
+  assets_out:
+    model: 
+      fn: "model_{epoch}.pth"
+      handler: PyTorchModel
+      path_template: "{root}/{dataset}/{stage}/{fn}"
+  assets_in:
+    cmb_map: {stage: preprocess}
+    obs_maps: {stage: preprocess}
+  splits:
+    - train
+  dir_name: CMBNNCS_D_Model
+predict:
+  assets_out:
+    cmb_map: 
+      fn: ""
+      handler: NumpyMap
+      path_template: "{root}/{dataset}/{stage}/{split}/{sim}/cmb_map_pred_{epoch}.npy"
+  assets_in:
+    model: {stage: train}
+    obs_maps: {stage: preprocess}
+  splits:
+    # - train
+    - test
+  dir_name: CMBNNCS_E_Predict
+postprocess:
+  assets_out:
+    cmb_map_post: 
+      fn: ""
+      handler: HealpyMap
+      path_template: "{root}/{dataset}/{stage}/{split}/{sim}/cmb_map_post_{epoch}.fits"
+  assets_in:
+    norm_file: {stage: make_normalization}
+    cmb_map: {stage: predict}
+  splits:
+    - test
+  dir_name: CMBNNCS_F_Postprocess
