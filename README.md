@@ -9,8 +9,6 @@ The installation process is generally:
 - Set up your python environment
 - Get file assets
 
-Note that the repository depends heavily on PySM3, which currently must be used directly from the current repository.
-
 ## File System Considerations
 
 I suggest using the following directory structure for this local project in your home folder. This keeps data assets separate from the created datasets and from the code used to create it.
@@ -19,7 +17,6 @@ I suggest using the following directory structure for this local project in your
 CMB_Project/
 │
 ├── ml_cmb_pysm_sims/                  # This repository for ML-driven CMB simulations with PySM
-├── pysm3/                             # PySM3
 │
 ├── SourceDataAssets/                  # Raw data from various sources
 │   ├── Planck/                        # Data from the Planck mission
@@ -30,52 +27,69 @@ CMB_Project/
     └── [Other Dataset Folders]        # Other directories for organized datasets
 ```
 
-Clearly systems vary. Configuration files may be changed to describe your local structure. I suggest creating your own configuration file by copying one included (after getting the repo, in conf/local_system).
+Clearly systems vary. Configuration files may be changed to describe your local structure. Create your own configuration file by copying one included (after getting the repo, in conf/local_system).
 
-If you're regularly pulling from the repo, add `export CMB_SIMS_LOCAL_SYSTEM=your_system` to the end of your `.bashrc` file and then either `source ~/.bashrc` or restart your terminal. If using a Mac, use `.zshrc` instead of `.bashrc` (or whatever... Jim is moving on but one day these will be good general instructions).
+If you're regularly pulling from the repo, add `export CMB_SIMS_LOCAL_SYSTEM=your_system` to the end of your `.bashrc` file and then either `source ~/.bashrc` or restart your terminal. If using a Mac, use `.zshrc` instead of `.bashrc`. If using WSL TODO: figure this out.
 
-If you won't be actively pulling from the repo (how I long for that day), simply change all top-level configurations, e.g. config.yaml, to `defaults: - local_system: your_system` where `your_system` is the filename of your configuration.
+If you won't be actively pulling from the repo, simply change all top-level configurations, e.g. config.yaml, to `defaults: - local_system: your_system` where `your_system` is the filename of your configuration.
 
-## Get Repositories
+## Get Repository
 
 - Clone the repositories into the directories as set up above.
     - Either (git with HTTPS)
     - `git clone https://github.com/JamesAmato/ml_cmb_pysm_sims.git`
-    - `git clone https://github.com/galsci/pysm.git`
     - Or (git with SSH):
     - `git clone git@github.com:JamesAmato/ml_cmb_pysm_sims.git`
-    - `git clone git@github.com:galsci/pysm.git`
 
 ## Library Set Up
 
-- Create and activate a conda environment
-    - `conda create --name ml_cmb_pysm_sims python=3.8`
-    - `conda activate ml_cmb_pysm_sims`
+- Ensure you have python 3.9
+  - If you have no Python 3.9 installation in your PYTHON_PATH, a conda environment with 3.9 can be used
+      - Create a fresh 3.9 environment: `conda create -n py39 python=3.9`
+      - Activate the environment: `conda activate py39`
+      - Find the path to python, needed for Poetry: `which python`
+      - Importantly, deactivate the conda environment, otherwise Poetry will manage the active environment: `conda deactivate`
 
-- Install healpy using conda (consider skipping this at first; it may only be needed on a Mac; unknown currently.)
+- Install Poetry. Instructions are here: [https://python-poetry.org/docs/](Poetry Installation)
+
+- Navigate to the folder containing `pyproject.toml`
+
+- Use Poetry to set up the virtual environment
+  - If you have no Python 3.9 installation in your PYTHON_PATH
+    - Set the poetry env to point to your python installation (found as per above): `poetry env use /path/to/conda/envs/your-env/bin/python3.9`
+  - Initialize your environment: `poetry install`
+  - Verify your installation: `poetry env info`
+
+- If working with VS Code
+  - You can choose the Poetry environment as the interpretter, as usual
+  - Setting up to debug may require making a vscode launch.json
+
+- Get needed files (see below)
+  - Needed if running simulations
+<!-- - Install healpy using conda (consider skipping this at first; it may only be needed on a Mac; unknown currently.)
     - At least on a mac (maybe? apparently?), healpy doesn't like the pip installer but is ok with the conda installer. Maybe. I'm not sure the correct process; some combination of pip and conda installs and uninstalls of both healpy and pysm3 got it working.
     - Official healpy documentation says the following, but this adds conda-forge to your channels permanently:
     - `conda config --add channels conda-forge` (Don't do this)
     - `conda install healpy` (Don't do this)
-    - Instead, I suggest `conda install -c conda-forge healpy` which makes no system-wide changes.
+    - Instead, I suggest `conda install -c conda-forge healpy` which makes no system-wide changes. -->
 
-- Try to install all of pysm3 with pip
+<!-- - Try to install all of pysm3 with pip
      - Within the repo, install using `pip install .`
      - That may fail for healpy, but install everything else except pysm3 itself (not the case in Ubuntu docker ?)
-     - Then do `pip install --no-deps .`
+     - Then do `pip install --no-deps .` -->
 
-- Still missing numba and toml
+<!-- - Still missing numba and toml
     - Run `conda install numba toml tqdm`
-    - Maybe this should go earlier?
+    - Maybe this should go earlier? -->
 
-- Get the Needed files (see next section)
+<!-- - Get the Needed files (see next section) -->
 
-- Install hydra
+<!-- - Install hydra
     - pip install omegaconf
-    - pip install hydra-core --upgrade
+    - pip install hydra-core --upgrade -->
 
-- Install CAMB
-    - pip install camb
+<!-- - Install CAMB
+    - pip install camb -->
 
 ## Needed files
 
@@ -215,27 +229,6 @@ Conventions I'd love to have stuck with:
 - When dealing with files
   - Use full words "source" and "destination"
   - Use abbreviation "dir" for "directory"
-
-
-# Full output of URLErrors (temporary section):
-
-```
-(ml_cmb_pysm_sims) jimcamato@Jims-Laptop ml_cmb_pysm_sims % /Users/jimcamato/miniconda3/envs/ml_cmb_pysm_sims/bin/python /Users/jim
-camato/Developer/ml_cmb_pysm_sims/fixed_map_synth4.py
-545
-OMP: Info #276: omp_set_nested routine deprecated, please use omp_set_max_active_levels instead.
-Downloading https://portal.nersc.gov/project/cmb/pysm-data/websky/0.4/radio/radio_0584.0.fits
-|==============================================================>------------------------------| 1.0G/1.6G (67.43%) ETA 24m 7s
-File not found, please make sure you are using the latest version of PySM 3
-While working on lowplus, error in detector 545.
-<urlopen error Unable to open any source! Exceptions were {'https://portal.nersc.gov/project/cmb/pysm-data/websky/0.4/radio/radio_0584.0.fits': ContentTooShortError('File was supposed to be 1610619840 bytes but we only got 1086108642 bytes. Download failed.'), 'http://www.astropy.org/astropy-data/websky/0.4/radio/radio_0584.0.fits': <HTTPError 404: 'Not Found'>}>
-857
-Downloading https://portal.nersc.gov/project/cmb/pysm-data/websky/0.4/cib/cib_0857.0.fits
-|==============================================================>------------------------------| 1.0G/1.6G (67.68%) ETA 23m25s
-File not found, please make sure you are using the latest version of PySM 3
-While working on lowplus, error in detector 857.
-<urlopen error Unable to open any source! Exceptions were {'https://portal.nersc.gov/project/cmb/pysm-data/websky/0.4/cib/cib_0857.0.fits': ContentTooShortError('File was supposed to be 1610619840 bytes but we only got 1090100572 bytes. Download failed.'), 'http://www.astropy.org/astropy-data/websky/0.4/cib/cib_0857.0.fits': <HTTPError 404: 'Not Found'>}>
-```
 
 
 # Views
