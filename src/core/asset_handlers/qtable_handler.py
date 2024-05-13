@@ -1,10 +1,9 @@
 from pathlib import Path
 from typing import Dict
-import healpy as hp
 from astropy.table import QTable
 
-from ...core.asset_handlers import GenericHandler
-from ...core.asset_handlers.asset_handler_registration import register_handler
+from .asset_handlers import GenericHandler
+from .asset_handler_registration import register_handler
 
 import logging
 

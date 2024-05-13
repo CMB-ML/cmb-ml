@@ -4,15 +4,15 @@ import pandas as pd
 
 import camb
 
-from ...core.asset_handlers import GenericHandler, make_directories
-from ...core.asset_handlers.asset_handler_registration import register_handler
+from core.asset_handlers import GenericHandler, make_directories
+from .asset_handler_registration import register_handler
 
 import logging
 
 logger = logging.getLogger(__name__)
 
 
-class CambPS(GenericHandler):
+class PowerSpectrum(GenericHandler):
     def read(self, path: Path, TT_only=True) -> None:
         """
         Method used to read CAMB's power spectra for analysis.
@@ -44,4 +44,4 @@ class CambPS(GenericHandler):
         data.save_cmb_power_spectra(filename=path)
 
 
-register_handler("PowerSpectrum", CambPS)
+register_handler("PowerSpectrum", PowerSpectrum)

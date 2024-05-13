@@ -44,7 +44,7 @@ class BaseStageExecutor:
         All executors should implement an execute method for clarity.
         The default_execute() method below may suffice for many.
         """
-        pass
+        raise NotImplementedError("The is an abstract method.")
 
     def default_execute(self) -> None:
         # This is the common execution pattern; it may need to be overridden

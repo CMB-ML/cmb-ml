@@ -1,6 +1,6 @@
 import logging
 
-from .base_executor import BaseStageExecutor
+from .executor_base import BaseStageExecutor
 
 
 logger = logging.getLogger("stages")

@@ -18,6 +18,10 @@ tqdm = "^4.66.2"
 pysm3 = "^3.4.0"
 camb = "^1.5.4"
 pandas = "^2.2.2"
+scikit-image = "<0.23.2"
+scikit-learn = "^1.4.2"
+seaborn = "^0.13.2"
+cmbnncs = {git = "https://github.com/Guo-Jian-Wang/cmbnncs.git"}
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.0.1"
