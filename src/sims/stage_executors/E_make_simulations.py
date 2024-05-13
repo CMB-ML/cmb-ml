@@ -28,6 +28,8 @@ from core.asset_handlers.psmaker_handler import PowerSpectrum # Import for typin
 
 from core.asset_handlers import HealpyMap # Import for VS Code hints
 
+from utils.map_formats import convert_pysm3_to_hp
+
 from ..physics_cmb import change_nside_of_map
 from ..physics_instrument_noise import make_random_noise_map
 
@@ -128,11 +130,10 @@ class SimCreatorExecutor(BaseStageExecutor):
 
     def save_cmb_map_realization(self, cmb: CMBLensed):
         cmb_realization: Quantity = cmb.map
-        cmb_realization_units = cmb_realization.unit.to_string()
-        cmb_realization_data = cmb_realization.value  # The map itself
         nside_out = self.nside_out
-        scaled_map = change_nside_of_map(cmb_realization_data, nside_out)
-        self.out_cmb_map.write(data=scaled_map, column_units=cmb_realization_units)
+        cmb_data, cmb_units = convert_pysm3_to_hp(cmb_realization)
+        scaled_map = change_nside_of_map(cmb_data, nside_out)
+        self.out_cmb_map.write(data=scaled_map, column_units=cmb_units)
 
     def get_noise_map(self, freq, field_str, noise_seed, center_frequency=None):
         with self.name_tracker.set_context('freq', freq):

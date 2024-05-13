@@ -1,8 +1,9 @@
-from typing import Dict, Any
+from typing import Dict, Any, List, Union
 from pathlib import Path
 import logging
 import inspect
 import camb
+from astropy.units import Quantity
 
 import numpy as np
 import healpy as hp
@@ -69,6 +70,11 @@ def _log_camb_args(set_cosmo_args, init_power_args) -> None:
     logger.debug(f"CAMB init_power args: {init_power_args}")
 
 
-def change_nside_of_map(cmb_map: np.ndarray, nside_out: int):
-    scaled_map = hp.ud_grade(cmb_map, nside_out=nside_out, dtype=cmb_map.dtype)
+def change_nside_of_map(cmb_maps: Union[np.ndarray, List[np.ndarray]], nside_out: int):
+    try:
+        # Assume single map; if not, cmb_maps.dtype will fail duck typing
+        scaled_map = hp.ud_grade(cmb_maps, nside_out=nside_out, dtype=cmb_maps.dtype)
+    except AttributeError:
+        # handle lists of maps
+        scaled_map = [hp.ud_grade(cmb_map, nside_out=nside_out, dtype=cmb_map.dtype) for cmb_map in cmb_maps]
     return scaled_map

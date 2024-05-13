@@ -96,8 +96,9 @@ class HealpyMap(GenericHandler):
         if isinstance(data, np.ndarray) and data.shape[0] == 1:
             data = data.squeeze()
 
-        # Ensure that column units are strings, and not astropy Units, which don't have a good __str__
-        column_units = [str(unit) for unit in column_units]
+        # Ensure that column units are strings
+        if column_units:
+            column_units = [str(unit) for unit in column_units]
 
         path = Path(path)
         make_directories(path)
