@@ -24,16 +24,14 @@ class PreprocessMakeScaleExecutor(BaseStageExecutor):
 
         self.instrument: Instrument = make_instrument(cfg=cfg)
 
-        self.channels: List[str] = ["cmb", *self.instrument.dets]
-
         self.out_norm_file: Asset = self.assets_out["norm_file"]
         out_norm_file_handler: Config
+
         self.in_cmb_map: Asset = self.assets_in["cmb_map"]
         self.in_obs_maps: Asset = self.assets_in["obs_maps"]
         in_cmb_map_handler: HealpyMap
         in_obs_map_handler: HealpyMap
 
-        # TODO: Move this to a better config file (note duplicate reminder in config.yaml)
         self.scale_features = cfg.model.cmbnncs.preprocess.scale_features
         self.scale_target = cfg.model.cmbnncs.preprocess.scale_target
 
