@@ -61,7 +61,9 @@ class HydraConfigCheckerExecutor(BaseStageExecutor):
                 # Check if the input asset was created in the specified stage's outputs
                 required_stage = asset_data['stage']
                 orig_name = asset_data.get('orig_name', asset_name)
-                if required_stage not in outputs or orig_name not in outputs[required_stage]:
+                if required_stage not in outputs:
+                    self.issues.append(f"Asset '{asset_name}' cites '{required_stage}', which does not exist in pipeline yaml.")
+                if orig_name not in outputs[required_stage]:
                     self.issues.append(f"Asset '{asset_name}' in '{stage_name}' cannot be found in outputs of stage '{required_stage}' in pipeline yaml.")
 
         for stage_name, stage_data in pipeline.items():
