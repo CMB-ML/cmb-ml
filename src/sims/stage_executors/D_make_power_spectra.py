@@ -1,10 +1,9 @@
 from typing import Dict
-import pysm3
+from pathlib import Path
+import logging
 
 import hydra
 from omegaconf import DictConfig
-from pathlib import Path
-
 import pysm3
 
 from ...core import (
@@ -17,6 +16,9 @@ from ..physics_cmb import make_camb_ps
 
 from ...core.asset_handlers.psmaker_handler import CambPowerSpectrum # Import to register handler
 from core.asset_handlers import Config
+
+
+logger = logging.getLogger(__name__)
 
 
 class TheoryPSExecutor(BaseStageExecutor):
@@ -35,6 +37,7 @@ class TheoryPSExecutor(BaseStageExecutor):
         in_wmap_config_handler: Config
 
     def execute(self) -> None:
+        logger.debug(f"Running {self.__class__.__name__} execute() method.")
         self.default_execute()  # In BaseStageExecutor
 
     def process_split(self, split: Split) -> None:
@@ -49,7 +52,9 @@ class TheoryPSExecutor(BaseStageExecutor):
                 wmap_params: AssetWithPathAlts, 
                 ps_asset: AssetWithPathAlts,
                 use_alt_path) -> None:
+        # Pull cosmological parameters from wmap_configs created earlier
         cosmo_params = wmap_params.read(use_alt_path=use_alt_path)
+        # cosmological parameters from WMAP chains have (slightly) different names in camb
         cosmo_params = self._translate_params_keys(cosmo_params)
 
         camb_results = make_camb_ps(cosmo_params, lmax=self.max_ell_for_camb)

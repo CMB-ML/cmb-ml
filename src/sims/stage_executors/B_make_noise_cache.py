@@ -18,6 +18,8 @@ from core.asset_handlers.qtable_handler import QTableHandler
 
 
 logger = logging.getLogger(__name__)
+
+
 class NoiseCacheExecutor(BaseStageExecutor):
     def __init__(self, cfg: DictConfig) -> None:
         # The following stage_str must match the pipeline yaml
@@ -37,6 +39,7 @@ class NoiseCacheExecutor(BaseStageExecutor):
         self.instrument: Instrument = make_instrument(cfg=cfg, det_info=det_info)
 
     def execute(self) -> None:
+        logger.debug(f"Running {self.__class__.__name__} execute() method.")
         hdu = self.cfg.model.sim.noise.hdu_n
         nside = self.cfg.scenario.nside
         for freq, detector in self.instrument.dets.items():

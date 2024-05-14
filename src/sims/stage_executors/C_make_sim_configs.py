@@ -1,17 +1,22 @@
-from omegaconf import DictConfig, OmegaConf
 from typing import Dict, List
+from pathlib import Path
+import logging
+
+from omegaconf import DictConfig, OmegaConf
 
 from ..get_wmap_params import get_wmap_indices, pull_params_from_file
-from pathlib import Path
 
 from ...core.asset_handlers import Config
-
 from ...core import (
     BaseStageExecutor,
     Split,
     Asset,
     AssetWithPathAlts
 )
+
+
+logger = logging.getLogger(__name__)
+
 
 class ConfigExecutor(BaseStageExecutor):
     def __init__(self, cfg: DictConfig) -> None:
@@ -20,7 +25,6 @@ class ConfigExecutor(BaseStageExecutor):
 
         self.out_split_config: Asset = self.assets_out['split_configs']
         self.out_wmap_config: AssetWithPathAlts = self.assets_out['wmap_config']
-
         out_split_config_handler: Config
         out_wmap_config_handler: Config
 
@@ -31,6 +35,7 @@ class ConfigExecutor(BaseStageExecutor):
         self.seed = cfg.model.sim.cmb.wmap_indcs_seed
 
     def execute(self) -> None:
+        logger.debug(f"Running {self.__class__.__name__} execute() method.")
         all_idices = self.make_chain_idcs_for_each_split(self.seed)
         for split in self.splits:
             with self.name_tracker.set_context("split", split.name):
