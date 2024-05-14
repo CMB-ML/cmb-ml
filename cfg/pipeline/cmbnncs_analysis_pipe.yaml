@@ -85,80 +85,73 @@ pixel_summary:
   epochs: *epochs
   dir_name: Analysis_CMBNNCS_11_Pixel_Summary
 
-theory_ps:
+convert_theory_ps:
   assets_out:
     theory_ps:
-      path_template: "{root}/{dataset}/{stage}/{split}/theory_ps.npy"
-      path_template_alt: "{root}/{dataset}/{stage}/{split}/{sim}/theory_ps.npy"
+      # Alt in the case of ps_fidu_fixed
+      path_template_alt: "{root}/{dataset}/{stage}/{split}/theory_ps.npy"
+      path_template: "{root}/{dataset}/{stage}/{split}/{sim}/theory_ps.npy"
       handler: NumpyPowerSpectrum
   assets_in:
-    theory_ps: {stage: make_cmb_power_spectra, orig_name: "cmb_ps"}
+    theory_ps: {stage: make_theory_ps, orig_name: "cmb_ps"}
   splits:
     - train
     - test
   dir_name: Analysis_Theory_Power_Spectra
 
-# pixel_fig:
-#   assets_out:
-#     cmb_figure:
-#       fn: "asdf"
-#       path_template: "{root}/{dataset}/{stage}/{split}/{sim}/cmb_figure_{epoch}.png"
-#       handler: Mover
-#   assets_in:
-#     cmb_map: {stage: raw}
-#     cmb_map_post: {stage: postprocess}
-#   splits:
-#     - test
-#   dir_name: Analysis_CMBNNCS_12_Pixel_Solo_Figs
+mask:
+# Need to define an external resource for the next stage, make_pred_ps
+  assets_out:
+    mask: 
+      path_template: "{src_root}/Yunan/planck_mask.fits"
+      handler: HealpyMap
+      use_fields: 1
 
-# make_ps:
-#   assets_out:
-#     # Autocorrelation for realization (target)
-#     auto_real:
-#       fn: ""
-#       path_template: "{root}/{dataset}/{stage}/{split}/{sim}/ps_real.npy"
-#       handler: HealpyPS
-#     # Autocorrelation for prediction
-#     auto_pred:
-#       fn: ""
-#       path_template: "{root}/{dataset}/{stage}/{split}/{sim}/ps_pred_{epoch}.npy"
-#       handler: HealpyPS
-#     # Cross-correlation for realization x prediction
-#     x_real_pred:
-#       fn: ""
-#       path_template: "{root}/{dataset}/{stage}/{split}/{sim}/ps_x_{epoch}.npy"
-#       handler: HealpyPS
-#     # Autocorrelation for the map containing the difference between realization - prediction
-#     diff_real_pred:
-#       fn: ""
-#       path_template: "{root}/{dataset}/{stage}/{split}/{sim}/ps_diff_{epoch}.npy"
-#       handler: HealpyPS
-#     # Autocorrelation for the map containing the absolute value of the difference between realization - prediction
-#     abs_diff_real_pred:
-#       fn: ""
-#       path_template: "{root}/{dataset}/{stage}/{split}/{sim}/ps_abs_diff_{epoch}.npy"
-#       handler: HealpyPS
-#   assets_in:
-#     cmb_map: {stage: raw}
-#     cmb_map_post: {stage: postprocess}
-#   splits:
-#     - test
-#   dir_name: Analysis_CMBNNCS_13_Power_Spectra
+make_pred_ps:
+  assets_out:
+    # Autocorrelation for realization (target)
+    auto_real:
+      path_template: "{root}/{dataset}/{stage}/{split}/{sim}/ps_real.npy"
+      handler: NumpyPowerSpectrum
+    # Autocorrelation for prediction
+    auto_pred:
+      path_template: "{root}/{dataset}/{stage}/{split}/{sim}/ps_pred_{epoch}.npy"
+      handler: NumpyPowerSpectrum
+    # Cross-correlation for realization x prediction
+    x_real_pred:
+      path_template: "{root}/{dataset}/{stage}/{split}/{sim}/ps_x_{epoch}.npy"
+      handler: NumpyPowerSpectrum
+    # Autocorrelation for the map containing the difference between realization - prediction
+    diff_real_pred:
+      path_template: "{root}/{dataset}/{stage}/{split}/{sim}/ps_diff_{epoch}.npy"
+      handler: NumpyPowerSpectrum
+    # Autocorrelation for the map containing the absolute value of the difference between realization - prediction
+    abs_diff_real_pred:
+      path_template: "{root}/{dataset}/{stage}/{split}/{sim}/ps_abs_diff_{epoch}.npy"
+      handler: NumpyPowerSpectrum
+  assets_in:
+    cmb_map_real: {stage: make_sims, orig_name: cmb_map}
+    cmb_map_post: {stage: postprocess, orig_name: cmb_map}
+    # mask: {stage: mask}
+  splits:
+    - test
+  epochs: *epochs
+  dir_name: Analysis_CMBNNCS_13_Power_Spectra
 
-# ps_fig:
-#   assets_out:
-#     ps_figure:
-#       fn: "tempname.png"
-#       path_template: "{root}/{dataset}/{stage}/{split}/{sim}/cmb_ps_figure_{epoch}.png"
-#       handler: Mover
-#   assets_in:
-#     theory_ps_fixed:  {stage: theory_ps}
-#     theory_ps_varied: {stage: theory_ps}
-#     auto_real:        {stage: make_ps}
-#     auto_pred:        {stage: make_ps}
-#   splits:
-#     - test
-#   dir_name: Analysis_CMBNNCS_14_F_PS_Solo_Figs
+ps_fig:
+  assets_out:
+    ps_figure:
+      path_template: "{root}/{dataset}/{stage}/{split}/{sim}/cmb_ps_figure_{epoch}.png"
+      handler: EmptyHandler
+  assets_in:
+    theory_ps: {stage: convert_theory_ps}
+    auto_real: {stage: make_pred_ps}
+    auto_pred: {stage: make_pred_ps}
+  splits:
+    - test
+  epochs: *epochs
+  override_n_sims: 1
+  dir_name: Analysis_CMBNNCS_14_F_PS_Solo_Figs
 
 # ps_analysis:
 #   assets_out:
