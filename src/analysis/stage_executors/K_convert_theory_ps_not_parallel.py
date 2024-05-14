@@ -23,14 +23,14 @@ from core.asset_handlers.psmaker_handler import CambPowerSpectrum, NumpyPowerSpe
 logger = logging.getLogger(__name__)
 
 
-# class FixedAsset(NamedTuple):
+# class FrozenAsset(NamedTuple):
 #     path: Path
 #     handler: GenericHandler
 
 
 # class TaskTarget(NamedTuple):
-#     asset_in: FixedAsset
-#     asset_out: FixedAsset
+#     asset_in: FrozenAsset
+#     asset_out: FrozenAsset
 #     all_map_fields: str
 #     detector_fields: str
 #     norm_factors: float

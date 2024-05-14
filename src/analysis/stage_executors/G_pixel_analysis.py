@@ -16,19 +16,19 @@ from core import (
     )
 from ..px_statistics import get_func
 # from src.utils.make_a_map import make_a_map
-
+from core.asset_handlers import Config, HealpyMap
 
 logger = logging.getLogger(__name__)
 
 
-class FixedAsset(NamedTuple):
+class FrozenAsset(NamedTuple):
     path: Path
     handler: GenericHandler
 
 
 class TaskTarget(NamedTuple):
-    true_asset: FixedAsset
-    pred_asset: FixedAsset
+    true_asset: FrozenAsset
+    pred_asset: FrozenAsset
     split_name: str
     sim_num: str
     epoch: int
@@ -41,8 +41,11 @@ class PixelAnalysisExecutor(BaseStageExecutor):
         super().__init__(cfg, stage_str="pixel_analysis")
 
         self.out_report: Asset = self.assets_out["report"]
+        out_report_handler: Config
+
         self.in_cmb_map_true: Asset = self.assets_in["cmb_map_sim"]
         self.in_cmb_map_pred: Asset = self.assets_in["cmb_map_post"]
+        in_cmb_map_handler: HealpyMap
 
         self.stat_func_dict = self.cfg.model.analysis.px_functions
         self.stat_funcs = self.get_stat_funcs()
@@ -91,10 +94,10 @@ class PixelAnalysisExecutor(BaseStageExecutor):
                     context = dict(split=split.name, sim_num=sim, epoch=epoch)
                     with self.name_tracker.set_contexts(contexts_dict=context):
                         true = self.in_cmb_map_true
-                        true = FixedAsset(path=true.path, handler=true.handler)
+                        true = FrozenAsset(path=true.path, handler=true.handler)
                         
                         pred = self.in_cmb_map_pred
-                        pred = FixedAsset(path=pred.path, handler=pred.handler)
+                        pred = FrozenAsset(path=pred.path, handler=pred.handler)
                         
                         tasks.append(TaskTarget(true_asset=true,
                                                 pred_asset=pred,

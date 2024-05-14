@@ -26,13 +26,13 @@ from . import GenericHandler
 logger = logging.getLogger(__name__)
 
 
-class FixedAsset(NamedTuple):
+class FrozenAsset(NamedTuple):
     path: Path
     handler: GenericHandler
 
 
 class TaskTarget(NamedTuple):
-    asset: FixedAsset
+    asset: FrozenAsset
     norm_factors: float
     split_name: str
     sim_num: str
@@ -95,11 +95,11 @@ class ParallelExecutor(BaseStageExecutor):
                             with self.name_tracker.set_context("epoch", epoch):
                                 true = self.in_cmb_map_true
                                 assert true.path.exists(), f"Cannot find: {true.path}"  # Better to fail now than in the pool
-                                true = FixedAsset(path=true.path, handler=true.handler)
+                                true = FrozenAsset(path=true.path, handler=true.handler)
                                 
                                 pred = self.in_cmb_map_pred
                                 assert pred.path.exists(), f"Cannot find: {pred.path}"  # Better to fail now than in the pool
-                                pred = FixedAsset(path=pred.path, handler=pred.handler)
+                                pred = FrozenAsset(path=pred.path, handler=pred.handler)
                                 
                                 tasks.append(TaskTarget(true_asset=true,
                                                         pred_asset=pred,
@@ -113,7 +113,7 @@ class ParallelExecutor(BaseStageExecutor):
         Get statistics for one sim (task) outside multiprocessing first, 
         to avoid painful debugging within multiprocessing.
         """
-        # def save_map(self, map_asset: FixedAsset, fn):
+        # def save_map(self, map_asset: FrozenAsset, fn):
         #     handler = map_asset.handler
         #     map_data = handler.read(map_asset.path)[0]
         #     make_a_map(map_data, fn, title=fn)

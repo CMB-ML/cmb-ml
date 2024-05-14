@@ -25,14 +25,14 @@ from src.utils import make_instrument, Instrument, Detector
 logger = logging.getLogger(__name__)
 
 
-class FixedAsset(NamedTuple):
+class FrozenAsset(NamedTuple):
     path: Path
     handler: GenericHandler
 
 
 class TaskTarget(NamedTuple):
-    asset_in: FixedAsset
-    asset_out: FixedAsset
+    asset_in: FrozenAsset
+    asset_out: FrozenAsset
     all_map_fields: str
     detector_fields: str
     norm_factors: float
@@ -82,8 +82,8 @@ class PreprocessExecutor(BaseStageExecutor):
             for sim in split.iter_sims():
                 context = dict(split=split.name, sim_num=sim)
                 with self.name_tracker.set_contexts(contexts_dict=context):
-                    cmb_asset_in = self.make_fixed_asset(self.in_cmb_asset)
-                    cmb_asset_out = self.make_fixed_asset(self.out_cmb_asset)
+                    cmb_asset_in = self.make_frozen_asset(self.in_cmb_asset)
+                    cmb_asset_out = self.make_frozen_asset(self.out_cmb_asset)
                     x = TaskTarget(
                         asset_in=cmb_asset_in,
                         asset_out=cmb_asset_out,
@@ -95,8 +95,8 @@ class PreprocessExecutor(BaseStageExecutor):
                 for freq, detector in self.instrument.dets.items():
                     context['freq'] = freq
                     with self.name_tracker.set_contexts(contexts_dict=context):
-                        f_asset_in = self.make_fixed_asset(self.in_obs_assets)
-                        f_asset_out = self.make_fixed_asset(self.out_obs_assets)
+                        f_asset_in = self.make_frozen_asset(self.in_obs_assets)
+                        f_asset_out = self.make_frozen_asset(self.out_obs_assets)
                         x = TaskTarget(
                             asset_in=f_asset_in,
                             asset_out=f_asset_out,
@@ -108,8 +108,8 @@ class PreprocessExecutor(BaseStageExecutor):
         return tasks
 
     @staticmethod
-    def make_fixed_asset(asset: Asset):
-        return FixedAsset(path=asset.path, handler=asset.handler)
+    def make_frozen_asset(asset: Asset):
+        return FrozenAsset(path=asset.path, handler=asset.handler)
 
     def try_a_task(self, _process, task: TaskTarget):
         """

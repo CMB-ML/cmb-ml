@@ -25,21 +25,22 @@ from core.asset_handlers.psmaker_handler import CambPowerSpectrum, NumpyPowerSpe
 logger = logging.getLogger(__name__)
 
 
-class FixedAsset(NamedTuple):
+class FrozenAsset(NamedTuple):
+    # FrozenAsset is created as an immutable so that multiprocessing can run.
     path: Path
     handler: GenericHandler
 
 
 class TaskTarget(NamedTuple):
-    asset_in: FixedAsset
-    asset_out: FixedAsset
+    asset_in: FrozenAsset
+    asset_out: FrozenAsset
 
 
 class ConvertTheoryPowerSpectrumExecutor(BaseStageExecutor):
     def __init__(self, cfg: DictConfig) -> None:
         logger.debug("Initializing ConvertTheoryPowerSpectrumExecutor")
         # The following string must match the pipeline yaml
-        super().__init__(cfg, stage_str="theory_ps")
+        super().__init__(cfg, stage_str="convert_theory_ps")
 
         self.out_theory_ps: AssetWithPathAlts = self.assets_out["theory_ps"]
         out_theory_ps_handler: NumpyPowerSpectrum
@@ -68,22 +69,26 @@ class ConvertTheoryPowerSpectrumExecutor(BaseStageExecutor):
         for split in self.splits:
             with self.name_tracker.set_context("split", split):
                 if split.ps_fidu_fixed:
-                    tasks.append(self.build_a_task(split.ps_fidu_fixed))
+                    task = self.build_a_task(split.ps_fidu_fixed)
+                    tasks.append(task)
                     continue
                 for sim in split.iter_sims():
                     with self.name_tracker.set_context("sim_num", sim):
-                        tasks.append(self.build_a_task(split.ps_fidu_fixed))
+                        task = self.build_a_task(split.ps_fidu_fixed)
+                        tasks.append(task)
         return tasks
 
     def build_a_task(self, use_path_alt):
-        ps_in = self.make_fixed_asset(self.in_theory_ps, use_path_alt)
-        ps_out = self.make_fixed_asset(self.out_theory_ps, use_path_alt)
-        return TaskTarget(asset_in=ps_in, asset_out=ps_out)
+        ps_in = self.make_frozen_asset(self.in_theory_ps, use_path_alt)
+        ps_out = self.make_frozen_asset(self.out_theory_ps, use_path_alt)
+        task = TaskTarget(asset_in=ps_in, asset_out=ps_out)
+        return task
 
     @staticmethod
-    def make_fixed_asset(asset: AssetWithPathAlts, use_path_alt: bool):
+    def make_frozen_asset(asset: AssetWithPathAlts, use_path_alt: bool):
         path = asset.path_alt if use_path_alt else asset.path
-        return FixedAsset(path=path, handler=asset.handler)
+        frozen_asset = FrozenAsset(path=path, handler=asset.handler)
+        return frozen_asset
 
     def try_a_task(self, _process, task: TaskTarget):
         """
