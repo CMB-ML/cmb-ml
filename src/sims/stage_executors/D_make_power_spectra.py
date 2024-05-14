@@ -22,7 +22,7 @@ from core.asset_handlers import Config
 class TheoryPSExecutor(BaseStageExecutor):
     def __init__(self, cfg: DictConfig) -> None:
         # The following stage_str must match the pipeline yaml
-        super().__init__(cfg, stage_str='make_cmb_power_spectra')
+        super().__init__(cfg, stage_str='make_theory_ps')
 
         self.max_ell_for_camb = cfg.model.sim.cmb.ell_max
         self.wmap_param_labels = cfg.model.sim.cmb.wmap_params
