@@ -55,7 +55,6 @@ class Asset:
     @property
     def path(self):
         with self.name_tracker.set_context("stage", self.source_stage_dir):
-            # with self.name_tracker.set_context("fn", self.fn):
             return self.name_tracker.path(self.path_template)
 
     def read(self, **kwargs):
