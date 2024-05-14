@@ -1,0 +1,13 @@
+
+make_normalization:
+  assets_out:
+    norm_file: 
+      handler: Config
+      path_template: "{root}/{dataset}/{stage}/normalization.yaml"
+  assets_in:
+    cmb_map: {stage: make_sims}
+    obs_maps: {stage: make_sims}
+  splits:
+    - train
+  dir_name: Petroff_B_Extrema
+
