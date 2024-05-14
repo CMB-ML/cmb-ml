@@ -39,13 +39,17 @@ def make_all_simulations(cfg):
     # pipeline_context.add_pipe(NoiseCacheExecutor)
     # pipeline_context.add_pipe(ConfigExecutor)
     # pipeline_context.add_pipe(TheoryPSExecutor)
-    pipeline_context.add_pipe(SimCreatorExecutor)
-    # pipeline_context.add_pipe(ShowSimsExecutor)
+    # pipeline_context.add_pipe(SimCreatorExecutor)
+    pipeline_context.add_pipe(ShowSimsExecutor)
 
-    pipeline_context.run_pipeline()
-
-    logger.info("Simulation pipeline completed.")
-    log_maker.copy_hydra_run_to_dataset_log()
+    try:
+        pipeline_context.run_pipeline()
+    except Exception as e:
+        logger.exception("An exception occured during the pipeline.", exc_info=e)
+        raise e
+    finally:
+        logger.info("Simulation pipeline completed.")
+        log_maker.copy_hydra_run_to_dataset_log()
 
 
 if __name__ == "__main__":

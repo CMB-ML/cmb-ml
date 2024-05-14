@@ -35,8 +35,8 @@ class PreprocessMakeScaleExecutor(BaseStageExecutor):
         in_obs_map_handler: HealpyMap
 
         # TODO: Move this to a better config file (note duplicate reminder in config.yaml)
-        self.scale_features = cfg.model.cmbnncs.prep.scale_features
-        self.scale_target = cfg.model.cmbnncs.prep.scale_target
+        self.scale_features = cfg.model.cmbnncs.preprocess.scale_features
+        self.scale_target = cfg.model.cmbnncs.preprocess.scale_target
 
     def execute(self) -> None:
         logger.debug("PreprocessMakeScaleParamsExecutor execute() method.")

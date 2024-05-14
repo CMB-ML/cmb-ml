@@ -102,10 +102,6 @@ class BaseStageExecutor:
         all_assets_out = {}
         for asset in cfg_assets_out:
             use_asset = self._get_asset_type(cfg_assets_out[asset])
-            # if 'path_template_alt' in cfg_assets_out[asset]:
-            #     use_asset = AssetWithPathAlts
-            # else:
-            #     use_asset = Asset
             all_assets_out[asset] = use_asset(cfg=self.cfg,
                                               source_stage=self.stage_str,
                                               asset_name=asset,
@@ -131,10 +127,6 @@ class BaseStageExecutor:
             # If an original name is specified, grab that asset. Otherwise, get this one.
             orig_name = cfg_assets_in[asset].get('orig_name', asset)
             use_asset = self._get_asset_type(cfg_assets_out[orig_name])
-            # if 'path_template_alt' in cfg_assets_out[asset]:
-            #     use_asset = AssetWithPathAlts
-            # else:
-            #     use_asset = Asset
             all_assets_in[asset] = use_asset(cfg=self.cfg,
                                              source_stage=source_stage,
                                              asset_name=orig_name,

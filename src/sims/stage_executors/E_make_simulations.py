@@ -24,7 +24,7 @@ from core import (
 )
 
 from core.asset_handlers.qtable_handler import QTableHandler # Import to register handler
-from core.asset_handlers.psmaker_handler import PowerSpectrum # Import for typing hint
+from core.asset_handlers.psmaker_handler import CambPowerSpectrum # Import for typing hint
 
 from core.asset_handlers import HealpyMap # Import for VS Code hints
 
@@ -49,7 +49,7 @@ class SimCreatorExecutor(BaseStageExecutor):
         self.in_cmb_ps: AssetWithPathAlts = self.assets_in['cmb_ps']
         in_det_table: Asset = self.assets_in['planck_deltabandpass']
         in_noise_cache_handler: HealpyMap
-        in_cmb_ps_handler: PowerSpectrum
+        in_cmb_ps_handler: CambPowerSpectrum
         in_det_table_handler: QTableHandler
 
         with self.name_tracker.set_context('src_root', cfg.local_system.noise_src_dir):

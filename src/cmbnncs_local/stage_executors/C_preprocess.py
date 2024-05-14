@@ -5,7 +5,7 @@ import logging
 
 import numpy as np
 
-from multiprocessing import Pool, Manager
+from multiprocessing import Pool
 
 from omegaconf import DictConfig
 from tqdm import tqdm
@@ -59,7 +59,7 @@ class PreprocessExecutor(BaseStageExecutor):
         in_cmb_map_handler: HealpyMap
         in_obs_map_handler: HealpyMap
 
-        self.num_processes = self.cfg.model.cmbnncs.prep.num_processes
+        self.num_processes = self.cfg.model.cmbnncs.preprocess.num_processes
 
     def execute(self) -> None:
         logger.debug("ParallelPreprocessExecutor execute() method.")

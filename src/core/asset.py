@@ -45,13 +45,20 @@ class Asset:
             return self.name_tracker.path(self.path_template)
 
     def read(self, **kwargs):
-        if self.can_read:
-            return self.handler.read(self.path, **kwargs)
+        try:
+            if self.can_read:
+                return self.handler.read(self.path, **kwargs)
+        except TypeError as e:
+            logger.exception("The calling .read() method must be given keyword arguments only.", exc_info=e)
+            raise e
 
     def write(self, **kwargs):
-        if self.can_write:
-            return self.handler.write(self.path, **kwargs)
-
+        try:
+            if self.can_write:
+                return self.handler.write(self.path, **kwargs)
+        except TypeError as e:
+            logger.exception("The calling .write() method must be given keyword arguments only.", exc_info=e)
+            raise e
 
 class AssetWithPathAlts(Asset):
     def __init__(self, cfg, source_stage, asset_name, name_tracker, in_or_out):

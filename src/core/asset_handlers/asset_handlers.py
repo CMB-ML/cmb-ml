@@ -24,12 +24,14 @@ class GenericHandler:
         raise NotImplementedError("This write() should be implemented by children classes.")
 
 
-class NoHandler(GenericHandler):
+class EmptyHandler(GenericHandler):
     def read(self, path: Path):
         raise NotImplementedError("This is a no-operation placeholder and has no read() function.")
 
-    def write(self, path: Path, data: Any):
-        raise NotImplementedError("This is a no-operation placeholder and has no write() function.")
+    def write(self, path: Path, data: Any=None):
+        make_directories(path)
+        if data:
+            raise NotImplementedError("This is a no-operation placeholder and has no write() function.")
 
 
 class HealpyMap(GenericHandler):
@@ -164,7 +166,7 @@ def make_directories(path: Union[Path, str]) -> None:
     folders.mkdir(exist_ok=True, parents=True)
 
 
-register_handler("NoHandler", NoHandler)
+register_handler("EmptyHandler", EmptyHandler)
 register_handler("HealpyMap", HealpyMap)
 register_handler("Config", Config)
 register_handler("Mover", Mover)

@@ -1,17 +1,19 @@
 defaults:
-  - local_system : ${oc.env:CMB_SIMS_LOCAL_SYSTEM}
-  - file_system  : common_fs
-  - pipeline     : sample_pipe
-  # - scenario     : scenario_32
-  - scenario     : scenario_128
-  - splits       : all
-  # - splits       : "3-1"
+  - local_system   : ${oc.env:CMB_SIMS_LOCAL_SYSTEM}
+  - file_system    : common_fs
+  - pipeline       : assembly_cmbnncs
+  - scenario       : scenario_128
+  - splits         : all
+  # - splits        : "3-1"
   # simulation must listed be after scenario and splits to build the simulation seed
-  # - model/sim   : sim_trivial
-  - model/cmbnncs: cmbnncs
+  # - model/sim     : sim_trivial
+  - model/cmbnncs  : cmbnncs_model
+  - model/analysis : basic_analysis
   - override hydra/job_logging: custom_log
   - _self_
 
+# dataset_name: CMML_Dataset
+# When creating multiple datasets, using interpolation like this may be easier:
 dataset_name: ${scenario.map_fields}_${scenario.nside}_${splits.name}
 hydra:
   run:

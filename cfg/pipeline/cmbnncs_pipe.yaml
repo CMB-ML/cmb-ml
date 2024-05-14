@@ -24,6 +24,7 @@ preprocess:
     - valid
     - test
   dir_name: CMBNNCS_C_Preprocess
+  make_stage_log: True
 train:
   assets_out:
     model: 
@@ -35,6 +36,7 @@ train:
   splits:
     - train
   dir_name: CMBNNCS_D_Model
+  make_stage_log: True
 predict:
   assets_out:
     cmb_map: 
@@ -45,8 +47,9 @@ predict:
     obs_maps: {stage: preprocess}
   splits:
     - test
-  epochs: [init, 1, 10, 40, 120]
+  epochs: &epochs [init, 1, 10, 40, 120]
   dir_name: CMBNNCS_E_Predict
+  make_stage_log: True
 postprocess:
   assets_out:
     cmb_map: 
@@ -57,5 +60,6 @@ postprocess:
     cmb_map: {stage: predict}
   splits:
     - test
-  epochs: [init, 1, 10, 40, 120]
+  epochs: *epochs
   dir_name: CMBNNCS_F_Postprocess
+  make_stage_log: True

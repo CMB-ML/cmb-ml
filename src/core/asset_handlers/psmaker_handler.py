@@ -1,5 +1,6 @@
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 
 import camb
@@ -12,7 +13,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-class PowerSpectrum(GenericHandler):
+class CambPowerSpectrum(GenericHandler):
     def read(self, path: Path, TT_only=True) -> None:
         """
         Method used to read CAMB's power spectra for analysis.
@@ -44,4 +45,14 @@ class PowerSpectrum(GenericHandler):
         data.save_cmb_power_spectra(filename=path)
 
 
-register_handler("PowerSpectrum", PowerSpectrum)
+class NumpyPowerSpectrum(GenericHandler):
+    def read(self, path: Path) -> None:
+        return np.load(path)
+
+    def write(self, path: Path, data: np.ndarray) -> None:
+        make_directories(path)
+        np.save(path, arr=data)
+
+
+register_handler("CambPowerSpectrum", CambPowerSpectrum)
+register_handler("NumpyPowerSpectrum", NumpyPowerSpectrum)

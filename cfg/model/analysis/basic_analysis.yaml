@@ -1,0 +1,20 @@
+px_functions:
+  mse:
+    plot_name: "Mean Squared Error (MSE)"
+    axis_name: "MSE"
+    func: "skimage.metrics.mean_squared_error"
+  psnr:
+    plot_name: "Peak Signal-to-Noise Ratio (PNSR)"
+    axis_name: "PNSR"
+    func: "psnr"
+  mae:
+    plot_name: "Mean Absolute Error (MAE)"
+    axis_name: "MAE"
+    func: "sklearn.metrics.mean_absolute_error"
+  nrmse:
+    plot_name: "Normalized Root MSE (NRMSE)"
+    axis_name: "NRMSE"
+    func: "skimage.metrics.normalized_root_mse"
+    kwargs: {normalization: "euclidean"}
+px_operations:
+  num_processes: 10

@@ -39,7 +39,7 @@ make_sim_configs:
 make_cmb_power_spectra:
   assets_out:
     cmb_ps:
-      handler: PowerSpectrum
+      handler: CambPowerSpectrum
       path_template: "{root}/{dataset}/{stage}/{split}/{sim}/cmb_ps_fid.txt"
       path_template_alt: "{root}/{dataset}/{stage}/{split}/cmb_ps_fid.txt"
   assets_in:

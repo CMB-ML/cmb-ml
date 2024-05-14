@@ -54,7 +54,7 @@ class PostprocessExecutor(BaseStageExecutor):
         in_norm_file_handler: Config
         in_cmb_map_handler: NumpyMap
 
-        self.num_processes = self.cfg.model.cmbnncs.prep.num_processes
+        self.num_processes = self.cfg.model.cmbnncs.postprocess.num_processes
 
     def execute(self) -> None:
         logger.debug("ParallelPreprocessExecutor execute() method.")
