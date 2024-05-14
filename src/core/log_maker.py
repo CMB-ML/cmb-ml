@@ -121,6 +121,9 @@ class LogMaker:
             with open(config_path, 'r') as f:
                 try:
                     config_data = yaml.safe_load(f)
+                    if config_data is None:
+                        logger.warning(f"Loaded an empty config file: {config_path}")
+                        continue
                     # if defaults is not a key, continue
                     defaults = config_data.get('defaults', [])
                     for item in defaults:
@@ -137,7 +140,7 @@ class LogMaker:
                             possible_path = possible_path.with_suffix('.yaml')
                         if possible_path.exists():
                             if possible_path not in relevant_files:
-                                # Generally dangerous, in this case we cannot create an infinite loop
+                                # Generally dangerous, however in this case we cannot create an infinite loop
                                 relevant_files.append(possible_path)
                             else:
                                 logger.warning(f"Circular dependency detected for file: {config_path} for line {item}")
