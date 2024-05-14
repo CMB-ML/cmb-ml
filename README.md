@@ -2,9 +2,12 @@
 
 I'm combining repositories. Here's the combined READMES, which may contain out-of-date (or straight up wrong) information.
 
-- [Simulations](#simulations-readme-ml_cmb_pysm_sims)
-- [CMBNNCS](#cmbnncs)
+Contents:
+  - [Simulations](#simulations-readme-ml_cmb_pysm_sims)
+  - [CMBNNCS](#cmbnncs)
 
+  - Todos
+    - [Cleaning Up Todos](#cleaning-up-to-dos)
 
 # Simulations Readme ml_cmb_pysm_sims
 Rough development repository for PySM simulations for ML project
@@ -26,13 +29,13 @@ CMB_Project/
 │
 ├── ml_cmb_pysm_sims/                  ## This repository for ML-driven CMB simulations with PySM
 │
-├── SourceDataAssets/                  ## Raw data from various sources
-│   ├── Planck/                        ## Data from the Planck mission
-│   ├── WMAP_Chains/                   ## Data from the WMAP mission
-│   └── ProcessedData/                 ## Intermediate data processed for simulation use
+├─ SourceDataAssets/                  ## Raw data from various sources
+│ ├── Planck/                        ## Data from the Planck mission
+│ ├── WMAP_Chains/                   ## Data from the WMAP mission
+│ └── ProcessedData/                 ## Intermediate data processed for simulation use
 │
-└── DatasetsRoot/                      ## Root directory for datasets generated
-    └── [Other Dataset Folders]        ## Other directories for organized datasets
+└─ DatasetsRoot/                      ## Root directory for datasets generated
+  └── [Other Dataset Folders]        ## Other directories for organized datasets
 ```
 
 Clearly systems vary. Configuration files may be changed to describe your local structure. Create your own configuration file by copying one included (after getting the repo, in conf/local_system).
@@ -44,19 +47,19 @@ If you won't be actively pulling from the repo, simply change all top-level conf
 ### Get Repository
 
 - Clone the repositories into the directories as set up above.
-    - Either (git with HTTPS)
-    - `git clone https://github.com/JamesAmato/ml_cmb_pysm_sims.git`
-    - Or (git with SSH):
-    - `git clone git@github.com:JamesAmato/ml_cmb_pysm_sims.git`
+  - Either (git with HTTPS)
+  - `git clone https://github.com/JamesAmato/ml_cmb_pysm_sims.git`
+  - Or (git with SSH):
+  - `git clone git@github.com:JamesAmato/ml_cmb_pysm_sims.git`
 
 ### Library Set Up
 
 - Ensure you have python 3.9
   - If you have no Python 3.9 installation in your PYTHON_PATH, a conda environment with 3.9 can be used
-      - Create a fresh 3.9 environment: `conda create -n py39 python=3.9`
-      - Activate the environment: `conda activate py39`
-      - Find the path to python, needed for Poetry: `which python`
-      - Importantly, deactivate the conda environment, otherwise Poetry will manage the active environment: `conda deactivate`
+  - Create a fresh 3.9 environment: `conda create -n py39 python=3.9`
+  - Activate the environment: `conda activate py39`
+  - Find the path to python, needed for Poetry: `which python`
+  - Importantly, deactivate the conda environment, otherwise Poetry will manage the active environment: `conda deactivate`
 
 - Install Poetry. Instructions are here: [https://python-poetry.org/docs/](Poetry Installation)
 
@@ -151,36 +154,35 @@ I need a better term for components, the lines are blurry there. The CMB compone
 
 I tried to remove filename tracking from anything that isn't a Namer. However, especially in the case of the namer_dataset_output Namers, there's a lot of management code shoehorned in that needs to be cleaned out. For instance, an outside management class should keep track of current split and simulation. File IO should also be handled elsewhere. A similar system should be used for the WMAP_chains accessor. And the Seed tracking stuff should be incorporated into the management class... and have a different filename.
 
-## To do
+# To Do
 
-- [x] Figure out pip and conda installation steps
-- [x] Noise, CMB, and all components in a single map (see fixed_map_synth4.py)
-- [x] CMB component determined by cosmological parameter draws. (partial, see simple_camb_ps.py)
-- [x] CMB component determined by cosmological parameter draws from WMAP 9 chains. 
-- [x] Output, per component, default variation (requires 2 runs); compare them (see check_variation_in_base.py)
-- [x] Switch to uK_CMB instead of uK_RJ 
-  - [x] simple fix: when initializing Sky(), include "output_unit='uK_CMB'"
-  - [ ] uglier fix: noise is broken (see fixed_map_synth3.py [not 4] results)
-- [x] Organize development scripts for others to follow the trail of work 
-- [ ] Make presentation of the above
-- [x] Replace the cmb_component.py code that relies on fixed cosmo_params
-- [x] Traceability/reproducability (this is a lot of stuff, todo: break down further)
-- [x] Move to Markov
-- [ ] Run simulations v1
-  - [x] Timing & size tests
-  - [x] 128T, Full Suite (1250 Training, 200 Test varied ps, 1000 Test [10 ps sets of 100 each])
-  - [ ] 512T, Full Suite (1250 Training, 200 Test varied ps, 1000 Test [10 ps sets of 100 each])
-- [x] Make dev_pathX...py files into python notebook
-- [x] Clean up
-  - [x] Better names
-  - [x] Get rid of testing/learning one-offs
-  - [ ] Make instrumentation noise as a PySM3 Model
-- [x] Change the CalTech shell script to get the LFI maps (Planck Assets) as well
+Big:
+- CMBNNCS
+- Petroff
+- PyILC
+- Analysis
+
+Polarization
+- Decide if CMB simulation maps should be saved with only a single field.
+  - Later comparisons would assume the same fields when comparing maps, instead of checking for each
+
+## Documentation
+
+- [ ] Citations/references for CMBNNCS, Petroff, PyILC, PySM3, CMB Summer Camp
+
+## To do (Make Simulations)
+
+- [ ] Make instrumentation noise as a PySM3 Model (?)
+- [ ] Convert CMB targets to K_CMB (?)
 
 Markov:
 - [ ] Mount astropy outside Docker
-- [x] Timing tests (shell script still needed)
-- [ ] Autorun Python code in Docker
+- [ ] Write shell script for timing tests
+  - Or just something to scrape the timings from the logs
+
+## Analysis
+
+- [ ] Get rid of Mover AssetHandlers (?)
 
 ## UG Ready
 
@@ -189,43 +191,39 @@ Markov:
 - [ ] Review: use or remove configuration items
 - [ ] Make a script to get Planck Assets from ESA
 - [ ] Time how long each preset string adds
-- [ ] How much time does each preset string add?
 - [ ] For each preset string, at each freq, in each field, what is the max and minimum value? What is the median, Q1, Q3, and sd?
 - [ ] Are the CalTech maps the same as the ESA maps? Just need to load the maps and calculate the difference.
 - [ ] Ensure variation between: sims, components, fields, noise
-- [x] Local_system config tracking (I think I meant backing up the config files)
-- [ ] Demonstration of smiley-face thing
-- [ ] Convert dev path files (dev##, hydra##) to tutorial notebooks & tests
 - [ ] Fiducial & Derived PS on a single plot in inspect_simulations.py
-- [ ] Backup of script with created dataset (possibly to be used even after DVC is in place)
-- [ ] Make noise as a pysm3.Model instead of ... what it is now
 - [ ] Check if hydra sweeps work with the current logging setup (probably not, in hindsight)
-- [ ] Ensure use of create_dirs flags in config file
-- [ ] Ensure use of create_cache flag in config file
-- [ ] Shell script to automatically get sizes and run times:
-  - Clear noise cache (and others, if they exist)
-  - Run 128_1_1 (create new noise cache)
-  - Run 128_2_2 (get timing)
-  - Run 512_1_1
-  - Run 512_2_2
-  - Run 2048_1_1
-  - Run 2048_2_2
-  - Get run time for each resolution @ 2_2
-  - Get file size for each resolution, per sim
-  - Without changing NUMBA_NUM_THREADS and OMP_NUM_THREADS ??? Or with? Or check =10, =100 for each?
-  - Run 128_2_2 with non-recommended nside_sky of 128 or 256?
+
+## Cleaning Up To-Do's
+
+- Configs
+  - [ ] In pipeline / local system: establish better {src_root} system
+  - [ ] Clean up local_system: use interpolation for directories?
+  - [ ] Side load defaults for commonly changed parameters (instead of scenario even?)
+  - [ ] Look for make_dirs or make_cache references; remove them
+
+- Core
+  - [ ] BaseExecutor/Asset: Remove ban on "fn" in pipeline configs.
+
+- Rename analysis stages and directories
+- Rename "ps_fidu_fixed" to "fixed_theory_ps" or "ps_theory_fixed" or "ps_thry_fixed"
+- Decide on using "theory" or "thry"
 
 ## Credit / References
 
-https://camb.readthedocs.io/en/latest/CAMBdemo.html
+- [CAMB for Python](https://camb.readthedocs.io/en/latest/CAMBdemo.html)
+- [CMBNNCS Library](https://github.com/Guo-Jian-Wang/cmbnncs/tree/master)
 
+# Notes for Documentation
 
 ## Common Errors
 
 - When an asset Exception has occurred: TypeError       (note: full exception trace is shown but execution is paused at: _run_module_as_main)
 write() takes 1 positional argument but 2 were given
   - This usually means that I've forgotten `whatever.\[read/write](data=)` (or `model=`)
-
 
 ## Structure
     
@@ -237,7 +235,6 @@ Conventions I'd love to have stuck with:
 - When dealing with files
   - Use full words "source" and "destination"
   - Use abbreviation "dir" for "directory"
-
 
 ## Views
 
@@ -381,18 +378,7 @@ pyreverse -o png -p ml_cmb_model_wang src
     - train_cmb_unet_block_CMB-S4.py, train_cmb_unet_full.py
         - See above
 
-## Model Parameter Choices
-
-## References
-
-- https://github.com/Guo-Jian-Wang/cmbnncs/tree/master
-
-## Order
-
-- Created try_start_unet5.py to test if I've installed cmbnncs correctly
-- Created try_start_unet5_from_hydra.py to see integration
-
-## Set up Environment
+<!-- ## Set up Environment
 
 Need:
     - PyTorch
@@ -405,11 +391,12 @@ To install on a new system... (dev... main branch should be a different procedur
     - created conda environment with python 3.9 (Why 3.9? I don't know. Defunct memories of non-existent dependencies.)
       - `conda create -n ml_cmb_model_wang python=3.9`
     - activate it
-    - `which python`
+    - `which python` -->
+<>
     <!-- - install PyTorch according to PyTorch's instructions (https://pytorch.org/get-started/locally/)
     - e.g.: `conda install pytorch torchvision torchaudio pytorch-cuda=11.8 -c pytorch -c nvidia` -->
-    - Have Poetry set up everything else, based on the `pyproject.toml`
-    - `poetry install`
+    <!-- - Have Poetry set up everything else, based on the `pyproject.toml`
+    - `poetry install` -->
 
 ## Set up on Markov...
 
