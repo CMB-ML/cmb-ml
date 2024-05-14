@@ -164,7 +164,7 @@ Big:
 
 ## General
 
-- [ ] Clean up import structure
+- [ ] Clean up import structure (look for "...core"; put core asset handlers into a single import)
 - [ ] Where reasonable, load from configs in the `__init__` statement of Executors, for better compatibility with prerun
 
 Polarization:
@@ -175,6 +175,9 @@ Other:
   - [ ] Parallel Base Executor?
   - [ ] Support for multiple HDU's with every map?
   - [ ] Ensure units make sense everywhere
+  - [ ] Change src to cmml (package name)
+  - [ ] Change loggers from `__name__ ` to shorter names
+  - [ ] Enable those names in the console log, check if it looks better
 
 ## Documentation
 
