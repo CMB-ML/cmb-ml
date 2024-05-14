@@ -1,17 +1,16 @@
 from typing import Dict
+from pathlib import Path
+import logging
 
 import hydra
 from omegaconf import DictConfig
-from pathlib import Path
 
+import numpy as np
 from astropy.units import Quantity
+import camb
 import pysm3
 import pysm3.units as u
 from pysm3 import CMBLensed
-import numpy as np
-import camb
-
-import logging
 
 from..cmb_factory import CMBFactory
 from ..random_seed_manager import FieldLevelSeedFactory, SimLevelSeedFactory
@@ -25,15 +24,15 @@ from core import (
 
 from core.asset_handlers.qtable_handler import QTableHandler # Import to register handler
 from core.asset_handlers.psmaker_handler import CambPowerSpectrum # Import for typing hint
-
 from core.asset_handlers import HealpyMap # Import for VS Code hints
 
 from utils.map_formats import convert_pysm3_to_hp
-
 from ..physics_cmb import change_nside_of_map
 from ..physics_instrument_noise import make_random_noise_map
 
+
 logger = logging.getLogger(__name__)
+
 
 class SimCreatorExecutor(BaseStageExecutor):
     def __init__(self, cfg: DictConfig) -> None:
@@ -73,21 +72,21 @@ class SimCreatorExecutor(BaseStageExecutor):
         self.units = cfg.scenario.units
         logger.info(f"Simulations will have units of {self.units}")
 
-        placeholder = pysm3.Model(nside=self.nside_sky, max_nside=self.nside_sky)
-
-        preset_strings = list(cfg.model.sim.preset_strings)
-        logger.info(f"Preset strings are {preset_strings}")
-        
-        logger.debug('Creating PySM3 Sky object')
-        self.sky = pysm3.Sky(nside=self.nside_sky,
-                             component_objects=[placeholder],
-                             preset_strings=preset_strings,
-                             output_unit=cfg.scenario.units)
-        logger.debug('Done creating PySM3 Sky object')
+        self.preset_strings = list(cfg.model.sim.preset_strings)
+        logger.info(f"Preset strings are {self.preset_strings}")
+        self.sky = None
+        self.output_units = cfg.scenario.units
         self.cmb_factory = CMBFactory(self.nside_sky)
 
     def execute(self) -> None:
-        logger.debug(f"Executing SimCreatorExecutor execute()")
+        logger.debug(f"Running {self.__class__.__name__} execute() method.")
+        placeholder = pysm3.Model(nside=self.nside_sky, max_nside=self.nside_sky)
+        logger.debug('Creating PySM3 Sky object')
+        self.sky = pysm3.Sky(nside=self.nside_sky,
+                             component_objects=[placeholder],
+                             preset_strings=self.preset_strings,
+                             output_unit=self.output_units)
+        logger.debug('Done creating PySM3 Sky object')
         self.default_execute()
 
     def process_split(self, split: Split) -> None:
