@@ -164,12 +164,17 @@ Big:
 
 ## General
 
+- [ ] Clean up import structure
+- [ ] Where reasonable, load from configs in the `__init__` statement of Executors, for better compatibility with prerun
+
 Polarization:
-  - Decide if CMB simulation maps should be saved with only a single field.
+  - [ ] Decide if CMB simulation maps should be saved with only a single field.
     - Later comparisons would assume the same fields when comparing maps, instead of checking for each
 
 Other:
-  - Parallel Base Executor?
+  - [ ] Parallel Base Executor?
+  - [ ] Support for multiple HDU's with every map?
+  - [ ] Ensure units make sense everywhere
 
 ## Documentation
 
@@ -177,6 +182,7 @@ Other:
 
 ## To do (Make Simulations)
 
+- [ ] Use logger
 - [ ] Make instrumentation noise as a PySM3 Model (?)
 - [ ] Convert CMB targets to K_CMB (?)
 
