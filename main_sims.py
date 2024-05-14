@@ -22,8 +22,8 @@ from src.analysis import (
 logger = logging.getLogger(__name__)
 
 
-@hydra.main(version_base=None, config_path="cfg", config_name="config_32_sim")
-# @hydra.main(version_base=None, config_path="cfg", config_name="config_128_sim")
+# @hydra.main(version_base=None, config_path="cfg", config_name="config_32_sim")
+@hydra.main(version_base=None, config_path="cfg", config_name="config_128_sim")
 # @hydra.main(version_base=None, config_path="cfg", config_name="config_512_sim")
 # @hydra.main(version_base=None, config_path="cfg", config_name="config_2048_sim")
 def make_all_simulations(cfg):
@@ -35,12 +35,14 @@ def make_all_simulations(cfg):
     pipeline_context = PipelineContext(cfg, log_maker)
 
     pipeline_context.add_pipe(HydraConfigCheckerExecutor)
-    # pipeline_context.add_pipe(SimsHydraConfigCheckerExecutor)
-    # pipeline_context.add_pipe(NoiseCacheExecutor)
-    # pipeline_context.add_pipe(ConfigExecutor)
-    # pipeline_context.add_pipe(TheoryPSExecutor)
-    # pipeline_context.add_pipe(SimCreatorExecutor)
+    pipeline_context.add_pipe(HydraConfigSimsCheckerExecutor)
+    pipeline_context.add_pipe(NoiseCacheExecutor)
+    pipeline_context.add_pipe(ConfigExecutor)
+    pipeline_context.add_pipe(TheoryPSExecutor)
+    pipeline_context.add_pipe(SimCreatorExecutor)
     pipeline_context.add_pipe(ShowSimsExecutor)
+
+    pipeline_context.prerun_pipeline()
 
     try:
         pipeline_context.run_pipeline()

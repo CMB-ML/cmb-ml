@@ -3,8 +3,8 @@ defaults:
   - file_system    : common_fs
   - pipeline       : assembly_cmbnncs
   - scenario       : scenario_128
-  - splits         : all
-  # - splits        : "3-1"
+  # - splits         : all
+  - splits        : "3-1"
   # simulation must listed be after scenario and splits to build the simulation seed
   # - model/sim     : sim_trivial
   - model/cmbnncs  : cmbnncs_model

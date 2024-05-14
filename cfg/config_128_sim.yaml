@@ -2,9 +2,8 @@ defaults:
   - local_system: ${oc.env:CMB_SIMS_LOCAL_SYSTEM}
   - file_system : common_fs
   - pipeline    : assembly_cmbnncs
-  # - pipeline    : assembly_cmbnncs
   - scenario    : scenario_128
-  - splits      : "1-1"
+  - splits      : all
   # simulation must listed be after scenario and splits to build the simulation seed
   - model/sim   : sim_simple
   - override hydra/job_logging: custom_log
