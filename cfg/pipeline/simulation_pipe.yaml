@@ -2,10 +2,10 @@ raw:
   assets_out:
     planck_deltabandpass:
       handler: QTable
-      path_template: "{src_root}/planck_deltabandpass.tbl"
+      path_template: "{src_root}/Planck/planck_deltabandpass.tbl"
     noise_src_maps:
       handler: HealpyMap
-      path_template: "{src_root}/{fn}"
+      path_template: "{src_root}/Planck/{filename}"
     # wmap_chains:  # TODO
     #   handler: WMAPChains
     #   path_template: "{src_root}/{fn}"
@@ -36,7 +36,7 @@ make_sim_configs:
     - test
   dir_name: Simulation_C_Configs
   make_stage_log: True
-make_cmb_power_spectra:
+make_theory_ps:
   assets_out:
     cmb_ps:
       handler: CambPowerSpectrum
@@ -58,7 +58,7 @@ make_sims:
   assets_in:
     planck_deltabandpass: {stage: raw}
     noise_cache: {stage: make_noise_cache}
-    cmb_ps: {stage: make_cmb_power_spectra}
+    cmb_ps: {stage: make_theory_ps}
   splits: *all_splits
   dir_name: Simulation
   make_stage_log: True

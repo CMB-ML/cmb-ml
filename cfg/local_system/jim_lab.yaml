@@ -1,8 +1,3 @@
-test_key         : "jim_lab"
 datasets_root    : /data/jim/CMB_Data/Datasets/
-# datasets_root    : /home/jim/cmb_data/Datasets/
-instr_table_path : /home/jim/cmb_data/Assets/Planck/planck_deltabandpass.tbl
-noise_src_dir    : /home/jim/cmb_data/Assets/Planck/
+assets_dir       : /home/jim/cmb_data/Assets/
 wmap_chains_dir  : /home/jim/cmb_data/Assets/WMAP/wmap_lcdm_mnu_wmap9_chains_v5
-noise_cache_dir  : /home/jim/cmb_data/Cache/noise/
-num_processes    : 16

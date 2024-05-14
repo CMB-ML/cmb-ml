@@ -52,7 +52,7 @@ class SimCreatorExecutor(BaseStageExecutor):
         in_cmb_ps_handler: CambPowerSpectrum
         in_det_table_handler: QTableHandler
 
-        with self.name_tracker.set_context('src_root', cfg.local_system.noise_src_dir):
+        with self.name_tracker.set_context('src_root', cfg.local_system.assets_dir):
             det_info = in_det_table.read()
         self.instrument: Instrument = make_instrument(cfg=cfg, det_info=det_info)
 

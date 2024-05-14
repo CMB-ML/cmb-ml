@@ -32,11 +32,9 @@ class NoiseCacheExecutor(BaseStageExecutor):
         in_noise_src_handler: HealpyMap
         in_det_table_handler: QTableHandler
 
-        with self.name_tracker.set_context('src_root', cfg.local_system.noise_src_dir):
+        with self.name_tracker.set_context('src_root', cfg.local_system.assets_dir):
             det_info = in_det_table.read()
         self.instrument: Instrument = make_instrument(cfg=cfg, det_info=det_info)
-
-        self.noise_src_dir: str            = cfg.local_system.noise_src_dir
 
     def execute(self) -> None:
         hdu = self.cfg.model.sim.noise.hdu_n
@@ -96,9 +94,9 @@ class NoiseCacheExecutor(BaseStageExecutor):
         Returns:
         str: The path for the fits file containing the noise.
         """
-        fn = self.cfg.model.sim.noise.src_files[detector]
-        noise_src_dir = self.cfg.local_system.noise_src_dir
-        contexts_dict = dict(src_root=noise_src_dir, fn=fn)
+        fn       = self.cfg.model.sim.noise.src_files[detector]
+        src_root = self.cfg.local_system.assets_dir
+        contexts_dict = dict(src_root=src_root, filename=fn)
         with self.name_tracker.set_contexts(contexts_dict):
             src_path = self.in_noise_src.path
         return src_path
