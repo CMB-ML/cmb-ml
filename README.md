@@ -225,6 +225,104 @@ Markov:
 - Rename "ps_fidu_fixed" to "fixed_theory_ps" or "ps_theory_fixed" or "ps_thry_fixed"
 - Decide on using "theory" or "thry"
 
+## More todos from a text file... need to organize and clean these out
+
+Later:
+    - Cross-check if Wang prediction dropoff matches simulation nside_max
+    - Script backup needs to include 
+        - library versions
+        - config files (and hydra condensed config)
+        - copied into per directory, not just top level
+    - Logs into stages
+    - Root out all hardcoding of polarization fields
+    - Validation:
+        - Flag for bailing out?
+        - Decreasing loss?
+    - Remove 'experiment' from executors. Just pass the config around.
+    - Better use of 'ExperimentParameters' (same as previous?)
+
+Maybe:
+    - TESTs (note: check PySM3)
+    - Early check of configs for conflicts/issues (don't fail late because of mismatched config settings)
+    - Power spectrum object outlined below
+    - Instrument object outlined below
+    - Optional instantiation of portions of Hydra Configs?
+    - Preprocess(A, making params): Can use same structure as px_analysis to generate a report/summary
+    - Parallelize some stages
+    - Preprocess in parallel
+    - Decide and clean up: No cfg outside of class initializations (for Executors, in some I use self.cfg.whatever... or I can define that in __init__ for self.whatever) ?
+    - "ExperimentParams" -> Healpy reader? (unsure what this means)
+    - Encourage one-offs w/ the same code calls and less boilerplate (API related)
+    - Temporary pipeline addition for "view"ing trials
+    - How to API this thing??
+        - Easy to use DataLoader
+        - Easy to use Analysis
+    - Use TQDM flag; add TQDM iterator sometimes; add levels (?)
+    - Generic ManyMaps
+        - Inherit for ObsNumpyMaps, ObsHealpyMaps
+        - Rename "Many_X_Maps" to "Obs_X_Maps"
+        - Further generic? Are there other poly-assets?
+    - HD5 output instead of FITS
+    - Check map file units; ensure compliance in AssetHandler reader/writer
+    - File cleanup flag for user to reclaim disk space (per asset? how?)
+    - Each contaminant we want in its own stage
+    - Each precursor values with prng values in its own stage
+    - Simulation splits separate from training splits +1: filter to ensure training is subset of simulation (and same for analysis) (I think this is referring to a potential conflict in the config files. Something along the lines of sim_num 5 required for stage C, but not stage B. Similar is which epochs are saved during training, used for prediction, used for post, use for analysis)
+    - CMB-like spectrum generator based on... ??? (Hu?)
+    - AssetHandlers broken into multiple files?
+    - Enable Multirun
+
+- Physics questions:
+    - When running lower resolution, how do we pick parameters?
+    - Analysis Lmax?
+    - NILC specifics: 
+        - GN_FWHM_arcmin
+        - Ell_peaks (CN)
+        - Taper width
+        - EllMax
+        - Perform_ILC_at_Beam
+    - Sims processing is correct?
+        - Ringing in 70 GHz detector
+        - CMB "realization" has a lot of texture (does it need preprocessing to be comparable?)
+    - How to mask?
+    - Other questions from backlog in Google Doc
+
+- Petroff
+    - Run on bad units only
+    - Add validation to ensure progress
+    - Do units matter for Petroff? Is K_CMB <--> K_RJ linear? No.
+    Models trained on (working): 128, non-converted units
+    Models trained on (failed) : 32, 128, 512 converted units
+- Wang
+    - PS dropoff @ nside*2
+    - Add Validation to ensure progress
+- ILC
+    - Time mgmt
+    - HILC at either 128 or 512
+- Simulations
+    - Parallelization modification check-in (???)
+    - CMB-Lensed
+    - Ringing
+    - Units match? (Noise, WMAP, Note others)
+- Analysis
+    - Need multispectrum (wtf does this even mean?)
+    - Statistics to run
+    - Other comparison data (wtf does this even mean?)
+
+
+Simulations
+    - Run for 32, 128, 512
+
+
+- Add to codebase
+    - Object to track PS
+        - Contains powerspectrum; is_Cl (bool); ellmin, ellmax (ints)
+    - Object to track instrumentation
+        - Handle janky if detector is 545/847 for polarization
+        - Note what this impacts; handle all instances of it
+            - Asset handlers (Many maps)
+        - Related to Root out hardcoding of polarization fields
+
 ## Credit / References
 
 - [CAMB for Python](https://camb.readthedocs.io/en/latest/CAMBdemo.html)
