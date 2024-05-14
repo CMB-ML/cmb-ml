@@ -37,7 +37,7 @@
   - *dir_name* (string): name of the directory to store the assets 
   - *make_stage_log* (bool): If `true`, the logs will be copied to this stage. Should not happen when `false` (note, `False` is different, may be interpretted as a string, and is untested)
 - More keys are used later in the pipes:
-  - *sim_num*: (list of ints) which simulation nums to process
+  - *override_n_sims*: (null, int, or list of ints) which simulation nums to process
     - Especially for the purpose of previews
   - *epochs*: (list of ints) which epochs to process
   - *path_template_alt*: (str) Similar to *path_template*; when defined, allows a flag to dictate which template is used.
