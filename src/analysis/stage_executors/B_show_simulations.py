@@ -64,12 +64,12 @@ class ShowSimsExecutor(BaseStageExecutor):
         return plot_min, plot_max
 
     def execute(self) -> None:
-        logger.debug(f"Executing SinglePxFigExecutor execute()")
+        logger.debug(f"Running {self.__class__.__name__} execute().")
         self.default_execute()
 
     def process_split(self, 
                       split: Split) -> None:
-        logger.info(f"Executing SinglePxFigExecutor process_split() for split: {split.name}.")
+        logger.info(f"Running {self.__class__.__name__} process_split() for split: {split.name}.")
 
         # We may want to process a subset of all sims
         if self.sim_ns is None:

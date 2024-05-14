@@ -38,7 +38,7 @@ class PostprocessExecutor(BaseStageExecutor):
 
     def execute(self) -> None:
         # Remove this function
-        logger.debug(f"Executing PostprocessExecutor execute()")
+        logger.debug(f"Running {self.__class__.__name__} execute().")
         for epoch in self.model_epochs:
             # logger.debug(f"Executing PostprocessExecutor execute() for epoch: {epoch}")
             with self.name_tracker.set_context("epoch", epoch):
@@ -46,7 +46,7 @@ class PostprocessExecutor(BaseStageExecutor):
 
     def process_split(self, 
                       split: Split) -> None:
-        logger.info(f"Executing PostprocessExecutor process_split() for epoch: {self.name_tracker.context['epoch']}, split: {split.name}.")
+        logger.info(f"Running {self.__class__.__name__} process_split() for epoch: {self.name_tracker.context['epoch']}, split: {split.name}.")
         logger.debug(f"Reading norm_file from: {self.in_norm_file.path}")
         scale_factors = self.in_norm_file.read()
         for sim in tqdm(split.iter_sims()):
@@ -61,6 +61,7 @@ class PostprocessExecutor(BaseStageExecutor):
     def unnormalize_map_file(self, 
                            map_data: np.ndarray, 
                            scale_factors: Dict[str, Dict[str, float]]) -> List[np.ndarray]:
+        raise NotImplementedError("Rewrite this.")
         # processed_maps = []
         # for field_n in range(map_data.shape[0]):
         #     field_char = self.experiment.map_fields[field_n]

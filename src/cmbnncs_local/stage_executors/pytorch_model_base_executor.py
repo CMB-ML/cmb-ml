@@ -24,7 +24,6 @@ logger = logging.getLogger(__name__)
 
 class BasePyTorchModelExecutor(BaseStageExecutor):
     def __init__(self, cfg: DictConfig, stage_str) -> None:
-        logger.debug("Initializing BasePyTorchModelExecutor")
         super().__init__(cfg, stage_str)
         self.instrument: Instrument = make_instrument(cfg=cfg)
 
@@ -77,7 +76,7 @@ class BasePyTorchModelExecutor(BaseStageExecutor):
         if self.model_precision == "float" and tensor.dtype is torch.float32:
             return tensor
         else:
-            message = f"BasePyTorchModelExecutor data conversion is partially implemented. Received from config model precision: {self.model_precision}, data precision: {self.data_precision}. Received a tensor with dtype: {tensor.dtype}. Sort it out."
+            message = f"BasePyTorchModelExecutor data conversion is partially implemented. Received from config model precision: {self.model_precision}, data precision: {self.data_precision}. Received a tensor with dtype: {tensor.dtype}."
             logger.error(message)
             raise NotImplementedError(message)
 

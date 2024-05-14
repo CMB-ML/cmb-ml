@@ -23,7 +23,6 @@ class ViewExecutor(BaseStageExecutor):
     def __init__(self,
                  cfg: DictConfig,
                  experiment: ExperimentParameters) -> None:
-        logger.debug("Initializing CMBNNCS ViewExecutor")
         # TODO: cfg_scope_str is not intuitive. Better to replace it.
         # The following string must match the pipeline yaml
         self.stage_str = "view"

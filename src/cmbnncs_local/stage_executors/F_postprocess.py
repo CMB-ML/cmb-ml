@@ -39,7 +39,6 @@ class TaskTarget(NamedTuple):
 
 class PostprocessExecutor(BaseStageExecutor):
     def __init__(self, cfg: DictConfig) -> None:
-        logger.debug("Initializing CMBNNCS PreprocessExecutor")
         # TODO: remove self.stage_str; pass it as a parameter to the super.init()
         # The following string must match the pipeline yaml
         super().__init__(cfg, stage_str="postprocess")
@@ -57,7 +56,7 @@ class PostprocessExecutor(BaseStageExecutor):
         self.num_processes = self.cfg.model.cmbnncs.postprocess.num_processes
 
     def execute(self) -> None:
-        logger.debug("ParallelPreprocessExecutor execute() method.")
+        logger.debug(f"Running {self.__class__.__name__} execute().")
 
         # Tasks are items on a to-do list
         #   For each simulation, we compare the prediction and target
@@ -101,7 +100,7 @@ class PostprocessExecutor(BaseStageExecutor):
         _process(task)
 
     def run_all_tasks(self, process, tasks):
-        logger.info(f"Running postprocess on {len(tasks)} across {self.num_processes} workers.")
+        logger.info(f"Running postprocess on {len(tasks)} tasks across {self.num_processes} workers.")
         with Pool(processes=self.num_processes) as pool:
             # Create an iterator from imap_unordered and wrap it with tqdm for progress tracking
             task_iterator = tqdm(pool.imap_unordered(process, tasks), total=len(tasks))

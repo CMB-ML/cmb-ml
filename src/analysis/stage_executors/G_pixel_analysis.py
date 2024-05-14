@@ -36,7 +36,6 @@ class TaskTarget(NamedTuple):
 
 class PixelAnalysisExecutor(BaseStageExecutor):
     def __init__(self, cfg: DictConfig) -> None:
-        logger.debug("Initializing PixelAnalysisExecutor")
         # The following string must match the pipeline yaml
         super().__init__(cfg, stage_str="pixel_analysis")
 
@@ -53,7 +52,7 @@ class PixelAnalysisExecutor(BaseStageExecutor):
         self.num_processes = cfg.model.analysis.px_operations.num_processes
 
     def execute(self) -> None:
-        logger.debug("PixelAnalysisExecutor execute() method.")
+        logger.debug(f"Running {self.__class__.__name__} execute().")
         
         # Create a method; 
         #   process_target needs a list of statistics functions, from the config file

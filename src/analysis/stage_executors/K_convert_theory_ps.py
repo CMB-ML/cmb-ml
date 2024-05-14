@@ -38,7 +38,6 @@ class TaskTarget(NamedTuple):
 
 class ConvertTheoryPowerSpectrumExecutor(BaseStageExecutor):
     def __init__(self, cfg: DictConfig) -> None:
-        logger.debug("Initializing ConvertTheoryPowerSpectrumExecutor")
         # The following string must match the pipeline yaml
         super().__init__(cfg, stage_str="convert_theory_ps")
 
@@ -51,7 +50,7 @@ class ConvertTheoryPowerSpectrumExecutor(BaseStageExecutor):
         self.num_processes = cfg.model.analysis.px_operations.num_processes
 
     def execute(self) -> None:
-        logger.debug("ParallelPreprocessExecutor execute() method.")
+        logger.debug(f"Running {self.__class__.__name__} execute().")
 
         # Tasks are items on a to-do list
         #   For each simulation, we compare the prediction and target

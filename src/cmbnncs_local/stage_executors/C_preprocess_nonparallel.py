@@ -22,8 +22,6 @@ logger = logging.getLogger(__name__)
 
 class NonParallelPreprocessExecutor(BaseStageExecutor):
     def __init__(self, cfg: DictConfig) -> None:
-        logger.debug("Initializing CMBNNCS PreprocessExecutor")
-        # TODO: remove self.stage_str; pass it as a parameter to the super.init()
         # The following string must match the pipeline yaml
         super().__init__(cfg, stage_str="preprocess")
 
@@ -42,12 +40,12 @@ class NonParallelPreprocessExecutor(BaseStageExecutor):
         in_obs_map_handler: HealpyMap
 
     def execute(self) -> None:
-        logger.debug(f"Executing PreprocessExecutor execute()")
+        logger.debug(f"Running {self.__class__.__name__} execute()")
         self.default_execute()
 
     def process_split(self, 
                       split: Split) -> None:
-        logger.info(f"Executing PreprocessExecutor process_split() for split: {split.name}.")
+        logger.info(f"Running {self.__class__.__name__} process_split() for split: {split.name}.")
         logger.debug(f"Reading norm_file from: {self.in_norm_file.path}")
         scale_factors = self.in_norm_file.read()
         for sim in tqdm(split.iter_sims(), total=split.n_sims):

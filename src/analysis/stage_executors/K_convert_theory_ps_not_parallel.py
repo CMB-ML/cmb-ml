@@ -37,9 +37,8 @@ logger = logging.getLogger(__name__)
 
 
 
-class ConvertTheoryPowerSpectrumExecutor(BaseStageExecutor):
+class SerialConvertTheoryPowerSpectrumExecutor(BaseStageExecutor):
     def __init__(self, cfg: DictConfig) -> None:
-        logger.debug("Initializing ConvertTheoryPowerSpectrumExecutor")
         # The following string must match the pipeline yaml
         super().__init__(cfg, stage_str="theory_ps")
 
@@ -50,12 +49,12 @@ class ConvertTheoryPowerSpectrumExecutor(BaseStageExecutor):
         in_theory_ps_handler: CambPowerSpectrum
 
     def execute(self) -> None:
-        logger.debug(f"Executing ConvertTheoryPowerSpectrumExecutor execute()")
+        logger.debug(f"Running {self.__class__.__name__} execute().")
         self.default_execute()
 
     def process_split(self, 
                       split: Split) -> None:
-        logger.info(f"Executing ConvertTheoryPowerSpectrumExecutor process_split() for split: {split.name}.")
+        logger.info(f"Running {self.__class__.__name__} process_split() for split: {split.name}.")
         if split.ps_fidu_fixed:
             ps = self.in_theory_ps.read(use_alt_path=True)
             self.out_theory_ps.write(use_alt_path=True, data=ps)

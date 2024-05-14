@@ -25,7 +25,6 @@ logger = logging.getLogger(__name__)
 
 class TrainingExecutor(BasePyTorchModelExecutor):
     def __init__(self, cfg: DictConfig) -> None:
-        logger.debug("Initializing CMBNNCS TrainingExecutor")
         super().__init__(cfg, stage_str="train")
 
         self.out_model: Asset = self.assets_out["model"]
@@ -48,7 +47,7 @@ class TrainingExecutor(BasePyTorchModelExecutor):
         self.repeat_n = cfg.model.cmbnncs.train.repeat_n
 
     def execute(self) -> None:
-        logger.debug(f"Executing TrainingExecutor execute()")
+        logger.debug(f"Running {self.__class__.__name__} execute()")
         # Code smell? Consider, instead of a template_split, 
         #   a dataset object that is common to all splits, 
         #   containing information needed for set_up_dataset()
@@ -133,8 +132,8 @@ class TrainingExecutor(BasePyTorchModelExecutor):
 
     def inspect_data(self, dataloader):
         train_features, train_labels, idx = next(iter(dataloader))
-        logger.info(f"TrainingExecutor.preview_data() Feature batch shape: {train_features.size()}")
-        logger.info(f"TrainingExecutor.preview_data() Labels batch shape: {train_labels.size()}")
+        logger.info(f"{self.__class__.__name__}.inspect_data() Feature batch shape: {train_features.size()}")
+        logger.info(f"{self.__class__.__name__}.inspect_data() Labels batch shape: {train_labels.size()}")
         npix_data = train_features.size()[-1]
         npix_cfg  = hp.nside2npix(self.nside)
         assert npix_cfg == npix_data, "Data map resolution does not match configuration."

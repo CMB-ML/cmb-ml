@@ -19,7 +19,6 @@ logger = logging.getLogger(__name__)
 
 class PixelSummaryExecutor(BaseStageExecutor):
     def __init__(self, cfg: DictConfig) -> None:
-        logger.debug("Initializing PixelSummaryExecutor")
         # The following string must match the pipeline yaml
         super().__init__(cfg, stage_str="pixel_summary")
 
@@ -42,7 +41,7 @@ class PixelSummaryExecutor(BaseStageExecutor):
         return lookup
 
     def execute(self) -> None:
-        logger.debug("PixelSummaryExecutor execute() method.")
+        logger.debug(f"Running {self.__class__.__name__} execute().")
         report_contents = self.in_report.read()
         df = pd.DataFrame(report_contents)
 

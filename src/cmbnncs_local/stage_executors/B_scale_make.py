@@ -19,7 +19,6 @@ logger = logging.getLogger(__name__)
 
 class PreprocessMakeScaleExecutor(BaseStageExecutor):
     def __init__(self, cfg: DictConfig) -> None:
-        logger.debug("Initializing CMBNNCS PreprocessMakeScaleParamsExecutor")
         # The following string must match the pipeline yaml
         super().__init__(cfg, stage_str = "make_normalization")
 
@@ -39,7 +38,7 @@ class PreprocessMakeScaleExecutor(BaseStageExecutor):
         self.scale_target = cfg.model.cmbnncs.preprocess.scale_target
 
     def execute(self) -> None:
-        logger.debug("PreprocessMakeScaleParamsExecutor execute() method.")
+        logger.debug(f"Running {self.__class__.__name__} execute() method.")
         # Defining extrema at the scope of the stage: we want extrema of all maps across splits
         #    Note that some channels won't use all fields (e.g. 545, 857 only have intensity)
         scale_factors = {}

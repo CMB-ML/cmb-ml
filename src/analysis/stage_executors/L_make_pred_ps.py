@@ -23,9 +23,8 @@ logger = logging.getLogger(__name__)
 
 class MakePredPowerSpectrumExecutor(BaseStageExecutor):
     def __init__(self, cfg: DictConfig) -> None:
-        logger.debug("Initializing PowerSpectrumExecutor")
         # The following string must match the pipeline yaml
-        super().__init__(cfg, stage_str="make_ps")
+        super().__init__(cfg, stage_str="make_pred_ps")
 
         self.out_auto_real: Asset = self.assets_out.get("auto_real", None)
         self.out_auto_pred: Asset = self.assets_out.get("auto_pred", None)
@@ -60,12 +59,12 @@ class MakePredPowerSpectrumExecutor(BaseStageExecutor):
                           use_pixel_weights=self.use_pixel_weights)
 
     def execute(self) -> None:
-        logger.debug(f"Executing PowerSpectrumExecutor execute()")
+        logger.debug(f"Running {self.__class__.__name__} execute().")
         self.default_execute()
 
     def process_split(self, 
                       split: Split) -> None:
-        logger.info(f"Executing PowerSpectrumExecutor process_split() for split: {split.name}.")
+        logger.info(f"Running {self.__class__.__name__} process_split() for split: {split.name}.")
         for sim in tqdm(split.iter_sims()):
             with self.name_tracker.set_context("sim_num", sim):
                 self.process_sim()

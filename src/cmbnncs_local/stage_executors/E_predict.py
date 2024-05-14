@@ -40,7 +40,7 @@ class PredictionExecutor(BasePyTorchModelExecutor):
         self.batch_size = cfg.model.cmbnncs.predict.batch_size
 
     def execute(self) -> None:
-        logger.debug(f"Executing Prediction Executor execute()")
+        logger.debug(f"Running {self.__class__.__name__} execute().")
 
         for model_epoch in self.model_epochs:
             logger.debug(f"Making predictions based on epoch {model_epoch}")
