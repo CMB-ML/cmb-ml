@@ -162,9 +162,14 @@ Big:
 - PyILC
 - Analysis
 
-Polarization
-- Decide if CMB simulation maps should be saved with only a single field.
-  - Later comparisons would assume the same fields when comparing maps, instead of checking for each
+## General
+
+Polarization:
+  - Decide if CMB simulation maps should be saved with only a single field.
+    - Later comparisons would assume the same fields when comparing maps, instead of checking for each
+
+Other:
+  - Parallel Base Executor?
 
 ## Documentation
 
@@ -183,6 +188,8 @@ Markov:
 ## Analysis
 
 - [ ] Get rid of Mover AssetHandlers (?)
+- [ ] Implement better power spectra object
+- [ ] Clean up PS Plotting code to match some of 5-11 discussion
 
 ## UG Ready
 
