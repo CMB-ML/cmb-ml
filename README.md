@@ -175,8 +175,15 @@ Polarization:
     - Later comparisons would assume the same fields when comparing maps, instead of checking for each
 
 Other:
+  - [ ] Separate folders for Simulation / Working / Analysis
+  - [ ] Try Wang resume training
+  - [ ] Configure PyILC with pipeline
+  - [ ] Find Petroff actual preprocess method
+  - [ ] Inventory other repos for their one-off scripts
+  - [ ] Cf PyTorch Transform style instead of bulk pre/post-process
   - [ ] Base Executor for Parallel?
-  - [ ] Base Executor for PyTorch Training/Inference (generic for other models; Petroff and CMBNNCS are very similar...)?
+  - [ ] Find why Petroff failed
+  - [ ] Base Executor for PyTorch, generic for other models; Petroff and CMBNNCS are very similar... (?)
     - [ ] Same for Train
     - [ ] Same for Predict maybe???
   - [ ] Support for multiple HDU's with every map?
@@ -187,6 +194,8 @@ Other:
   - [ ] Train TQDM should update loss inline
   - [ ] Namer set_contexts should take kwargs instead of a dictionary
   - [ ] Rethink dataset creation (currently within each split using template)
+  - [ ] Easier scenario overrides for, e.g., fewer detectors (do other use cases exist? If not, just... do it; no need for a fancy solution.)
+  - [ ] Easy way to run multiple things on the same simulation dataset into different folders (just document HOW, no need for a fancy interface)
 ## Documentation
 
 - [ ] Citations/references for CMBNNCS, Petroff, PyILC, PySM3, CMB Summer Camp
@@ -334,7 +343,11 @@ Simulations
             - Asset handlers (Many maps)
         - Related to Root out hardcoding of polarization fields
 
-## Credit / References
+## Stretch
+
+  - [ ] When starting a stage, snapshot non-log files in that directory. If everything is over-written, remove old logs as well.
+
+# Credit / References
 
 - [CAMB for Python](https://camb.readthedocs.io/en/latest/CAMBdemo.html)
 - [CMBNNCS Library](https://github.com/Guo-Jian-Wang/cmbnncs/tree/master)
