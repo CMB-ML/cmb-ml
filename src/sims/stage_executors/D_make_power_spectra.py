@@ -15,7 +15,7 @@ from ...core import (
 from ..physics_cmb import make_camb_ps
 
 from ...core.asset_handlers.psmaker_handler import CambPowerSpectrum # Import to register handler
-from core.asset_handlers import Config
+from core.asset_handlers.asset_handlers_base import Config
 
 
 logger = logging.getLogger(__name__)

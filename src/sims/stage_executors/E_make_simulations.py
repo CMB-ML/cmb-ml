@@ -24,7 +24,7 @@ from core import (
 
 from core.asset_handlers.qtable_handler import QTableHandler # Import to register handler
 from core.asset_handlers.psmaker_handler import CambPowerSpectrum # Import for typing hint
-from core.asset_handlers import HealpyMap # Import for VS Code hints
+from core.asset_handlers.healpy_map_handler import HealpyMap # Import for VS Code hints
 
 from utils.map_formats import convert_pysm3_to_hp
 from ..physics_cmb import change_nside_of_map

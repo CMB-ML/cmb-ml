@@ -6,7 +6,7 @@ from omegaconf import DictConfig, OmegaConf
 
 from ..get_wmap_params import get_wmap_indices, pull_params_from_file
 
-from ...core.asset_handlers import Config
+from ...core.asset_handlers.asset_handlers_base import Config
 from ...core import (
     BaseStageExecutor,
     Split,
