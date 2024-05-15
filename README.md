@@ -164,7 +164,10 @@ Big:
 
 ## General
 
-- [ ] Clean up import structure (look for "...core"; put core asset handlers into a single import)
+- [ ] Clean up import structure 
+    - [ ] look for "...core"
+    - [ ] put core asset handlers into a single import
+    - [ ] get HealpyMap out of core or others into it
 - [ ] Where reasonable, load from configs in the `__init__` statement of Executors, for better compatibility with prerun
 
 Polarization:
@@ -172,13 +175,18 @@ Polarization:
     - Later comparisons would assume the same fields when comparing maps, instead of checking for each
 
 Other:
-  - [ ] Parallel Base Executor?
+  - [ ] Base Executor for Parallel?
+  - [ ] Base Executor for PyTorch Training/Inference (generic for other models; Petroff and CMBNNCS are very similar...)?
+    - [ ] Same for Train
+    - [ ] Same for Predict maybe???
   - [ ] Support for multiple HDU's with every map?
   - [ ] Ensure units make sense everywhere
   - [ ] Change src to cmml (package name)
   - [ ] Change loggers from `__name__ ` to shorter names
   - [ ] Enable those names in the console log, check if it looks better
-
+  - [ ] Train TQDM should update loss inline
+  - [ ] Namer set_contexts should take kwargs instead of a dictionary
+  - [ ] Rethink dataset creation (currently within each split using template)
 ## Documentation
 
 - [ ] Citations/references for CMBNNCS, Petroff, PyILC, PySM3, CMB Summer Camp
