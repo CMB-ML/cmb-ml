@@ -11,7 +11,8 @@ from core import (
     Asset
     )
 from src.utils import make_instrument, Instrument
-from core.asset_handlers import HealpyMap, Config # Import for typing hint
+from core.asset_handlers.asset_handlers_base import Config
+from core.asset_handlers.healpy_map_handler import HealpyMap
 
 
 logger = logging.getLogger(__name__)

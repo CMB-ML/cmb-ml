@@ -15,15 +15,17 @@ from core import (
     )
 
 
-from .pytorch_model_base_executor import BasePyTorchModelExecutor
-from ..dataset import LabelledCMBMapDataset
-from ..handler_model_pytorch import PyTorchModel  # Import for typing hint
+from .pytorch_model_base_executor import BaseCMBNNCSModelExecutor
+from ...core.dataset import LabelledCMBMapDataset
+
+from core.asset_handlers.handler_model_pytorch import PyTorchModel # Import for typing hint
+
 from ..handler_npymap import NumpyMap             # Import for typing hint
 
 logger = logging.getLogger(__name__)
 
 
-class TrainingExecutor(BasePyTorchModelExecutor):
+class TrainingExecutor(BaseCMBNNCSModelExecutor):
     def __init__(self, cfg: DictConfig) -> None:
         super().__init__(cfg, stage_str="train")
 
@@ -45,6 +47,7 @@ class TrainingExecutor(BasePyTorchModelExecutor):
         self.lr_init = cfg.model.cmbnncs.train.learning_rate
         self.lr_final = cfg.model.cmbnncs.train.learning_rate_min
         self.repeat_n = cfg.model.cmbnncs.train.repeat_n
+        self.model_precision = cfg.model.cmbnncs.unet.model_precision
 
     def execute(self) -> None:
         logger.debug(f"Running {self.__class__.__name__} execute()")

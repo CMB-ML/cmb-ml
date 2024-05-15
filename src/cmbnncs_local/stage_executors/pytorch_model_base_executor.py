@@ -1,4 +1,4 @@
-from typing import List, Dict
+from typing import List, Dict, Callable
 import logging
 
 import numpy as np
@@ -16,11 +16,12 @@ from core import (
 # from ..dummymodel import DummyNeuralNetwork
 from ..unet_wrapper import make_unet
 
-from ..handler_model_pytorch import PyTorchModel  # Must be imported to get it registered
+from core.asset_handlers.handler_model_pytorch import PyTorchModel  # Must be imported to get it registered
 from src.utils import make_instrument, Instrument, Detector
 
 
 logger = logging.getLogger(__name__)
+
 
 class BasePyTorchModelExecutor(BaseStageExecutor):
     def __init__(self, cfg: DictConfig, stage_str) -> None:
@@ -29,8 +30,6 @@ class BasePyTorchModelExecutor(BaseStageExecutor):
 
         self.n_dets = len(self.instrument.dets)
         self.nside = cfg.scenario.nside
-        # self.data_precision = cfg.data_precision
-        self.model_precision = cfg.model.cmbnncs.unet.model_precision
 
     def choose_device(self, force_device=None) -> None:
         if force_device:
@@ -60,7 +59,7 @@ class BasePyTorchModelExecutor(BaseStageExecutor):
 
     def make_model(self):
         logger.info(f"Using {self.device} device")
-        model = make_unet(self.cfg)
+        model = self.make_model(self.cfg)
         # logger.info(model)
         return model
 
@@ -88,3 +87,9 @@ class BasePyTorchModelExecutor(BaseStageExecutor):
     #     dummy_input = torch.rand(1, self.n_dets, n_pix, device=self.device)
     #     result = model(dummy_input)
     #     logger.info(f"Output result size: {result.size()}")
+
+
+class BaseCMBNNCSModelExecutor(BasePyTorchModelExecutor):
+    def __init__(self, cfg: DictConfig, stage_str) -> None:
+        super().__init__(cfg, stage_str)
+        self.make_model: Callable = make_unet
