@@ -99,6 +99,7 @@ class PostprocessExecutor(BaseStageExecutor):
         to avoid painful debugging within multiprocessing.
         """
         _process(task)
+        logger.info(f"First simulation postprocessed by {self.__class__.__name__} without errors.")
 
     def run_all_tasks(self, process, tasks):
         logger.info(f"Running postprocess on {len(tasks)} tasks across {self.num_processes} workers.")
