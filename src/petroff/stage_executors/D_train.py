@@ -70,7 +70,8 @@ class TrainingExecutor(PetroffModelExecutor):
         if self.restart_epoch is not None:
             # The following returns the epoch number stored in the checkpoint 
             #     as well as loading the model and optimizer with checkpoint information
-            start_epoch = self.in_model.read(model=model, epoch=self.restart_epoch, optimizer=optimizer)
+            with self.name_tracker.set_context("epoch", self.restart_epoch):
+                start_epoch = self.in_model.read(model=model, epoch=self.restart_epoch, optimizer=optimizer)
         else:
             with self.name_tracker.set_context("epoch", "init"):
                 self.out_model.write(model=model, epoch="init")
