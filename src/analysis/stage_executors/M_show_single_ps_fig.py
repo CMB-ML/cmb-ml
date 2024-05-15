@@ -13,7 +13,7 @@ from core import (
     )
 from tqdm import tqdm
 
-from core.asset_handlers import EmptyHandler
+from core.asset_handlers.asset_handlers_base import EmptyHandler # Import for typing hint
 from core.asset_handlers.psmaker_handler import NumpyPowerSpectrum
 
 

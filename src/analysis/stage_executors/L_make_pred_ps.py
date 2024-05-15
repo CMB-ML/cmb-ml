@@ -14,7 +14,7 @@ from core import (
     )
 from ..make_ps import get_power as _get_power
 from core.asset_handlers.psmaker_handler import NumpyPowerSpectrum
-from core.asset_handlers import HealpyMap
+from core.asset_handlers.healpy_map_handler import HealpyMap # Import for typing hint
 from utils.physics_mask import downgrade_mask
 
 

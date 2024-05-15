@@ -12,7 +12,8 @@ from core import (
     Asset,
     GenericHandler,
     )
-from core.asset_handlers import Mover, Config, EmptyHandler
+from core.asset_handlers.asset_handlers_base import EmptyHandler # Import for typing hint
+from core.asset_handlers.asset_handlers_base import Config # Import for typing hint
 
 logger = logging.getLogger(__name__)
 

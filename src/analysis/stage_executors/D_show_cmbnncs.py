@@ -13,7 +13,9 @@ from core import (
     Split,
     Asset
     )
-from core.asset_handlers import Mover, HealpyMap
+from core.asset_handlers.asset_handlers_base import Mover
+from core.asset_handlers.healpy_map_handler import HealpyMap
+
 from src.cmbnncs_local.handler_npymap import NumpyMap
 from utils.planck_instrument import make_instrument, Instrument
 from utils import planck_cmap

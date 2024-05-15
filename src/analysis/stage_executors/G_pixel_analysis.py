@@ -15,8 +15,8 @@ from core import (
     GenericHandler
     )
 from ..px_statistics import get_func
-# from src.utils.make_a_map import make_a_map
-from core.asset_handlers import Config, HealpyMap
+from core.asset_handlers.asset_handlers_base import Config # Import for typing hint
+from core.asset_handlers.healpy_map_handler import HealpyMap # Import for typing hint
 
 logger = logging.getLogger(__name__)
 
