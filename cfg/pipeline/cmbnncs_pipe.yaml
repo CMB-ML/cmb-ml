@@ -7,6 +7,7 @@ make_normalization:
     cmb_map: {stage: make_sims}
     obs_maps: {stage: make_sims}
   dir_name: CMBNNCS_B_Extrema
+
 preprocess:
   assets_out:
     cmb_map: 
@@ -25,6 +26,7 @@ preprocess:
     - test
   dir_name: CMBNNCS_C_Preprocess
   make_stage_log: True
+
 train:
   assets_out:
     model: 
@@ -37,6 +39,7 @@ train:
     - train
   dir_name: CMBNNCS_D_Model
   make_stage_log: True
+
 predict:
   assets_out:
     cmb_map: 
@@ -50,6 +53,7 @@ predict:
   epochs: &epochs [init, 1, 10, 40, 120]
   dir_name: CMBNNCS_E_Predict
   make_stage_log: True
+
 postprocess:
   assets_out:
     cmb_map: 
