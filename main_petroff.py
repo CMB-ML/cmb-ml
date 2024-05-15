@@ -11,12 +11,11 @@ from petroff import (
                      SerialPreprocessMakeExtremaExecutor,
                      PreprocessExecutor,
                      TrainingExecutor,
-                     PredictionExecutor
+                     PredictionExecutor,
+                     PostprocessExecutor
                      )
 from analysis import (
-                      ShowSimsPrepExecutor, 
-                      ShowSimsPredExecutor, 
-                      ShowSimsPostExecutor,
+                      PetroffShowSimsPostExecutor,
                       PixelAnalysisExecutor,
                       PixelSummaryExecutor,
                       ConvertTheoryPowerSpectrumExecutor,
@@ -48,10 +47,10 @@ def make_all_simulations(cfg):
 
     # pipeline_context.add_pipe(TrainingExecutor)
 
-    pipeline_context.add_pipe(PredictionExecutor)
+    # pipeline_context.add_pipe(PredictionExecutor)
     # pipeline_context.add_pipe(ShowSimsPredExecutor)
     # pipeline_context.add_pipe(PostprocessExecutor)
-    # pipeline_context.add_pipe(ShowSimsPostExecutor)
+    pipeline_context.add_pipe(PetroffShowSimsPostExecutor)
     # pipeline_context.add_pipe(PixelAnalysisExecutor)
     # pipeline_context.add_pipe(PixelSummaryExecutor)
 

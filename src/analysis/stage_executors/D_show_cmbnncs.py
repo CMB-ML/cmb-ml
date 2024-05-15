@@ -141,7 +141,7 @@ class ShowSimsCMBNNCSExecutor(BaseStageExecutor):
 
 class ShowSimsPrepExecutor(ShowSimsCMBNNCSExecutor):
     def __init__(self, cfg: DictConfig) -> None:
-        stage_str = "show_sims_cmbnncs_prep"
+        stage_str = "show_sims_prep_cmbnncs"
         super().__init__(cfg, stage_str)
 
         self.right_subplot_title = "Preprocessed"
@@ -171,7 +171,7 @@ class ShowSimsPrepExecutor(ShowSimsCMBNNCSExecutor):
 
 class ShowSimsPredExecutor(ShowSimsCMBNNCSExecutor):
     def __init__(self, cfg: DictConfig) -> None:
-        stage_str = "show_sims_cmbnncs_pred"
+        stage_str = "show_sims_pred_cmbnncs"
         super().__init__(cfg, stage_str)
 
         self.right_subplot_title = "Predicted"
@@ -196,8 +196,9 @@ class ShowSimsPredExecutor(ShowSimsCMBNNCSExecutor):
 
 
 class ShowSimsPostExecutor(ShowSimsCMBNNCSExecutor):
-    def __init__(self, cfg: DictConfig) -> None:
-        stage_str = "show_sims_cmbnncs_post"
+    def __init__(self, cfg: DictConfig, stage_str=None) -> None:
+        if stage_str is None:
+            stage_str = "show_sims_post_cmbnncs"
         super().__init__(cfg, stage_str)
 
         self.right_subplot_title = "Predicted"
@@ -235,3 +236,11 @@ class ShowSimsPostExecutor(ShowSimsCMBNNCSExecutor):
                 self.make_mollview(map_post[field_idx], ax2, show_cbar=True, title="Prediction")
 
                 self.save_figure("CMB Predictions", split, sim_n, field_str, out_asset)
+
+
+class PetroffShowSimsPostExecutor(ShowSimsPostExecutor):
+    def __init__(self, cfg: DictConfig) -> None:
+        stage_str = "show_sims_post_petroff"
+        super().__init__(cfg, stage_str)
+
+        self.right_subplot_title = "Petroff Predicted"

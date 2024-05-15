@@ -1,4 +1,4 @@
-show_sims_cmbnncs_prep:
+show_sims_prep_cmbnncs:
   assets_out:
     cmb_map_render:
       handler: Mover
@@ -18,7 +18,7 @@ show_sims_cmbnncs_prep:
   dir_name: Analysis_CMBNNCS_1_Render_Prep_Maps
   make_stage_log: False
 
-show_sims_cmbnncs_pred:
+show_sims_pred_cmbnncs:
   assets_out:
     cmb_map_render:
       handler: Mover
@@ -34,7 +34,7 @@ show_sims_cmbnncs_pred:
   dir_name: Analysis_CMBNNCS_2_Render_Pred_Maps
   make_stage_log: False
 
-show_sims_cmbnncs_post:
+show_sims_post_cmbnncs:
   assets_out:
     cmb_map_render:
       handler: Mover

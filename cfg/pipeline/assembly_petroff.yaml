@@ -3,5 +3,5 @@ defaults:
   - simulation_pipe
   - sim_analysis_pipe
   - petroff_pipe
-  # - cmbnncs_pipe
+  - analysis_pipe
   # - cmbnncs_analysis_pipe

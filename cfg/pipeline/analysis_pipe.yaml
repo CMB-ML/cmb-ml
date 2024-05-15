@@ -1,0 +1,216 @@
+show_sims_prep: &show_sims_prep
+  assets_out:
+    cmb_map_render:
+      handler: Mover
+      path_template: "{root}/{dataset}/{stage}/{split}/{sim}/cmb_{field}.png"
+    obs_map_render:
+      handler: Mover
+      path_template: "{root}/{dataset}/{stage}/{split}/{sim}/obs_{field}_{freq}.png"
+  assets_in:
+    cmb_map_prep: {stage: preprocess, orig_name: cmb_map}
+    cmb_map_sim: {stage: make_sims, orig_name: cmb_map}
+    obs_maps_prep: {stage: preprocess, orig_name: obs_maps}
+    obs_maps_sim: {stage: make_sims, orig_name: obs_maps}
+  splits:
+    - train
+  override_n_sims: 1                 # int: first n_sims; null: all sims; list: particular sims by index
+  plot_min_max: null                 # value, v: plots from -v to +v; null: allow MPL to choose; list (size 2): min and max val
+  make_stage_log: False
+
+show_sims_prep_cmbnncs:
+  <<: *show_sims_prep
+  dir_name: Analysis_CMBNNCS_1_Render_Prep_Maps
+
+show_sims_prep_petroff:
+  <<: *show_sims_prep
+  dir_name: Analysis_Petroff_1_Render_Prep_Maps
+
+show_sims_pred: &show_sims_pred
+  assets_out:
+    cmb_map_render:
+      handler: Mover
+      path_template: "{root}/{dataset}/{stage}/{split}/{sim}/cmb_{epoch}_{field}.png"
+  assets_in:
+    cmb_map_pred: {stage: predict, orig_name: cmb_map}
+    cmb_map_sim: {stage: make_sims, orig_name: cmb_map}
+  splits:
+    - test
+  override_n_sims: 1                 # int: first n_sims; null: all sims; list: particular sims by index
+  plot_min_max: null                 # value, v: plots from -v to +v; null: allow MPL to choose; list (size 2): min and max val
+  make_stage_log: False
+
+show_sims_pred_cmbnncs:
+  <<: *show_sims_pred
+  dir_name: Analysis_CMBNNCS_2_Render_Pred_Maps
+  epochs: &epochs_cmbnncs [init, 1, 10, 40, 120]
+
+show_sims_pred_petroff:
+  <<: *show_sims_pred
+  dir_name: Analysis_Petroff_2_Render_Pred_Maps
+  epochs: &epochs_petroff [init, 1, 10, 40]
+
+show_sims_post: &show_sims_post
+  assets_out:
+    cmb_map_render:
+      handler: Mover
+      path_template: "{root}/{dataset}/{stage}/{split}/{sim}/cmb_{epoch}_{field}.png"
+  assets_in:
+    cmb_map_post: {stage: postprocess, orig_name: cmb_map}
+    cmb_map_sim: {stage: make_sims, orig_name: cmb_map}
+  splits:
+    - test
+  override_n_sims: 1                 # int: first n_sims; null: all sims; list: particular sims by index
+  plot_min_max: null                 # value, v: plots from -v to +v; null: allow MPL to choose; list (size 2): min and max val
+  make_stage_log: False
+
+show_sims_post_cmbnncs:
+  <<: *show_sims_post
+  dir_name: Analysis_CMBNNCS_3_Render_Post_Maps
+  epochs: *epochs_cmbnncs
+
+show_sims_post_petroff:
+  <<: *show_sims_post
+  dir_name: Analysis_Petroff_3_Render_Post_Maps
+  epochs: *epochs_petroff
+
+# pixel_analysis:
+#   assets_out:
+#     report:
+#       fn: ""
+#       path_template: "{root}/{dataset}/{stage}/pixel_report.yaml"
+#       handler: Config
+#   assets_in:
+#     cmb_map_sim: {stage: make_sims, orig_name: cmb_map}
+#     cmb_map_post: {stage: postprocess, orig_name: cmb_map}
+#   splits:
+#     - test
+#   epochs: *epochs
+#   dir_name: Analysis_CMBNNCS_10_Pixel_Report
+
+# pixel_summary:
+#   assets_out:
+#     overall_stats:
+#       path_template: "{root}/{dataset}/{stage}/epoch_{epoch}/overall_stats.csv"
+#       handler: EmptyHandler
+#     stats_per_split:
+#       path_template: "{root}/{dataset}/{stage}/epoch_{epoch}/stats_per_split.csv"
+#       handler: EmptyHandler
+#     boxplots:
+#       path_template: "{root}/{dataset}/{stage}/epoch_{epoch}/boxplots.png"
+#       handler: EmptyHandler
+#     histogram:
+#       path_template: "{root}/{dataset}/{stage}/epoch_{epoch}/{metric}_histogram.png"
+#       handler: EmptyHandler
+#   assets_in:
+#     report: {stage: pixel_analysis}
+#   splits:
+#     - test
+#   epochs: *epochs
+#   dir_name: Analysis_CMBNNCS_11_Pixel_Summary
+
+# convert_theory_ps:
+#   assets_out:
+#     theory_ps:
+#       # Alt in the case of ps_fidu_fixed
+#       path_template_alt: "{root}/{dataset}/{stage}/{split}/theory_ps.npy"
+#       path_template: "{root}/{dataset}/{stage}/{split}/{sim}/theory_ps.npy"
+#       handler: NumpyPowerSpectrum
+#   assets_in:
+#     theory_ps: {stage: make_theory_ps, orig_name: "cmb_ps"}
+#   splits:
+#     - train
+#     - test
+#   dir_name: Analysis_Theory_Power_Spectra
+
+# mask:
+# # Need to define an external resource for the next stage, make_pred_ps
+#   assets_out:
+#     mask: 
+#       path_template: "{src_root}/Yunan/planck_mask.fits"
+#       handler: HealpyMap
+#       use_fields: 1
+
+# make_pred_ps:
+#   assets_out:
+#     # Autocorrelation for realization (target)
+#     auto_real:
+#       path_template: "{root}/{dataset}/{stage}/{split}/{sim}/ps_real.npy"
+#       handler: NumpyPowerSpectrum
+#     # Autocorrelation for prediction
+#     auto_pred:
+#       path_template: "{root}/{dataset}/{stage}/{split}/{sim}/ps_pred_{epoch}.npy"
+#       handler: NumpyPowerSpectrum
+#     # Cross-correlation for realization x prediction
+#     x_real_pred:
+#       path_template: "{root}/{dataset}/{stage}/{split}/{sim}/ps_x_{epoch}.npy"
+#       handler: NumpyPowerSpectrum
+#     # Autocorrelation for the map containing the difference between realization - prediction
+#     diff_real_pred:
+#       path_template: "{root}/{dataset}/{stage}/{split}/{sim}/ps_diff_{epoch}.npy"
+#       handler: NumpyPowerSpectrum
+#     # Autocorrelation for the map containing the absolute value of the difference between realization - prediction
+#     abs_diff_real_pred:
+#       path_template: "{root}/{dataset}/{stage}/{split}/{sim}/ps_abs_diff_{epoch}.npy"
+#       handler: NumpyPowerSpectrum
+#   assets_in:
+#     cmb_map_real: {stage: make_sims, orig_name: cmb_map}
+#     cmb_map_post: {stage: postprocess, orig_name: cmb_map}
+#     # mask: {stage: mask}
+#   splits:
+#     - test
+#   epochs: *epochs
+#   dir_name: Analysis_CMBNNCS_13_Power_Spectra
+
+# ps_fig:
+#   assets_out:
+#     ps_figure:
+#       path_template: "{root}/{dataset}/{stage}/{split}/{sim}/cmb_ps_figure_{epoch}.png"
+#       handler: EmptyHandler
+#   assets_in:
+#     theory_ps: {stage: convert_theory_ps}
+#     auto_real: {stage: make_pred_ps}
+#     auto_pred: {stage: make_pred_ps}
+#   splits:
+#     - test
+#   epochs: *epochs
+#   override_n_sims: 1
+#   dir_name: Analysis_CMBNNCS_14_F_PS_Solo_Figs
+
+# # ps_analysis:
+# #   assets_out:
+# #     report:
+# #       fn: ""
+# #       path_template: "{root}/{dataset}/{stage}/ps_report.yaml"
+# #       handler: Config
+# #   assets_in:
+# #     theory_ps_fixed:  {stage: theory_ps}
+# #     theory_ps_varied: {stage: theory_ps}
+# #     auto_real:        {stage: make_ps}
+# #     auto_pred:        {stage: make_ps}
+# #   splits:
+# #     - test
+# #   dir_name: Analysis_CMBNNCS_15_PS_Report
+
+# # ps_summary:
+# #   assets_out:
+# #     overall_stats:
+# #       fn: "overall_stats.csv"
+# #       path_template: "{root}/{dataset}/{stage}/epoch_{epoch}/{fn}"
+# #       handler: Mover
+# #     stats_per_split:
+# #       fn: "stats_per_split.csv"
+# #       path_template: "{root}/{dataset}/{stage}/epoch_{epoch}/{fn}"
+# #       handler: Mover
+# #     boxplots:
+# #       fn: "boxplots.png"
+# #       path_template: "{root}/{dataset}/{stage}/epoch_{epoch}/{fn}"
+# #       handler: Mover
+# #     histogram:
+# #       fn: "{metric}_histogram.png"
+# #       path_template: "{root}/{dataset}/{stage}/epoch_{epoch}/{fn}"
+# #       handler: Mover
+# #   assets_in:
+# #     report: {stage: pixel_analysis}
+# #   splits:
+# #     - test
+# #   dir_name: Analysis_CMBNNCS_16_PS_Summary

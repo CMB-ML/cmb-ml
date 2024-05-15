@@ -58,3 +58,17 @@ predict:
   epochs: &epochs [init, 1, 10, 40]
   dir_name: Petroff_E_Predict
   make_stage_log: True
+
+postprocess:
+  assets_out:
+    cmb_map: 
+      handler: HealpyMap
+      path_template: "{root}/{dataset}/{stage}/{split}/{sim}/cmb_map_post_{epoch}.fits"
+  assets_in:
+    norm_file: {stage: make_normalization}
+    cmb_map: {stage: predict}
+  splits:
+    - test
+  epochs: *epochs
+  dir_name: Petroff_F_Postprocess
+  make_stage_log: True
