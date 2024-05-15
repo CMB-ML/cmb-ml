@@ -44,7 +44,7 @@ class PipelineContext:
         """
         logger.info("Performing pre-run checks. Trying __init__() method for each stage to check for obvious issues.")
         for stage in self.pipeline:
-            logger.info(f"Running: {stage.__name__}")
+            logger.info(f"Checking initialization for: {stage.__name__}")
             executor: BaseStageExecutor = stage(self.cfg)
         logger.info("Pre-run checks complete.")
 
