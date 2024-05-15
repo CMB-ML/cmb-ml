@@ -32,8 +32,10 @@ class TrainingExecutor(BaseCMBNNCSModelExecutor):
         self.out_model: Asset = self.assets_out["model"]
         out_model_handler: PyTorchModel
 
+        self.in_model: Asset = self.assets_in["model"]
         self.in_cmb_asset: Asset = self.assets_in["cmb_map"]
         self.in_obs_assets: Asset = self.assets_in["obs_maps"]
+        in_model_handler: PyTorchModel
         in_cmb_map_handler: NumpyMap
         in_obs_map_handler: NumpyMap
 
@@ -48,6 +50,8 @@ class TrainingExecutor(BaseCMBNNCSModelExecutor):
         self.lr_final = cfg.model.cmbnncs.train.learning_rate_min
         self.repeat_n = cfg.model.cmbnncs.train.repeat_n
         self.model_precision = cfg.model.cmbnncs.unet.model_precision
+
+        self.restart_epoch = cfg.model.cmbnncs.train.restart_epoch
 
     def execute(self) -> None:
         logger.debug(f"Running {self.__class__.__name__} execute()")
@@ -76,7 +80,17 @@ class TrainingExecutor(BaseCMBNNCSModelExecutor):
         total_iterations = self.n_epochs * len(dataloader)  # Match CMBNNCS's updates per batch, (not the more standard per epoch)
         scheduler = LambdaLR(optimizer, lr_lambda=lambda iteration: (lr_final / lr_init) ** (iteration / total_iterations))
 
-        for epoch in range(self.n_epochs):
+        if self.restart_epoch is not None:
+            # The following returns the epoch number stored in the checkpoint 
+            #     as well as loading the model and optimizer with checkpoint information
+            with self.name_tracker.set_context("epoch", self.restart_epoch):
+                start_epoch = self.in_model.read(model=model, epoch=self.restart_epoch, optimizer=optimizer)
+        else:
+            with self.name_tracker.set_context("epoch", "init"):
+                self.out_model.write(model=model, epoch="init")
+            start_epoch = 0
+
+        for epoch in range(start_epoch, self.n_epochs):
             epoch_loss = 0.0
             batch_n = 0
             for train_features, train_label, _ in tqdm(dataloader):

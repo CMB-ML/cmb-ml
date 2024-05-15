@@ -19,6 +19,8 @@ train:
   output_every     : 200   # output every this number of batches (20*12 = 240: 4 outputs per epoch)
   device           : null  # Goes to None in python
   extra_check      : [1, 2]
+  # restart_epoch    : null       # Set to null to create a new model, or give a checkpoint number
+  restart_epoch    : 40
 predict:
   batch_size       : 50
   device           : null  # Goes to None in python
