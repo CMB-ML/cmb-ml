@@ -2,7 +2,7 @@ from pathlib import Path
 from typing import Dict
 from astropy.table import QTable
 
-from .asset_handlers import GenericHandler
+from .asset_handlers_base import GenericHandler
 from .asset_handler_registration import register_handler
 
 import logging

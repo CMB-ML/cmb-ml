@@ -4,23 +4,27 @@ from pathlib import Path
 
 import torch
 
-from core import GenericHandler
-from core import register_handler
+from core.asset_handlers import GenericHandler
 from core.asset_handlers import make_directories
+from core.asset import register_handler
 
 
 logger = logging.getLogger(__name__)
 
 
 class PyTorchModel(GenericHandler):
-    def read(self, path: Path, model: torch.nn.Module) -> Dict:
-        # fn_template = path.name
-        # fn = fn_template.format(epoch=epoch)
+    def read(self, path: Path, model: torch.nn.Module, epoch: str, optimizer=None, scheduler=None) -> Dict:
         logger.debug(f"Reading model from '{path}'")
-        # this_path = path.parent / fn
-        checkpoint = torch.load(path)
+        fn_template = path.name
+        fn = fn_template.format(epoch=epoch)
+        this_path = path.parent / fn
+        checkpoint = torch.load(this_path)
         model.load_state_dict(checkpoint['model_state_dict'])
-        return checkpoint
+        if 'optimizer' in checkpoint and optimizer is not None:
+            optimizer.load_state_dict(checkpoint['optimizer'])
+        if 'scheduler' in checkpoint and scheduler is not None:
+            scheduler.load_state_dict(checkpoint['scheduler'])
+        return checkpoint['epoch']
 
     def write(self, 
               path: Path, 
@@ -39,10 +43,10 @@ class PyTorchModel(GenericHandler):
         if loss is not None:
             checkpoint['loss'] = loss
 
-        # path = Path(str(path).format(epoch=epoch))
-        make_directories(path)
-        logger.debug(f"Writing model to '{path}'")
-        torch.save(checkpoint, path)
+        new_path = Path(str(path).format(epoch=epoch))
+        make_directories(new_path)
+        logger.debug(f"Writing model to '{new_path}'")
+        torch.save(checkpoint, new_path)
 
 
 register_handler("PyTorchModel", PyTorchModel)
