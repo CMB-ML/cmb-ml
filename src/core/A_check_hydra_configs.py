@@ -69,5 +69,5 @@ class HydraConfigCheckerExecutor(BaseStageExecutor):
         for stage_name, stage_data in pipeline.items():
             if stage_data is None:
                 continue
-            if 'make_stage_log' in stage_data and 'dir_name' not in stage_data:
+            if stage_data.get('make_stage_log', False) and 'dir_name' not in stage_data:
                 self.issues.append(f"Stage {stage_name} has make_stage_log=True but no directory name in pipeline yaml.")
