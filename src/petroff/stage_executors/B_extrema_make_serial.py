@@ -11,15 +11,15 @@ from core import (
     Asset
     )
 from src.utils import make_instrument, Instrument
-from core.asset_handlers import HealpyMap, Config
+from core.asset_handlers.asset_handlers_base import Config
+from core.asset_handlers.healpy_map_handler import HealpyMap
 
 
 logger = logging.getLogger(__name__)
 
 
-class PreprocessMakeExtremaExecutor(BaseStageExecutor):
+class SerialPreprocessMakeExtremaExecutor(BaseStageExecutor):
     def __init__(self, cfg: DictConfig) -> None:
-        raise NotImplementedError("TODO: Make parallel version of this. If needed. Or remove this module.")
         # The following string must match the pipeline yaml
         super().__init__(cfg, stage_str="make_normalization")
 

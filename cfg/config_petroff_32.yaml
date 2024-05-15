@@ -3,7 +3,7 @@ defaults:
   - file_system   : common_fs
   - pipeline      : assembly_petroff
   - scenario      : scenario_32
-  - splits        : "3-1"
+  - splits        : all
   # simulation must listed be after scenario and splits to build the simulation seed
   - model/petroff : petroff_model
   - override hydra/job_logging: custom_log

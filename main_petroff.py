@@ -7,8 +7,14 @@ from core import (
                       LogMaker
                       )
 from src.core.A_check_hydra_configs import HydraConfigCheckerExecutor
-from petroff import (PreprocessMakeExtremaExecutor)
-from analysis import (ShowSimsPrepExecutor, 
+from petroff import (
+                     SerialPreprocessMakeExtremaExecutor,
+                     PreprocessExecutor,
+                     TrainingExecutor,
+                     PredictionExecutor
+                     )
+from analysis import (
+                      ShowSimsPrepExecutor, 
                       ShowSimsPredExecutor, 
                       ShowSimsPostExecutor,
                       PixelAnalysisExecutor,
@@ -35,13 +41,14 @@ def make_all_simulations(cfg):
     pipeline_context.add_pipe(HydraConfigCheckerExecutor)
     # pipeline_context.add_pipe(HydraConfigCMBNNCSCheckerExecutor)
 
-    pipeline_context.add_pipe(PreprocessMakeExtremaExecutor)
+    # pipeline_context.add_pipe(SerialPreprocessMakeExtremaExecutor)
     # pipeline_context.add_pipe(PreprocessExecutor)
-    # pipeline_context.add_pipe(ShowSimsPrepExecutor)
+
+    # pipeline_context.add_pipe(ShowSimsPrepExecutor)  # I don't think this will be interesting. Or relevant to Petroff. Maybe
 
     # pipeline_context.add_pipe(TrainingExecutor)
 
-    # pipeline_context.add_pipe(PredictionExecutor)
+    pipeline_context.add_pipe(PredictionExecutor)
     # pipeline_context.add_pipe(ShowSimsPredExecutor)
     # pipeline_context.add_pipe(PostprocessExecutor)
     # pipeline_context.add_pipe(ShowSimsPostExecutor)
