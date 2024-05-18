@@ -1,7 +1,8 @@
 class Split:
     def __init__(self, name, split_cfg):
         self.name = name
-        self.n_sims = split_cfg.n_sims
+        # if a cap is specified, only get that many sims
+        self.n_sims = split_cfg.get("n_sims_cap", split_cfg.n_sims)
         self.ps_fidu_fixed = split_cfg.get("ps_fidu_fixed", None)
 
     def __str__(self):
