@@ -26,106 +26,78 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
-# JAmato Changes (2024): converted global variables to a function
+# JAmato Changes (2024): converted global variables to kernel_widths.py
+# Put copied source code into laplacian_torch.py
 # Modified for clarity
 import time
 import numpy as np
 import healpy as hp
 import scipy
 
-from .laplacian_torch import prepare_laplacian, scipy_csr_to_sparse_tensor
-
+from .laplacian_torch import prepare_laplacian
+from .kernel_widths import kernel_width_optimal
 
 from scipy import sparse
 import numpy as np
 import torch
 
 
-def prepare_laplacian(laplacian):
-    """Prepare a graph Laplacian to be fed to a graph convolutional layer.
-    """
+# def prepare_laplacian(laplacian):
+#     """Prepare a graph Laplacian to be fed to a graph convolutional layer.
+#     """
 
-    def estimate_lmax(laplacian, tol=5e-3):
-        """Estimate the largest eigenvalue of an operator.
-        """
-        lmax = sparse.linalg.eigsh(laplacian, 
-                                   k=1, 
-                                   tol=tol, 
-                                   ncv=min(laplacian.shape[0], 10), 
-                                   return_eigenvectors=False)
-        lmax = lmax[0]
-        lmax *= 1 + 2 * tol  # Be robust to errors.
-        return lmax
+#     def estimate_lmax(laplacian, tol=5e-3):
+#         """Estimate the largest eigenvalue of an operator.
+#         """
+#         lmax = sparse.linalg.eigsh(laplacian, 
+#                                    k=1, 
+#                                    tol=tol, 
+#                                    ncv=min(laplacian.shape[0], 10), 
+#                                    return_eigenvectors=False)
+#         lmax = lmax[0]
+#         lmax *= 1 + 2 * tol  # Be robust to errors.
+#         return lmax
 
-    def scale_operator(L, lmax, scale=1):
-        # TODO I'm not sure I like this as much as I like Kipf 2016's solution.
-        #       This forces the scale to the range [-1,1].
-        #       Petroff's version modified this to [-0.75, 0.75]
-        #           (Found in code, not in the paper)
-        #           (See Petroff's layers.py, line 168)
-        #           (Is 0.75 used because it's ~ 1/sqrt(2) ?)
-        #       Kipf's seems more ... rooted in some principle
-        #           (TODO: Research, verify)
-        """Scale the eigenvalues from [0, lmax] to [-scale, scale].
-        """
-        I = sparse.identity(L.shape[0], format=L.format, dtype=L.dtype)
-        L *= 2 * scale / lmax
-        L -= I
-        return L
+#     def scale_operator(L, lmax, scale=1):
+#         # TODO I'm not sure I like this as much as I like Kipf 2016's solution.
+#         #       This forces the scale to the range [-1,1].
+#         #       Petroff's version modified this to [-0.75, 0.75]
+#         #           (Found in code, not in the paper)
+#         #           (See Petroff's layers.py, line 168)
+#         #           (Is 0.75 used because it's ~ 1/sqrt(2) ?)
+#         #       Kipf's seems more ... rooted in some principle
+#         #           (TODO: Research, verify)
+#         """Scale the eigenvalues from [0, lmax] to [-scale, scale].
+#         """
+#         I = sparse.identity(L.shape[0], format=L.format, dtype=L.dtype)
+#         L *= 2 * scale / lmax
+#         L -= I
+#         return L
 
-    lmax = estimate_lmax(laplacian)
-    laplacian = scale_operator(laplacian, lmax)
-    laplacian = scipy_csr_to_sparse_tensor(laplacian)
-    return laplacian
-
-
-def scipy_csr_to_sparse_tensor(csr_mat):
-    """Convert scipy csr to sparse pytorch tensor.
-
-    Args:
-        csr_mat (csr_matrix): The sparse scipy matrix.
-
-    Returns:
-        sparse_tensor :obj:`torch.sparse.FloatTensor`: The sparse torch matrix.
-    """
-    coo = sparse.coo_matrix(csr_mat)
-    values = coo.data
-    indices = np.vstack((coo.row, coo.col))
-    idx = torch.LongTensor(indices)
-    vals = torch.FloatTensor(values)
-    shape = coo.shape
-    sparse_tensor = torch.sparse.FloatTensor(idx, vals, torch.Size(shape))
-    sparse_tensor = sparse_tensor.coalesce()
-    return sparse_tensor
+#     lmax = estimate_lmax(laplacian)
+#     laplacian = scale_operator(laplacian, lmax)
+#     laplacian = scipy_csr_to_sparse_tensor(laplacian)
+#     return laplacian
 
 
-# Copied from https://github.com/deepsphere/paper-iclr20/blob/51260d9169b9bff2f0d71d567c99909a17efd5e9/figures/kernel_widths.py
-# Modified to be a function
-def kernel_width_optimal(query_nside):
-    # I do not fully understand the derivation of the following values.
-    # The appear to be from https://github.com/deepsphere/paper-deepsphere-iclr2020/blob/51260d9169b9bff2f0d71d567c99909a17efd5e9/HEALPix_equivariance_error.ipynb
-    kernel_width_optimal = {
-        32: 0.02500,
-        64: 0.01228,
-        128: 0.00614,
-        256: 0.00307,
-        512: 0.00154,
-        1024: 0.00077,
-    }
-    if query_nside not in kernel_width_optimal.keys():
-        kernel_wdith_fit = np.poly1d(
-            np.polyfit(
-                np.log(sorted(kernel_width_optimal.keys())),
-                np.log(
-                    [i[1] for i in sorted(kernel_width_optimal.items(), key=lambda i: i[0])]
-                ),
-                1,
-            )
-        )
-        for _nside in [1, 2, 4, 8, 16]:
-            # Populate kernel widths for other map sizes
-            kernel_width_optimal[_nside] = np.exp(kernel_wdith_fit(np.log(_nside)))
-    return kernel_width_optimal[query_nside]
+# def scipy_csr_to_sparse_tensor(csr_mat):
+#     """Convert scipy csr to sparse pytorch tensor.
+
+#     Args:
+#         csr_mat (csr_matrix): The sparse scipy matrix.
+
+#     Returns:
+#         sparse_tensor :obj:`torch.sparse.FloatTensor`: The sparse torch matrix.
+#     """
+#     coo = sparse.coo_matrix(csr_mat)
+#     values = coo.data
+#     indices = np.vstack((coo.row, coo.col))
+#     idx = torch.LongTensor(indices)
+#     vals = torch.FloatTensor(values)
+#     shape = coo.shape
+#     sparse_tensor = torch.sparse.FloatTensor(idx, vals, torch.Size(shape))
+#     sparse_tensor = sparse_tensor.coalesce()
+#     return sparse_tensor
 
 
 def compute_healpix_weightmatrix(nside=16, dtype=np.float32, nest=True):
