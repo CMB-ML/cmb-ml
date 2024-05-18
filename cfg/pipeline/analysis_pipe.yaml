@@ -2,10 +2,10 @@
 #   assets_out:
 #     cmb_map_render:
 #       handler: Mover
-#       path_template: "{root}/{dataset}/{stage}/{split}/{sim}/cmb_{field}.png"
+#       path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/cmb_{field}.png"
 #     obs_map_render:
 #       handler: Mover
-#       path_template: "{root}/{dataset}/{stage}/{split}/{sim}/obs_{field}_{freq}.png"
+#       path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/obs_{field}_{freq}.png"
 #   assets_in:
 #     cmb_map_prep: {stage: preprocess, orig_name: cmb_map}
 #     cmb_map_sim: {stage: make_sims, orig_name: cmb_map}
@@ -29,7 +29,7 @@ show_sims_pred: &show_sims_pred
   assets_out:
     cmb_map_render:
       handler: Mover
-      path_template: "{root}/{dataset}/{stage}/{split}/{sim}/cmb_{epoch}_{field}.png"
+      path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/cmb_{epoch}_{field}.png"
   assets_in:
     cmb_map_pred: {stage: predict, orig_name: cmb_map}
     cmb_map_sim: {stage: make_sims, orig_name: cmb_map}
@@ -47,13 +47,13 @@ show_sims_pred_cmbnncs:
 show_sims_pred_petroff:
   <<: *show_sims_pred
   dir_name: Analysis_Petroff_2_Render_Pred_Maps
-  epochs: &epochs_petroff [init, 1, 10, 40]
+  epochs: ${use_epochs}
 
 # show_sims_post: &show_sims_post
 #   assets_out:
 #     cmb_map_render:
 #       handler: Mover
-#       path_template: "{root}/{dataset}/{stage}/{split}/{sim}/cmb_{epoch}_{field}.png"
+#       path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/cmb_{epoch}_{field}.png"
 #   assets_in:
 #     cmb_map_post: {stage: postprocess, orig_name: cmb_map}
 #     cmb_map_sim: {stage: make_sims, orig_name: cmb_map}
@@ -77,7 +77,7 @@ show_sims_pred_petroff:
 #   assets_out:
 #     report:
 #       fn: ""
-#       path_template: "{root}/{dataset}/{stage}/pixel_report.yaml"
+#       path_template: "{root}/{dataset}/{working}{stage}/pixel_report.yaml"
 #       handler: Config
 #   assets_in:
 #     cmb_map_sim: {stage: make_sims, orig_name: cmb_map}
@@ -90,16 +90,16 @@ show_sims_pred_petroff:
 # pixel_summary:
 #   assets_out:
 #     overall_stats:
-#       path_template: "{root}/{dataset}/{stage}/epoch_{epoch}/overall_stats.csv"
+#       path_template: "{root}/{dataset}/{working}{stage}/epoch_{epoch}/overall_stats.csv"
 #       handler: EmptyHandler
 #     stats_per_split:
-#       path_template: "{root}/{dataset}/{stage}/epoch_{epoch}/stats_per_split.csv"
+#       path_template: "{root}/{dataset}/{working}{stage}/epoch_{epoch}/stats_per_split.csv"
 #       handler: EmptyHandler
 #     boxplots:
-#       path_template: "{root}/{dataset}/{stage}/epoch_{epoch}/boxplots.png"
+#       path_template: "{root}/{dataset}/{working}{stage}/epoch_{epoch}/boxplots.png"
 #       handler: EmptyHandler
 #     histogram:
-#       path_template: "{root}/{dataset}/{stage}/epoch_{epoch}/{metric}_histogram.png"
+#       path_template: "{root}/{dataset}/{working}{stage}/epoch_{epoch}/{metric}_histogram.png"
 #       handler: EmptyHandler
 #   assets_in:
 #     report: {stage: pixel_analysis}
@@ -112,8 +112,8 @@ show_sims_pred_petroff:
 #   assets_out:
 #     theory_ps:
 #       # Alt in the case of ps_fidu_fixed
-#       path_template_alt: "{root}/{dataset}/{stage}/{split}/theory_ps.npy"
-#       path_template: "{root}/{dataset}/{stage}/{split}/{sim}/theory_ps.npy"
+#       path_template_alt: "{root}/{dataset}/{working}{stage}/{split}/theory_ps.npy"
+#       path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/theory_ps.npy"
 #       handler: NumpyPowerSpectrum
 #   assets_in:
 #     theory_ps: {stage: make_theory_ps, orig_name: "cmb_ps"}
@@ -134,23 +134,23 @@ show_sims_pred_petroff:
 #   assets_out:
 #     # Autocorrelation for realization (target)
 #     auto_real:
-#       path_template: "{root}/{dataset}/{stage}/{split}/{sim}/ps_real.npy"
+#       path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/ps_real.npy"
 #       handler: NumpyPowerSpectrum
 #     # Autocorrelation for prediction
 #     auto_pred:
-#       path_template: "{root}/{dataset}/{stage}/{split}/{sim}/ps_pred_{epoch}.npy"
+#       path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/ps_pred_{epoch}.npy"
 #       handler: NumpyPowerSpectrum
 #     # Cross-correlation for realization x prediction
 #     x_real_pred:
-#       path_template: "{root}/{dataset}/{stage}/{split}/{sim}/ps_x_{epoch}.npy"
+#       path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/ps_x_{epoch}.npy"
 #       handler: NumpyPowerSpectrum
 #     # Autocorrelation for the map containing the difference between realization - prediction
 #     diff_real_pred:
-#       path_template: "{root}/{dataset}/{stage}/{split}/{sim}/ps_diff_{epoch}.npy"
+#       path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/ps_diff_{epoch}.npy"
 #       handler: NumpyPowerSpectrum
 #     # Autocorrelation for the map containing the absolute value of the difference between realization - prediction
 #     abs_diff_real_pred:
-#       path_template: "{root}/{dataset}/{stage}/{split}/{sim}/ps_abs_diff_{epoch}.npy"
+#       path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/ps_abs_diff_{epoch}.npy"
 #       handler: NumpyPowerSpectrum
 #   assets_in:
 #     cmb_map_real: {stage: make_sims, orig_name: cmb_map}
@@ -164,7 +164,7 @@ show_sims_pred_petroff:
 # ps_fig:
 #   assets_out:
 #     ps_figure:
-#       path_template: "{root}/{dataset}/{stage}/{split}/{sim}/cmb_ps_figure_{epoch}.png"
+#       path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/cmb_ps_figure_{epoch}.png"
 #       handler: EmptyHandler
 #   assets_in:
 #     theory_ps: {stage: convert_theory_ps}
@@ -180,7 +180,7 @@ show_sims_pred_petroff:
 # #   assets_out:
 # #     report:
 # #       fn: ""
-# #       path_template: "{root}/{dataset}/{stage}/ps_report.yaml"
+# #       path_template: "{root}/{dataset}/{working}{stage}/ps_report.yaml"
 # #       handler: Config
 # #   assets_in:
 # #     theory_ps_fixed:  {stage: theory_ps}
@@ -195,19 +195,19 @@ show_sims_pred_petroff:
 # #   assets_out:
 # #     overall_stats:
 # #       fn: "overall_stats.csv"
-# #       path_template: "{root}/{dataset}/{stage}/epoch_{epoch}/{fn}"
+# #       path_template: "{root}/{dataset}/{working}{stage}/epoch_{epoch}/{fn}"
 # #       handler: Mover
 # #     stats_per_split:
 # #       fn: "stats_per_split.csv"
-# #       path_template: "{root}/{dataset}/{stage}/epoch_{epoch}/{fn}"
+# #       path_template: "{root}/{dataset}/{working}{stage}/epoch_{epoch}/{fn}"
 # #       handler: Mover
 # #     boxplots:
 # #       fn: "boxplots.png"
-# #       path_template: "{root}/{dataset}/{stage}/epoch_{epoch}/{fn}"
+# #       path_template: "{root}/{dataset}/{working}{stage}/epoch_{epoch}/{fn}"
 # #       handler: Mover
 # #     histogram:
 # #       fn: "{metric}_histogram.png"
-# #       path_template: "{root}/{dataset}/{stage}/epoch_{epoch}/{fn}"
+# #       path_template: "{root}/{dataset}/{working}{stage}/epoch_{epoch}/{fn}"
 # #       handler: Mover
 # #   assets_in:
 # #     report: {stage: pixel_analysis}

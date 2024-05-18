@@ -3,20 +3,20 @@ make_normalization:
   assets_out:
     norm_file: 
       handler: Config
-      path_template: "{root}/{dataset}/{stage}/normalization.yaml"
+      path_template: "{root}/{dataset}/{working}{stage}/normalization.yaml"
   assets_in:
     cmb_map: {stage: make_sims}
     obs_maps: {stage: make_sims}
   splits:
     - train
   make_stage_log: True
-  dir_name: Low7/Petroff_B_Extrema
+  dir_name: Petroff_B_Extrema
 
 train:
   assets_out:
     model: 
       handler: PyTorchModel
-      path_template: "{root}/{dataset}/{stage}/model_{epoch}.pth"
+      path_template: "{root}/{dataset}/{working}{stage}/model_{epoch}.pth"
   assets_in:
     norm_file: {stage: make_normalization}
     model: {stage: train}
@@ -24,21 +24,21 @@ train:
     obs_maps: {stage: make_sims}
   splits:
     - train
-  dir_name: Low7/Petroff_D_Model
+  dir_name: Petroff_D_Model
   make_stage_log: True
 
 predict:
   assets_out:
     cmb_map: 
       handler: HealpyMap
-      path_template: "{root}/{dataset}/{stage}/{split}/{sim}/cmb_map_pred_{epoch}.npy"
+      path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/cmb_map_pred_{epoch}.npy"
   assets_in:
     norm_file: {stage: make_normalization}
     model: {stage: train}
     obs_maps: {stage: make_sims}
   splits:
     - test
-  epochs: [init, 1, 10, 40]
-  dir_name: Low7/Petroff_E_Predict
+  epochs: ${use_epochs}
+  dir_name: Petroff_E_Predict
   make_stage_log: True
 
