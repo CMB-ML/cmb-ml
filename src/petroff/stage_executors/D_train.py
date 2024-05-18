@@ -18,7 +18,7 @@ from core.asset_handlers.pytorch_model_handler import PyTorchModel # Import for 
 from core.asset_handlers.healpy_map_handler import HealpyMap
 from .pytorch_model_base_executor import PetroffModelExecutor
 from core.pytorch_dataset import TrainCMBMapDataset
-from petroff.pytorch_transform import TrainAbsMaxScaleMap
+from petroff.pytorch_transform_absmax_scale import TrainAbsMaxScaleMap
 from core.pytorch_transform import TrainToTensor
 
 
@@ -104,19 +104,23 @@ class TrainingExecutor(PetroffModelExecutor):
         for epoch in range(start_epoch, self.n_epochs):
             epoch_loss = 0.0
             batch_n = 0
-            for train_features, train_label in tqdm(dataloader):
-                batch_n += 1
 
-                optimizer.zero_grad()
-                output = model(train_features)
-                loss = loss_function(output, train_label)
-                loss.backward()
-                optimizer.step()
+            _loss = 0
+            with tqdm(dataloader, postfix={'Loss': _loss}) as pbar:
+                for train_features, train_label in pbar:
+                    batch_n += 1
 
-                epoch_loss += loss.item()
-                # Output intermittently so progress is known
-                if batch_n % self.output_every == 0:
-                    logger.debug(f'Epoch {epoch+1}/{self.n_epochs}, Batch: {batch_n} complete. Loss: {loss.item()}')
+                    optimizer.zero_grad()
+                    output = model(train_features)
+                    loss = loss_function(output, train_label)
+                    loss.backward()
+                    optimizer.step()
+
+                    epoch_loss += loss.item()
+                    # Output intermittently so progress is known
+                    # if batch_n % self.output_every == 0:
+                    #     logger.debug(f'Epoch {epoch+1}/{self.n_epochs}, Batch: {batch_n} complete. Loss: {loss.item()}')
+                    pbar.set_postfix({'Loss': loss.item()})
 
             epoch_loss /= len(dataloader.dataset)
             
