@@ -8,6 +8,7 @@ class Namer:
     def __init__(self, cfg) -> None:
         self.root = Path(cfg.local_system.datasets_root)
         self.dataset_name: str = cfg.dataset_name
+        self.working_dir: str = cfg.get("working_dir", "")
         self.sim_folder_prefix: str = cfg.file_system.sim_folder_prefix
         self.sim_str_num_digits: int = cfg.file_system.sim_str_num_digits
 
@@ -53,7 +54,8 @@ class Namer:
     def path(self, path_template: str):
         temp_context = dict(**self.context, 
                             root=str(self.root), 
-                            dataset=self.dataset_name)
+                            dataset=self.dataset_name,
+                            working=self.working_dir)
         if "sim" not in self.context and "sim_num" in self.context:
             temp_context["sim"] = self.sim_name()
 
