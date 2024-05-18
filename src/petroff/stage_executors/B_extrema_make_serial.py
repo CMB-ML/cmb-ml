@@ -5,6 +5,8 @@ import numpy as np
 
 from omegaconf import DictConfig
 
+from tqdm import tqdm
+
 from core import (
     BaseStageExecutor,
     Split,
@@ -50,8 +52,7 @@ class SerialPreprocessMakeExtremaExecutor(BaseStageExecutor):
                               split: Split, 
                               extrema: Dict[str, Dict]) -> None:
         # A split is composed of simulations
-        for sim in split.iter_sims():
-            logger.debug(f"Extrema Executor scanning split {split.name}:{sim}.")
+        for sim in tqdm(split.iter_sims()):
             with self.name_tracker.set_context("sim_num", sim):
                 self.search_sim_contents(extrema)
 

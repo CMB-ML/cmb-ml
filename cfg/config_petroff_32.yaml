@@ -3,6 +3,7 @@ defaults:
   - file_system   : common_fs
   - pipeline      : assembly_petroff
   - scenario      : scenario_32
+  # - splits        : "3-1"
   - splits        : all
   # simulation must listed be after scenario and splits to build the simulation seed
   - model/petroff : petroff_model
@@ -13,4 +14,4 @@ dataset_name: ${scenario.map_fields}_${scenario.nside}_${splits.name}
 hydra:
   run:
     dir: Logs/${now:%Y-%m-%d-%H-%M-%S}
-  verbose: true
+  verbose: false

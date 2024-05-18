@@ -1,5 +1,5 @@
 from .stage_executors.B_show_simulations import ShowSimsExecutor
-from .stage_executors.D_show_cmbnncs import  ShowSimsPostExecutor, ShowSimsPredExecutor, ShowSimsPrepExecutor, PetroffShowSimsPostExecutor
+from .stage_executors.D_show_single_sims_fig import  ShowSimsPostExecutor, ShowSimsPredExecutor, ShowSimsPrepExecutor, PetroffShowSimsPostExecutor
 from .stage_executors.G_pixel_analysis import PixelAnalysisExecutor
 from .stage_executors.H_pixel_summary import PixelSummaryExecutor
 from .stage_executors.K_convert_theory_ps import ConvertTheoryPowerSpectrumExecutor

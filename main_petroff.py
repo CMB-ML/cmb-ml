@@ -1,6 +1,8 @@
 import logging
 
 import hydra
+from hydra.core.hydra_config import HydraConfig
+from omegaconf import OmegaConf
 
 from core import (
                       PipelineContext,
@@ -8,11 +10,9 @@ from core import (
                       )
 from src.core.A_check_hydra_configs import HydraConfigCheckerExecutor
 from petroff import (
-                     SerialPreprocessMakeExtremaExecutor,
-                     PreprocessExecutor,
+                     PreprocessMakeExtremaExecutor,
                      TrainingExecutor,
                      PredictionExecutor,
-                     PostprocessExecutor
                      )
 from analysis import (
                       PetroffShowSimsPostExecutor,
@@ -28,9 +28,14 @@ from analysis import (
 logger = logging.getLogger(__name__)
 
 
-@hydra.main(version_base=None, config_path="cfg", config_name="config_petroff_32")
+# @hydra.main(version_base=None, config_path="cfg", config_name="config_petroff_32")
+@hydra.main(version_base=None, config_path="cfg", config_name="config_petroff_128")
+# @hydra.main(version_base=None, config_path="cfg", config_name="config_petroff_512")
 def make_all_simulations(cfg):
     logger.debug(f"Running {__name__} in {__file__}")
+
+    # Write hydra's full composed config to a log
+    logging.getLogger("hydraconf").info(OmegaConf.to_yaml(HydraConfig.get()))
 
     log_maker = LogMaker(cfg)
     log_maker.log_procedure_to_hydra(source_script=__file__)
@@ -40,16 +45,9 @@ def make_all_simulations(cfg):
     pipeline_context.add_pipe(HydraConfigCheckerExecutor)
     # pipeline_context.add_pipe(HydraConfigCMBNNCSCheckerExecutor)
 
-    # pipeline_context.add_pipe(SerialPreprocessMakeExtremaExecutor)
-    # pipeline_context.add_pipe(PreprocessExecutor)
-
-    # pipeline_context.add_pipe(ShowSimsPrepExecutor)  # I don't think this will be interesting. Or relevant to Petroff. Maybe
-
-    # pipeline_context.add_pipe(TrainingExecutor)
-
-    # pipeline_context.add_pipe(PredictionExecutor)
-    # pipeline_context.add_pipe(ShowSimsPredExecutor)
-    # pipeline_context.add_pipe(PostprocessExecutor)
+    pipeline_context.add_pipe(PreprocessMakeExtremaExecutor)
+    pipeline_context.add_pipe(TrainingExecutor)
+    pipeline_context.add_pipe(PredictionExecutor)
     pipeline_context.add_pipe(PetroffShowSimsPostExecutor)
     # pipeline_context.add_pipe(PixelAnalysisExecutor)
     # pipeline_context.add_pipe(PixelSummaryExecutor)

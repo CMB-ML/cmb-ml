@@ -8,8 +8,8 @@ from tqdm import tqdm
 from omegaconf import DictConfig
 
 from core import Split, Asset
-from core.dataset import TestCMBMapDataset
-from core.asset_handlers.handler_model_pytorch import PyTorchModel  # Import for typing hint
+from core.pytorch_dataset import TestCMBMapDataset
+from core.asset_handlers.pytorch_model_handler import PyTorchModel  # Import for typing hint
 from .pytorch_model_base_executor import BaseCMBNNCSModelExecutor
 from ..handler_npymap import NumpyMap             # Import for typing hint
 

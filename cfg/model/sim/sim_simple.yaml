@@ -9,7 +9,8 @@ defaults:
 nside_sky          : null
 nside_sky_factor   : 2
 
-preset_strings   : ["d9", "s4", "f1", "a1", "co1"]
+preset_strings   : ["d9", "s4", "f1", "a1", "co1", "cib1", "ksz1", "tsz1", "rg1"]
+# preset_strings   : ["d9", "s4", "f1", "a1", "co1"]
 component_objects:
   - cmb
   - noise

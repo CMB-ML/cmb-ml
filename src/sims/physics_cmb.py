@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 
 def make_camb_ps(cosmo_params, lmax) -> camb.CAMBdata:
     #Set up a new set of parameters for CAMB
-    logger.debug(f"Beginning CAMB")
+    # logger.debug(f"Beginning CAMB")
     pars: camb.CAMBparams = setup_camb(cosmo_params, lmax)
     results: camb.CAMBdata = camb.get_results(pars)
     return results
@@ -48,7 +48,7 @@ def _split_cosmo_params_dict(cosmo_params: Dict, camb_pars):
     init_power_args = {k: v for k, v in cosmo_params.items() if k in init_power_params}
 
     _ensure_all_params_used(set_cosmo_args, init_power_args, cosmo_params)
-    _log_camb_args(set_cosmo_args, init_power_args)
+    # _log_camb_args(set_cosmo_args, init_power_args)
 
     return set_cosmo_args, init_power_args
 

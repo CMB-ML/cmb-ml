@@ -36,8 +36,8 @@ class ShowSimsCMBNNCSExecutor(BaseStageExecutor):
         self.instrument: Instrument = make_instrument(cfg=cfg)
 
         # Only produce visualizations for a subset of sims
-        self.sim_ns = self.get_override_sim_nums()
-        if self.sim_ns is None:
+
+        if self.override_sim_ns is None:
             logger.warning("No particular sim indices specified. Outputs will be produced for all. This is not recommended.")
         self.min_max = self.get_plot_min_max()
 
@@ -66,10 +66,10 @@ class ShowSimsCMBNNCSExecutor(BaseStageExecutor):
         logger.info(f"Running {self.__class__.__name__} process_split() for split: {split.name}.")
 
         # We may want to process a subset of all sims
-        if self.sim_ns is None:
+        if self.override_sim_ns is None:
             sim_iter = split.iter_sims()
         else:
-            sim_iter = self.sim_ns
+            sim_iter = self.override_sim_ns
 
         for sim in sim_iter:
         # for sim in tqdm(sim_iter):
@@ -207,7 +207,7 @@ class ShowSimsPostExecutor(ShowSimsCMBNNCSExecutor):
         out_cmb_figure_handler: Mover
 
         self.in_cmb_map_sim: Asset = self.assets_in["cmb_map_sim"]
-        self.in_cmb_map_post: Asset = self.assets_in["cmb_map_post"]
+        self.in_cmb_map_post: Asset = self.assets_in["cmb_map_pred"]
         in_cmb_map_handler: HealpyMap
 
     def process_sim(self) -> None:
@@ -240,7 +240,7 @@ class ShowSimsPostExecutor(ShowSimsCMBNNCSExecutor):
 
 class PetroffShowSimsPostExecutor(ShowSimsPostExecutor):
     def __init__(self, cfg: DictConfig) -> None:
-        stage_str = "show_sims_post_petroff"
+        stage_str = "show_sims_pred_petroff"
         super().__init__(cfg, stage_str)
 
         self.right_subplot_title = "Petroff Predicted"

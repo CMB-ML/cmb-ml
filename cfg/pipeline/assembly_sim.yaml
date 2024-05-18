@@ -1,0 +1,4 @@
+defaults:
+  - _self_
+  - simulation_pipe
+  - sim_analysis_pipe

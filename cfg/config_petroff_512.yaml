@@ -1,11 +1,11 @@
 defaults:
-  - local_system: ${oc.env:CMB_SIMS_LOCAL_SYSTEM}
-  - file_system : common_fs
-  - pipeline    : assembly_sim
-  - scenario    : scenario_32
-  - splits      : all
+  - local_system  : ${oc.env:CMB_SIMS_LOCAL_SYSTEM}
+  - file_system   : common_fs
+  - pipeline      : assembly_petroff
+  - scenario      : scenario_512
+  - splits        : "1-100"
   # simulation must listed be after scenario and splits to build the simulation seed
-  - model/sim   : sim_simple
+  - model/petroff : petroff_model
   - override hydra/job_logging: custom_log
   - _self_
 

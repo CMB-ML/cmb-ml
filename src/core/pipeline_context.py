@@ -70,11 +70,13 @@ class PipelineContext:
         """
         logger.info(f"Running stage: {stage.__name__}")
         executor: BaseStageExecutor = stage(self.cfg)
-        executor.execute()
-        logger.info(f"Done running stage: {stage.__name__}")
-        if executor.make_stage_logs:
-            stage_str = executor.stage_str
-            stage_dir = self.cfg.pipeline[stage_str].dir_name
-            self.log_maker.copy_hydra_run_to_stage_log(stage_dir)
-        else:
-            logger.warning(f"Skipping stage logs for stage {stage.__name__}.")
+        try:
+            executor.execute()
+        finally:
+            logger.info(f"Done running stage: {stage.__name__}")
+            if executor.make_stage_logs:
+                stage_str = executor.stage_str
+                stage_dir = self.cfg.pipeline[stage_str].dir_name
+                self.log_maker.copy_hydra_run_to_stage_log(stage_dir)
+            else:
+                logger.warning(f"Skipping stage logs for stage {stage.__name__}.")

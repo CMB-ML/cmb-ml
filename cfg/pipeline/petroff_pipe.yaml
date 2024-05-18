@@ -10,26 +10,7 @@ make_normalization:
   splits:
     - train
   make_stage_log: True
-  dir_name: Petroff_B_Extrema
-
-preprocess:
-  assets_out:
-    cmb_map: 
-      handler: HealpyMap
-      path_template: "{root}/{dataset}/{stage}/{split}/{sim}/cmb_map.fits"
-    obs_maps: 
-      handler: HealpyMap
-      path_template: "{root}/{dataset}/{stage}/{split}/{sim}/obs_{freq}_map.fits"
-  assets_in:
-    norm_file: {stage: make_normalization}
-    cmb_map: {stage: make_sims}
-    obs_maps: {stage: make_sims}
-  splits: &all_splits
-    - train
-    - valid
-    - test
-  make_stage_log: True
-  dir_name: Petroff_C_Preprocess
+  dir_name: Low7/Petroff_B_Extrema
 
 train:
   assets_out:
@@ -37,12 +18,13 @@ train:
       handler: PyTorchModel
       path_template: "{root}/{dataset}/{stage}/model_{epoch}.pth"
   assets_in:
+    norm_file: {stage: make_normalization}
     model: {stage: train}
-    cmb_map: {stage: preprocess}
-    obs_maps: {stage: preprocess}
+    cmb_map: {stage: make_sims}
+    obs_maps: {stage: make_sims}
   splits:
     - train
-  dir_name: Petroff_D_Model
+  dir_name: Low7/Petroff_D_Model
   make_stage_log: True
 
 predict:
@@ -51,24 +33,12 @@ predict:
       handler: HealpyMap
       path_template: "{root}/{dataset}/{stage}/{split}/{sim}/cmb_map_pred_{epoch}.npy"
   assets_in:
+    norm_file: {stage: make_normalization}
     model: {stage: train}
-    obs_maps: {stage: preprocess}
+    obs_maps: {stage: make_sims}
   splits:
     - test
-  epochs: &epochs [init, 1, 10, 40]
-  dir_name: Petroff_E_Predict
+  epochs: [init, 1, 10, 40]
+  dir_name: Low7/Petroff_E_Predict
   make_stage_log: True
 
-postprocess:
-  assets_out:
-    cmb_map: 
-      handler: HealpyMap
-      path_template: "{root}/{dataset}/{stage}/{split}/{sim}/cmb_map_post_{epoch}.fits"
-  assets_in:
-    norm_file: {stage: make_normalization}
-    cmb_map: {stage: predict}
-  splits:
-    - test
-  epochs: *epochs
-  dir_name: Petroff_F_Postprocess
-  make_stage_log: True

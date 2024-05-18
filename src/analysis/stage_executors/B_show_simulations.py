@@ -41,12 +41,12 @@ class ShowSimsExecutor(BaseStageExecutor):
         self.instrument: Instrument = make_instrument(cfg=cfg)
 
         # Only produce visualizations for a subset of sims
-        self.sim_ns = self.get_override_sim_nums(cfg.pipeline[self.stage_str].override_n_sims)
+        self.sim_ns = self.get_override_sim_ns(cfg.pipeline[self.stage_str].override_n_sims)
         self.min_max = self.get_plot_min_max(cfg.pipeline[self.stage_str].plot_min_max)
         self.plot_rot = cfg.pipeline[self.stage_str].plot_rot
         self.gnom_plot_res = cfg.pipeline[self.stage_str].plot_gnom_res
 
-    def get_override_sim_nums(self, sim_nums: Union[None, list, int]):
+    def get_override_sim_ns(self, sim_nums: Union[None, list, int]):
         # Returns either a list of sims, or None
         try:
             return list(range(sim_nums))

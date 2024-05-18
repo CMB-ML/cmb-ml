@@ -16,13 +16,12 @@ from .namers import Namer
 logger = logging.getLogger(__name__)
 
 
-
-
 class LogMaker:
     def __init__(self, 
                  cfg: DictConfig) -> None:
 
         self.namer = LogsNamer(cfg, HydraConfig.get())
+        self.source_dir = "src"
 
     def log_procedure_to_hydra(self, source_script) -> None:
         target_root = self.namer.hydra_scripts_path
@@ -55,7 +54,7 @@ class LogMaker:
             shutil.copy(poetry_lock_path, target_path)
 
     def log_py_to_hydra(self, source_script, target_root):
-        imported_local_py_files = self._find_local_imports(source_script)
+        imported_local_py_files = self._find_local_imports(source_script, self.source_dir)
         base_path = self._find_common_paths(imported_local_py_files)
 
         for py_path in imported_local_py_files:
@@ -150,8 +149,12 @@ class LogMaker:
                     logger.error(f"Error parsing YAML file {config_path}: {e}")
         return relevant_files
 
-    def _find_local_imports(self, source_script):
-        def find_imports(_filename, _base_path, _visited_files):
+    @staticmethod
+    def _find_local_imports(source_script, source_dir):
+        visited_files = set()
+        unresolved_imports = set()
+
+        def find_imports(_filename, _current_dir, _visited_files):
             """
             Recursively find and process local imports from a given file.
             """
@@ -162,52 +165,92 @@ class LogMaker:
             with _filename.open("r") as file:
                 tree = ast.parse(file.read(), filename=str(_filename))
 
-            # Modified to handle __init__.py files
             for node in ast.walk(tree):
                 if isinstance(node, ast.ImportFrom):
                     if node.module is None:
                         # Handle relative imports without 'from' part
                         level = node.level  # Number of dots in import
-                        module_path = _filename.parent
-                        for _ in range(level - 1):  # Navigate up the directory tree
+                        module_path = _current_dir
+                        for _ in range(level - 1):  # Navigate up the directory tree as required
                             module_path = module_path.parent
-                        module_file = module_path / '__init__.py'  # Assume package directory
-                        find_imports(module_file, base_path, visited_files)
+                        module_file = module_path / '__init__.py'
+                        if module_file.exists() and is_within_project(module_file, source_path):
+                            find_imports(module_file, module_path, _visited_files)
+                        else:
+                            unresolved_imports.add()
                     else:
-                        # Construct the relative path for modules with 'from' part
+                        # Handle imports from the project root or relative imports
                         parts = node.module.split('.')
-                        level = node.level  # Number of dots in import
-                        module_path = _filename.parent
-                        for _ in range(level - 1):  # Navigate up the directory tree
-                            module_path = module_path.parent
+                        # Sometimes, "src.whatever" is imported instead of just "whatever". Handle this:
+                        if parts[0] == source_dir:
+                            parts = parts[1:]
+                        # Number of dots before the import; if >0, we backtrack up the directory structure.
+                        level = node.level
+                        if level == 0:
+                            # Import from the project root (e.g., 'src')
+                            module_path = source_path
+                        else:
+                            # Relative import, navigate up the directory tree as needed
+                            module_path = _current_dir
+                            for _ in range(level - 1):
+                                module_path = module_path.parent
                         target_path = module_path.joinpath(*parts)
                         # Check for .py file or package (__init__.py)
-                        if target_path.with_suffix('.py').exists():
-                            find_imports(target_path.with_suffix('.py'), base_path, visited_files)
-                        elif (target_path / '__init__.py').exists():
-                            find_imports(target_path / '__init__.py', base_path, visited_files)
+                        if target_path.with_suffix('.py').exists() and is_within_project(target_path.with_suffix('.py'), source_path):
+                            find_imports(target_path.with_suffix('.py'), target_path.parent, _visited_files)
+                        elif (target_path / '__init__.py').exists() and is_within_project(target_path / '__init__.py', source_path):
+                            find_imports(target_path / '__init__.py', target_path, _visited_files)
+                        else:
+                            # print(node.module)
+                            unresolved_imports.add(node.module)
                 elif isinstance(node, ast.Import):
-                    module_name = node.names[0].name
-                    module_path = get_full_path(module_name, _base_path)
-                    if module_path and module_path.exists():
-                        find_imports(module_path, _base_path, _visited_files)
+                    for alias in node.names:
+                        module_name = alias.name
+                        module_path = get_full_path(module_name, _current_dir)
+                        if module_path and module_path.exists() and is_within_project(module_path, source_path):
+                            find_imports(module_path, module_path.parent, _visited_files)
+                        else:
+                            # print(module_name)
+                            unresolved_imports.add(module_name)
+                    # module_name = node.names[0].name
+                    # module_path = get_full_path(module_name, _current_dir)
+                    # if module_path and module_path.exists() and is_within_project(module_path, source_dir):
+                    #     find_imports(module_path, module_path.parent, _visited_files)
+                    # else:
+                    #     temp_name = ".".join([n.name for n in node.names])
+                    #     unresolved_imports.add(temp_name)
 
-        def get_full_path(_module_name, _base_path):
+        def get_full_path(_module_name, _current_dir):
             """
             Convert a module name to a full file path within a given base path.
             """
             parts = _module_name.split('.')
-            path = _base_path.joinpath(*parts)
-            # Check for direct .py file or package (__init__.py)
+            path = _current_dir.joinpath(*parts)
             if path.with_suffix('.py').exists():
                 return path.with_suffix('.py')
             elif (path / '__init__.py').exists():
                 return path / '__init__.py'
             return None
 
+        def is_within_project(_path, _base_dir):
+            """
+            Check if a given path is within the project directory.
+            """
+            try:
+                _path.relative_to(_base_dir)
+                return True
+            except ValueError:
+                return False
+
         base_path = Path(source_script).parent
+        source_path = base_path / source_dir
         visited_files = set()
-        find_imports(Path(source_script), base_path, visited_files)
+        find_imports(Path(source_script), source_path, visited_files)
+
+        if unresolved_imports:
+            logger = logging.getLogger('unresolved_imports')
+            logger.info("\n".join(sorted(unresolved_imports)))
+
         return visited_files
 
     @staticmethod

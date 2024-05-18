@@ -33,7 +33,7 @@ class ShowSinglePsFigExecutor(BaseStageExecutor):
         self.in_ps_pred: Asset = self.assets_in["auto_pred"]
         out_ps_handler: NumpyPowerSpectrum
 
-        self.fig_n_override = self.get_override_sim_nums()
+        self.fig_n_override = self.get_override_sim_ns()
 
     def execute(self) -> None:
         # Remove this function

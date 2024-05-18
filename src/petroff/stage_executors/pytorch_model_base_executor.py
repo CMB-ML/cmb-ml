@@ -1,19 +1,16 @@
-from typing import List, Dict
 import logging
 
-import numpy as np
 import torch
-from torch.utils.data import DataLoader
 
 from omegaconf import DictConfig
 
 from core import (BaseStageExecutor, Split)
 
-# from ..dataset import CMBMapDataset
-# from ..dummymodel import DummyNeuralNetwork
 from ..deepsphere_model.model import PetroffNet
-from core.asset_handlers.handler_model_pytorch import PyTorchModel  # Must be imported for registration
-from src.utils import make_instrument, Instrument, Detector
+from core.asset_handlers.pytorch_model_handler import PyTorchModel  # Must be imported for registration
+from src.utils import make_instrument, Instrument
+from core.asset_handlers.healpy_map_handler import HealpyMap
+
 
 
 logger = logging.getLogger(__name__)
@@ -25,6 +22,11 @@ class BasePyTorchModelExecutor(BaseStageExecutor):
 
         self.n_dets = len(self.instrument.dets)
         self.nside = cfg.scenario.nside
+
+    dtype_mapping = {
+        "float": torch.float32,
+        "double": torch.float64
+    }
 
     def choose_device(self, force_device=None) -> None:
         if force_device:
@@ -52,25 +54,6 @@ class BasePyTorchModelExecutor(BaseStageExecutor):
             this_path_pattern = str(asset.path)
         return this_path_pattern
 
-    def match_data_precision(self, tensor):
-        # TODO: Revisit
-        # data_precision is the precision with which the data is written to file
-        # model_precision is the precision with which the model is created
-        # tensor is the loaded data
-        # If the tensor precision doesn't match the models, convert it
-        # If the tensor precision doesn't match data_precision... is there an issue?
-        if self.model_precision == "float" and tensor.dtype is torch.float64:
-            return tensor.float()
-        if self.model_precision == "float" and tensor.dtype is torch.float32:
-            return tensor
-        else:
-            message = f"BasePyTorchModelExecutor data conversion is partially implemented. Received from config model precision: {self.model_precision}, data precision: {self.data_precision}. Received a tensor with dtype: {tensor.dtype}."
-            logger.error(message)
-            raise NotImplementedError(message)
-
-    def prep_data(self, tensor):
-        return self.match_data_precision(tensor).to(self.device)
-
     def try_model(self, model):
         n_pix = (self.nside ** 2) * 12
         dummy_input = torch.rand(1, self.n_dets, n_pix, device=self.device)
@@ -95,3 +78,5 @@ class PetroffModelExecutor(BasePyTorchModelExecutor):
         model = PetroffNet(**self.model_dict).to(self.device)
         # logger.info(model)
         return model
+
+

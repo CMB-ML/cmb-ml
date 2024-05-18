@@ -31,7 +31,7 @@ class EmptyHandler(GenericHandler):
 
 class Config(GenericHandler):
     def read(self, path: Path) -> Dict:
-        logger.debug(f"Reading config from '{path}'")
+        # logger.debug(f"Reading config from '{path}'")
         with open(path, 'r') as infile:
             data = yaml.safe_load(infile)
         return data

@@ -1,10 +1,7 @@
-from typing import Dict
-from pathlib import Path
 import logging
 
-import hydra
 from omegaconf import DictConfig
-import pysm3
+from tqdm import tqdm
 
 from ...core import (
     BaseStageExecutor,
@@ -44,7 +41,7 @@ class TheoryPSExecutor(BaseStageExecutor):
         if split.ps_fidu_fixed:
             self.make_ps(self.in_wmap_config, self.out_cmb_ps, use_alt_path=True)
         else:
-            for sim in split.iter_sims():
+            for sim in tqdm(split.iter_sims()):
                 with self.name_tracker.set_context("sim_num", sim):
                     self.make_ps(self.in_wmap_config, self.out_cmb_ps, use_alt_path=False)
 

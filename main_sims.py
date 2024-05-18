@@ -22,8 +22,8 @@ from src.analysis import (
 logger = logging.getLogger(__name__)
 
 
-# @hydra.main(version_base=None, config_path="cfg", config_name="config_sim_32")
-@hydra.main(version_base=None, config_path="cfg", config_name="config_sim_128")
+@hydra.main(version_base=None, config_path="cfg", config_name="config_sim_32")
+# @hydra.main(version_base=None, config_path="cfg", config_name="config_sim_128")
 # @hydra.main(version_base=None, config_path="cfg", config_name="config_sim_512")
 # @hydra.main(version_base=None, config_path="cfg", config_name="config_sim_2048")
 def make_all_simulations(cfg):

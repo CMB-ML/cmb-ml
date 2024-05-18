@@ -16,9 +16,9 @@ from core import (
 
 
 from .pytorch_model_base_executor import BaseCMBNNCSModelExecutor
-from ...core.dataset import LabelledCMBMapDataset
+from ...core.pytorch_dataset import TrainCMBMapDataset
 
-from core.asset_handlers.handler_model_pytorch import PyTorchModel # Import for typing hint
+from core.asset_handlers.pytorch_model_handler import PyTorchModel # Import for typing hint
 
 from ..handler_npymap import NumpyMap             # Import for typing hint
 
@@ -93,7 +93,7 @@ class TrainingExecutor(BaseCMBNNCSModelExecutor):
         for epoch in range(start_epoch, self.n_epochs):
             epoch_loss = 0.0
             batch_n = 0
-            for train_features, train_label, _ in tqdm(dataloader):
+            for train_features, train_label in tqdm(dataloader):
                 batch_n += 1
                 train_features = self.prep_data(train_features)
                 train_label = self.prep_data(train_label)
@@ -138,7 +138,7 @@ class TrainingExecutor(BaseCMBNNCSModelExecutor):
         cmb_path_template = self.make_fn_template(template_split, self.in_cmb_asset)
         obs_path_template = self.make_fn_template(template_split, self.in_obs_assets)
 
-        dataset = LabelledCMBMapDataset(
+        dataset = TrainCMBMapDataset(
             n_sims = template_split.n_sims,
             freqs = self.instrument.dets.keys(),
             label_path_template=cmb_path_template, 
