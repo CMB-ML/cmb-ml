@@ -186,6 +186,7 @@ class ShowSimsPredExecutor(ShowSimsCMBNNCSExecutor):
 
     def process_sim(self) -> None:
         for epoch in self.model_epochs:
+            logger.info(f"Creating map figures predictions, model epoch {epoch}")
             with self.name_tracker.set_context('epoch', epoch):
                 cmb_map_sim = self.in_cmb_map_sim.read()
                 cmb_map_prep = self.in_cmb_map_pred.read()

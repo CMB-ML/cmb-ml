@@ -74,9 +74,7 @@ class PetroffModelExecutor(BasePyTorchModelExecutor):
         )
 
     def make_model(self):
-        logger.info(f"Using {self.device} device")
+        logger.debug(f"Using {self.device} device")
         model = PetroffNet(**self.model_dict).to(self.device)
         # logger.info(model)
         return model
-
-

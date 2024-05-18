@@ -58,7 +58,7 @@ class BasePyTorchModelExecutor(BaseStageExecutor):
         return this_path_pattern
 
     def make_model(self):
-        logger.info(f"Using {self.device} device")
+        logger.debug(f"Using {self.device} device")
         model = self.make_model(self.cfg)
         # logger.info(model)
         return model

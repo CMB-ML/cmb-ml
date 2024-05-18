@@ -13,7 +13,7 @@ from core.asset_handlers.asset_handlers_base import Config
 from core.asset_handlers.pytorch_model_handler import PyTorchModel
 from .pytorch_model_base_executor import PetroffModelExecutor
 from core.asset_handlers.healpy_map_handler import HealpyMap
-from petroff.pytorch_transform import TestAbsMaxScaleMap, TestAbsMaxUnScaleMap
+from petroff.pytorch_transform_absmax_scale import TestAbsMaxScaleMap, TestAbsMaxUnScaleMap
 from core.pytorch_transform import TestToTensor
 
 
@@ -45,7 +45,7 @@ class PredictionExecutor(PetroffModelExecutor):
         logger.debug(f"Running {self.__class__.__name__} execute() method.")
 
         for model_epoch in self.model_epochs:
-            logger.debug(f"Making predictions based on epoch {model_epoch}")
+            logger.info(f"Making predictions based on epoch {model_epoch}")
             model = self.make_model()
             with self.name_tracker.set_context("epoch", model_epoch):
                 self.in_model.read(model=model, epoch=model_epoch)
@@ -69,6 +69,8 @@ class PredictionExecutor(PetroffModelExecutor):
                 for pred, idx in zip(predictions, idcs):
                     with self.name_tracker.set_context("sim_num", idx.item()):
                         pred_npy = self.post_process(pred)
+                        # print(pred_npy)[..., :10]
+                        # print(pred)[..., :10]
                         self.out_cmb_asset.write(data=pred_npy)
 
     def post_process(self, pred):
