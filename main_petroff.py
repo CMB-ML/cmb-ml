@@ -11,6 +11,7 @@ from core import (
 from src.core.A_check_hydra_configs import HydraConfigCheckerExecutor
 from petroff import (
                      PreprocessMakeExtremaExecutor,
+                     CheckTransformsExecutor,
                      TrainingExecutor,
                      PredictionExecutor,
                      )
@@ -28,9 +29,7 @@ from analysis import (
 logger = logging.getLogger(__name__)
 
 
-# @hydra.main(version_base=None, config_path="cfg", config_name="config_petroff_32")
-@hydra.main(version_base=None, config_path="cfg", config_name="config_petroff_128")
-# @hydra.main(version_base=None, config_path="cfg", config_name="config_petroff_512")
+@hydra.main(version_base=None, config_path="cfg", config_name="config_petroff")
 def make_all_simulations(cfg):
     logger.debug(f"Running {__name__} in {__file__}")
 
@@ -45,8 +44,9 @@ def make_all_simulations(cfg):
     pipeline_context.add_pipe(HydraConfigCheckerExecutor)
     # pipeline_context.add_pipe(HydraConfigCMBNNCSCheckerExecutor)
 
-    pipeline_context.add_pipe(PreprocessMakeExtremaExecutor)
-    pipeline_context.add_pipe(TrainingExecutor)
+    # pipeline_context.add_pipe(PreprocessMakeExtremaExecutor)
+    # pipeline_context.add_pipe(CheckTransformsExecutor)
+    # pipeline_context.add_pipe(TrainingExecutor)
     pipeline_context.add_pipe(PredictionExecutor)
     pipeline_context.add_pipe(PetroffShowSimsPostExecutor)
     # pipeline_context.add_pipe(PixelAnalysisExecutor)

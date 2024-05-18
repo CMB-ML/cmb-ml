@@ -351,6 +351,7 @@ Simulations
 
 - [CAMB for Python](https://camb.readthedocs.io/en/latest/CAMBdemo.html)
 - [CMBNNCS Library](https://github.com/Guo-Jian-Wang/cmbnncs/tree/master)
+- [DeepSphere for Pytorch](https://github.com/deepsphere/deepsphere-pytorch/tree/master)
 
 # Notes for Documentation
 

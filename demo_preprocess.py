@@ -8,7 +8,7 @@ from core.config_helper import ConfigHelper
 from core.pytorch_make_dataset import create_dataset_from_cfg
 from core.pytorch_transform import ToTensorDtype
 
-from petroff.pytorch_transform import MinMaxScaleMap
+from petroff.pytorch_transform_absmax_scale import MinMaxScaleMap
 
 
 def get_scale_factors(cfg, name_tracker):
