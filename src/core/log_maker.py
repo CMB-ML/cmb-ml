@@ -96,6 +96,13 @@ class LogMaker:
         ]
 
         relevant_files = []
+
+        top_config_name = hydra_cfg.job.config_name
+        for config_path in config_paths:
+            maybe_path = config_path / f"{top_config_name}.yaml"
+            if maybe_path.exists():
+                relevant_files.append(maybe_path)
+
         missing_combinations = []
 
         # Attempting to find each choice in the available config paths
