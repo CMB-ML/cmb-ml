@@ -290,6 +290,7 @@ class LogsNamer:
         self.scripts_subdir = cfg.file_system.subdir_for_log_scripts
         # self.dataset_logs_dir = cfg.file_system.subdir_for_logs
         self.dataset_template_str = cfg.file_system.log_dataset_template_str
+        self.working_dir = cfg.working_dir
         self.stage_template_str = cfg.file_system.log_stage_template_str
         self.namer = Namer(cfg)
 
