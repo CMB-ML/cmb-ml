@@ -40,7 +40,7 @@ from .layer_linear import LinearCombLayer
 
 class PetroffNet(torch.nn.Module):
     """
-    An implementation of Petroff's "Autoencoder."
+    An implementation of Petroff's autoencoder.
     """
 
     def __init__(self,
@@ -48,13 +48,20 @@ class PetroffNet(torch.nn.Module):
                  nside: int,
                  laplacian_type: str="normalized",
                  kernel_size: int=9,
-                 n_features: int=6):
+                 n_features: int=6,
+                 initialization: str=None):
         """Initialization.
 
         Args:
             nside (int): Healpix resolution of input maps
             laplacian_type (str): Either "combinatoric" or "normalized"
             kernel_size (int): chebychev polynomial degree
+            n_dets (int): ,
+            nside (int):,
+            laplacian_type (str): "normalized",
+            kernel_size (int): Default 9,
+            n_features (int): Default 6 (Not a tuple, as would be expected!),
+            initialization (str): Either "xavier" or "kaiming" initialization):
         """
         super().__init__()
 
@@ -73,11 +80,12 @@ class PetroffNet(torch.nn.Module):
 
         self.encoders = torch.nn.ModuleList()
         for _ in range(n_dets):
-            self.encoders.append(SingleDetEncoder(self.pooling_class.pooling,
-                                                  self.nsides[::-1],
-                                                  laps[::-1],
-                                                  self.kernel_size,
-                                                  features))
+            self.encoders.append(SingleDetEncoder(pooling=self.pooling_class.pooling,
+                                                  nsides=self.nsides[::-1],
+                                                  laps=laps[::-1],
+                                                  kernel_size=self.kernel_size,
+                                                  features=features,
+                                                  initialization=initialization))
 
         # Major order: detectors/ minor order: nsides
         self.skip_linears = torch.nn.ModuleList([
@@ -90,11 +98,12 @@ class PetroffNet(torch.nn.Module):
 
         self.bottleneck = Bottleneck()
 
-        self.decoder = Decoder(self.pooling_class.unpooling,
-                               self.nsides,
-                               laps,
-                               self.kernel_size,
-                               features[::-1])
+        self.decoder = Decoder(pooling=self.pooling_class.unpooling,
+                               nsides=self.nsides,
+                               laps=laps,
+                               kernel_size=self.kernel_size,
+                               features=features[::-1],
+                               initialization=initialization)
 
     def forward(self, input_map_data):
         """Forward Pass.
@@ -147,7 +156,8 @@ class SingleDetEncoder(torch.nn.Module):
                  nsides, 
                  laps, 
                  kernel_size,
-                 features
+                 features, 
+                 initialization
                  ):
         super().__init__()
         self.encoder_layers = torch.nn.ModuleList()
@@ -157,12 +167,13 @@ class SingleDetEncoder(torch.nn.Module):
         for io_feats, nside, lap in zip(paired_features, nsides, laps):
             in_channels = io_feats[0]
             out_channels = io_feats[1]
-            self.encoder_layers.append(Down(in_channels, 
-                                            out_channels, 
-                                            pooling, 
-                                            nside, 
-                                            lap, 
-                                            kernel_size))
+            self.encoder_layers.append(Down(in_channels=in_channels, 
+                                            out_channels=out_channels, 
+                                            pooling=pooling, 
+                                            nside=nside, 
+                                            lap=lap, 
+                                            kernel_size=kernel_size, 
+                                            initialization=initialization))
 
     def forward(self, x):
         skips = []
@@ -191,8 +202,12 @@ class Decoder(torch.nn.Module):
                  nsides,
                  laps,
                  kernel_size,
-                 features
+                 features, 
+                 initialization: str
                  ):
+        """
+        initialization must be "xavier" or "kaiming"
+        """
         super().__init__()
         self.decoder_layers = torch.nn.ModuleList()
 
@@ -202,12 +217,13 @@ class Decoder(torch.nn.Module):
             in_channels = io_feats[0]
             out_channels = io_feats[1]
             self.decoder_layers.append(Up(
-                in_channels, 
-                out_channels,
-                pooling,
-                nside,
-                lap,
-                kernel_size
+                in_channels=in_channels, 
+                out_channels=out_channels,
+                pooling=pooling,
+                nside=nside,
+                lap=lap,
+                kernel_size=kernel_size,
+                initialization=initialization
             ))
 
     def forward(self, x, skips):
@@ -227,16 +243,30 @@ class Down(torch.nn.Module):
                  pooling: Union[HealpixMaxPool, HealpixAvgPool], 
                  nside, 
                  lap, 
-                 kernel_size):
+                 kernel_size,
+                 initialization: str):
+        """
+        initialization must be "xavier" or "kaiming"
+        """
+
         super().__init__()
         self.kernel_size = kernel_size
         # self.pooling = pooling
-        self.conv1 = SphericalChebConv(in_channels, out_channels, lap, kernel_size)
+        params_dict = dict(
+            out_channels=out_channels,
+            lap=lap,
+            kernel_size=kernel_size,
+            initialization=initialization
+        )
+        self.conv1 = SphericalChebConv(in_channels=in_channels, **params_dict)
         # for alpha value: Petroff uses tf.keras.layers.Activation("elu") 
         #                     without specifying alpha.
         #                     Both keras and PyTorch use alpha=1 as default.
         self.act1  = torch.nn.ELU(alpha=1)
-        self.conv2 = SphericalChebConv(out_channels, out_channels, lap, kernel_size)
+        # When going down, we keep the same number of channels in and out for the SECOND convolution
+        # This would matter more if the number of channels weren't fixed throughout the network,
+        #      but that's to be investigated in the future.
+        self.conv2 = SphericalChebConv(in_channels=out_channels, **params_dict)
         self.act2  = torch.nn.ELU(alpha=1)
         self.pool  = pooling
 
@@ -256,14 +286,24 @@ class Up(torch.nn.Module):
                  pooling: Union[HealpixMaxUnpool, HealpixAvgUnpool], 
                  nside, 
                  lap, 
-                 kernel_size):
+                 kernel_size, 
+                 initialization):
         super().__init__()
         self.kernel_size = kernel_size
         self.pool  = pooling
-        self.conv1 = SphericalChebConv(in_channels, in_channels, lap, kernel_size)
+        params_dict = dict(
+            in_channels=in_channels,
+            lap=lap,
+            kernel_size=kernel_size,
+            initialization=initialization
+        )
+        # When going up, we keep the same number of channels in and out for the FIRST convolution
+        # This would matter more if the number of channels weren't fixed throughout the network,
+        #      but that's to be investigated in the future.
+        self.conv1 = SphericalChebConv(out_channels=in_channels, **params_dict)
         self.add   = AddLayer()
         self.act1  = torch.nn.ELU(alpha=1)
-        self.conv2 = SphericalChebConv(in_channels, out_channels, lap, kernel_size)
+        self.conv2 = SphericalChebConv(out_channels=out_channels, **params_dict)
         self.act2  = torch.nn.ELU(alpha=1)
 
     def forward(self, x, skip):

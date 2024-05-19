@@ -1,6 +1,3 @@
-"""Chebyshev convolution layer. For the moment taking as-is from Michaël Defferrard's implementation. For v0.15 we will rewrite parts of this layer.
-"""
-
 # From https://github.com/deepsphere/deepsphere-pytorch/blob/master/deepsphere/layers/chebyshev.py
 
 """
@@ -26,7 +23,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
-# Changes: Added notes about the need to replace the initialization method.
+# JAmato Changes: Added options for changing initialization methods
 
 # pylint: disable=W0221
 
@@ -73,13 +70,14 @@ def cheb_conv(laplacian, inputs, weight):
     Returns:
         :obj:`torch.Tensor`: Inputs after applying Chebyshev convolution.
     """
-    B, V,   Fin  = inputs.shape                                # B x V x Fin
-    K, Fin, Fout = weight.shape                                # K x Fin x Fout
+    # Variables:
     # B    = batch size
     # V    = nb vertices
     # Fin  = nb input features
     # Fout = nb output features
     # K    = order of Chebyshev polynomials
+    B, V,   Fin  = inputs.shape                                # B x V x Fin
+    K, Fin, Fout = weight.shape                                # K x Fin x Fout
 
     # transform to Chebyshev basis
     # T_{0}(x) = 1, constant, so we have no Laplacian
@@ -121,7 +119,13 @@ class ChebConv(torch.nn.Module):
     """Graph convolutional layer.
     """
 
-    def __init__(self, in_channels, out_channels, kernel_size, bias=True, conv=cheb_conv):
+    def __init__(self, 
+                 in_channels, 
+                 out_channels, 
+                 kernel_size, 
+                 bias=True, 
+                 conv=cheb_conv,
+                 initialization:str=None):
         """Initialize the Chebyshev layer.
 
         Args:
@@ -131,6 +135,7 @@ class ChebConv(torch.nn.Module):
                                 The order of the Chebyshev polynomials is kernel_size - 1.
             bias (bool): Whether to add a bias term.
             conv (callable): Function which will perform the actual convolution.
+            initialization (str): Currently 'xavier' and 'kaiming' are the implemented initialization methods.
         """
         super().__init__()
 
@@ -147,14 +152,19 @@ class ChebConv(torch.nn.Module):
         else:
             self.register_parameter("bias", None)
 
-        # TODO: Replace with Petroff's initialization method
-        # self.kaiming_initialization()
-        self.xavierlike_initialization()
+        if initialization is None:
+            raise ValueError(f"An initialization method must be specified. Currently 'xavier' and 'kaiming' are implemented. Got {initialization}.")
+        elif initialization == "xavier":
+            # Petroff's initialization method; likely related to using Concrete Dropout
+            self.xavierlike_initialization()
+        elif initialization == "kaiming":
+            # TODO: Replace with Petroff's initialization method
+            self.kaiming_initialization()
 
     def kaiming_initialization(self):
         """Initialize weights and bias.
         """
-        logger.warning("Using Kaiming Initialization! Need to use Xavier-like initialization instead.")
+        # logger.warning("Using Kaiming Initialization! Need to use Xavier-like initialization instead.")
         std = math.sqrt(2 / (self.in_channels * self.kernel_size))
         self.weight.data.normal_(0, std)
         if self.bias is not None:
@@ -187,7 +197,7 @@ class SphericalChebConv(nn.Module):
     """Building Block with a Chebyshev Convolution.
     """
 
-    def __init__(self, in_channels, out_channels, lap, kernel_size):
+    def __init__(self, in_channels, out_channels, lap, kernel_size, initialization):
         """Initialization.
 
         Args:
@@ -195,10 +205,14 @@ class SphericalChebConv(nn.Module):
             out_channels (int): output number of channels
             lap (:obj:`torch.sparse.FloatTensor`): laplacian
             kernel_size (int): polynomial degree. Defaults to 3.
+            initialization (str): either "xavier" or "kaiming"
         """
         super().__init__()
         self.register_buffer("laplacian", lap)
-        self.chebconv = ChebConv(in_channels, out_channels, kernel_size)
+        self.chebconv = ChebConv(in_channels=in_channels, 
+                                 out_channels=out_channels, 
+                                 kernel_size=kernel_size, 
+                                 initialization=initialization)
 
     # def state_dict(self, *args, **kwargs):
     #     """! WARNING !
