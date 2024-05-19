@@ -4,6 +4,8 @@ import logging
 
 from tqdm import tqdm
 
+import numpy as np
+
 import torch
 from torch.utils.data import DataLoader
 from torch.profiler import profile, record_function, ProfilerActivity
@@ -18,8 +20,9 @@ from core.asset_handlers.pytorch_model_handler import PyTorchModel # Import for 
 from core.asset_handlers.healpy_map_handler import HealpyMap
 from .pytorch_model_base_executor import PetroffModelExecutor
 from core.pytorch_dataset import TrainCMBMapDataset
-from petroff.pytorch_transform_absmax_scale import TrainAbsMaxScaleMap
+from petroff.scaling.scale_methods_factory import get_scale_class
 from core.pytorch_transform import TrainToTensor
+from petroff.pytorch_transform_pixel_reorder import ReorderTransform
 
 
 logger = logging.getLogger(__name__)
@@ -54,9 +57,17 @@ class TrainingExecutor(PetroffModelExecutor):
         self.output_every = cfg.model.petroff.train.output_every
         self.checkpoint = cfg.model.petroff.train.checkpoint_every
         self.extra_check = cfg.model.petroff.train.extra_check
+        self.scale_class = None
+        self.set_scale_class(cfg)
         # self.num_workers = cfg.model.petroff.train.get("num_workers", 0)
 
         self.restart_epoch = cfg.model.petroff.train.restart_epoch
+
+    def set_scale_class(self, cfg):
+        scale_method = cfg.model.petroff.prep.scaling
+        self.scale_class = get_scale_class(method=scale_method, 
+                                           dataset="train", 
+                                           scale="scale")
 
     def execute(self) -> None:
         logger.debug(f"Running {self.__class__.__name__} execute() method.")
@@ -87,7 +98,7 @@ class TrainingExecutor(PetroffModelExecutor):
         self.try_model(model)
 
         loss_function = torch.nn.MSELoss()
-        optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
+        optimizer = torch.optim.Adam(model.parameters(), lr=self.lr)
 
         if self.restart_epoch is not None:
             logger.info(f"Restarting training at epoch {self.restart_epoch}")
@@ -96,7 +107,7 @@ class TrainingExecutor(PetroffModelExecutor):
             with self.name_tracker.set_context("epoch", self.restart_epoch):
                 start_epoch = self.in_model.read(model=model, epoch=self.restart_epoch, optimizer=optimizer)
         else:
-            logger.info(f"Starting training at epoch 0")
+            logger.info(f"Starting new model.")
             with self.name_tracker.set_context("epoch", "init"):
                 self.out_model.write(model=model, epoch="init")
             start_epoch = 0
@@ -141,12 +152,17 @@ class TrainingExecutor(PetroffModelExecutor):
         dtype_transform = TrainToTensor(self.dtype, device="cpu")
 
         scale_factors = self.in_norm.read()
-        scale_map_transform = TrainAbsMaxScaleMap(all_map_fields=self.map_fields,
-                                                  scale_factors=scale_factors,
-                                                  device="cpu",
-                                                  dtype=self.dtype)
+
+        scale_map_transform = self.scale_class(all_map_fields=self.map_fields,
+                                               scale_factors=scale_factors,
+                                               device="cpu",
+                                               dtype=self.dtype)
 
         device_transform = TrainToTensor(self.dtype, device=self.device)
+
+        hp_xforms = [
+            ReorderTransform(from_ring=False)
+        ]
 
         dataset = TrainCMBMapDataset(
             n_sims = template_split.n_sims,
@@ -155,7 +171,8 @@ class TrainingExecutor(PetroffModelExecutor):
             label_path_template=cmb_path_template, 
             feature_path_template=obs_path_template,
             file_handler=HealpyMap(),
-            transforms=[dtype_transform, scale_map_transform, device_transform]
+            transforms=[dtype_transform, scale_map_transform, device_transform],
+            hp_xforms=hp_xforms
             )
         return dataset
 

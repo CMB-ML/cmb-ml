@@ -13,8 +13,9 @@ from core.asset_handlers.asset_handlers_base import Config
 from core.asset_handlers.pytorch_model_handler import PyTorchModel
 from .pytorch_model_base_executor import PetroffModelExecutor
 from core.asset_handlers.healpy_map_handler import HealpyMap
-from petroff.pytorch_transform_absmax_scale import TestAbsMaxScaleMap, TestAbsMaxUnScaleMap
+from petroff.scaling.scale_methods_factory import get_scale_class
 from core.pytorch_transform import TestToTensor
+from petroff.pytorch_transform_pixel_reorder import ReorderTransform
 
 
 logger = logging.getLogger(__name__)
@@ -38,8 +39,21 @@ class PredictionExecutor(PetroffModelExecutor):
         self.dtype = self.dtype_mapping[model_precision]
         self.choose_device(cfg.model.petroff.predict.device)
         self.batch_size = cfg.model.petroff.predict.batch_size
+        self.scale_class = None
+        self.unscale_class = None
+        self.set_scale_classes(cfg)
 
         self.postprocess = None
+        self.hp_postprocesses = None
+
+    def set_scale_classes(self, cfg):
+        scale_method = cfg.model.petroff.prep.scaling
+        self.scale_class = get_scale_class(method=scale_method, 
+                                           dataset="test", 
+                                           scale="scale")
+        self.unscale_class = get_scale_class(method=scale_method, 
+                                             dataset="test", 
+                                             scale="unscale")
 
     def execute(self) -> None:
         logger.debug(f"Running {self.__class__.__name__} execute() method.")
@@ -78,6 +92,8 @@ class PredictionExecutor(PetroffModelExecutor):
         pred = pred.detach().cpu()
         pred = unscale_transform(pred)
         pred = pred.numpy()
+        for post in self.hp_postprocesses:
+            pred = post(pred)
         return pred
 
     def set_up_dataset(self, template_split: Split) -> None:
@@ -86,12 +102,16 @@ class PredictionExecutor(PetroffModelExecutor):
         dtype_transform = TestToTensor(self.dtype, device="cpu")
 
         scale_factors = self.in_norm.read()
-        scale_map_transform = TestAbsMaxScaleMap(all_map_fields=self.map_fields,
-                                                 scale_factors=scale_factors,
-                                                 device="cpu",
-                                                 dtype=self.dtype)
+        scale_map_transform = self.scale_class(all_map_fields=self.map_fields,
+                                               scale_factors=scale_factors,
+                                               device="cpu",
+                                               dtype=self.dtype)
 
         device_transform = TestToTensor(self.dtype, device=self.device)
+
+        hp_xforms = [
+            ReorderTransform(from_ring=False)
+        ]
 
         dataset = TestCMBMapDataset(
             n_sims = template_split.n_sims,
@@ -99,11 +119,13 @@ class PredictionExecutor(PetroffModelExecutor):
             map_fields=self.map_fields,
             feature_path_template=obs_path_template,
             file_handler=HealpyMap(),
-            transforms=[dtype_transform, scale_map_transform, device_transform]
+            transforms=[dtype_transform, scale_map_transform, device_transform],
+            hp_xforms=hp_xforms
             )
 
-        self.postprocess_unscale = TestAbsMaxUnScaleMap(all_map_fields=self.map_fields,
-                                                        scale_factors=scale_factors,
-                                                        device="cpu",
-                                                        dtype=self.dtype)
+        self.postprocess_unscale = self.unscale_class(all_map_fields=self.map_fields,
+                                                      scale_factors=scale_factors,
+                                                      device="cpu",
+                                                      dtype=self.dtype)
+        self.hp_postprocesses = [ReorderTransform(from_ring=False)]
         return dataset

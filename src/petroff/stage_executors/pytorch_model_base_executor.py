@@ -70,7 +70,8 @@ class PetroffModelExecutor(BasePyTorchModelExecutor):
             nside = self.nside,
             laplacian_type = self.cfg.model.petroff.network.laplacian_type,
             kernel_size = self.cfg.model.petroff.network.kernel_size,
-            n_features = self.cfg.model.petroff.network.n_features
+            n_features = self.cfg.model.petroff.network.n_features,
+            initialization = self.cfg.model.petroff.network.initialization
         )
 
     def make_model(self):

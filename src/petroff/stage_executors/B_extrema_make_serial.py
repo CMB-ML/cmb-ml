@@ -37,6 +37,7 @@ class SerialPreprocessMakeExtremaExecutor(BaseStageExecutor):
         in_obs_map_handler: HealpyMap
 
     def execute(self) -> None:
+        raise NotImplementedError("This code is out of date; compare it to the other B_extrema_make")
         logger.debug(f"Running {self.__class__.__name__} execute() method.")
         # Defining extrema at the scope of the stage: we want extrema of all maps across splits
         #    Note that some channels won't use all fields (e.g. 545, 857 only have intensity)

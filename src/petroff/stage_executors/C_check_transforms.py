@@ -20,8 +20,7 @@ from core.asset_handlers.pytorch_model_handler import PyTorchModel # Import for 
 from core.asset_handlers.healpy_map_handler import HealpyMap
 from .pytorch_model_base_executor import PetroffModelExecutor
 from core.pytorch_dataset import TrainCMBMapDataset
-from petroff.pytorch_transform_absmax_scale import TrainAbsMaxScaleMap
-from petroff.pytorch_transform_absmax_scale import TrainAbsMaxUnScaleMap
+from petroff.scaling.scale_methods_factory import get_scale_class
 from core.pytorch_transform import TrainToTensor
 
 
@@ -44,6 +43,9 @@ class CheckTransformsExecutor(PetroffModelExecutor):
         in_cmb_map_handler: HealpyMap
         in_obs_map_handler: HealpyMap
         in_norm_handler: Config
+        self.scale_class = None
+        self.unscale_class = None
+        self.set_scale_classes(cfg)
 
         self.norm_data = None
 
@@ -60,6 +62,15 @@ class CheckTransformsExecutor(PetroffModelExecutor):
         # self.num_workers = cfg.model.petroff.train.get("num_workers", 0)
 
         self.restart_epoch = cfg.model.petroff.train.restart_epoch
+
+    def set_scale_classes(self, cfg):
+        scale_method = cfg.model.petroff.prep.scaling
+        self.scale_class = get_scale_class(method=scale_method, 
+                                           dataset="train", 
+                                           scale="scale")
+        self.unscale_class = get_scale_class(method=scale_method, 
+                                             dataset="train", 
+                                             scale="unscale")
 
     def execute(self) -> None:
         logger.debug(f"Running {self.__class__.__name__} execute() method.")
@@ -90,10 +101,10 @@ class CheckTransformsExecutor(PetroffModelExecutor):
 
         dtype_transform = TrainToTensor(self.dtype, device="cpu")
 
-        scale = TrainAbsMaxScaleMap(all_map_fields=self.map_fields,
-                                    scale_factors=scale_factors,
-                                    device="cpu",
-                                    dtype=self.dtype)
+        scale = self.scale_class(all_map_fields=self.map_fields,
+                                 scale_factors=scale_factors,
+                                 device="cpu",
+                                 dtype=self.dtype)
 
         dataset_prep = TrainCMBMapDataset(
             n_sims = template_split.n_sims,
@@ -113,10 +124,10 @@ class CheckTransformsExecutor(PetroffModelExecutor):
 
         obs_pre, cmb_pre = next(iter(dataloader_prep))
 
-        unscale = TrainAbsMaxUnScaleMap(all_map_fields=self.map_fields,
-                                        scale_factors=scale_factors,
-                                        device="cpu",
-                                        dtype=self.dtype)
+        unscale = self.unscale_class(all_map_fields=self.map_fields,
+                                     scale_factors=scale_factors,
+                                     device="cpu",
+                                     dtype=self.dtype)
 
         obs_post, cmb_post = unscale((obs_pre, cmb_pre))
 
@@ -132,10 +143,10 @@ class CheckTransformsExecutor(PetroffModelExecutor):
 
         dtype_transform = TrainToTensor(self.dtype, device="cpu")
 
-        scale_map_transform = TrainAbsMaxScaleMap(all_map_fields=self.map_fields,
-                                                  scale_factors=scale_factors,
-                                                  device="cpu",
-                                                  dtype=self.dtype)
+        scale_map_transform = self.scale_class(all_map_fields=self.map_fields,
+                                               scale_factors=scale_factors,
+                                               device="cpu",
+                                               dtype=self.dtype)
 
         dataset = TrainCMBMapDataset(
             n_sims = template_split.n_sims,

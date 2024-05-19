@@ -18,20 +18,11 @@ from core import (
 from src.utils import make_instrument, Instrument
 from core.asset_handlers.asset_handlers_base import Config # Import for typing hint
 from core.asset_handlers.healpy_map_handler import HealpyMap # Import for typing hint
+from petroff.scaling.scale_tasks_helper import TaskTarget, FrozenAsset
+from petroff.scaling.scale_methods_factory import get_sim_scanner, get_sim_sifter
 
 logger = logging.getLogger(__name__)
 
-
-class FrozenAsset(NamedTuple):
-    path: Path
-    handler: GenericHandler
-
-
-class TaskTarget(NamedTuple):
-    cmb_asset: FrozenAsset
-    obs_asset: FrozenAsset
-    split_name: str
-    sim_num: str
 
 
 class PreprocessMakeExtremaExecutor(BaseStageExecutor):
@@ -50,28 +41,36 @@ class PreprocessMakeExtremaExecutor(BaseStageExecutor):
         in_cmb_map_handler: HealpyMap
         in_obs_map_handler: HealpyMap
 
+        self.scale_scan_method = None
+        self.scale_sift_method = None
+        self.set_scale_find_methods()
+
         self.num_processes = cfg.model.petroff.prep.num_processes
+
+    def set_scale_find_methods(self):
+        scale_method_name = self.cfg.model.petroff.prep.scaling
+        scan_method = get_sim_scanner(method=scale_method_name)
+        self.scale_scan_method = partial(scan_method,
+                                         freqs=self.channels, 
+                                         map_fields=self.map_fields)
+        sift_method = get_sim_sifter(method=scale_method_name)
+        self.scale_sift_method = partial(sift_method,
+                                         instrument=self.instrument, 
+                                         map_fields=self.map_fields)
 
     def execute(self) -> None:
         logger.debug(f"Running {self.__class__.__name__} execute().")
-        
-        # Create a method; 
-        #   process_target needs a list of statistics functions, from the config file
-        #   partial() makes a `process` that takes a single argument
-        process = partial(find_abs_max, 
-                          freqs=self.channels, 
-                          map_fields=self.map_fields)
         # Tasks are items on a to-do list
         #   For each simulation, we compare the prediction and target
         #   A task contains labels, file names, and handlers for each sim
         tasks = self.build_tasks()
 
         # Run a single task outside multiprocessing to catch issues quickly.
-        self.try_a_task(process, tasks[0])
+        self.try_a_task(self.scale_scan_method, tasks[0])
 
-        results_list = self.run_all_tasks(process, tasks)
+        results_list = self.run_all_tasks(self.scale_scan_method, tasks)
 
-        results_summary = self.sift_abs_max_results(results_list)
+        results_summary = self.scale_sift_method(results_list)
 
         self.out_norm_file.write(data=results_summary)
 
@@ -121,95 +120,3 @@ class PreprocessMakeExtremaExecutor(BaseStageExecutor):
         res = process(task)
         if 'error' in res.keys():
             raise Exception(res['error'])
-
-    # def sift_min_max_results(self, results_list):
-    #     summary = {'cmb': {}}
-    #     for det in self.instrument.dets.values():
-    #         freq = det.nom_freq
-    #         summary[freq] = {}
-    #         for map_field in det.fields:
-    #             summary[freq][map_field] = {}
-    #             min_v, max_v = self.sift_min_max_result(results_list, freq=freq, map_field=map_field)
-    #             summary[freq][map_field]['min_val'] = min_v
-    #             summary[freq][map_field]['max_val'] = max_v
-    #     for map_field in self.map_fields:
-    #         summary['cmb'][map_field] = {}
-    #         min_v, max_v = self.sift_min_max_result(results_list, freq='cmb', map_field=map_field)
-    #         summary['cmb'][map_field]['min_val'] = min_v
-    #         summary['cmb'][map_field]['max_val'] = max_v
-    #     return summary
-
-    # def sift_min_max_result(self, results_list, freq, map_field):
-    #     min_vals = [d[freq][map_field]['min_v'] for d in results_list]
-    #     max_vals = [d[freq][map_field]['max_v'] for d in results_list]
-    #     return min(min_vals), max(max_vals)
-
-    def sift_abs_max_results(self, results_list):
-        summary = {'cmb': {}}
-        for det in self.instrument.dets.values():
-            freq = det.nom_freq
-            summary[freq] = {}
-            for map_field in det.fields:
-                summary[freq][map_field] = {}
-                max_v = self.sift_abs_max_result(results_list, freq=freq, map_field=map_field)
-                summary[freq][map_field]['abs_max'] = max_v
-        for map_field in self.map_fields:
-            summary['cmb'][map_field] = {}
-            max_v = self.sift_abs_max_result(results_list, freq='cmb', map_field=map_field)
-            summary['cmb'][map_field]['abs_max'] = max_v
-        return summary
-
-    def sift_abs_max_result(self, results_list, freq, map_field):
-        max_vals = [d[freq][map_field]['abs_max'] for d in results_list]
-        return max(max_vals)
-
-
-
-def find_abs_max(task_target: TaskTarget, freqs, map_fields):
-    """
-    Each stat_func should accept true, pred, and **kwargs to catch other things
-    """
-    cmb = task_target.cmb_asset
-    cmb_data = cmb.handler.read(cmb.path)
-    obs = task_target.obs_asset
-
-    res = {'cmb': {}}
-    for i, map_field in enumerate(map_fields):
-        abs_max = np.max(np.abs(cmb_data[i,:]))
-        res['cmb'][map_field] = {'abs_max': abs_max}
-
-    for freq in freqs:
-        obs_data = obs.handler.read(str(obs.path).format(freq=freq))
-        res[freq] = {}
-        # In case a simulation hsa 3 map fields, but the current settings are for just 1
-        for i, _ in zip(range(obs_data.shape[0]), map_fields):
-            map_field = map_fields[i]
-            abs_max = np.max(np.abs(obs_data[i,:]))
-            res[freq][map_field] = {'abs_max': abs_max}
-    return res
-
-
-def find_min_max(task_target: TaskTarget, freqs, map_fields):
-    """
-    Each stat_func should accept true, pred, and **kwargs to catch other things
-    """
-    cmb = task_target.cmb_asset
-    cmb_data = cmb.handler.read(cmb.path)
-    obs = task_target.obs_asset
-
-    res = {'cmb': {}}
-    for i, map_field in enumerate(map_fields):
-        res['cmb'][map_field] = {'min_v': cmb_data[i,:].min(), 
-                                 'max_v': cmb_data[i,:].max()}
-
-    for freq in freqs:
-        obs_data = obs.handler.read(str(obs.path).format(freq=freq))
-        res[freq] = {}
-        # In case a simulation hsa 3 map fields, but the current settings are for just 1
-        for i, _ in zip(range(obs_data.shape[0]), map_fields):
-            map_field = map_fields[i]
-            res[freq][map_field] = {'min_v': obs_data[i,:].min(), 'max_v': obs_data[i,:].max()}
-    return res
-
-
-
