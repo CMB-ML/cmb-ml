@@ -21,6 +21,7 @@ from core.asset_handlers.healpy_map_handler import HealpyMap
 from .pytorch_model_base_executor import PetroffModelExecutor
 from core.pytorch_dataset import TrainCMBMapDataset
 from petroff.scaling.scale_methods_factory import get_scale_class
+from petroff.pytorch_transform_pixel_reorder import ReorderTransform
 from core.pytorch_transform import TrainToTensor
 
 
@@ -88,7 +89,9 @@ class CheckTransformsExecutor(PetroffModelExecutor):
             label_path_template=cmb_path_template, 
             feature_path_template=obs_path_template,
             file_handler=HealpyMap(),
-            transforms=[]
+            # No transforms for baseline
+            transforms=[],
+            hp_xforms=[]
             )
 
         dataloader_raw = DataLoader(
@@ -100,11 +103,19 @@ class CheckTransformsExecutor(PetroffModelExecutor):
         obs_raw, cmb_raw = next(iter(dataloader_raw))
 
         dtype_transform = TrainToTensor(self.dtype, device="cpu")
-
         scale = self.scale_class(all_map_fields=self.map_fields,
                                  scale_factors=scale_factors,
                                  device="cpu",
                                  dtype=self.dtype)
+        pt_transforms = [
+            dtype_transform,
+            scale
+        ]
+
+        reorder_transform_in = ReorderTransform(from_ring=True)
+        hp_transforms = [
+            reorder_transform_in
+        ]
 
         dataset_prep = TrainCMBMapDataset(
             n_sims = template_split.n_sims,
@@ -113,7 +124,9 @@ class CheckTransformsExecutor(PetroffModelExecutor):
             label_path_template=cmb_path_template, 
             feature_path_template=obs_path_template,
             file_handler=HealpyMap(),
-            transforms=[dtype_transform, scale]
+            # Transform same as preprocessing to be done in the train loop
+            transforms=pt_transforms,
+            hp_xforms=hp_transforms
             )
 
         dataloader_prep = DataLoader(
@@ -122,57 +135,48 @@ class CheckTransformsExecutor(PetroffModelExecutor):
             shuffle=False
             )
 
-        obs_pre, cmb_pre = next(iter(dataloader_prep))
+        data = next(iter(dataloader_prep))
 
+        # Inverse transforms as done during inference
         unscale = self.unscale_class(all_map_fields=self.map_fields,
-                                     scale_factors=scale_factors,
-                                     device="cpu",
-                                     dtype=self.dtype)
+                                                scale_factors=scale_factors,
+                                                device="cpu",
+                                                dtype=self.dtype)
+        pt_untransforms = [
+            unscale
+            ]
+        reorder_transform_out = ReorderTransform(from_ring=False)
+        hp_untransforms = [
+            reorder_transform_out
+        ]
 
-        obs_post, cmb_post = unscale((obs_pre, cmb_pre))
+        for t in pt_untransforms:
+            data = t(data)
+        obs_post, cmb_post = data
 
-        obs_delta = np.abs(obs_post.numpy() - obs_raw.numpy())
-        cmb_delta = np.abs(cmb_post.numpy() - cmb_raw.numpy())
+        obs_post = obs_post.squeeze().numpy()
+        cmb_post = cmb_post.squeeze().numpy()
 
-        logger.info(f"When trying the pre- and post- processing transforms: observations delta is {obs_delta.max()}")
-        logger.info(f"When trying the pre- and post- processing transforms: cmb delta is {cmb_delta.max()}")
+        # For each observation frequency:
+        all_temp = []
+        for i in range(obs_post.shape[0]):
+            temp = obs_post[i, :]
+            # For each healpy untransform (which have to be applied to single maps)
+            for t in hp_untransforms:
+                temp = t(temp)
+            all_temp.append(temp)
+        obs_post = np.array(all_temp)
 
-    def set_up_dataset(self, template_split: Split, scale_factors) -> None:
-        cmb_path_template = self.make_fn_template(template_split, self.in_cmb_asset)
-        obs_path_template = self.make_fn_template(template_split, self.in_obs_assets)
+        # And for the cmb:
+        for t in hp_untransforms:
+            cmb_post = reorder_transform_out(cmb_post)
 
-        dtype_transform = TrainToTensor(self.dtype, device="cpu")
+        # Find the largest difference for each
+        obs_delta = np.abs(obs_post - obs_raw.numpy())
+        cmb_delta = np.abs(cmb_post - cmb_raw.numpy())
 
-        scale_map_transform = self.scale_class(all_map_fields=self.map_fields,
-                                               scale_factors=scale_factors,
-                                               device="cpu",
-                                               dtype=self.dtype)
-
-        dataset = TrainCMBMapDataset(
-            n_sims = template_split.n_sims,
-            freqs = self.instrument.dets.keys(),
-            map_fields=self.map_fields,
-            label_path_template=cmb_path_template, 
-            feature_path_template=obs_path_template,
-            file_handler=HealpyMap(),
-            transforms=[dtype_transform, scale_map_transform]
-            )
-        return dataset
-
-    def set_up_no_xform_dataset(self, template_split:Split) -> None:
-        cmb_path_template = self.make_fn_template(template_split, self.in_cmb_asset)
-        obs_path_template = self.make_fn_template(template_split, self.in_obs_assets)
-
-        dataset = TrainCMBMapDataset(
-            n_sims = template_split.n_sims,
-            freqs = self.instrument.dets.keys(),
-            map_fields=self.map_fields,
-            label_path_template=cmb_path_template, 
-            feature_path_template=obs_path_template,
-            file_handler=HealpyMap(),
-            transforms=[]
-            )
-        return dataset
+        logger.info(f"When trying the pre- and post- processing transforms: max observations delta is {obs_delta.max()}")
+        logger.info(f"When trying the pre- and post- processing transforms: max cmb delta is {cmb_delta.max()}")
 
     def inspect_data(self, dataloader):
         train_features, train_labels = next(iter(dataloader))

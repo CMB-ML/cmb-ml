@@ -98,20 +98,24 @@ class PredictionExecutor(PetroffModelExecutor):
 
     def set_up_dataset(self, template_split: Split) -> None:
         obs_path_template = self.make_fn_template(template_split, self.in_obs_assets)
+        scale_factors = self.in_norm.read()
 
         dtype_transform = TestToTensor(self.dtype, device="cpu")
-
-        scale_factors = self.in_norm.read()
         scale_map_transform = self.scale_class(all_map_fields=self.map_fields,
                                                scale_factors=scale_factors,
                                                device="cpu",
                                                dtype=self.dtype)
-
         device_transform = TestToTensor(self.dtype, device=self.device)
 
-        hp_xforms = [
+        pt_transforms = [
+            dtype_transform, 
+            scale_map_transform, 
+            device_transform
+            ]
+
+        hp_transforms = [
             ReorderTransform(from_ring=False)
-        ]
+            ]
 
         dataset = TestCMBMapDataset(
             n_sims = template_split.n_sims,
@@ -119,8 +123,8 @@ class PredictionExecutor(PetroffModelExecutor):
             map_fields=self.map_fields,
             feature_path_template=obs_path_template,
             file_handler=HealpyMap(),
-            transforms=[dtype_transform, scale_map_transform, device_transform],
-            hp_xforms=hp_xforms
+            transforms=pt_transforms,
+            hp_xforms=hp_transforms
             )
 
         self.postprocess_unscale = self.unscale_class(all_map_fields=self.map_fields,

@@ -50,8 +50,6 @@ def make_all_simulations(cfg):
     pipeline_context.add_pipe(PredictionExecutor)
     pipeline_context.add_pipe(PetroffShowSimsPostExecutor)
 
-
-
     # pipeline_context.add_pipe(PixelAnalysisExecutor)
     # pipeline_context.add_pipe(PixelSummaryExecutor)
     # pipeline_context.add_pipe(ConvertTheoryPowerSpectrumExecutor)

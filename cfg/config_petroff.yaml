@@ -10,7 +10,7 @@ defaults:
   - override hydra/job_logging: custom_log
 
 dataset_name: ${scenario.map_fields}_${scenario.nside}_${splits.name}
-working_dir : "Petroff_Kaiming_4/"
+working_dir : "Petroff_reorder/"
 hydra:
   run:
     dir: Logs/${now:%Y-%m-%d-%H-%M-%S}
@@ -42,7 +42,8 @@ n_test_cap     : 1
 
 # In the model yaml
 n_epochs       : 10
-restart_epoch  : 9
+restart_epoch  : null
 batch          : 8
 scale_method   : minmax
 initialization : kaiming
+learning_rate  : 0.001

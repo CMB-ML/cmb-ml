@@ -7,7 +7,7 @@ prep:
   scaling          : ${scale_method}  # absmax and minmax are supported
 train:
   device           : null       # Set to null to allow PyTorch to choose based on availability
-  learning_rate    : 0.01
+  learning_rate    : ${learning_rate}
   n_epochs         : ${n_epochs}
   batch_size       : ${batch}   # 8 works on Lab Workstation (nside=128 ?)
   output_every     : 125        # number of batches between logs (during an epoch)

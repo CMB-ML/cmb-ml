@@ -128,9 +128,6 @@ class TrainingExecutor(PetroffModelExecutor):
                     optimizer.step()
 
                     epoch_loss += loss.item()
-                    # Output intermittently so progress is known
-                    # if batch_n % self.output_every == 0:
-                    #     logger.debug(f'Epoch {epoch+1}/{self.n_epochs}, Batch: {batch_n} complete. Loss: {loss.item()}')
                     pbar.set_postfix({'Loss': loss.item()})
 
             epoch_loss /= len(dataloader.dataset)
@@ -149,30 +146,33 @@ class TrainingExecutor(PetroffModelExecutor):
         cmb_path_template = self.make_fn_template(template_split, self.in_cmb_asset)
         obs_path_template = self.make_fn_template(template_split, self.in_obs_assets)
 
-        dtype_transform = TrainToTensor(self.dtype, device="cpu")
-
         scale_factors = self.in_norm.read()
-
+        dtype_transform = TrainToTensor(self.dtype, device="cpu")
         scale_map_transform = self.scale_class(all_map_fields=self.map_fields,
                                                scale_factors=scale_factors,
                                                device="cpu",
                                                dtype=self.dtype)
-
         device_transform = TrainToTensor(self.dtype, device=self.device)
+        pt_transforms = [
+            dtype_transform,
+            scale_map_transform,
+            device_transform
+        ]
 
-        hp_xforms = [
-            ReorderTransform(from_ring=False)
+        reorder_transform_in = ReorderTransform(from_ring=True)
+        hp_transforms = [
+            reorder_transform_in
         ]
 
         dataset = TrainCMBMapDataset(
             n_sims = template_split.n_sims,
             freqs = self.instrument.dets.keys(),
             map_fields=self.map_fields,
-            label_path_template=cmb_path_template, 
+            label_path_template=cmb_path_template,
             feature_path_template=obs_path_template,
             file_handler=HealpyMap(),
-            transforms=[dtype_transform, scale_map_transform, device_transform],
-            hp_xforms=hp_xforms
+            transforms=pt_transforms,
+            hp_xforms=hp_transforms
             )
         return dataset
 
