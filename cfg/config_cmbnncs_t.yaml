@@ -19,7 +19,7 @@ working_dir : "CMBNNCS/"
 hydra:
   run:
     dir: Logs/${now:%Y-%m-%d-%H-%M-%S}
-  verbose: false
+  verbose: true
 
 # Settings below this point are used for interpolation.
 # These are not to be used directly in the python
