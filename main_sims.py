@@ -33,7 +33,7 @@ def make_all_simulations(cfg):
 
     pipeline_context.add_pipe(HydraConfigCheckerExecutor)
     pipeline_context.add_pipe(HydraConfigSimsCheckerExecutor)
-    # pipeline_context.add_pipe(NoiseCacheExecutor)
+    pipeline_context.add_pipe(NoiseCacheExecutor)
     pipeline_context.add_pipe(ConfigExecutor)
     pipeline_context.add_pipe(TheoryPSExecutor)
     pipeline_context.add_pipe(SimCreatorExecutor)
