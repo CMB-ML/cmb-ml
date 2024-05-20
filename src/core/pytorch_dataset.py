@@ -16,7 +16,7 @@ class TrainCMBMapDataset(Dataset):
                  feature_path_template: str,
                  file_handler: GenericHandler,
                  label_path_template: str = None,
-                 transforms: List[Callable]=[],
+                 pt_xforms: List[Callable]=[],
                  hp_xforms: List[Callable]=[],
                  ):
         self.n_sims = n_sims
@@ -25,7 +25,7 @@ class TrainCMBMapDataset(Dataset):
         self.feature_path_template = feature_path_template
         self.handler = file_handler
         self.n_map_fields:int = len(map_fields)
-        self.transforms = transforms
+        self.pt_xforms = pt_xforms
         self.np_xforms = hp_xforms
 
     def __len__(self):
@@ -48,9 +48,9 @@ class TrainCMBMapDataset(Dataset):
         label = _do_np_xforms(label, self.np_xforms)
 
         data = (features, label)
-        if self.transforms:
+        if self.pt_xforms:
             try:
-                for transform in self.transforms:
+                for transform in self.pt_xforms:
                     data = transform(data)
             except AttributeError:
                 data = transform(data)

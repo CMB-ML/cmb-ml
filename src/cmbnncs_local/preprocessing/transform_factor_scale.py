@@ -56,7 +56,7 @@ class FactorScaleMapAbstract(object):
         raise NotImplementedError("Abstract class. Use TrainAbsMaxScaleMap or TestAbsMaxScaleMap")
 
 
-class TrainAbsMaxScaleMap(FactorScaleMapAbstract):
+class TrainFactorScaleMap(FactorScaleMapAbstract):
     """
     Scales a map according to scale factors determined in a previous stage.
     Follows Petroff's method, despite being a less common approach.
@@ -78,7 +78,7 @@ class TrainAbsMaxScaleMap(FactorScaleMapAbstract):
         return factor_scale(obs, self.obs_factor), factor_scale(cmb, self.cmb_factor)
 
 
-class TestAbsMaxScaleMap(FactorScaleMapAbstract):
+class TestFactorScaleMap(FactorScaleMapAbstract):
     """
     Scales a map according to scale factors determined in a previous stage.
     Follows Petroff's method, despite being a less common approach.
@@ -98,7 +98,7 @@ class TestAbsMaxScaleMap(FactorScaleMapAbstract):
         return factor_scale(obs, self.obs_factor)
 
 
-class TrainAbsMaxUnScaleMap(FactorScaleMapAbstract):
+class TrainFactorUnScaleMap(FactorScaleMapAbstract):
     """
     UnScales a map according to scale factors determined in a previous stage.
     Follows Petroff's method, despite being a less common approach.
@@ -120,7 +120,7 @@ class TrainAbsMaxUnScaleMap(FactorScaleMapAbstract):
         return factor_unscale(obs, self.obs_factor), factor_unscale(cmb, self.cmb_factor)
 
 
-class TestAbsMaxUnScaleMap(FactorScaleMapAbstract):
+class TestFactorUnScaleMap(FactorScaleMapAbstract):
     """
     UnScales a map according to scale factors determined in a previous stage.
     Follows Petroff's method, despite being a less common approach.

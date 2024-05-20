@@ -13,7 +13,11 @@ logger = logging.getLogger(__name__)
 
 
 class PyTorchModel(GenericHandler):
-    def read(self, path: Path, model: torch.nn.Module, epoch: str, optimizer=None, scheduler=None) -> Dict:
+    def read(self, path: Path, 
+             model: torch.nn.Module, 
+             epoch: str, 
+             optimizer=None, 
+             scheduler=None) -> Dict:
         logger.debug(f"Reading model from '{path}'")
         fn_template = path.name
         fn = fn_template.format(epoch=epoch)
@@ -31,6 +35,7 @@ class PyTorchModel(GenericHandler):
               model: torch.nn.Module, 
               epoch: Union[int, str], 
               optimizer = None,
+              scheduler = None,
               loss = None,
               ) -> None:
         checkpoint = {
@@ -40,6 +45,8 @@ class PyTorchModel(GenericHandler):
 
         if optimizer is not None:
             checkpoint['optimizer_state_dict'] = optimizer.state_dict()
+        if scheduler is not None:
+            checkpoint['scheduler_state_dict'] = scheduler.state_dict()
         if loss is not None:
             checkpoint['loss'] = loss
 

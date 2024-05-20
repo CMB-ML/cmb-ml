@@ -54,12 +54,6 @@ class BasePyTorchModelExecutor(BaseStageExecutor):
             this_path_pattern = str(asset.path)
         return this_path_pattern
 
-    def try_model(self, model):
-        n_pix = (self.nside ** 2) * 12
-        dummy_input = torch.rand(1, self.n_dets, n_pix, device=self.device)
-        result = model(dummy_input)
-        logger.info(f"Output result size: {result.size()}")
-
 
 class PetroffModelExecutor(BasePyTorchModelExecutor):
     def __init__(self, cfg: DictConfig, stage_str) -> None:
@@ -79,3 +73,9 @@ class PetroffModelExecutor(BasePyTorchModelExecutor):
         model = PetroffNet(**self.model_dict).to(self.device)
         # logger.info(model)
         return model
+
+    def try_model(self, model):
+        n_pix = (self.nside ** 2) * 12
+        dummy_input = torch.rand(1, self.n_dets, n_pix, device=self.device)
+        result = model(dummy_input)
+        logger.info(f"Output result size: {result.size()}")

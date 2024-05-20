@@ -76,7 +76,7 @@ class CheckTransformsExecutor(BaseCMBNNCSModelExecutor):
             feature_path_template=obs_path_template,
             file_handler=HealpyMap(),
             # No transforms for baseline
-            transforms=[],
+            pt_xforms=[],
             hp_xforms=[]
             )
 
@@ -110,7 +110,7 @@ class CheckTransformsExecutor(BaseCMBNNCSModelExecutor):
             feature_path_template=obs_path_template,
             file_handler=HealpyMap(),
             # Transforms are same as preprocessing to be done in the train loop
-            transforms=pt_transforms,
+            pt_xforms=pt_transforms,
             hp_xforms=np_transforms
             )
 

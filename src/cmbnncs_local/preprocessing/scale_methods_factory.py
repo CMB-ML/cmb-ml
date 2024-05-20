@@ -1,17 +1,17 @@
 from .transform_factor_scale import (
-    TrainAbsMaxScaleMap,
-    TrainAbsMaxUnScaleMap,
-    TestAbsMaxScaleMap,
-    TestAbsMaxUnScaleMap
+    TrainFactorScaleMap,
+    TrainFactorUnScaleMap,
+    TestFactorScaleMap,
+    TestFactorUnScaleMap
 )
 
 
 # Define a dictionary to map method, dataset, and scale type to the corresponding class
 scale_class_map = {
-    ('factor', 'train', 'scale'): TrainAbsMaxScaleMap,
-    ('factor', 'train', 'unscale'): TrainAbsMaxUnScaleMap,
-    ('factor', 'test', 'scale'): TestAbsMaxScaleMap,
-    ('factor', 'test', 'unscale'): TestAbsMaxUnScaleMap,
+    ('factor', 'train', 'scale'): TrainFactorScaleMap,
+    ('factor', 'train', 'unscale'): TrainFactorUnScaleMap,
+    ('factor', 'test', 'scale'): TestFactorScaleMap,
+    ('factor', 'test', 'unscale'): TestFactorUnScaleMap,
 }
 
 def get_scale_class(method, dataset, scale):

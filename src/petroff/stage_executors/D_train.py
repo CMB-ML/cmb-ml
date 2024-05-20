@@ -14,14 +14,14 @@ from omegaconf import DictConfig
 
 import healpy as hp
 
+from .pytorch_model_base_executor import PetroffModelExecutor
 from core import Split, Asset
 from core.asset_handlers.asset_handlers_base import Config
 from core.asset_handlers.pytorch_model_handler import PyTorchModel # Import for typing hint
 from core.asset_handlers.healpy_map_handler import HealpyMap
-from .pytorch_model_base_executor import PetroffModelExecutor
 from core.pytorch_dataset import TrainCMBMapDataset
-from petroff.preprocessing.scale_methods_factory import get_scale_class
 from core.pytorch_transform import TrainToTensor
+from petroff.preprocessing.scale_methods_factory import get_scale_class
 from petroff.preprocessing.pytorch_transform_pixel_reorder import ReorderTransform
 
 
@@ -54,7 +54,6 @@ class TrainingExecutor(PetroffModelExecutor):
         self.lr = cfg.model.petroff.train.learning_rate
         self.n_epochs = cfg.model.petroff.train.n_epochs
         self.batch_size = cfg.model.petroff.train.batch_size
-        self.output_every = cfg.model.petroff.train.output_every
         self.checkpoint = cfg.model.petroff.train.checkpoint_every
         self.extra_check = cfg.model.petroff.train.extra_check
         self.scale_class = None
@@ -75,25 +74,25 @@ class TrainingExecutor(PetroffModelExecutor):
         # We use the first split as a template for setting up the dataset.
         #    This makes more sense in the context of inference over multiple
         #    different splits.
-        template_split = self.splits[0]
         dets_str = ', '.join([str(k) for k in self.instrument.dets.keys()])
         logger.info(f"Creating model using detectors: {dets_str}")
 
-        logger.info(f"learning rate is {self.lr}")
+        logger.info(f"Using fixed learning rate.")
+        logger.info(f"Learning rate is {self.lr}")
         logger.info(f"number of epochs is {self.n_epochs}")
         logger.info(f"batch size is {self.batch_size}")
-        logger.info(f"output every {self.output_every} iterations")
         logger.info(f"checkpoint every {self.checkpoint} iterations")
         logger.info(f"extra check is set to {self.extra_check}")
 
+        template_split = self.splits[0]
         dataset = self.set_up_dataset(template_split)
         dataloader = DataLoader(
             dataset, 
             batch_size=self.batch_size, 
             shuffle=True
             )
-
         self.inspect_data(dataloader)
+
         model = self.make_model()
         self.try_model(model)
 
@@ -105,7 +104,9 @@ class TrainingExecutor(PetroffModelExecutor):
             # The following returns the epoch number stored in the checkpoint 
             #     as well as loading the model and optimizer with checkpoint information
             with self.name_tracker.set_context("epoch", self.restart_epoch):
-                start_epoch = self.in_model.read(model=model, epoch=self.restart_epoch, optimizer=optimizer)
+                start_epoch = self.in_model.read(model=model, 
+                                                 epoch=self.restart_epoch, 
+                                                 optimizer=optimizer)
         else:
             logger.info(f"Starting new model.")
             with self.name_tracker.set_context("epoch", "init"):
@@ -116,8 +117,7 @@ class TrainingExecutor(PetroffModelExecutor):
             epoch_loss = 0.0
             batch_n = 0
 
-            _loss = 0
-            with tqdm(dataloader, postfix={'Loss': _loss}) as pbar:
+            with tqdm(dataloader, postfix={'Loss': 0}) as pbar:
                 for train_features, train_label in pbar:
                     batch_n += 1
 
@@ -126,9 +126,8 @@ class TrainingExecutor(PetroffModelExecutor):
                     loss = loss_function(output, train_label)
                     loss.backward()
                     optimizer.step()
-
                     epoch_loss += loss.item()
-                    pbar.set_postfix({'Loss': loss.item()})
+                    pbar.set_postfix({'Loss': loss.item() / self.batch_size})
 
             epoch_loss /= len(dataloader.dataset)
             

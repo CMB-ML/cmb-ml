@@ -87,14 +87,40 @@ class BasePyTorchModelExecutor(BaseStageExecutor):
     def prep_data(self, tensor):
         return self.match_data_precision(tensor).to(self.device)
 
-    # def try_model(self, model):
-    #     n_pix = (self.nside ** 2) * 12
-    #     dummy_input = torch.rand(1, self.n_dets, n_pix, device=self.device)
-    #     result = model(dummy_input)
-    #     logger.info(f"Output result size: {result.size()}")
-
 
 class BaseCMBNNCSModelExecutor(BasePyTorchModelExecutor):
     def __init__(self, cfg: DictConfig, stage_str) -> None:
         super().__init__(cfg, stage_str)
-        self.make_model: Callable = make_unet
+
+        self.max_filters = cfg.model.cmbnncs.network.max_filters
+        
+        nside = cfg.scenario.nside
+        input_channels = cfg.scenario.detector_freqs
+        kernels_size = cfg.model.cmbnncs.network.kernels_size
+        strides = cfg.model.cmbnncs.network.strides
+        mainActive = cfg.model.cmbnncs.network.mainActive
+        finalActive = cfg.model.cmbnncs.network.finalActive
+        finalBN = cfg.model.cmbnncs.network.finalBN
+
+        self.unet_to_make = cfg.model.cmbnncs.network.unet_to_make
+
+        input_c = len(input_channels)
+        sides = (nside ,nside)
+
+        self.model_dict = dict(channel_in=input_c,
+                               channel_out=1,
+                               kernels_size=kernels_size,
+                               strides=strides,
+                               extra_pads=None,
+                               mainActive=mainActive,
+                               finalActive=finalActive,
+                               finalBN=finalBN, 
+                               sides=sides)
+
+    def try_model(self, model):
+        dummy_input = torch.rand(1, self.n_dets, 4*self.nside, 3*self.nside, device=self.device)
+        result = model(dummy_input)
+        logger.debug(f"Output result size: {result.size()}")
+
+    def make_model(self):
+        return make_unet(self.model_dict, self.max_filters, self.unet_to_make)

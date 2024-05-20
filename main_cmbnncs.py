@@ -10,6 +10,7 @@ from src.core.A_check_hydra_configs import HydraConfigCheckerExecutor
 from src.cmbnncs_local import (
                          HydraConfigCMBNNCSCheckerExecutor,
                          PreprocessMakeScaleExecutor,
+                         PreprocessExecutor,
                          CheckTransformsExecutor,
                          TrainingExecutor,
                          PredictionExecutor,
@@ -41,6 +42,7 @@ def make_all_simulations(cfg):
     # pipeline_context.add_pipe(HydraConfigCMBNNCSCheckerExecutor)
 
     # pipeline_context.add_pipe(PreprocessMakeScaleExecutor)
+    # pipeline_context.add_pipe(PreprocessExecutor)
     # pipeline_context.add_pipe(CheckTransformsExecutor)
     # pipeline_context.add_pipe(ShowSimsPrepExecutor)
 

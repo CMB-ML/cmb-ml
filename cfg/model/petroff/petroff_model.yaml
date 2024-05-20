@@ -3,8 +3,8 @@ defaults:
   - _self_
 
 preprocess:
-  num_processes    : 10
   scaling          : ${scale_method}  # absmax and minmax are supported
+  num_processes    : 10
 train:
   device           : null       # Set to null to allow PyTorch to choose based on availability
   learning_rate    : ${learning_rate}
@@ -16,7 +16,6 @@ train:
   extra_check      : [1, 2, 3, 4, 6, 7, 8, 9, 12]     # list of other epochs at which to checkpoint
   # restart_epoch    : null       # Set to null to create a new model, or give a checkpoint number
   restart_epoch    : ${restart_epoch}
-  num_workers      : 16
 predict:
   device           : null       # Set to null to allow PyTorch to choose based on availability
   batch_size       : 8
