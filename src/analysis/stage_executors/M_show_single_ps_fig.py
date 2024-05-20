@@ -33,8 +33,6 @@ class ShowSinglePsFigExecutor(BaseStageExecutor):
         self.in_ps_pred: Asset = self.assets_in["auto_pred"]
         out_ps_handler: NumpyPowerSpectrum
 
-        self.fig_n_override = self.get_override_sim_ns()
-
     def execute(self) -> None:
         # Remove this function
         logger.debug(f"Running {self.__class__.__name__} execute()")
@@ -48,10 +46,10 @@ class ShowSinglePsFigExecutor(BaseStageExecutor):
         logger.info(f"Running {self.__class__.__name__} process_split() for split: {split.name}.")
 
         # We may want to process a subset of all sims
-        if self.fig_n_override is None:
+        if self.override_sim_nums is None:
             sim_iter = split.iter_sims()
         else:
-            sim_iter = self.fig_n_override
+            sim_iter = self.override_sim_nums
 
         if split.ps_fidu_fixed:
             ps_theory = self.in_ps_theory.read(use_alt_path=True)

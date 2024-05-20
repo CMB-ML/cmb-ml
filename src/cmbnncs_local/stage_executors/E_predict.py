@@ -8,7 +8,7 @@ from tqdm import tqdm
 from omegaconf import DictConfig
 
 from core import Split, Asset
-from core.pytorch_dataset import TestCMBMapDataset
+from cmbnncs_local.dataset import TestCMBMapDataset
 from core.asset_handlers.pytorch_model_handler import PyTorchModel  # Import for typing hint
 from .pytorch_model_base_executor import BaseCMBNNCSModelExecutor
 from ..handler_npymap import NumpyMap             # Import for typing hint
@@ -29,6 +29,9 @@ class PredictionExecutor(BaseCMBNNCSModelExecutor):
         in_obs_map_handler: NumpyMap
         in_model_handler: PyTorchModel
 
+        model_precision = cfg.model.cmbnncs.network.model_precision
+        self.dtype = self.dtype_mapping[model_precision]
+
         self.choose_device(cfg.model.cmbnncs.predict.device)
         self.batch_size = cfg.model.cmbnncs.predict.batch_size
 
@@ -39,24 +42,12 @@ class PredictionExecutor(BaseCMBNNCSModelExecutor):
             logger.debug(f"Making predictions based on epoch {model_epoch}")
             model = self.make_model()
             with self.name_tracker.set_context("epoch", model_epoch):
-                self.in_model.read(model=model)
+                self.in_model.read(model=model, epoch=model_epoch)
             model.eval().to(self.device)
             for split in self.splits:
                 context = dict(split=split.name, epoch=model_epoch)
                 with self.name_tracker.set_contexts(contexts_dict=context):
                         self.process_split(model, split)
-
-    def set_up_dataset(self, template_split: Split) -> None:
-        # We create a dataset for each split instead of a dataset that covers all
-        obs_path_template = self.make_fn_template(template_split, self.in_obs_assets)
-
-        dataset = TestCMBMapDataset(
-            n_sims = template_split.n_sims,
-            freqs = self.instrument.dets.keys(),
-            feature_path_template=obs_path_template,
-            file_handler=NumpyMap()
-            )
-        return dataset
 
     def process_split(self, model, split):
         dataset = self.set_up_dataset(split)
@@ -68,9 +59,22 @@ class PredictionExecutor(BaseCMBNNCSModelExecutor):
 
         with torch.no_grad():
             for features, idcs in tqdm(dataloader):
-                features_prepped = self.prep_data(features)
+                features_prepped = features.to(device=self.device, dtype=self.dtype)
                 predictions = model(features_prepped)
                 for pred, idx in zip(predictions, idcs):
                     with self.name_tracker.set_context("sim_num", idx.item()):
                         pred_npy = pred.detach().cpu().numpy()
                         self.out_cmb_asset.write(data=pred_npy)
+
+    def set_up_dataset(self, template_split: Split) -> None:
+        # We create a dataset for each split instead of a dataset that covers all
+        obs_path_template = self.make_fn_template(template_split, self.in_obs_assets)
+
+        dataset = TestCMBMapDataset(
+            n_sims = template_split.n_sims,
+            freqs = self.instrument.dets.keys(),
+            map_fields=self.map_fields,
+            feature_path_template=obs_path_template,
+            feature_handler=NumpyMap()
+            )
+        return dataset

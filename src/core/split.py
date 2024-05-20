@@ -3,6 +3,9 @@ class Split:
         self.name = name
         # if a cap is specified, only get that many sims
         self.n_sims = split_cfg.get("n_sims_cap", split_cfg.n_sims)
+        if self.n_sims is None:
+            # This happens when n_sims_cap is set to null
+            self.n_sims = split_cfg.n_sims
         self.ps_fidu_fixed = split_cfg.get("ps_fidu_fixed", None)
 
     def __str__(self):

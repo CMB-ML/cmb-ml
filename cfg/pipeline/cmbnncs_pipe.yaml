@@ -8,6 +8,25 @@ make_normalization:
     obs_maps: {stage: make_sims}
   dir_name: CMBNNCS_B_Extrema
 
+preprocess:
+  assets_out:
+    cmb_map: 
+      handler: NumpyMap
+      path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/cmb_map.npy"
+    obs_maps: 
+      handler: NumpyMap
+      path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/obs_{freq}_map.npy"
+  assets_in:
+    norm_file: {stage: make_normalization}
+    cmb_map: {stage: make_sims}
+    obs_maps: {stage: make_sims}
+  splits: &all_splits
+    - train
+    - valid
+    - test
+  dir_name: CMBNNCS_C_Preprocess
+  make_stage_log: True
+
 train:
   assets_out:
     model: 
@@ -16,8 +35,8 @@ train:
   assets_in:
     norm_file: {stage: make_normalization}
     model: {stage: train}
-    cmb_map: {stage: make_sims}
-    obs_maps: {stage: make_sims}
+    cmb_map: {stage: preprocess}
+    obs_maps: {stage: preprocess}
   splits:
     - train
   dir_name: CMBNNCS_D_Model
@@ -26,27 +45,27 @@ train:
 predict:
   assets_out:
     cmb_map: 
-      handler: HealpyMap
+      handler: NumpyMap
       path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/cmb_map_pred_{epoch}.npy"
   assets_in:
     model: {stage: train}
-    obs_maps: {stage: make_sims}
+    obs_maps: {stage: preprocess}
   splits:
     - test
   epochs: ${use_epochs}
   dir_name: CMBNNCS_E_Predict
   make_stage_log: True
 
-# postprocess:
-#   assets_out:
-#     cmb_map: 
-#       handler: HealpyMap
-#       path_template: "{root}/{dataset}/{stage}/{split}/{sim}/cmb_map_post_{epoch}.fits"
-#   assets_in:
-#     norm_file: {stage: make_normalization}
-#     cmb_map: {stage: predict}
-#   splits:
-#     - test
-#   epochs: *epochs
-#   dir_name: CMBNNCS_F_Postprocess
-#   make_stage_log: True
+postprocess:
+  assets_out:
+    cmb_map: 
+      handler: HealpyMap
+      path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/cmb_map_post_{epoch}.fits"
+  assets_in:
+    norm_file: {stage: make_normalization}
+    cmb_map: {stage: predict}
+  splits:
+    - test
+  epochs: ${use_epochs}
+  dir_name: CMBNNCS_F_Postprocess
+  make_stage_log: True

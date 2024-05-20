@@ -32,10 +32,21 @@ detectors      : [100, 143, 217, 353]
 # detectors      : [70, 100, 143, 217, 353, 545, 857]
 map_fields     : "I"
 
+# In the model yaml
+num_epochs       : 40
+
 # In the pipeline yamls
+# For prediction, postprocessing, power spectra generation:
+use_epochs       : ["init", 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 20, 30, 40]
 # use_epochs     : [10]
 # use_epochs     : ["init", 1, 2, 5, 10, 40, 100]
-use_epochs     : ["init", 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+# For single simulation figures (maps & ps figures):
+use_epochs_imgs  : ["init", 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 20, 30, 40]
+# For summary statistics:
+use_epochs_stats : ["init", 1, 2, 5, 10, 20, 40]
+# Limit the number of simulations for which to generate figures
+n_show_cap       : 1
 
+# Limit the number of simulations on which to do inference and postprocessing
 # In the splits yaml; null to run on all
-n_test_cap     : 1
+n_test_cap       : null

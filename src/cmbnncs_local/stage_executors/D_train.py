@@ -14,8 +14,10 @@ from .pytorch_model_base_executor import BaseCMBNNCSModelExecutor
 from core import Split, Asset
 from core.asset_handlers.asset_handlers_base import Config
 from core.asset_handlers.pytorch_model_handler import PyTorchModel # Import for typing hint
-from core.asset_handlers.healpy_map_handler import HealpyMap
-from core.pytorch_dataset import TrainCMBMapDataset
+# from core.asset_handlers.healpy_map_handler import HealpyMap
+from cmbnncs_local.handler_npymap import NumpyMap
+# from core.pytorch_dataset import TrainCMBMapDataset
+from cmbnncs_local.dataset import TrainCMBMapDataset
 from core.pytorch_transform import TrainToTensor
 from cmbnncs_local.preprocessing.scale_methods_factory import get_scale_class
 from cmbnncs_local.preprocessing.transform_pixel_rearrange import sphere2rect
@@ -36,8 +38,8 @@ class TrainingExecutor(BaseCMBNNCSModelExecutor):
         self.in_obs_assets: Asset = self.assets_in["obs_maps"]
         self.in_norm: Asset = self.assets_in["norm_file"]
         in_model_handler: PyTorchModel
-        in_cmb_map_handler: HealpyMap
-        in_obs_map_handler: HealpyMap
+        in_cmb_map_handler: NumpyMap
+        in_obs_map_handler: NumpyMap
         in_norm_handler: Config
 
         self.norm_data = None
@@ -122,6 +124,9 @@ class TrainingExecutor(BaseCMBNNCSModelExecutor):
                 for train_features, train_label in pbar:
                     batch_n += 1
 
+                    train_features = train_features.to(device=self.device, dtype=self.dtype)
+                    train_label = train_label.to(device=self.device, dtype=self.dtype)
+
                     for _ in range(self.repeat_n):
                         optimizer.zero_grad()
                         output = model(train_features)
@@ -154,33 +159,34 @@ class TrainingExecutor(BaseCMBNNCSModelExecutor):
         cmb_path_template = self.make_fn_template(template_split, self.in_cmb_asset)
         obs_path_template = self.make_fn_template(template_split, self.in_obs_assets)
 
-        scale_factors = self.in_norm.read()
-        dtype_transform = TrainToTensor(self.dtype, device="cpu")
-        scale_map_transform = self.scale_class(all_map_fields=self.map_fields,
-                                               scale_factors=scale_factors,
-                                               device="cpu",
-                                               dtype=self.dtype)
-        device_transform = TrainToTensor(self.dtype, device=self.device)
-        pt_transforms = [
-            dtype_transform,
-            scale_map_transform,
-            device_transform
-        ]
+        # scale_factors = self.in_norm.read()
+        # dtype_transform = TrainToTensor(self.dtype, device="cpu")
+        # scale_map_transform = self.scale_class(all_map_fields=self.map_fields,
+        #                                        scale_factors=scale_factors,
+        #                                        device="cpu",
+        #                                        dtype=self.dtype)
+        # device_transform = TrainToTensor(self.dtype, device=self.device)
+        # pt_transforms = [
+        #     dtype_transform,
+        #     scale_map_transform,
+        #     device_transform
+        # ]
 
-        reorder_transform_in = sphere2rect
-        np_transforms = [
-            reorder_transform_in
-        ]
+        # reorder_transform_in = sphere2rect
+        # np_transforms = [
+        #     reorder_transform_in
+        # ]
 
         dataset = TrainCMBMapDataset(
             n_sims = template_split.n_sims,
             freqs = self.instrument.dets.keys(),
             map_fields=self.map_fields,
             label_path_template=cmb_path_template, 
+            label_handler=NumpyMap(),
             feature_path_template=obs_path_template,
-            file_handler=HealpyMap(),
-            pt_xforms=pt_transforms,
-            hp_xforms=np_transforms
+            feature_handler=NumpyMap(),
+            # pt_xforms=pt_transforms,
+            # hp_xforms=np_transforms
             )
         return dataset
 

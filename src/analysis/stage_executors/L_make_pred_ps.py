@@ -39,7 +39,6 @@ class MakePredPowerSpectrumExecutor(BaseStageExecutor):
 
         self.mask = self.get_mask()
 
-        self.map_fields = self.cfg.scenario.map_fields
         self.use_pixel_weights = False
 
     def get_mask(self):

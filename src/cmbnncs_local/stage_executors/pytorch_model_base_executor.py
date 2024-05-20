@@ -84,9 +84,6 @@ class BasePyTorchModelExecutor(BaseStageExecutor):
             logger.error(message)
             raise NotImplementedError(message)
 
-    def prep_data(self, tensor):
-        return self.match_data_precision(tensor).to(self.device)
-
 
 class BaseCMBNNCSModelExecutor(BasePyTorchModelExecutor):
     def __init__(self, cfg: DictConfig, stage_str) -> None:

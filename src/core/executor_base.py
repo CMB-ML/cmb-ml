@@ -52,19 +52,6 @@ class BaseStageExecutor(ABC):
         return res
 
     @property
-    def override_sim_nums(self):
-        """
-        Values for this (per the comment) may be a single int, a list of ints, or null.
-
-        Returns either a list of sims, or None
-        """
-        sim_nums = self._config_help.get_stage_element('override_n_sims')
-        try:
-            return list(range(sim_nums))
-        except TypeError:
-            return sim_nums
-
-    @property
     def model_epochs(self):
         return self._config_help.get_epochs()
 
@@ -73,7 +60,7 @@ class BaseStageExecutor(ABC):
         return self._config_help.get_map_fields()
 
     @property
-    def override_sim_ns(self):
+    def override_sim_nums(self):
         """
         Values for this (per the comment) may be a single int, a list of ints, or null.
 
