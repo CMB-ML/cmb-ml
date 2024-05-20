@@ -9,14 +9,14 @@ preprocess:
   scaling          : factor  # The only option, currently. TODO: Add minmax/others.
   scale_features   : 1
   scale_target     : 5
-  num_processes    : 24
+  num_processes    : 50
 train:
   device           : null  # Goes to None in python
   learning_rate    : 1e-1
   learning_rate_min: 1e-6
   repeat_n         : 3
-  n_epochs         : ${num_epochs}     # CMBNNCS method sees 120,000 maps (10,000 x (size 12) batches). 120 epochs * 1000 simulations = 120,000
-  # n_epochs         : 120     # CMBNNCS method sees 120,000 maps (10,000 x (size 12) batches). 120 epochs * 1000 simulations = 120,000
+  # n_epochs         : ${num_epochs}     # CMBNNCS method sees 120,000 maps (10,000 x (size 12) batches). 120 epochs * 1000 simulations = 120,000
+  n_epochs         : 120     # CMBNNCS method sees 120,000 maps (10,000 x (size 12) batches). 120 epochs * 1000 simulations = 120,000
   batch_size       : 12    # Matching CMBNNCS paper
   checkpoint_every : 5     # checkpoint every this number of epochs
   extra_check      : [1, 2, 3, 4, 6, 7, 8, 9, 12]
@@ -24,6 +24,6 @@ train:
   # restart_epoch    : 40
 predict:
   device           : null  # Goes to None in python
-  batch_size       : 50
+  batch_size       : 12
 postprocess:
-  num_processes    : 24
+  num_processes    : 50
