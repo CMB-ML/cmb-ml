@@ -10,7 +10,7 @@ class ReorderTransform(object):
     (e.g. DeepSphere, Petroff) expect nest ordering. A good visual explanation is
     available at https://healpy.readthedocs.io/en/1.11.0/tutorial.html
 
-    CAUTION: Only tested with numpy arrays.
+    Does not work on PyTorch tensors.
 
     Args:
         from_ring (bool): If the input maps will be in ring ordering.

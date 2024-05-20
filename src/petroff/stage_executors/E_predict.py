@@ -13,9 +13,9 @@ from core.asset_handlers.asset_handlers_base import Config
 from core.asset_handlers.pytorch_model_handler import PyTorchModel
 from .pytorch_model_base_executor import PetroffModelExecutor
 from core.asset_handlers.healpy_map_handler import HealpyMap
-from petroff.scaling.scale_methods_factory import get_scale_class
+from petroff.preprocessing.scale_methods_factory import get_scale_class
 from core.pytorch_transform import TestToTensor
-from petroff.pytorch_transform_pixel_reorder import ReorderTransform
+from petroff.preprocessing.pytorch_transform_pixel_reorder import ReorderTransform
 
 
 logger = logging.getLogger(__name__)
@@ -47,7 +47,7 @@ class PredictionExecutor(PetroffModelExecutor):
         self.hp_postprocesses = None
 
     def set_scale_classes(self, cfg):
-        scale_method = cfg.model.petroff.prep.scaling
+        scale_method = cfg.model.petroff.preprocess.scaling
         self.scale_class = get_scale_class(method=scale_method, 
                                            dataset="test", 
                                            scale="scale")

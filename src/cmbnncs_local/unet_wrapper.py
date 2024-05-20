@@ -1,6 +1,6 @@
 import numpy as np
 import cmbnncs.unet as unet
-from ..utils.suppress_print import SuppressPrint
+from utils.suppress_print import SuppressPrint
 
 
 def make_unet(cfg, nside=None):

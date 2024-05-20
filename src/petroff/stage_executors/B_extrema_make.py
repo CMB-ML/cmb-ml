@@ -18,8 +18,8 @@ from core import (
 from src.utils import make_instrument, Instrument
 from core.asset_handlers.asset_handlers_base import Config # Import for typing hint
 from core.asset_handlers.healpy_map_handler import HealpyMap # Import for typing hint
-from petroff.scaling.scale_tasks_helper import TaskTarget, FrozenAsset
-from petroff.scaling.scale_methods_factory import get_sim_scanner, get_sim_sifter
+from petroff.preprocessing.scale_tasks_helper import TaskTarget, FrozenAsset
+from petroff.preprocessing.scale_methods_factory import get_sim_scanner, get_sim_sifter
 
 logger = logging.getLogger(__name__)
 
@@ -45,10 +45,10 @@ class PreprocessMakeExtremaExecutor(BaseStageExecutor):
         self.scale_sift_method = None
         self.set_scale_find_methods()
 
-        self.num_processes = cfg.model.petroff.prep.num_processes
+        self.num_processes = cfg.model.petroff.preprocess.num_processes
 
     def set_scale_find_methods(self):
-        scale_method_name = self.cfg.model.petroff.prep.scaling
+        scale_method_name = self.cfg.model.petroff.preprocess.scaling
         scan_method = get_sim_scanner(method=scale_method_name)
         self.scale_scan_method = partial(scan_method,
                                          freqs=self.channels, 

@@ -22,10 +22,7 @@ from src.analysis import (
 logger = logging.getLogger(__name__)
 
 
-@hydra.main(version_base=None, config_path="cfg", config_name="config_sim_32")
-# @hydra.main(version_base=None, config_path="cfg", config_name="config_sim_128")
-# @hydra.main(version_base=None, config_path="cfg", config_name="config_sim_512")
-# @hydra.main(version_base=None, config_path="cfg", config_name="config_sim_2048")
+@hydra.main(version_base=None, config_path="cfg", config_name="config_sim_t")
 def make_all_simulations(cfg):
     logger.debug(f"Running {__name__} in {__file__}")
 
@@ -36,7 +33,7 @@ def make_all_simulations(cfg):
 
     pipeline_context.add_pipe(HydraConfigCheckerExecutor)
     pipeline_context.add_pipe(HydraConfigSimsCheckerExecutor)
-    pipeline_context.add_pipe(NoiseCacheExecutor)
+    # pipeline_context.add_pipe(NoiseCacheExecutor)
     pipeline_context.add_pipe(ConfigExecutor)
     pipeline_context.add_pipe(TheoryPSExecutor)
     pipeline_context.add_pipe(SimCreatorExecutor)

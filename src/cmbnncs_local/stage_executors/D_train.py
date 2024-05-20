@@ -16,7 +16,7 @@ from core import (
 
 
 from .pytorch_model_base_executor import BaseCMBNNCSModelExecutor
-from ...core.pytorch_dataset import TrainCMBMapDataset
+from core.pytorch_dataset import TrainCMBMapDataset
 
 from core.asset_handlers.pytorch_model_handler import PyTorchModel # Import for typing hint
 

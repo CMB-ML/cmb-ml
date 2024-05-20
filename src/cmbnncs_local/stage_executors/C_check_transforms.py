@@ -18,17 +18,19 @@ from core import Split, Asset
 from core.asset_handlers.asset_handlers_base import Config
 from core.asset_handlers.pytorch_model_handler import PyTorchModel # Import for typing hint
 from core.asset_handlers.healpy_map_handler import HealpyMap
-from .pytorch_model_base_executor import PetroffModelExecutor
 from core.pytorch_dataset import TrainCMBMapDataset
-from petroff.preprocessing.scale_methods_factory import get_scale_class
-from petroff.preprocessing.pytorch_transform_pixel_reorder import ReorderTransform
+from cmbnncs_local.preprocessing.scale_methods_factory import get_scale_class
+from cmbnncs_local.preprocessing.transform_pixel_rearrange import (sphere2rect, rect2sphere)
+
 from core.pytorch_transform import TrainToTensor
+from .pytorch_model_base_executor import BaseCMBNNCSModelExecutor
+# from cmbnncs.spherical import sphere2piecePlane, piecePlanes2spheres
 
 
 logger = logging.getLogger(__name__)
 
 
-class CheckTransformsExecutor(PetroffModelExecutor):
+class CheckTransformsExecutor(BaseCMBNNCSModelExecutor):
     def __init__(self, cfg: DictConfig) -> None:
         # The following string must match the pipeline yaml
         super().__init__(cfg, stage_str="train")
@@ -36,7 +38,6 @@ class CheckTransformsExecutor(PetroffModelExecutor):
         self.in_cmb_asset: Asset = self.assets_in["cmb_map"]
         self.in_obs_assets: Asset = self.assets_in["obs_maps"]
         self.in_norm: Asset = self.assets_in["norm_file"]
-        out_model_handler: PyTorchModel
         in_cmb_map_handler: HealpyMap
         in_obs_map_handler: HealpyMap
         in_norm_handler: Config
@@ -44,11 +45,13 @@ class CheckTransformsExecutor(PetroffModelExecutor):
         self.unscale_class = None
         self.set_scale_classes(cfg)
 
-        model_precision = cfg.model.petroff.network.model_precision
+        self.norm_data = None
+
+        model_precision = cfg.model.cmbnncs.network.model_precision
         self.dtype = self.dtype_mapping[model_precision]
 
     def set_scale_classes(self, cfg):
-        scale_method = cfg.model.petroff.preprocess.scaling
+        scale_method = cfg.model.cmbnncs.preprocess.scaling
         self.scale_class = get_scale_class(method=scale_method, 
                                            dataset="train", 
                                            scale="scale")
@@ -91,13 +94,12 @@ class CheckTransformsExecutor(PetroffModelExecutor):
                                  device="cpu",
                                  dtype=self.dtype)
         pt_transforms = [
-            # dtype_transform,
-            # scale
+            dtype_transform,
+            scale
         ]
 
-        reorder_transform_in = ReorderTransform(from_ring=True)
-        hp_transforms = [
-            # reorder_transform_in
+        np_transforms = [
+            sphere2rect
         ]
 
         dataset_prep = TrainCMBMapDataset(
@@ -107,9 +109,9 @@ class CheckTransformsExecutor(PetroffModelExecutor):
             label_path_template=cmb_path_template, 
             feature_path_template=obs_path_template,
             file_handler=HealpyMap(),
-            # Transform same as preprocessing to be done in the train loop
+            # Transforms are same as preprocessing to be done in the train loop
             transforms=pt_transforms,
-            hp_xforms=hp_transforms
+            hp_xforms=np_transforms
             )
 
         dataloader_prep = DataLoader(
@@ -118,7 +120,7 @@ class CheckTransformsExecutor(PetroffModelExecutor):
             shuffle=False
             )
 
-        data = next(iter(dataloader_prep))
+        map_data = next(iter(dataloader_prep))
 
         # Inverse transforms as done during inference
         unscale = self.unscale_class(all_map_fields=self.map_fields,
@@ -126,16 +128,15 @@ class CheckTransformsExecutor(PetroffModelExecutor):
                                                 device="cpu",
                                                 dtype=self.dtype)
         pt_untransforms = [
-            # unscale
+            unscale
             ]
-        reorder_transform_out = ReorderTransform(from_ring=False)
-        hp_untransforms = [
-            # reorder_transform_out
+        np_untransforms = [
+            rect2sphere
         ]
 
         for t in pt_untransforms:
-            data = t(data)
-        obs_post, cmb_post = data
+            map_data = t(map_data)
+        obs_post, cmb_post = map_data
 
         obs_post = obs_post.squeeze().numpy()
         cmb_post = cmb_post.squeeze().numpy()
@@ -145,21 +146,24 @@ class CheckTransformsExecutor(PetroffModelExecutor):
         for i in range(obs_post.shape[0]):
             temp = obs_post[i, :]
             # For each healpy untransform (which have to be applied to single maps)
-            for t in hp_untransforms:
+            for t in np_untransforms:
                 temp = t(temp)
             all_temp.append(temp)
         obs_post = np.array(all_temp)
 
         # And for the cmb:
-        for t in hp_untransforms:
+        for t in np_untransforms:
             cmb_post = t(cmb_post)
 
         # Find the largest difference for each
         obs_delta = np.abs(obs_post - obs_raw.squeeze().numpy())
         cmb_delta = np.abs(cmb_post - cmb_raw.squeeze().numpy())
+        obs_abs = np.abs(obs_raw.squeeze().numpy())
+        cmb_abs = np.abs(cmb_raw.squeeze().numpy())
 
-        logger.info(f"When trying the pre- and post- processing transforms: max observations delta is {obs_delta.max()}")
-        logger.info(f"When trying the pre- and post- processing transforms: max cmb delta is {cmb_delta.max()}")
+        logger.info(f"When trying the pre- and post- processing transforms: max observations delta is {obs_delta.max()} out of {obs_abs.max()}")
+        logger.info(f"When trying the pre- and post- processing transforms: max cmb delta is {cmb_delta.max()} out of {cmb_abs.max()}")
+
 
     def inspect_data(self, dataloader):
         train_features, train_labels = next(iter(dataloader))

@@ -16,17 +16,17 @@ from core.asset_handlers.healpy_map_handler import HealpyMap
 logger = logging.getLogger(__name__)
 
 class BasePyTorchModelExecutor(BaseStageExecutor):
+    dtype_mapping = {
+        "float": torch.float32,
+        "double": torch.float64
+    }
+
     def __init__(self, cfg: DictConfig, stage_str) -> None:
         super().__init__(cfg, stage_str)
         self.instrument: Instrument = make_instrument(cfg=cfg)
 
         self.n_dets = len(self.instrument.dets)
         self.nside = cfg.scenario.nside
-
-    dtype_mapping = {
-        "float": torch.float32,
-        "double": torch.float64
-    }
 
     def choose_device(self, force_device=None) -> None:
         if force_device:

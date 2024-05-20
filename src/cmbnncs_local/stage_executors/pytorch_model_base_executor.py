@@ -24,6 +24,11 @@ logger = logging.getLogger(__name__)
 
 
 class BasePyTorchModelExecutor(BaseStageExecutor):
+    dtype_mapping = {
+        "float": torch.float32,
+        "double": torch.float64
+    }
+
     def __init__(self, cfg: DictConfig, stage_str) -> None:
         super().__init__(cfg, stage_str)
         self.instrument: Instrument = make_instrument(cfg=cfg)

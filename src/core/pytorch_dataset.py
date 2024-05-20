@@ -26,7 +26,7 @@ class TrainCMBMapDataset(Dataset):
         self.handler = file_handler
         self.n_map_fields:int = len(map_fields)
         self.transforms = transforms
-        self.hp_xforms = hp_xforms
+        self.np_xforms = hp_xforms
 
     def __len__(self):
         return self.n_sims
@@ -37,14 +37,15 @@ class TrainCMBMapDataset(Dataset):
                                      handler=self.handler,
                                      n_map_fields=self.n_map_fields,
                                      sim_idx=sim_idx)
-        features = [_do_hp_xforms(feature, self.hp_xforms) for feature in features]
-        features = np.concatenate(features, axis=0)
+        features = [_do_np_xforms(feature, self.np_xforms) for feature in features]
+        # Create a new axis - not np.concatenate, as that will use existing axes
+        features = np.stack(features, axis=0)
 
         label = _get_label_idx(path_template=self.label_path_template,
                                handler=self.handler,
                                n_map_fields=self.n_map_fields,
                                sim_idx=sim_idx)
-        label = _do_hp_xforms(label, self.hp_xforms)
+        label = _do_np_xforms(label, self.np_xforms)
 
         data = (features, label)
         if self.transforms:
@@ -85,8 +86,9 @@ class TestCMBMapDataset(Dataset):
                                      sim_idx=sim_idx)
         # features = [torch.as_tensor(f) for f in features]
         # features = torch.cat(features, dim=0)
-        features = [_do_hp_xforms(feature, self.hp_xforms) for feature in features]
-        features = np.concatenate(features, axis=0)
+        features = [_do_np_xforms(feature, self.hp_xforms) for feature in features]
+        # Create a new axis - not np.concatenate, as that will use existing axes
+        features = np.stack(features, axis=0)
 
         data = features
         if self.transforms:
@@ -116,7 +118,10 @@ def _get_label_idx(path_template, handler, n_map_fields, sim_idx):
     return label
 
 
-def _do_hp_xforms(map_data, hp_transforms):
-    for transform in hp_transforms:
+def _do_np_xforms(map_data, np_transforms):
+    """
+    Expects n_fields x n_pix array for map_data
+    """
+    for transform in np_transforms:
         map_data = transform(map_data)
     return map_data
