@@ -1,25 +1,25 @@
-# show_sims_prep: &show_sims_prep
-#   assets_out:
-#     cmb_map_render:
-#       handler: Mover
-#       path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/cmb_{field}.png"
-#     obs_map_render:
-#       handler: Mover
-#       path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/obs_{field}_{freq}.png"
-#   assets_in:
-#     cmb_map_prep: {stage: preprocess, orig_name: cmb_map}
-#     cmb_map_sim: {stage: make_sims, orig_name: cmb_map}
-#     obs_maps_prep: {stage: preprocess, orig_name: obs_maps}
-#     obs_maps_sim: {stage: make_sims, orig_name: obs_maps}
-#   splits:
-#     - train
-#   override_n_sims: ${n_show_cap}     # int: first n_sims; null: all sims; list: particular sims by index
-#   plot_min_max: null                 # value, v: plots from -v to +v; null: allow MPL to choose; list (size 2): min and max val
-#   make_stage_log: False
+show_sims_prep: &show_sims_prep
+  assets_out:
+    cmb_map_render:
+      handler: Mover
+      path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/cmb_{field}.png"
+    obs_map_render:
+      handler: Mover
+      path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/obs_{field}_{freq}.png"
+  assets_in:
+    cmb_map_prep: {stage: preprocess, orig_name: cmb_map}
+    cmb_map_sim: {stage: make_sims, orig_name: cmb_map}
+    obs_maps_prep: {stage: preprocess, orig_name: obs_maps}
+    obs_maps_sim: {stage: make_sims, orig_name: obs_maps}
+  splits:
+    - train
+  override_n_sims: ${n_show_cap}     # int: first n_sims; null: all sims; list: particular sims by index
+  plot_min_max: null                 # value, v: plots from -v to +v; null: allow MPL to choose; list (size 2): min and max val
+  make_stage_log: False
 
-# show_sims_prep_cmbnncs:
-#   <<: *show_sims_prep
-#   dir_name: Analysis_CMBNNCS_1_Render_Prep_Maps
+show_sims_prep_cmbnncs:
+  <<: *show_sims_prep
+  dir_name: Analysis_CMBNNCS_1_Render_Prep_Maps
 
 # show_sims_prep_petroff:
 #   <<: *show_sims_prep
