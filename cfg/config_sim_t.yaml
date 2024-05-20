@@ -3,13 +3,13 @@ defaults:
   - file_system : common_fs
   - pipeline    : assembly_sim
   - scenario    : scenario_t
-  - splits      : "3-1"
+  - splits      : all
   # simulation must listed be after scenario and splits to build the simulation seed
   - model/sim   : sim_simple
   - override hydra/job_logging: custom_log
   - _self_
 
-dataset_name: ${scenario.map_fields}_${scenario.nside}_${splits.name}_SIM_TEST
+dataset_name: ${scenario.map_fields}_${scenario.nside}_${splits.name}_Reduced_Components
 working_dir : "should_not_do_anything/"
 hydra:
   run:
@@ -20,14 +20,14 @@ hydra:
 # These are not to be used directly in the python
 # They are picked up from here and MAY be used elsewhere in the yamls.
 # In the scenario yaml
-# nside          : 128
-nside          : 32
+nside          : 128
+# nside          : 32
 detectors      : [30, 44, 70, 100, 143, 217, 353, 545, 857]
 # detectors      : [30, 44, 70, 100, 143, 217, 353]
 # detectors      : [70, 100, 143, 217, 353, 545, 857]
 map_fields     : "I"
 
 # In the simulation yaml (only relevant to the simulation portion of the pipeline)
-nside_sky      : 64
+nside_sky      : 256
 # preset_strings : ["d9", "s4", "f1", "a1", "co1", "cib1", "ksz1", "tsz1", "rg1"]
 preset_strings : ["d9", "s4", "f1", "a1", "co1", "ksz1", "tsz1"]
