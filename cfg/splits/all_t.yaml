@@ -1,0 +1,8 @@
+name: "1450"
+Train:
+  n_sims: 1000
+Valid:
+  n_sims: 250
+Test:
+  n_sims: 200
+  n_sims_cap: ${n_test_cap}

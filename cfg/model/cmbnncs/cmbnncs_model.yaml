@@ -1,14 +1,14 @@
 defaults:
-  - unet: unet5
+  - network: unet5
   - _self_
 
 preprocess:
 # Wang, et al., scale input by a scalar factor
 #   c.f. min_max_scaling or normalization
 #   we create a normalization file similar to Petroff for easier comparison
+  scaling          : factor  # The only option, currently. TODO: Add minmax/others.
   scale_features   : 1
   scale_target     : 5
-  num_processes    : &num_processes 10
 train:
   learning_rate    : 1e-1
   learning_rate_min: 1e-6
@@ -24,5 +24,3 @@ train:
 predict:
   batch_size       : 50
   device           : null  # Goes to None in python
-postprocess:
-  num_processes    : *num_processes

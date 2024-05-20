@@ -42,7 +42,7 @@ show_sims_pred: &show_sims_pred
 show_sims_pred_cmbnncs:
   <<: *show_sims_pred
   dir_name: Analysis_CMBNNCS_2_Render_Pred_Maps
-  epochs: &epochs_cmbnncs [init, 1, 10, 40, 120]
+  epochs: ${use_epochs}
 
 show_sims_pred_petroff:
   <<: *show_sims_pred

@@ -2,8 +2,8 @@ defaults:
   - network: unet_orig
   - _self_
 
-prep:
-  num_processes    : &num_processes 10
+preprocess:
+  num_processes    : 10
   scaling          : ${scale_method}  # absmax and minmax are supported
 train:
   device           : null       # Set to null to allow PyTorch to choose based on availability

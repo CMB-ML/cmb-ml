@@ -7,9 +7,9 @@ show_sims_prep_cmbnncs:
       handler: Mover
       path_template: "{root}/{dataset}/{stage}/{split}/{sim}/obs_{field}_{freq}.png"
   assets_in:
-    cmb_map_prep: {stage: preprocess, orig_name: cmb_map}
+    cmb_map_prep: {stage: make_sims, orig_name: cmb_map}
     cmb_map_sim: {stage: make_sims, orig_name: cmb_map}
-    obs_maps_prep: {stage: preprocess, orig_name: obs_maps}
+    obs_maps_prep: {stage: make_sims, orig_name: obs_maps}
     obs_maps_sim: {stage: make_sims, orig_name: obs_maps}
   splits:
     - train
@@ -28,7 +28,7 @@ show_sims_pred_cmbnncs:
     cmb_map_sim: {stage: make_sims, orig_name: cmb_map}
   splits:
     - test
-  epochs: &epochs [init, 1, 10, 40, 120]
+  epochs: ${epochs}
   override_n_sims: 1                 # int: first n_sims; null: all sims; list: particular sims by index
   plot_min_max: null                 # value, v: plots from -v to +v; null: allow MPL to choose; list (size 2): min and max val
   dir_name: Analysis_CMBNNCS_2_Render_Pred_Maps
@@ -40,11 +40,11 @@ show_sims_post_cmbnncs:
       handler: Mover
       path_template: "{root}/{dataset}/{stage}/{split}/{sim}/cmb_{epoch}_{field}.png"
   assets_in:
-    cmb_map_post: {stage: postprocess, orig_name: cmb_map}
+    cmb_map_post: {stage: predict, orig_name: cmb_map}
     cmb_map_sim: {stage: make_sims, orig_name: cmb_map}
   splits:
     - test
-  epochs: *epochs
+  epochs: ${epochs}
   override_n_sims: 1                 # int: first n_sims; null: all sims; list: particular sims by index
   plot_min_max: null                 # value, v: plots from -v to +v; null: allow MPL to choose; list (size 2): min and max val
   dir_name: Analysis_CMBNNCS_3_Render_Post_Maps
@@ -58,10 +58,10 @@ pixel_analysis:
       handler: Config
   assets_in:
     cmb_map_sim: {stage: make_sims, orig_name: cmb_map}
-    cmb_map_post: {stage: postprocess, orig_name: cmb_map}
+    cmb_map_post: {stage: predict, orig_name: cmb_map}
   splits:
     - test
-  epochs: *epochs
+  epochs: ${epochs}
   dir_name: Analysis_CMBNNCS_10_Pixel_Report
 
 pixel_summary:
@@ -82,7 +82,7 @@ pixel_summary:
     report: {stage: pixel_analysis}
   splits:
     - test
-  epochs: *epochs
+  epochs: ${epochs}
   dir_name: Analysis_CMBNNCS_11_Pixel_Summary
 
 convert_theory_ps:
@@ -131,11 +131,11 @@ make_pred_ps:
       handler: NumpyPowerSpectrum
   assets_in:
     cmb_map_real: {stage: make_sims, orig_name: cmb_map}
-    cmb_map_post: {stage: postprocess, orig_name: cmb_map}
+    cmb_map_post: {stage: predict, orig_name: cmb_map}
     # mask: {stage: mask}
   splits:
     - test
-  epochs: *epochs
+  epochs: ${epochs}
   dir_name: Analysis_CMBNNCS_13_Power_Spectra
 
 ps_fig:
@@ -149,7 +149,7 @@ ps_fig:
     auto_pred: {stage: make_pred_ps}
   splits:
     - test
-  epochs: *epochs
+  epochs: ${epochs}
   override_n_sims: 1
   dir_name: Analysis_CMBNNCS_14_F_PS_Solo_Figs
 
