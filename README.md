@@ -6,7 +6,7 @@ Contents:
   - [Simulations](#simulations-readme-ml_cmb_pysm_sims)
   - [CMBNNCS](#cmbnncs)
   - [PyILC](#ml_cmb_model_nilc)
-
+  - [Petroff](#petroff)
   - Todos
     - [Cleaning Up Todos](#cleaning-up-to-dos)
 
@@ -165,8 +165,8 @@ Big:
 
 ## General
 
-- [ ] Clean up import structure 
-    - [ ] look for "...core"
+- [x] Clean up import structure 
+    - [x] look for "...core"
     - [ ] put core asset handlers into a single import
     - [ ] get HealpyMap out of core or others into it
 - [ ] Where reasonable, load from configs in the `__init__` statement of Executors, for better compatibility with prerun
@@ -176,12 +176,17 @@ Polarization:
     - Later comparisons would assume the same fields when comparing maps, instead of checking for each
 
 Other:
+  - [ ] Simulation logs going into working directory
+  - [ ] Analysis: Run ANAFAST on maps after conversion to double precision
   - [ ] Separate folders for Simulation / Working / Analysis
-  - [ ] Try Wang resume training
-  - [ ] Configure PyILC with pipeline
-  - [ ] Find Petroff actual preprocess method
+    - [x] Partial - Working exists; Analysis stuff for each model is going into model's working.
+  - [x] Try Wang resume training
+  - [x] Configure PyILC with pipeline
+  - [x] Find Petroff actual preprocess method
   - [ ] Inventory other repos for their one-off scripts
-  - [ ] Cf PyTorch Transform style instead of bulk pre/post-process
+  - [ ] Try PyTorch Transform style instead of bulk pre/post-process
+    - [x] Works for Petroff
+    - [ ] Does not work for Wang (unsure why; can't use num_workers)
   - [ ] Base Executor for Parallel?
   - [ ] Find why Petroff failed
   - [ ] Base Executor for PyTorch, generic for other models; Petroff and CMBNNCS are very similar... (?)
@@ -192,11 +197,41 @@ Other:
   - [ ] Change src to cmml (package name)
   - [ ] Change loggers from `__name__ ` to shorter names
   - [ ] Enable those names in the console log, check if it looks better
-  - [ ] Train TQDM should update loss inline
+  - [x] Train TQDM should update loss inline
   - [ ] Namer set_contexts should take kwargs instead of a dictionary
-  - [ ] Rethink dataset creation (currently within each split using template)
-  - [ ] Easier scenario overrides for, e.g., fewer detectors (do other use cases exist? If not, just... do it; no need for a fancy solution.)
-  - [ ] Easy way to run multiple things on the same simulation dataset into different folders (just document HOW, no need for a fancy interface)
+  - [ ] Rethink dataset creation (currently within each split using template) [I don't remember what this is]
+  - [x] Easier scenario overrides for, e.g., fewer detectors (do other use cases exist? If not, just... do it; no need for a fancy solution.)
+  - [x] Easy way to run multiple things on the same simulation dataset into different folders (just document HOW, no need for a fancy interface)
+  - [ ] Hydra Checkers have option to collect all issues and then error, or error immediately. (Move to later list)
+
+## Adding CMBNNCS
+
+  - [ ] Trying to run at 512 on Markov
+    - [ ] Need final_infer in pipeline
+    - [ ] Need to look at result of 120th epoch (cfg file stopped at epoch 40)
+
+## Adding ILC
+  - [ ] ILC - Run at 512 on Markov
+    - [ ] Look at result, describe
+    - [ ] Why high values?
+  - [ ] What output precision for ILC Maps? (float or double) How many fields on IQU maps?
+
+## Adding Petroff
+  - [ ] What output precision? Float
+  - [ ] Run at 32 - not good
+  - [ ] Collect results, with descriptions (as possible)
+  - [ ] Clear out old runs
+  - [ ] Run at 128
+    - [ ] Find magic model
+      - [ ] Why did it work? Would it work on simulation with PS? Without PS? With current code?
+  - [ ] 128 Transforms failed
+  - Options to consider:
+    - L1 Loss
+    - No initialization
+    - Other regularization
+    - ConcreteDropout
+    - ConcreteDropout + Uncertainty estimates + Variance regularization
+
 ## Documentation
 
 - [ ] Citations/references for CMBNNCS, Petroff, PyILC, PySM3, CMB Summer Camp
@@ -234,10 +269,10 @@ Markov:
 ## Cleaning Up To-Do's
 
 - Configs
-  - [ ] In pipeline / local system: establish better {src_root} system
-  - [ ] Clean up local_system: use interpolation for directories?
+  - [x] In pipeline / local system: establish better {src_root} system
+  - [x] Clean up local_system: use interpolation for directories?
   - [ ] Side load defaults for commonly changed parameters (instead of scenario even?)
-  - [ ] Look for make_dirs or make_cache references; remove them
+  - [ ] Look for make_dirs or make_cache references; remove them [What did this mean?]
 
 - Core
   - [ ] BaseExecutor/Asset: Remove ban on "fn" in pipeline configs.
@@ -249,49 +284,48 @@ Markov:
 ## More todos from a text file... need to organize and clean these out
 
 Later:
-    - Cross-check if Wang prediction dropoff matches simulation nside_max
-    - Script backup needs to include 
-        - library versions
-        - config files (and hydra condensed config)
-        - copied into per directory, not just top level
-    - Logs into stages
+    - [x] Cross-check if Wang prediction dropoff matches simulation nside_max (Result: It's from applying the beam; we set an lmax there.)
+    - [x] Script backup needs to include 
+        - [x] library versions
+        - [x] config files (and hydra condensed config)
+        - [x] copied into per directory, not just top level
+    - [x] Logs into stages
     - Root out all hardcoding of polarization fields
     - Validation:
         - Flag for bailing out?
         - Decreasing loss?
-    - Remove 'experiment' from executors. Just pass the config around.
-    - Better use of 'ExperimentParameters' (same as previous?)
+    - [x] Remove 'experiment' from executors. Just pass the config around.
+    - [x] Better use of 'ExperimentParameters' (Removed instead)
 
 Maybe:
-    - TESTs (note: check PySM3)
-    - Early check of configs for conflicts/issues (don't fail late because of mismatched config settings)
+    - [ ]TESTs (note: check PySM3)
+    - [x] Early check of configs for conflicts/issues (don't fail late because of mismatched config settings)
     - Power spectrum object outlined below
-    - Instrument object outlined below
+    - [x] Instrument object outlined below
     - Optional instantiation of portions of Hydra Configs?
-    - Preprocess(A, making params): Can use same structure as px_analysis to generate a report/summary
-    - Parallelize some stages
-    - Preprocess in parallel
+    - [x] Preprocess(A, making params): Can use same structure as px_analysis to generate a report/summary (Done: "Parallelized")
+    - [x] Parallelize some stages
     - Decide and clean up: No cfg outside of class initializations (for Executors, in some I use self.cfg.whatever... or I can define that in __init__ for self.whatever) ?
-    - "ExperimentParams" -> Healpy reader? (unsure what this means)
     - Encourage one-offs w/ the same code calls and less boilerplate (API related)
-    - Temporary pipeline addition for "view"ing trials
+    - [x] Temporary pipeline addition for "view"ing trials
     - How to API this thing??
         - Easy to use DataLoader
         - Easy to use Analysis
-    - Use TQDM flag; add TQDM iterator sometimes; add levels (?)
-    - Generic ManyMaps
-        - Inherit for ObsNumpyMaps, ObsHealpyMaps
-        - Rename "Many_X_Maps" to "Obs_X_Maps"
-        - Further generic? Are there other poly-assets?
-    - HD5 output instead of FITS
-    - Check map file units; ensure compliance in AssetHandler reader/writer
-    - File cleanup flag for user to reclaim disk space (per asset? how?)
-    - Each contaminant we want in its own stage
-    - Each precursor values with prng values in its own stage
-    - Simulation splits separate from training splits +1: filter to ensure training is subset of simulation (and same for analysis) (I think this is referring to a potential conflict in the config files. Something along the lines of sim_num 5 required for stage C, but not stage B. Similar is which epochs are saved during training, used for prediction, used for post, use for analysis)
-    - CMB-like spectrum generator based on... ??? (Hu?)
-    - AssetHandlers broken into multiple files?
-    - Enable Multirun
+    - TQDM
+        - [ ] TQDM flag
+        - [x] add TQDM iterator sometimes; 
+        - [ ] add levels (?)
+    - [x] Generic ManyMaps (Removed ManyX handlers entirely. Much cleaner)
+    - [ ] HD5 output instead of FITS
+    - [ ] Check map file units; ensure compliance in AssetHandler reader/writer
+    - [ ] File cleanup flag for user to reclaim disk space (per asset? how?)
+    - [ ] Each contaminant we want in its own stage
+    - [ ] Each precursor values with prng values in its own stage
+    - [x] Simulation splits separate from training splits +1: filter to ensure training is subset of simulation (and same for analysis) (I think this is referring to a potential conflict in the config files. Something along the lines of sim_num 5 required for stage C, but not stage B. Similar is which epochs are saved during training, used for prediction, used for post, use for analysis)
+        - Done: Overrides are added for configs
+    - [ ] CMB-like spectrum generator based on... ??? (Hu?)
+    - [x] AssetHandlers broken into multiple files?
+    - [ ] Enable Multirun
 
 - Physics questions:
     - When running lower resolution, how do we pick parameters?
@@ -314,31 +348,11 @@ Maybe:
     - Do units matter for Petroff? Is K_CMB <--> K_RJ linear? No.
     Models trained on (working): 128, non-converted units
     Models trained on (failed) : 32, 128, 512 converted units
-- Wang
-    - PS dropoff @ nside*2
-    - Add Validation to ensure progress
-- ILC
-    - Time mgmt
-    - HILC at either 128 or 512
-- Simulations
-    - Parallelization modification check-in (???)
-    - CMB-Lensed
-    - Ringing
-    - Units match? (Noise, WMAP, Note others)
-- Analysis
-    - Need multispectrum (wtf does this even mean?)
-    - Statistics to run
-    - Other comparison data (wtf does this even mean?)
-
-
-Simulations
-    - Run for 32, 128, 512
-
 
 - Add to codebase
-    - Object to track PS
+    - [ ] Object to track PS
         - Contains powerspectrum; is_Cl (bool); ellmin, ellmax (ints)
-    - Object to track instrumentation
+    - [x] Object to track instrumentation
         - Handle janky if detector is 545/847 for polarization
         - Note what this impacts; handle all instances of it
             - Asset handlers (Many maps)
@@ -667,3 +681,18 @@ Installation method to be revised. The `pyilc` repository is not set up as a lib
 
 pyreverse -o png -p ml_cmb_model_nilc src 
 python main hydra.verbose=false
+
+# Petroff
+
+ - Original used these components: synch, thermal dust, free-free, ame, co, sz for clusters(?), CIB
+   - Note: No point sources
+ - Original used all HFI detectors and 70 GHz LFI
+ - Petroff's original absmax normalization (from Petroff Source/simulations/outputnops512_dm8/normalization.npz, based on 512nside)
+    - CMB: 631.7
+    - 70:  10.3749
+    - 100: 0.05426
+    - 143: 0.06272
+    - 217: 0.2349
+    - 353: 1.713
+    - 545: 31.30
+    - 857: 2605
