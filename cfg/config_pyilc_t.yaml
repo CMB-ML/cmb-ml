@@ -30,12 +30,11 @@ detectors      : [44, 70, 100, 143, 217, 353]
 map_fields     : "I"
 
 # In the pipeline yamls
-# For prediction, postprocessing, power spectra generation:
+# No epochs exist for PyILC method; use a placeholder:
 use_epochs       : [""]
-# For single simulation figures (maps & ps figures):
 use_epochs_imgs  : [""]
-# For summary statistics:
-use_epochs_stats : [""]
+use_epochs_map_stats : [""]
+use_epochs_ps_stats : [""]
 # Limit the number of simulations for which to generate figures
 n_show_cap       : 3
 

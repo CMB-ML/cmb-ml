@@ -86,7 +86,7 @@ pixel_analysis:
     cmb_map_post: {stage: final_infer, orig_name: cmb_map}
   splits:
     - test
-  epochs: ${use_epochs_stats}
+  epochs: ${use_epochs_map_stats}
   dir_name: Analysis_10_Pixel_Report
 
 pixel_summary:
@@ -107,7 +107,7 @@ pixel_summary:
     report: {stage: pixel_analysis}
   splits:
     - test
-  epochs: ${use_epochs_stats}
+  epochs: ${use_epochs_map_stats}
   dir_name: Analysis_11_Pixel_Summary
 
 convert_theory_ps:
@@ -162,7 +162,7 @@ make_pred_ps:
     # mask: {stage: mask}
   splits:
     - test
-  epochs: ${use_epochs}
+  epochs: ${use_epochs_ps_stats}
   dir_name: Analysis_13_Power_Spectra
 
 ps_fig:
@@ -176,7 +176,7 @@ ps_fig:
     auto_pred: {stage: make_pred_ps}
   splits:
     - test
-  epochs: ${use_epochs_imgs}
+  epochs: ${use_epochs_ps_stats}
   override_n_sims: ${n_show_cap}
   dir_name: Analysis_14_F_PS_Solo_Figs
 

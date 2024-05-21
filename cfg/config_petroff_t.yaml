@@ -40,9 +40,10 @@ use_epochs       : &epochs ["init", 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 20, 30, 4
 # use_epochs     : ["init", 1]
 # For single simulation figures (maps & ps figures):
 use_epochs_imgs  : *epochs
-# For summary statistics:
-# use_epochs_stats : ["init", 1, 2, 5, 10, 20, 40]
-use_epochs_stats : ["init", 1]
+# For map summary statistics:
+use_epochs_map_stats : ["init", 1]
+# For power spectra summary statistics (very slow):
+use_epochs_ps_stats : [100]
 # Limit the number of simulations for which to generate figures
 n_show_cap       : 1
 
