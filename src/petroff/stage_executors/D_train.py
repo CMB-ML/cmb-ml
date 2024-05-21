@@ -164,7 +164,7 @@ class TrainingExecutor(PetroffModelExecutor):
 
         reorder_transform_in = ReorderTransform(from_ring=True)
         hp_transforms = [
-            reorder_transform_in
+            # reorder_transform_in
         ]
 
         dataset = TrainCMBMapDataset(

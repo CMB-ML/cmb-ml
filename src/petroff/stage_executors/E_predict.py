@@ -116,7 +116,7 @@ class PredictionExecutor(PetroffModelExecutor):
             ]
 
         hp_transforms = [
-            ReorderTransform(from_ring=False)
+            # ReorderTransform(from_ring=False)
             ]
 
         dataset = TestCMBMapDataset(
@@ -133,5 +133,7 @@ class PredictionExecutor(PetroffModelExecutor):
                                                       scale_factors=scale_factors,
                                                       device="cpu",
                                                       dtype=self.dtype)
-        self.hp_postprocesses = [ReorderTransform(from_ring=False)]
+        self.hp_postprocesses = [
+            # ReorderTransform(from_ring=False)
+            ]
         return dataset
