@@ -170,12 +170,15 @@ Big:
     - [x] Need to look at result of 120th epoch (cfg file stopped at epoch 40)
     - [x] Resolve issues in appearance (map figure) due to scaling - stray pixels at very high or low values
     - [x] Run for all test set
+    - [x] PS is really slow - since it's junk anyways for now; downgrading level of effort there (produce only prediction spectra, not cross-spectra or difference spectra)
+  - [ ] Get power spectra; send to Ammar
 
 ## Adding ILC
-  - [ ] ILC - Run at 512 on Markov
-    - [ ] Look at result, describe
+  - [x] ILC - Run at 512 on Markov
+    - [x] Look at result, describe - just has some high values affecting scales; forcing scale make it look ok
     - [ ] Why high values?
   - [ ] What output precision for ILC Maps? (float or double) How many fields on IQU maps?
+  - [ ] Get power spectra for HILC results
 
 ## Adding Petroff
   - [ ] What output precision? Float
@@ -200,6 +203,7 @@ Big:
 
 ## General
 
+- [ ] Simulation Working Dir: Fix it
 - [x] Clean up import structure 
     - [x] look for "...core"
     - [ ] put core asset handlers into a single import

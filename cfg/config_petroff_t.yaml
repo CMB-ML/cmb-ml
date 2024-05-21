@@ -10,7 +10,8 @@ defaults:
 
 # dataset_name: ${scenario.map_fields}_${scenario.nside}_${splits.name}
 dataset_name: I_128_1450_Reduced_Components
-working_dir : "Petroff/"
+# dataset_name: I_128_1450
+working_dir : "Petroff_Magic/"
 hydra:
   run:
     dir: Logs/${now:%Y-%m-%d-%H-%M-%S}
@@ -33,27 +34,24 @@ nside_sky      : 256
 preset_strings : ["d9", "s4", "f1", "a1", "co1", "cib1", "ksz1", "tsz1", "rg1"]
 
 # In the pipeline yamls
-# use_epochs     : [10]
-# use_epochs     : ["init", 1, 2, 5, 10, 40, 100]
 # For prediction, postprocessing, power spectra generation:
-use_epochs       : &epochs ["init", 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 20, 30, 40, 50, 75, 100]
-# use_epochs     : ["init", 1]
+use_epochs       : &epochs ["init", 1, 2, 3, 4, 5, 6, 7, 8, 9, 10] #, 12, 20, 30, 40, 50, 75, 100]
 # For single simulation figures (maps & ps figures):
 use_epochs_imgs  : *epochs
 # For map summary statistics:
-use_epochs_map_stats : ["init", 1]
+use_epochs_map_stats : ["init", 10]
 # For power spectra summary statistics (very slow):
-use_epochs_ps_stats : [100]
+use_epochs_ps_stats : [10]
 # Limit the number of simulations for which to generate figures
 n_show_cap       : 1
 
 # Limit the number of sumulations for which to generate predictions
 # In the splits yaml; null to run on all
-n_test_cap     : null
+n_test_cap     : 1
 
 # In the model yaml
-n_epochs       : 100
-restart_epoch  : 10
+n_epochs       : 10
+restart_epoch  : init
 batch          : 8
 scale_method   : minmax
 initialization : kaiming

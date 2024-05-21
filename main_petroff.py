@@ -64,7 +64,7 @@ def make_all_simulations(cfg):
         logger.exception("An exception occured during the pipeline.", exc_info=e)
         raise e
     finally:
-        logger.info("Simulation pipeline completed.")
+        logger.info("Pipeline completed.")
         log_maker.copy_hydra_run_to_dataset_log()
 
 
