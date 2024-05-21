@@ -41,8 +41,8 @@ use_epochs_imgs  : *epochs
 # For summary statistics:
 use_epochs_stats : ["init", 1, 2, 6, 25, 120]
 # Limit the number of simulations for which to generate figures
-n_show_cap       : 1
+n_show_cap       : 3
 
 # Limit the number of simulations on which to do inference and postprocessing
 # In the splits yaml; null to run on all
-n_test_cap       : 1
+n_test_cap       : null
