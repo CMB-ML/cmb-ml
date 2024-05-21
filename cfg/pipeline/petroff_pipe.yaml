@@ -27,7 +27,7 @@ train:
   dir_name: Petroff_D_Model
   make_stage_log: True
 
-predict:
+predict: &final_inference
   assets_out:
     cmb_map: 
       handler: HealpyMap
@@ -42,3 +42,4 @@ predict:
   dir_name: Petroff_E_Predict
   make_stage_log: True
 
+final_infer: *final_inference

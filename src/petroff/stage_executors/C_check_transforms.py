@@ -22,7 +22,7 @@ from .pytorch_model_base_executor import PetroffModelExecutor
 from core.pytorch_dataset import TrainCMBMapDataset
 from petroff.preprocessing.scale_methods_factory import get_scale_class
 from petroff.preprocessing.pytorch_transform_pixel_reorder import ReorderTransform
-from core.pytorch_transform import TrainToTensor
+from core.pytorch_transform import TrainToTensor, train_remove_map_fields
 
 
 logger = logging.getLogger(__name__)
@@ -73,7 +73,7 @@ class CheckTransformsExecutor(PetroffModelExecutor):
             feature_path_template=obs_path_template,
             file_handler=HealpyMap(),
             # No transforms for baseline
-            transforms=[],
+            pt_xforms=[],
             hp_xforms=[]
             )
 
@@ -85,19 +85,24 @@ class CheckTransformsExecutor(PetroffModelExecutor):
 
         obs_raw, cmb_raw = next(iter(dataloader_raw))
 
-        dtype_transform = TrainToTensor(self.dtype, device="cpu")
+        # tensor_transform = TrainToTensor(dtype=self.dtype, device="cpu")
+        dtype_transform = TrainToTensor(dtype=self.dtype)
+        device_transform = TrainToTensor(device="cpu")
+        # tensor_only_transform = TrainToTensor()
         scale = self.scale_class(all_map_fields=self.map_fields,
                                  scale_factors=scale_factors,
                                  device="cpu",
                                  dtype=self.dtype)
         pt_transforms = [
-            # dtype_transform,
-            # scale
+            dtype_transform,
+            scale,
+            train_remove_map_fields,
+            device_transform
         ]
 
         reorder_transform_in = ReorderTransform(from_ring=True)
         hp_transforms = [
-            # reorder_transform_in
+            reorder_transform_in
         ]
 
         dataset_prep = TrainCMBMapDataset(
@@ -108,7 +113,7 @@ class CheckTransformsExecutor(PetroffModelExecutor):
             feature_path_template=obs_path_template,
             file_handler=HealpyMap(),
             # Transform same as preprocessing to be done in the train loop
-            transforms=pt_transforms,
+            pt_xforms=pt_transforms,
             hp_xforms=hp_transforms
             )
 
@@ -120,17 +125,19 @@ class CheckTransformsExecutor(PetroffModelExecutor):
 
         data = next(iter(dataloader_prep))
 
+        obs_part, cmb_part = data
+
         # Inverse transforms as done during inference
         unscale = self.unscale_class(all_map_fields=self.map_fields,
-                                                scale_factors=scale_factors,
-                                                device="cpu",
-                                                dtype=self.dtype)
+                                                    scale_factors=scale_factors,
+                                                    device="cpu",
+                                                    dtype=self.dtype)
         pt_untransforms = [
-            # unscale
+            unscale
             ]
         reorder_transform_out = ReorderTransform(from_ring=False)
         hp_untransforms = [
-            # reorder_transform_out
+            reorder_transform_out
         ]
 
         for t in pt_untransforms:
@@ -154,11 +161,14 @@ class CheckTransformsExecutor(PetroffModelExecutor):
         for t in hp_untransforms:
             cmb_post = t(cmb_post)
 
-        # Find the largest difference for each
-        obs_delta = np.abs(obs_post - obs_raw.squeeze().numpy())
-        cmb_delta = np.abs(cmb_post - cmb_raw.squeeze().numpy())
+        obs_raw = obs_raw.squeeze().numpy()
+        cmb_raw = cmb_raw.squeeze().numpy()
 
-        logger.info(f"When trying the pre- and post- processing transforms: max observations delta is {obs_delta.max()}")
+        # Find the largest difference for each
+        obs_delta = np.abs(obs_post - obs_raw)
+        cmb_delta = np.abs(cmb_post - cmb_raw)
+
+        logger.info(f"When trying the pre- and post- processing transforms: max observations delta is {obs_delta.max()}, obs_post mean:{obs_post.mean()}, obs_post_std:{obs_post.std()}, obs_raw mean: {obs_raw.mean()}, obs_raw std: {obs_raw.std()}")
         logger.info(f"When trying the pre- and post- processing transforms: max cmb delta is {cmb_delta.max()}")
 
     def inspect_data(self, dataloader):

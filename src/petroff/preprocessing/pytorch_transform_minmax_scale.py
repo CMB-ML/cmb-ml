@@ -45,11 +45,11 @@ class MinMaxScaleMapAbstract(object):
             cmb_max[0, j] = cmb_sub_dict[field]['max_val']
 
         # Convert lists to tensors
-        self.obs_min = torch.tensor(obs_min, dtype=dtype, device=device)
-        self.obs_max = torch.tensor(obs_max, dtype=dtype, device=device)
+        self.obs_min = torch.tensor(obs_min, dtype=dtype, device=device).unsqueeze(2)
+        self.obs_max = torch.tensor(obs_max, dtype=dtype, device=device).unsqueeze(2)
 
-        self.cmb_min = torch.tensor(cmb_min, dtype=dtype, device=device)
-        self.cmb_max = torch.tensor(cmb_max, dtype=dtype, device=device)
+        self.cmb_min = torch.tensor(cmb_min, dtype=dtype, device=device).unsqueeze(2)
+        self.cmb_max = torch.tensor(cmb_max, dtype=dtype, device=device).unsqueeze(2)
 
     def __call__(self, map_data: torch.Tensor) -> torch.Tensor:
         raise NotImplementedError("Abstract class. Use a Train or Test version.")

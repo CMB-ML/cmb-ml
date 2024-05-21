@@ -14,7 +14,7 @@ from core.asset_handlers.pytorch_model_handler import PyTorchModel
 from .pytorch_model_base_executor import PetroffModelExecutor
 from core.asset_handlers.healpy_map_handler import HealpyMap
 from petroff.preprocessing.scale_methods_factory import get_scale_class
-from core.pytorch_transform import TestToTensor
+from core.pytorch_transform import TestToTensor, test_remove_map_fields
 from petroff.preprocessing.pytorch_transform_pixel_reorder import ReorderTransform
 
 
@@ -91,7 +91,7 @@ class PredictionExecutor(PetroffModelExecutor):
         unscale_transform = self.postprocess_unscale
         pred = pred.detach().cpu()
         pred = unscale_transform(pred)
-        pred = pred.numpy()
+        pred = pred.squeeze().numpy()
         for post in self.hp_postprocesses:
             pred = post(pred)
         return pred
@@ -106,10 +106,12 @@ class PredictionExecutor(PetroffModelExecutor):
                                                device="cpu",
                                                dtype=self.dtype)
         device_transform = TestToTensor(self.dtype, device=self.device)
+        remove_map_field_transform = test_remove_map_fields
 
         pt_transforms = [
-            dtype_transform, 
-            scale_map_transform, 
+            dtype_transform,
+            scale_map_transform,
+            remove_map_field_transform,
             device_transform
             ]
 

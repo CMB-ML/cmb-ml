@@ -1,8 +1,10 @@
+import torch
+
 from utils.planck_instrument import Instrument
 from .scale_tasks_helper import TaskTarget
 
 
-def min_max_scale(data, min_v, max_v):
+def min_max_scale(data, min_v:torch.tensor, max_v:torch.tensor):
     return (data - min_v) / (max_v - min_v)
 
 

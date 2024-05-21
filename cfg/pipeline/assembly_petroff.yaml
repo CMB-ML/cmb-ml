@@ -5,3 +5,9 @@ defaults:
   - petroff_pipe
   - analysis_pipe
   # - cmbnncs_analysis_pipe
+
+# This has neither preprocess nor postprocess. 
+#   Redirect those to predict.
+#   TODO: something better
+preprocess: ${pipeline.make_sims}
+postprocess: ${pipeline.make_sims}

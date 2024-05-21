@@ -20,7 +20,7 @@ from core.asset_handlers.asset_handlers_base import Config
 from core.asset_handlers.pytorch_model_handler import PyTorchModel # Import for typing hint
 from core.asset_handlers.healpy_map_handler import HealpyMap
 from core.pytorch_dataset import TrainCMBMapDataset
-from core.pytorch_transform import TrainToTensor
+from core.pytorch_transform import TrainToTensor, train_remove_map_fields
 from petroff.preprocessing.scale_methods_factory import get_scale_class
 from petroff.preprocessing.pytorch_transform_pixel_reorder import ReorderTransform
 
@@ -152,9 +152,11 @@ class TrainingExecutor(PetroffModelExecutor):
                                                device="cpu",
                                                dtype=self.dtype)
         device_transform = TrainToTensor(self.dtype, device=self.device)
+        remove_map_field_transform = train_remove_map_fields
         pt_transforms = [
             dtype_transform,
             scale_map_transform,
+            remove_map_field_transform,
             device_transform
         ]
 
@@ -170,7 +172,7 @@ class TrainingExecutor(PetroffModelExecutor):
             label_path_template=cmb_path_template,
             feature_path_template=obs_path_template,
             file_handler=HealpyMap(),
-            transforms=pt_transforms,
+            pt_xforms=pt_transforms,
             hp_xforms=hp_transforms
             )
         return dataset
