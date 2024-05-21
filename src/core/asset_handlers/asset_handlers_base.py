@@ -50,7 +50,7 @@ class Mover(GenericHandler):
 
     def write(self, path: Path, source_location: Union[Path, str]) -> None:
         make_directories(path)
-        # Move the file from the temporary location
+        # Move the file from the temporary location (cwd)
         destination_path = Path(path).parent / str(source_location)
         logger.debug(f"Moving from {source_location} to {destination_path}")
         try:
