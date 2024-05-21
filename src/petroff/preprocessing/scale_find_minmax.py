@@ -8,7 +8,7 @@ def min_max_scale(data, min_v:torch.tensor, max_v:torch.tensor):
     return (data - min_v) / (max_v - min_v)
 
 
-def min_max_unscale(data, min_v, max_v):
+def min_max_unscale(data, min_v:torch.tensor, max_v:torch.tensor):
     return data * (max_v - min_v) + min_v
 
 

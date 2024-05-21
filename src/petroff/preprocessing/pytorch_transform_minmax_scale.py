@@ -116,7 +116,9 @@ class TrainMinMaxUnScaleMap(MinMaxScaleMapAbstract):
                 cmb (batch x 1 x N_pix tensor): cmb map
         """
         obs, cmb = map_data
-        return min_max_unscale(obs, self.obs_min, self.obs_max), min_max_unscale(cmb, self.cmb_min, self.cmb_max)
+        obs_out = min_max_unscale(obs, self.obs_min, self.obs_max)
+        cmb_out = min_max_unscale(cmb, self.cmb_min, self.cmb_max)
+        return obs_out, cmb_out
 
 
 class TestMinMaxUnScaleMap(MinMaxScaleMapAbstract):

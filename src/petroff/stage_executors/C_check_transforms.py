@@ -22,7 +22,7 @@ from .pytorch_model_base_executor import PetroffModelExecutor
 from core.pytorch_dataset import TrainCMBMapDataset
 from petroff.preprocessing.scale_methods_factory import get_scale_class
 from petroff.preprocessing.pytorch_transform_pixel_reorder import ReorderTransform
-from core.pytorch_transform import TrainToTensor, train_remove_map_fields
+from core.pytorch_transform import TrainToTensor, train_remove_map_fields, train_add_map_fields
 
 
 logger = logging.getLogger(__name__)
@@ -87,12 +87,12 @@ class CheckTransformsExecutor(PetroffModelExecutor):
 
         # tensor_transform = TrainToTensor(dtype=self.dtype, device="cpu")
         dtype_transform = TrainToTensor(dtype=self.dtype)
-        device_transform = TrainToTensor(device="cpu")
         # tensor_only_transform = TrainToTensor()
         scale = self.scale_class(all_map_fields=self.map_fields,
                                  scale_factors=scale_factors,
                                  device="cpu",
                                  dtype=self.dtype)
+        device_transform = TrainToTensor(device="cpu")
         pt_transforms = [
             dtype_transform,
             scale,
@@ -133,6 +133,7 @@ class CheckTransformsExecutor(PetroffModelExecutor):
                                                     device="cpu",
                                                     dtype=self.dtype)
         pt_untransforms = [
+            train_add_map_fields,  # Only needed for observations, no impact on cmb predictions (because of singleton dimensions in scale factors for CMB)
             unscale
             ]
         reorder_transform_out = ReorderTransform(from_ring=False)

@@ -42,11 +42,31 @@ class TestToTensor(ToTensor):
 
 
 def train_remove_map_fields(data):
+    # Within the dataloader, each is processed individually
+    # Tensors are detectors x map_fields x npix (shape is size 3)
     obs, cmb = data
     obs, cmb = obs.squeeze(1), cmb.squeeze(1)
     return obs, cmb
 
 def test_remove_map_fields(data):
+    # Within the dataloader, each is processed individually
+    # Tensors are detectors x map_fields x npix (shape is size 3)
     cmb = data
     cmb = cmb.squeeze(1)
     return cmb
+
+
+def train_add_map_fields(data):
+    # Outside the dataloader, each is processed as part of batches
+    # Tensors are batch x detectors x map_fields x npix (shape is size 4)
+    obs, cmb = data
+    obs, cmb = obs.unsqueeze(2), cmb.unsqueeze(2)
+    return obs, cmb
+
+def test_add_map_fields(data):
+    # Outside the dataloader, each is processed as part of batches
+    # Tensors are batch x detectors x map_fields x npix (shape is size 4)
+    cmb = data
+    cmb = cmb.unsqueeze(2)
+    return cmb
+
