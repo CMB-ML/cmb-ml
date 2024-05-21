@@ -110,6 +110,8 @@ class TrainingExecutor(BaseCMBNNCSModelExecutor):
                                                  epoch=self.restart_epoch, 
                                                  optimizer=optimizer, 
                                                  scheduler=scheduler)
+            if start_epoch == "init":
+                start_epoch = 0
         else:
             logger.info(f"Starting new model.")
             with self.name_tracker.set_context("epoch", "init"):
