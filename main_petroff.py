@@ -44,8 +44,8 @@ def make_all_simulations(cfg):
     pipeline_context.add_pipe(HydraConfigCheckerExecutor)
     # pipeline_context.add_pipe(HydraConfigPetroffCheckerExecutor)
 
-    # pipeline_context.add_pipe(PreprocessMakeExtremaExecutor)
-    # pipeline_context.add_pipe(CheckTransformsExecutor)
+    pipeline_context.add_pipe(PreprocessMakeExtremaExecutor)
+    pipeline_context.add_pipe(CheckTransformsExecutor)
     pipeline_context.add_pipe(TrainingExecutor)
     pipeline_context.add_pipe(PredictionExecutor)
     pipeline_context.add_pipe(PetroffShowSimsPostExecutor)
