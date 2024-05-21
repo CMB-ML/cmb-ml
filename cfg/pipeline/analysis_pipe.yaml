@@ -74,6 +74,7 @@ show_sims_post_cmbnncs:
   <<: *show_sims_post
   dir_name: Analysis_3_Render_Post_Maps
   epochs: ${use_epochs_imgs}
+  plot_min_max: [-500, 500]
 
 # show_sims_post_petroff:
 #   <<: *show_sims_post
