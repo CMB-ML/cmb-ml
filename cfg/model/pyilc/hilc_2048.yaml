@@ -1,0 +1,75 @@
+# Note that this config has placeholders commented out.
+# PYTHON section are variables set in the Python code, generally from other hydra configs
+# GLOBAL PYILC: nothing noteworthy
+# CHOICES, ALL METHODS: for beam_type and bandpass_type, an option must be chosen
+#                       some options mean that other parameters need to be set.
+# OPTIONAL, ALL METHODS: this is a small selection of parameters which can be set
+# UNIQUE: The choice of Harmonic / Gaussian Needlet / Cosine Needlet is set here
+#         with wavelet_type. Other parameters follow, which are particular to that method
+
+
+# In case specific parameters are found which need to be set algorithmically in this python repo
+#         need to choose a particular config_maker.
+# Currently unused; TODO Remove this!
+# config_maker: ILCConfigMaker
+
+################# To make/set in python #################
+### OUTPUT
+# output_dir: '///mnt/ceph/users/fmccarthy/pyilc_test_harmonic//' # the directory where the covariances, needlet coefficients, and maps will be saved
+
+### INPUT
+# freqs_delta_ghz: {detectors}
+# N_freqs: <the number of things in the row above???> why let me make mistakes?
+# freq_map_files: {map_file_list}
+# N_side: {nside}
+
+################## GLOBAL PYILC #########################
+### OUTPUT ONLY
+output_prefix: 'hilc_'              # the prefix for all the files that will be saved
+output_suffix: ''                   # the suffix for all the files that will be saved
+save_as: 'fits'
+save_weights: 'no'                               # set to yes to save the weight maps
+# For nside=128
+# ELLMAX: 511                                    # Choose this based on the maximum that does not raise warning: 4 x nside - 1 (Unknown source for WARNING)
+# For nside=512
+# ELLMAX: 2047                                    # Choose this based on the maximum that does not raise warning: 4 x nside - 1 (Unknown source for WARNING)
+# For nside=1024
+# ELLMAX: 4095                                   # Choose this based on the maximum that does not raise warning: 4 x nside - 1 (Unknown source for WARNING)
+# For nside=2048
+ELLMAX: 6000                                     # based on Yunan
+perform_ILC_at_beam: 5                           # Choose this based on ???
+ILC_preserved_comp: 'CMB'
+ILC_bias_tol: 0.01
+N_deproj: 0                                      # Unknown purpose/effect; fails without param
+taper_width: 200                                 # Unknown what this is; default is 200; needed for use with small nside for testing
+
+################## CHOICES, ALL METHODS #################
+### INPUT ONLY
+
+# How beam function was defined for input maps
+beam_type: 'Gaussians'
+beam_FWHM_arcmin: "{beam_fwhm_values}"
+# beam_type: '1D'
+# beam_files: "{beam_files}"
+
+# ???
+bandpass_type: 'DeltaBandpasses'  # No further information
+# bandpass_type: 'ActualBandpasses'  # Need file name references
+# freq_bp_files: "{hfi_or_lfi}_BANDPASS_F{det_str}_reformat.txt"
+
+
+################# OPTIONAL, ALL METHODS ##################
+# param_dict_file: './fg_SEDs_default_params.yml'  # the file where you save the params of the SEDs
+# ILC_deproj_comps: []
+# N_SED_params: 0
+# SED_params: []
+# SED_params_vals: []
+# SED_params_priors: []
+# SED_params_priors_params: []
+# N_maps_xcorr: 0
+
+
+################# HILC UNIQUE #############################
+distinct:
+  wavelet_type: 'TopHatHarmonic'                   # This "chooses" HILC method
+  BinSize: 50

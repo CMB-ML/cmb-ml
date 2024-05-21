@@ -5,6 +5,7 @@ I'm combining repositories. Here's the combined READMES, which may contain out-o
 Contents:
   - [Simulations](#simulations-readme-ml_cmb_pysm_sims)
   - [CMBNNCS](#cmbnncs)
+  - [PyILC](#ml_cmb_model_nilc)
 
   - Todos
     - [Cleaning Up Todos](#cleaning-up-to-dos)
@@ -615,3 +616,54 @@ The steps are:
     - If simulation has 1 field, modelling has 1 field; should run trivially
 
 
+# ml_cmb_model_nilc
+
+This is very much a work in progress.
+
+## Set up Environment
+
+Installation method to be revised. The `pyilc` repository is not set up as a library for use with other code. For now, we play a weird game, minimizing changes to it.
+
+
+    - Get pyilc; put it in a separate directory
+    - `git clone https://github.com/jcolinhill/pyilc.git`
+    - Get this repository
+    - `git clone https://github.com/JamesAmato/ml_cmb_model_nilc.git`
+    - Switch to vary_detector_check branch
+    - Ensure that cfg information matches your local system
+      - Check the /cfg/local_system directory for normal changes
+      - Ensure that you've set an environment variable to match the name of the local_system yaml
+        - `export CMB_SIMS_LOCAL_SYSTEM=markov`
+      - In /src/pyilc/__init__.py, change the directory here to your pyilc installation folder
+      - (Later) In .vscode, match your launch.json to launch.json
+    - Get poetry
+    - created conda environment with python 3.9
+      - `conda create -n ml_cmb_model_nilc python=3.9`
+    - activate it
+    - Use `which python` to find the python location; update your `launch.json`.
+    - Have Poetry set up everything, based on the `pyproject.toml`
+    - `poetry install`
+
+
+## Test pyilc
+
+- Create conda environment (`conda create --name pyilc_test python=3.8`)
+- Activate it (`conda activate pyilc_test`)
+- clone repo into folder for pyilc (`git clone https://github.com/jcolinhill/pyilc.git`)
+- Install unknown libraries (oops, no record of which... probably just simple ones)
+- Install jupyter notebook into conda environment for test (`conda install -c conda-forge notebook`)
+- Install h5py into conda environment for test (`conda install -c conda-forge h5py`)
+- Install matplotlib and healpy into conda environment for test (`conda install -c conda-forge matplotlib healpy`)
+- Run Planck_CMB_HILC.ipynb first.
+- Add the following to `sample_run_Planck_CMB_HILC.yml`:
+  -`ILC_bias_tol: 0.01`
+  -`save_as: 'hdf5'`
+- The cell containing three calls to `run_full_ILC()` takes ~6 minutes to run.
+- Two cells lower, the cell starting with `def download_preprocessing_mask()`, uncomment the call to that function.
+- Issues were found at this point; the wavelets.py file sets some features for matplotlib which cause them to fail (lines 67-71).
+- Other work... went sideways.
+
+## Commands to remember
+
+pyreverse -o png -p ml_cmb_model_nilc src 
+python main hydra.verbose=false
