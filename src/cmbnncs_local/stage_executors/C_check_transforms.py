@@ -17,7 +17,8 @@ import healpy as hp
 from core import Split, Asset
 from core.asset_handlers.asset_handlers_base import Config
 from core.asset_handlers.pytorch_model_handler import PyTorchModel # Import for typing hint
-from core.asset_handlers.healpy_map_handler import HealpyMap
+# from core.asset_handlers.healpy_map_handler import HealpyMap
+from ..handler_npymap import NumpyMap             # Import for typing hint
 from core.pytorch_dataset import TrainCMBMapDataset
 from cmbnncs_local.preprocessing.scale_methods_factory import get_scale_class
 from cmbnncs_local.preprocessing.transform_pixel_rearrange import (sphere2rect, rect2sphere)
@@ -38,8 +39,8 @@ class CheckTransformsExecutor(BaseCMBNNCSModelExecutor):
         self.in_cmb_asset: Asset = self.assets_in["cmb_map"]
         self.in_obs_assets: Asset = self.assets_in["obs_maps"]
         self.in_norm: Asset = self.assets_in["norm_file"]
-        in_cmb_map_handler: HealpyMap
-        in_obs_map_handler: HealpyMap
+        in_cmb_map_handler: NumpyMap
+        in_obs_map_handler: NumpyMap
         in_norm_handler: Config
         self.scale_class = None
         self.unscale_class = None
@@ -74,7 +75,7 @@ class CheckTransformsExecutor(BaseCMBNNCSModelExecutor):
             map_fields=self.map_fields,
             label_path_template=cmb_path_template, 
             feature_path_template=obs_path_template,
-            file_handler=HealpyMap(),
+            file_handler=NumpyMap(),
             # No transforms for baseline
             pt_xforms=[],
             hp_xforms=[]
@@ -108,7 +109,7 @@ class CheckTransformsExecutor(BaseCMBNNCSModelExecutor):
             map_fields=self.map_fields,
             label_path_template=cmb_path_template, 
             feature_path_template=obs_path_template,
-            file_handler=HealpyMap(),
+            file_handler=NumpyMap(),
             # Transforms are same as preprocessing to be done in the train loop
             pt_xforms=pt_transforms,
             hp_xforms=np_transforms
