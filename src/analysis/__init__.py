@@ -1,7 +1,7 @@
 from .stage_executors.B_show_simulations import ShowSimsExecutor
 from .stage_executors.D_show_single_sims_fig import  (
     ShowSimsPrepExecutor, 
-    ShowSimsPredExecutor, 
+    CMBNNCSShowSimsPredExecutor, 
     CMBNNCSShowSimsPostExecutor, 
     PetroffShowSimsPostExecutor, 
     NILCShowSimsPostExecutor

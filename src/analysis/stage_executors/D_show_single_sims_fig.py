@@ -169,7 +169,7 @@ class ShowSimsPrepExecutor(ShowSimsExecutor):
                 self.make_maps_per_field(obs_map_sim, obs_map_prep, det=freq, out_asset=self.out_obs_figure)
 
 
-class ShowSimsPredExecutor(ShowSimsExecutor):
+class CMBNNCSShowSimsPredExecutor(ShowSimsExecutor):
     def __init__(self, cfg: DictConfig) -> None:
         stage_str = "show_sims_pred_cmbnncs"
         super().__init__(cfg, stage_str)
