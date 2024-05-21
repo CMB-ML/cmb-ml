@@ -163,6 +163,39 @@ Big:
 - PyILC
 - Analysis
 
+## Adding CMBNNCS
+
+  - [ ] Trying to run at 512 on Markov
+    - [ ] Need final_infer in pipeline
+    - [ ] Need to look at result of 120th epoch (cfg file stopped at epoch 40)
+
+## Adding ILC
+  - [ ] ILC - Run at 512 on Markov
+    - [ ] Look at result, describe
+    - [ ] Why high values?
+  - [ ] What output precision for ILC Maps? (float or double) How many fields on IQU maps?
+
+## Adding Petroff
+  - [ ] What output precision? Float
+  - [ ] Run at 32 - not good
+  - [ ] Collect results, with descriptions (as possible)
+  - [ ] Clear out old runs
+  - [ ] Run at 128
+    - [ ] Find magic model
+      - [ ] Why did it work? Would it work on simulation with PS? Without PS? With current code?
+  - [ ] 128 Transforms failed
+  - Options to consider:
+    - L1 Loss
+    - No initialization
+    - Other regularization
+    - ConcreteDropout
+    - ConcreteDropout + Uncertainty estimates + Variance regularization
+
+## Analysis
+  - [ ] Add better PS One-off generator
+  - [ ] Add bulk PS statistics
+  - [ ] Add bulk PS figure
+
 ## General
 
 - [x] Clean up import structure 
@@ -204,33 +237,6 @@ Other:
   - [x] Easy way to run multiple things on the same simulation dataset into different folders (just document HOW, no need for a fancy interface)
   - [ ] Hydra Checkers have option to collect all issues and then error, or error immediately. (Move to later list)
 
-## Adding CMBNNCS
-
-  - [ ] Trying to run at 512 on Markov
-    - [ ] Need final_infer in pipeline
-    - [ ] Need to look at result of 120th epoch (cfg file stopped at epoch 40)
-
-## Adding ILC
-  - [ ] ILC - Run at 512 on Markov
-    - [ ] Look at result, describe
-    - [ ] Why high values?
-  - [ ] What output precision for ILC Maps? (float or double) How many fields on IQU maps?
-
-## Adding Petroff
-  - [ ] What output precision? Float
-  - [ ] Run at 32 - not good
-  - [ ] Collect results, with descriptions (as possible)
-  - [ ] Clear out old runs
-  - [ ] Run at 128
-    - [ ] Find magic model
-      - [ ] Why did it work? Would it work on simulation with PS? Without PS? With current code?
-  - [ ] 128 Transforms failed
-  - Options to consider:
-    - L1 Loss
-    - No initialization
-    - Other regularization
-    - ConcreteDropout
-    - ConcreteDropout + Uncertainty estimates + Variance regularization
 
 ## Documentation
 
