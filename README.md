@@ -165,9 +165,11 @@ Big:
 
 ## Adding CMBNNCS
 
-  - [ ] Trying to run at 512 on Markov
-    - [ ] Need final_infer in pipeline
-    - [ ] Need to look at result of 120th epoch (cfg file stopped at epoch 40)
+  - [x] Trying to run at 512 on Markov
+    - [x] Need final_infer in pipeline
+    - [x] Need to look at result of 120th epoch (cfg file stopped at epoch 40)
+    - [x] Resolve issues in appearance (map figure) due to scaling - stray pixels at very high or low values
+    - [x] Run for all test set
 
 ## Adding ILC
   - [ ] ILC - Run at 512 on Markov
