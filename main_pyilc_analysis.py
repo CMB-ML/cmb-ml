@@ -32,14 +32,16 @@ def make_all_simulations(cfg):
 
     pipeline_context.add_pipe(HydraConfigCheckerExecutor)
 
+    # Due to PyILC-matplotlib interaction, these cannot be imported at the same time
     # pipeline_context.add_pipe(PredictionExecutor)
-    pipeline_context.add_pipe(NILCShowSimsPostExecutor)
-    pipeline_context.add_pipe(PixelAnalysisExecutor)
-    pipeline_context.add_pipe(PixelSummaryExecutor)
 
-    pipeline_context.add_pipe(ConvertTheoryPowerSpectrumExecutor)
-    pipeline_context.add_pipe(MakePredPowerSpectrumExecutor)
-    pipeline_context.add_pipe(ShowSinglePsFigExecutor)
+    pipeline_context.add_pipe(NILCShowSimsPostExecutor)
+    # pipeline_context.add_pipe(PixelAnalysisExecutor)
+    # pipeline_context.add_pipe(PixelSummaryExecutor)
+
+    # pipeline_context.add_pipe(ConvertTheoryPowerSpectrumExecutor)
+    # pipeline_context.add_pipe(MakePredPowerSpectrumExecutor)
+    # pipeline_context.add_pipe(ShowSinglePsFigExecutor)
 
     pipeline_context.prerun_pipeline()
 

@@ -44,17 +44,17 @@ show_sims_pred_cmbnncs:
   dir_name: Analysis_2_Render_Pred_Maps
   epochs: ${use_epochs_imgs}
 
-# Surrogate; petroff has no "post", but that's what I called the last stage in the pipeline for inference
 show_sims_pred_petroff:
   <<: *show_sims_pred
   dir_name: Analysis_2_Render_Pred_Maps
   epochs: ${use_epochs_imgs}
+  plot_min_max: 500
 
-# Surrogate; nilc has no "post"
 show_sims_pred_nilc:
   <<: *show_sims_pred
   dir_name: Analysis_2_Render_Pred_Maps
   epochs: ${use_epochs_imgs}
+  plot_min_max: 500
 
 show_sims_post: &show_sims_post
   assets_out:
@@ -75,12 +75,6 @@ show_sims_post_cmbnncs:
   dir_name: Analysis_3_Render_Post_Maps
   epochs: ${use_epochs_imgs}
   plot_min_max: 500
-  # plot_min_max: [-500, 500]
-
-# show_sims_post_petroff:
-#   <<: *show_sims_post
-#   dir_name: Analysis_Petroff_3_Render_Post_Maps
-  # epochs: ${use_epochs_imgs}
 
 pixel_analysis:
   assets_out:
