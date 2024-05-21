@@ -18,7 +18,7 @@ from src.cmbnncs_local import (
                          )
 from analysis import (ShowSimsPrepExecutor, 
                       ShowSimsPredExecutor, 
-                      ShowSimsPostExecutor,
+                      CMBNNCSShowSimsPostExecutor,
                       PixelAnalysisExecutor,
                       PixelSummaryExecutor,
                       ConvertTheoryPowerSpectrumExecutor,
@@ -52,7 +52,7 @@ def make_all_simulations(cfg):
     pipeline_context.add_pipe(PredictionExecutor)
     pipeline_context.add_pipe(ShowSimsPredExecutor)
     pipeline_context.add_pipe(PostprocessExecutor)
-    pipeline_context.add_pipe(ShowSimsPostExecutor)
+    pipeline_context.add_pipe(CMBNNCSShowSimsPostExecutor)
     pipeline_context.add_pipe(PixelAnalysisExecutor)
     pipeline_context.add_pipe(PixelSummaryExecutor)
 
