@@ -5,14 +5,14 @@ defaults:
   - pipeline     : assembly_pyilc
   - scenario     : scenario_t
   - splits       : all_t
-  - model/pyilc  : hilc_128
+  - model/pyilc  : hilc_t
   - model/analysis: basic_analysis
   - override hydra/job_logging: custom_log
 
 # dataset_name: ${scenario.map_fields}_${scenario.nside}_${splits.name}
 dataset_name: ${scenario.map_fields}_${scenario.nside}_1450
 working_dir : "PyILC_dev/"
-seed_base_string: 'I-128-1-1'
+seed_base_string: 'cmml'
 hydra:
   run:
     dir: Logs/${now:%Y-%m-%d-%H-%M-%S}
@@ -20,10 +20,10 @@ hydra:
 
 
 # Settings below this point are used for interpolation.
-# These are not to be used directly in the python
-# They are picked up from here and MAY be used elsewhere in the yamls.
+# These are not to be used directly in python.
+# They are picked up from here and MAY be used elsewhere in the yamls. Be careful, check assumptions!
 # In the scenario yaml
-nside          : 128
+nside          : 512
 # detectors      : [30, 44, 70, 100, 143, 217, 353, 545, 857]
 detectors      : [30, 44, 70, 100, 143, 217, 353]
 # detectors      : [70, 100, 143, 217, 353, 545, 857]
@@ -42,10 +42,8 @@ n_show_cap       : 1
 # In the splits yaml; null to run on all
 n_test_cap     : 1
 
-# In the model yaml
-n_epochs       : 10
-restart_epoch  : null
-batch          : 8
-scale_method   : minmax
-initialization : kaiming
-learning_rate  : 0.001
+# In the model yaml, for HILC:
+# ELLMAX: 511   # For 128
+ELLMAX: 2047  # For 512
+# ELLMAX: 4095  # For 1024
+# ELLMAX: 6000  # For 2048

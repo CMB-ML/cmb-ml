@@ -29,14 +29,7 @@ output_prefix: 'hilc_'              # the prefix for all the files that will be 
 output_suffix: ''                   # the suffix for all the files that will be saved
 save_as: 'fits'
 save_weights: 'no'                               # set to yes to save the weight maps
-# For nside=128
-# ELLMAX: 511                                    # Choose this based on the maximum that does not raise warning: 4 x nside - 1 (Unknown source for WARNING)
-# For nside=512
-# ELLMAX: 2047                                    # Choose this based on the maximum that does not raise warning: 4 x nside - 1 (Unknown source for WARNING)
-# For nside=1024
-# ELLMAX: 4095                                   # Choose this based on the maximum that does not raise warning: 4 x nside - 1 (Unknown source for WARNING)
-# For nside=2048
-ELLMAX: 6000                                     # based on Yunan
+ELLMAX: ${ELLMAX}   # Pull from top level config
 perform_ILC_at_beam: 5                           # Choose this based on ???
 ILC_preserved_comp: 'CMB'
 ILC_bias_tol: 0.01
