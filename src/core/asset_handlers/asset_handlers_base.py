@@ -36,8 +36,9 @@ class Config(GenericHandler):
             data = yaml.safe_load(infile)
         return data
 
-    def write(self, path, data) -> None:
-        logger.debug(f"Writing config to '{path}'")
+    def write(self, path, data, verbose=True) -> None:
+        if verbose:
+            logger.debug(f"Writing config to '{path}'")
         make_directories(path)
         unnumpy_data = _convert_numpy(data)
         with open(path, 'w') as outfile:

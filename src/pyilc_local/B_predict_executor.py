@@ -68,7 +68,7 @@ class PredictionExecutor(BaseStageExecutor):
 
         cfg_dict = self.model_cfg_maker.make_config(output_path=working_path,
                                                     input_paths=input_paths)
-        self.out_config.write(data=cfg_dict)
+        self.out_config.write(data=cfg_dict, verbose=False)
         # logger.debug("Running PyILC Code...")
         with SuppressPrint():
             run_ilc(self.out_config.path)
