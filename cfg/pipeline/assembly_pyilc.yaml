@@ -3,4 +3,10 @@ defaults:
   - simulation_pipe
   - sim_analysis_pipe
   - pipe_pyilc
-  # - analysis_pipe
+  - analysis_pipe
+
+# This has neither preprocess nor postprocess. 
+#   Redirect those to predict.
+#   TODO: something better
+preprocess: ${pipeline.make_sims}
+postprocess: ${pipeline.make_sims}

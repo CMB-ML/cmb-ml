@@ -7,7 +7,7 @@ from core import (
                       LogMaker
                       )
 from src.core.A_check_hydra_configs import HydraConfigCheckerExecutor
-from pyilc_local.B_predict_executor import PredictionExecutor
+# from pyilc_local.B_predict_executor import PredictionExecutor
 from analysis import (ShowSimsPrepExecutor, 
                       ShowSimsPredExecutor, 
                       NILCShowSimsPostExecutor,
@@ -33,14 +33,14 @@ def make_all_simulations(cfg):
 
     pipeline_context.add_pipe(HydraConfigCheckerExecutor)
 
-    pipeline_context.add_pipe(PredictionExecutor)
-    # pipeline_context.add_pipe(NILCShowSimsPostExecutor)
-    # pipeline_context.add_pipe(PixelAnalysisExecutor)
-    # pipeline_context.add_pipe(PixelSummaryExecutor)
+    # pipeline_context.add_pipe(PredictionExecutor)
+    pipeline_context.add_pipe(NILCShowSimsPostExecutor)
+    pipeline_context.add_pipe(PixelAnalysisExecutor)
+    pipeline_context.add_pipe(PixelSummaryExecutor)
 
-    # pipeline_context.add_pipe(ConvertTheoryPowerSpectrumExecutor)
-    # pipeline_context.add_pipe(MakePredPowerSpectrumExecutor)
-    # pipeline_context.add_pipe(ShowSinglePsFigExecutor)
+    pipeline_context.add_pipe(ConvertTheoryPowerSpectrumExecutor)
+    pipeline_context.add_pipe(MakePredPowerSpectrumExecutor)
+    pipeline_context.add_pipe(ShowSinglePsFigExecutor)
 
     pipeline_context.prerun_pipeline()
 

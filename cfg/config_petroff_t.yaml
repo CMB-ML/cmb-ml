@@ -34,7 +34,14 @@ preset_strings : ["d9", "s4", "f1", "a1", "co1", "cib1", "ksz1", "tsz1", "rg1"]
 # In the pipeline yamls
 # use_epochs     : [10]
 # use_epochs     : ["init", 1, 2, 5, 10, 40, 100]
+# For prediction, postprocessing, power spectra generation:
 use_epochs     : ["init", 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+# For single simulation figures (maps & ps figures):
+use_epochs_imgs  : ["init", 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 20, 30, 40]
+# For summary statistics:
+use_epochs_stats : ["init", 1, 2, 5, 10, 20, 40]
+# Limit the number of simulations for which to generate figures
+n_show_cap       : 1
 
 # In the splits yaml; null to run on all
 n_test_cap     : 1

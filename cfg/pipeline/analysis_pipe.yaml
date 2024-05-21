@@ -19,7 +19,7 @@ show_sims_prep: &show_sims_prep
 
 show_sims_prep_cmbnncs:
   <<: *show_sims_prep
-  dir_name: Analysis_CMBNNCS_1_Render_Prep_Maps
+  dir_name: Analysis_1_Render_Prep_Maps
 
 # show_sims_prep_petroff:
 #   <<: *show_sims_prep
@@ -41,12 +41,19 @@ show_sims_pred: &show_sims_pred
 
 show_sims_pred_cmbnncs:
   <<: *show_sims_pred
-  dir_name: Analysis_CMBNNCS_2_Render_Pred_Maps
+  dir_name: Analysis_2_Render_Pred_Maps
   epochs: ${use_epochs_imgs}
 
+# Surrogate; petroff has no "post", but that's what I called the last stage in the pipeline for inference
 show_sims_pred_petroff:
   <<: *show_sims_pred
-  dir_name: Analysis_Petroff_2_Render_Pred_Maps
+  dir_name: Analysis_2_Render_Pred_Maps
+  epochs: ${use_epochs_imgs}
+
+# Surrogate; nilc has no "post"
+show_sims_pred_nilc:
+  <<: *show_sims_pred
+  dir_name: Analysis_2_Render_Pred_Maps
   epochs: ${use_epochs_imgs}
 
 show_sims_post: &show_sims_post
@@ -55,7 +62,7 @@ show_sims_post: &show_sims_post
       handler: Mover
       path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/cmb_{epoch}_{field}.png"
   assets_in:
-    cmb_map_post: {stage: postprocess, orig_name: cmb_map}
+    cmb_map_post: {stage: final_infer, orig_name: cmb_map}
     cmb_map_sim: {stage: make_sims, orig_name: cmb_map}
   splits:
     - test
@@ -65,7 +72,7 @@ show_sims_post: &show_sims_post
 
 show_sims_post_cmbnncs:
   <<: *show_sims_post
-  dir_name: Analysis_CMBNNCS_3_Render_Post_Maps
+  dir_name: Analysis_3_Render_Post_Maps
   epochs: ${use_epochs_imgs}
 
 # show_sims_post_petroff:
@@ -76,16 +83,15 @@ show_sims_post_cmbnncs:
 pixel_analysis:
   assets_out:
     report:
-      fn: ""
-      path_template: "{root}/{dataset}/{working}{stage}/pixel_report.yaml"
       handler: Config
+      path_template: "{root}/{dataset}/{working}{stage}/pixel_report.yaml"
   assets_in:
     cmb_map_sim: {stage: make_sims, orig_name: cmb_map}
-    cmb_map_post: {stage: postprocess, orig_name: cmb_map}
+    cmb_map_post: {stage: final_infer, orig_name: cmb_map}
   splits:
     - test
   epochs: ${use_epochs_stats}
-  dir_name: Analysis_CMBNNCS_10_Pixel_Report
+  dir_name: Analysis_10_Pixel_Report
 
 pixel_summary:
   assets_out:
@@ -106,13 +112,13 @@ pixel_summary:
   splits:
     - test
   epochs: ${use_epochs_stats}
-  dir_name: Analysis_CMBNNCS_11_Pixel_Summary
+  dir_name: Analysis_11_Pixel_Summary
 
 convert_theory_ps:
   assets_out:
     theory_ps:
       # Alt in the case of ps_fidu_fixed
-      # Note: not in working directory!
+      # Note: not in working directory! Alongside Simulations in top level.
       path_template_alt: "{root}/{dataset}/{stage}/{split}/theory_ps.npy"
       path_template: "{root}/{dataset}/{stage}/{split}/{sim}/theory_ps.npy"
       handler: NumpyPowerSpectrum
@@ -127,6 +133,7 @@ convert_theory_ps:
 mask:
   assets_out:
     mask: 
+      # Need a more official source for this.
       path_template: "{src_root}/Yunan/planck_mask.fits"
       handler: HealpyMap
       use_fields: 1
@@ -155,12 +162,12 @@ make_pred_ps:
       handler: NumpyPowerSpectrum
   assets_in:
     cmb_map_real: {stage: make_sims, orig_name: cmb_map}
-    cmb_map_post: {stage: postprocess, orig_name: cmb_map}
+    cmb_map_post: {stage: final_infer, orig_name: cmb_map}
     # mask: {stage: mask}
   splits:
     - test
   epochs: ${use_epochs}
-  dir_name: Analysis_CMBNNCS_13_Power_Spectra
+  dir_name: Analysis_13_Power_Spectra
 
 ps_fig:
   assets_out:
@@ -175,7 +182,7 @@ ps_fig:
     - test
   epochs: ${use_epochs_imgs}
   override_n_sims: ${n_show_cap}
-  dir_name: Analysis_CMBNNCS_14_F_PS_Solo_Figs
+  dir_name: Analysis_14_F_PS_Solo_Figs
 
 # # ps_analysis:
 # #   assets_out:

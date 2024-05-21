@@ -1,4 +1,4 @@
-predict:
+predict: &final_inference
   assets_out:
     model: 
       handler: EmptyHandler
@@ -16,3 +16,5 @@ predict:
     - test
   dir_name: NILC_B_Predict
   make_stage_log: True
+
+final_infer: *final_inference

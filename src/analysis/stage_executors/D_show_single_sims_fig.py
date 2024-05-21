@@ -24,12 +24,12 @@ from utils import planck_cmap
 logger = logging.getLogger(__name__)
 
 
-class ShowSimsCMBNNCSExecutor(BaseStageExecutor):
+class ShowSimsExecutor(BaseStageExecutor):
     def __init__(self, cfg: DictConfig, stage_str: str) -> None:
         # The following stage_str must match the pipeline yaml
         super().__init__(cfg, stage_str=stage_str)
 
-        if self.__class__.__name__ == "ShowSimsCMBNNCSExecutor":
+        if self.__class__.__name__ == "ShowSimsExecutor":
             # TODO: Can I ABC this?
             raise NotImplementedError("This is a base class. Kinda. Sorta. Not sure if I can ABC this.")
 
@@ -139,7 +139,7 @@ class ShowSimsCMBNNCSExecutor(BaseStageExecutor):
         plt.title(title)
 
 
-class ShowSimsPrepExecutor(ShowSimsCMBNNCSExecutor):
+class ShowSimsPrepExecutor(ShowSimsExecutor):
     def __init__(self, cfg: DictConfig) -> None:
         stage_str = "show_sims_prep_cmbnncs"
         super().__init__(cfg, stage_str)
@@ -169,7 +169,7 @@ class ShowSimsPrepExecutor(ShowSimsCMBNNCSExecutor):
                 self.make_maps_per_field(obs_map_sim, obs_map_prep, det=freq, out_asset=self.out_obs_figure)
 
 
-class ShowSimsPredExecutor(ShowSimsCMBNNCSExecutor):
+class ShowSimsPredExecutor(ShowSimsExecutor):
     def __init__(self, cfg: DictConfig) -> None:
         stage_str = "show_sims_pred_cmbnncs"
         super().__init__(cfg, stage_str)
@@ -196,10 +196,10 @@ class ShowSimsPredExecutor(ShowSimsCMBNNCSExecutor):
                                          out_asset=self.out_cmb_figure)
 
 
-class ShowSimsPostExecutor(ShowSimsCMBNNCSExecutor):
+class ShowSimsPostExecutor(ShowSimsExecutor):
     def __init__(self, cfg: DictConfig, stage_str=None) -> None:
         if stage_str is None:
-            stage_str = "show_sims_post_cmbnncs"
+            stage_str = "show_sims_post"
         super().__init__(cfg, stage_str)
 
         self.right_subplot_title = "Predicted"
@@ -208,14 +208,13 @@ class ShowSimsPostExecutor(ShowSimsCMBNNCSExecutor):
         out_cmb_figure_handler: Mover
 
         self.in_cmb_map_sim: Asset = self.assets_in["cmb_map_sim"]
-        self.in_cmb_map_post: Asset = self.assets_in["cmb_map_post"]
         in_cmb_map_handler: HealpyMap
 
     def process_sim(self) -> None:
         for epoch in self.model_epochs:
             with self.name_tracker.set_context('epoch', epoch):
                 cmb_map_sim = self.in_cmb_map_sim.read()
-                cmb_map_post = self.in_cmb_map_post.read()
+                cmb_map_post = self.in_cmb_map.read()
                 self.make_maps_per_field(cmb_map_sim, 
                                          cmb_map_post, 
                                          out_asset=self.out_cmb_figure)
@@ -239,9 +238,42 @@ class ShowSimsPostExecutor(ShowSimsCMBNNCSExecutor):
                 self.save_figure("CMB Predictions", split, sim_n, field_str, out_asset)
 
 
+class CMBNNCSShowSimsPostExecutor(ShowSimsPostExecutor):
+    def __init__(self, cfg: DictConfig, stage_str=None) -> None:
+        if stage_str is None:
+            stage_str = "show_sims_post_cmbnncs"
+        super().__init__(cfg, stage_str)
+        # Cheating a bit with the stage string
+        # TODO Better this
+        # Have to refer to these differently
+        # CMBNNCS has Pre- and Post-processing stages with outputs
+        #   requiring imshow()
+        self.in_cmb_map: Asset = self.assets_in["cmb_map_post"]
+
+        self.right_subplot_title = "CMBNNCS Predicted"
+
+
 class PetroffShowSimsPostExecutor(ShowSimsPostExecutor):
     def __init__(self, cfg: DictConfig) -> None:
+        # Cheating a bit with the stage string
+        # TODO Better this
+        # Have to refer to these differently
+        # Petroff has prediction requiring mollview()
         stage_str = "show_sims_pred_petroff"
         super().__init__(cfg, stage_str)
+        self.in_cmb_map: Asset = self.assets_in["cmb_map_pred"]
 
         self.right_subplot_title = "Petroff Predicted"
+
+
+class NILCShowSimsPostExecutor(ShowSimsPostExecutor):
+    def __init__(self, cfg: DictConfig) -> None:
+        # Cheating a bit with the stage string
+        # TODO Better this
+        # Have to refer to these differently
+        # ILC methods have prediction requiring mollview()
+        stage_str = "show_sims_pred_nilc"
+        super().__init__(cfg, stage_str)
+        self.in_cmb_map: Asset = self.assets_in["cmb_map_pred"]
+
+        self.right_subplot_title = "NILC Predicted"
