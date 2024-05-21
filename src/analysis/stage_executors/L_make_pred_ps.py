@@ -83,13 +83,13 @@ class MakePredPowerSpectrumExecutor(BaseStageExecutor):
         auto_pred_ps = self.get_power(pred_map)
         self.out_auto_pred.write(data=auto_pred_ps)
 
-        x_real_pred_ps = self.get_power(true_map, pred_map)
-        self.out_x_real_pred.write(data=x_real_pred_ps)
+        # x_real_pred_ps = self.get_power(true_map, pred_map)
+        # self.out_x_real_pred.write(data=x_real_pred_ps)
 
-        diff = true_map - pred_map
-        diff_ps = self.get_power(diff)
-        self.out_diff_real_pred.write(data=diff_ps)
+        # diff = true_map - pred_map
+        # diff_ps = self.get_power(diff)
+        # self.out_diff_real_pred.write(data=diff_ps)
         
-        abs_diff = np.abs(diff)
-        abs_diff_ps = self.get_power(abs_diff)
-        self.out_abs_diff_real_pred.write(data=abs_diff_ps)
+        # abs_diff = np.abs(diff)
+        # abs_diff_ps = self.get_power(abs_diff)
+        # self.out_abs_diff_real_pred.write(data=abs_diff_ps)
