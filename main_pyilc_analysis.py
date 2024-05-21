@@ -9,7 +9,6 @@ from core import (
 from src.core.A_check_hydra_configs import HydraConfigCheckerExecutor
 # from pyilc_local.B_predict_executor import PredictionExecutor
 from analysis import (ShowSimsPrepExecutor, 
-                      ShowSimsPredExecutor, 
                       NILCShowSimsPostExecutor,
                       PixelAnalysisExecutor,
                       PixelSummaryExecutor,
