@@ -5,7 +5,7 @@ import numpy as np
 
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
-from omegaconf import DictConfig
+from omegaconf import DictConfig, ListConfig
 import healpy as hp
 
 from core import (
@@ -52,7 +52,7 @@ class ShowSimsExecutor(BaseStageExecutor):
         elif isinstance(min_max, int):
             plot_min = -min_max
             plot_max = min_max
-        elif isinstance(min_max, list):
+        elif isinstance(min_max, ListConfig):
             plot_min = min_max[0]
             plot_max = min_max[1]
         return plot_min, plot_max
