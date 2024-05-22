@@ -8,16 +8,16 @@ import matplotlib.pyplot as plt
 from omegaconf import DictConfig
 import healpy as hp
 
-from core import (
+from src.core import (
     BaseStageExecutor, 
     Split,
     Asset
     )
 # from tqdm import tqdm
-from core.asset_handlers.asset_handlers_base import Mover
-from core.asset_handlers.healpy_map_handler import HealpyMap
-from utils.planck_instrument import make_instrument, Instrument
-from utils import planck_cmap
+from src.core.asset_handlers.asset_handlers_base import Mover
+from src.core.asset_handlers.healpy_map_handler import HealpyMap
+from src.utils.planck_instrument import make_instrument, Instrument
+from src.utils import planck_cmap
 
 
 logger = logging.getLogger(__name__)

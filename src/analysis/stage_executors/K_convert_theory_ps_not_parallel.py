@@ -10,14 +10,14 @@ from tqdm import tqdm
 
 from omegaconf import DictConfig
 
-from core import (
+from src.core import (
     BaseStageExecutor, 
     Split,
     GenericHandler,
     AssetWithPathAlts
     )
 # from ..make_ps import get_power as _get_power
-from core.asset_handlers.psmaker_handler import CambPowerSpectrum, NumpyPowerSpectrum
+from src.core.asset_handlers.psmaker_handler import CambPowerSpectrum, NumpyPowerSpectrum
 
 
 logger = logging.getLogger(__name__)

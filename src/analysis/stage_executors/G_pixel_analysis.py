@@ -9,14 +9,14 @@ from tqdm import tqdm
 
 from omegaconf import DictConfig
 
-from core import (
+from src.core import (
     BaseStageExecutor,
     Asset,
     GenericHandler
     )
-from ..px_statistics import get_func
-from core.asset_handlers.asset_handlers_base import Config # Import for typing hint
-from core.asset_handlers.healpy_map_handler import HealpyMap # Import for typing hint
+from src.analysis.px_statistics import get_func
+from src.core.asset_handlers.asset_handlers_base import Config # Import for typing hint
+from src.core.asset_handlers.healpy_map_handler import HealpyMap # Import for typing hint
 
 logger = logging.getLogger(__name__)
 

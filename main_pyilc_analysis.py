@@ -2,22 +2,30 @@ import logging
 
 import hydra
 
-from utils.check_env_var import validate_environment_variable
-from core import (
+from src.utils.check_env_var import validate_environment_variable
+from src.core import (
                       PipelineContext,
                       LogMaker
                       )
 from src.core.A_check_hydra_configs import HydraConfigCheckerExecutor
 # from pyilc_local.B_predict_executor import PredictionExecutor
-from analysis import (ShowSimsPrepExecutor, 
-                      NILCShowSimsPostExecutor,
-                      PixelAnalysisExecutor,
-                      PixelSummaryExecutor,
-                      ConvertTheoryPowerSpectrumExecutor,
-                      MakePredPowerSpectrumExecutor,
-                      ShowSinglePsFigExecutor
-                      )
 
+### These imports dont work yet from some missing module
+
+# from analysis import (ShowSimsPrepExecutor, 
+#                       NILCShowSimsPostExecutor,
+#                       PixelAnalysisExecutor,
+#                       PixelSummaryExecutor,
+#                       ConvertTheoryPowerSpectrumExecutor,
+#                       MakePredPowerSpectrumExecutor,
+#                       ShowSinglePsFigExecutor
+#                       )
+
+from src.analysis import (MakePredPowerSpectrumExecutor, 
+                          ShowSinglePsFigExecutor, 
+                          PowerSpectrumAnalysisExecutor,
+                          PowerSpectrumSummaryExecutor,
+                          PostAnalysisPsFigExecutor)
 
 logger = logging.getLogger(__name__)
 
@@ -36,13 +44,16 @@ def make_all_simulations(cfg):
     # Due to PyILC-matplotlib interaction, these cannot be imported at the same time
     # pipeline_context.add_pipe(PredictionExecutor)
 
-    pipeline_context.add_pipe(NILCShowSimsPostExecutor)
-    pipeline_context.add_pipe(PixelAnalysisExecutor)
-    pipeline_context.add_pipe(PixelSummaryExecutor)
+    # pipeline_context.add_pipe(NILCShowSimsPostExecutor)
+    # pipeline_context.add_pipe(PixelAnalysisExecutor)
+    # pipeline_context.add_pipe(PixelSummaryExecutor)
 
-    pipeline_context.add_pipe(ConvertTheoryPowerSpectrumExecutor)
-    pipeline_context.add_pipe(MakePredPowerSpectrumExecutor)
+    # pipeline_context.add_pipe(ConvertTheoryPowerSpectrumExecutor)
+    # pipeline_context.add_pipe(MakePredPowerSpectrumExecutor)
     pipeline_context.add_pipe(ShowSinglePsFigExecutor)
+    pipeline_context.add_pipe(PowerSpectrumAnalysisExecutor)
+    pipeline_context.add_pipe(PowerSpectrumSummaryExecutor)
+    pipeline_context.add_pipe(PostAnalysisPsFigExecutor)
 
     pipeline_context.prerun_pipeline()
 

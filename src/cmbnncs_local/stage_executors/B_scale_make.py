@@ -5,14 +5,14 @@ import numpy as np
 
 from omegaconf import DictConfig
 
-from core import (
+from src.core import (
     BaseStageExecutor,
     Split,
     Asset
     )
 from src.utils import make_instrument, Instrument
-from core.asset_handlers.asset_handlers_base import Config
-from core.asset_handlers.healpy_map_handler import HealpyMap
+from src.core.asset_handlers.asset_handlers_base import Config
+from src.core.asset_handlers.healpy_map_handler import HealpyMap
 
 
 logger = logging.getLogger(__name__)

@@ -7,15 +7,15 @@ import healpy as hp
 
 from omegaconf import DictConfig
 
-from core import (
+from src.core import (
     BaseStageExecutor, 
     Split,
     Asset
     )
-from ..make_ps import get_power as _get_power
-from core.asset_handlers.psmaker_handler import NumpyPowerSpectrum
-from core.asset_handlers.healpy_map_handler import HealpyMap # Import for typing hint
-from utils.physics_mask import downgrade_mask
+from src.analysis.make_ps import get_power as _get_power
+from src.core.asset_handlers.psmaker_handler import NumpyPowerSpectrum
+from src.core.asset_handlers.healpy_map_handler import HealpyMap # Import for typing hint
+from src.utils.physics_mask import downgrade_mask
 
 
 logger = logging.getLogger(__name__)
