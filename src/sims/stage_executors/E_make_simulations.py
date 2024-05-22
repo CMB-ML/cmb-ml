@@ -12,23 +12,23 @@ import pysm3
 import pysm3.units as u
 from pysm3 import CMBLensed
 
-from..cmb_factory import CMBFactory
-from ..random_seed_manager import FieldLevelSeedFactory, SimLevelSeedFactory
-from utils.planck_instrument import make_instrument, Instrument
+from src.sims.cmb_factory import CMBFactory
+from src.sims.random_seed_manager import FieldLevelSeedFactory, SimLevelSeedFactory
+from src.utils.planck_instrument import make_instrument, Instrument
 
-from core import (
+from src.core import (
     BaseStageExecutor,
     Split,
     Asset, AssetWithPathAlts
 )
 
-from core.asset_handlers.qtable_handler import QTableHandler # Import to register handler
-from core.asset_handlers.psmaker_handler import CambPowerSpectrum # Import for typing hint
-from core.asset_handlers.healpy_map_handler import HealpyMap # Import for VS Code hints
+from src.core.asset_handlers.qtable_handler import QTableHandler # Import to register handler
+from src.core.asset_handlers.psmaker_handler import CambPowerSpectrum # Import for typing hint
+from src.core.asset_handlers.healpy_map_handler import HealpyMap # Import for VS Code hints
 
-from utils.map_formats import convert_pysm3_to_hp
-from ..physics_cmb import change_nside_of_map
-from ..physics_instrument_noise import make_random_noise_map
+from src.utils.map_formats import convert_pysm3_to_hp
+from src.sims.physics_cmb import change_nside_of_map
+from src.sims.physics_instrument_noise import make_random_noise_map
 
 
 logger = logging.getLogger(__name__)

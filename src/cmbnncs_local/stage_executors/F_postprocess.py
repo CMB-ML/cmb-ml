@@ -10,16 +10,16 @@ from multiprocessing import Pool, Manager
 from omegaconf import DictConfig
 from tqdm import tqdm
 
-from core import (
+from src.core import (
     BaseStageExecutor,
     GenericHandler,
     Split,
     Asset
     )
 from cmbnncs.spherical import piecePlanes2spheres
-from ..handler_npymap import NumpyMap             # Import to register the AssetHandler
-from core.asset_handlers.asset_handlers_base import Config # Import for typing hint
-from core.asset_handlers.healpy_map_handler import HealpyMap # Import for typing hint
+from src.cmbnncs_local.handler_npymap import NumpyMap             # Import to register the AssetHandler
+from src.core.asset_handlers.asset_handlers_base import Config # Import for typing hint
+from src.core.asset_handlers.healpy_map_handler import HealpyMap # Import for typing hint
 from src.utils import make_instrument, Instrument, Detector
 
 

@@ -6,10 +6,10 @@ from omegaconf import DictConfig
 
 from core import (BaseStageExecutor, Split)
 
-from ..deepsphere_model.model import PetroffNet
-from core.asset_handlers.pytorch_model_handler import PyTorchModel  # Must be imported for registration
+from src.petroff.deepsphere_model.model import PetroffNet
+from src.core.asset_handlers.pytorch_model_handler import PyTorchModel  # Must be imported for registration
 from src.utils import make_instrument, Instrument
-from core.asset_handlers.healpy_map_handler import HealpyMap
+from src.core.asset_handlers.healpy_map_handler import HealpyMap
 
 
 

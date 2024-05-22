@@ -6,7 +6,7 @@ from astropy.units import Unit
 import pysm3.units as u
 from astropy.cosmology import Planck15
 
-import utils.fits_inspection as fits_inspect
+import src.utils.fits_inspection as fits_inspect
 
 
 logger = logging.getLogger(__name__)

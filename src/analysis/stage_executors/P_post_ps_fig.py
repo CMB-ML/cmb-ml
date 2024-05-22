@@ -7,13 +7,13 @@ import matplotlib.pyplot as plt
 from omegaconf import DictConfig
 
 import json
+from tqdm import tqdm
 
 from src.core import (
     BaseStageExecutor, 
     Split,
     Asset, AssetWithPathAlts
     )
-from tqdm import tqdm
 
 from src.core.asset_handlers.asset_handlers_base import EmptyHandler # Import for typing hint
 from src.core.asset_handlers.psmaker_handler import NumpyPowerSpectrum

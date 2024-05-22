@@ -20,15 +20,15 @@ from src.core.A_check_hydra_configs import HydraConfigCheckerExecutor
 
 ### These imports dont work yet from some missing module
 
-# from src.analysis import (ShowSimsPrepExecutor, 
-#                       CMBNNCSShowSimsPredExecutor, 
-#                       CMBNNCSShowSimsPostExecutor,
-#                       PixelAnalysisExecutor,
-#                       PixelSummaryExecutor,
-#                       ConvertTheoryPowerSpectrumExecutor,
-#                       MakePredPowerSpectrumExecutor,
-#                       ShowSinglePsFigExecutor
-#                       )
+from src.analysis import (ShowSimsPrepExecutor, 
+                      CMBNNCSShowSimsPredExecutor, 
+                      CMBNNCSShowSimsPostExecutor,
+                      PixelAnalysisExecutor,
+                      PixelSummaryExecutor,
+                      ConvertTheoryPowerSpectrumExecutor,
+                      MakePredPowerSpectrumExecutor,
+                      ShowSinglePsFigExecutor
+                      )
 
 from src.analysis import (MakePredPowerSpectrumExecutor, 
                           ShowSinglePsFigExecutor, 

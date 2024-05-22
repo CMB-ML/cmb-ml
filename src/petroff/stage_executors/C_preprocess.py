@@ -9,14 +9,14 @@ from multiprocessing import Pool
 from omegaconf import DictConfig
 from tqdm import tqdm
 
-from core import (
+from src.core import (
     BaseStageExecutor, 
     Split,
     GenericHandler,
     Asset
     )
-from core.asset_handlers.asset_handlers_base import Config
-from core.asset_handlers.healpy_map_handler import HealpyMap
+from src.core.asset_handlers.asset_handlers_base import Config
+from src.core.asset_handlers.healpy_map_handler import HealpyMap
 from src.utils import make_instrument, Instrument, Detector
 
 

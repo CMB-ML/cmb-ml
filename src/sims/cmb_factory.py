@@ -3,7 +3,7 @@ import logging
 from pathlib import Path
 from pysm3 import CMBLensed
 from omegaconf.errors import ConfigAttributeError
-from ..core import Asset
+from src.core import Asset
 
 
 logger = logging.getLogger(__name__)

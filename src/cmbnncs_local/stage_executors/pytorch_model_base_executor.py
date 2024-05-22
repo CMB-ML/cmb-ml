@@ -7,16 +7,16 @@ from torch.utils.data import DataLoader
 
 from omegaconf import DictConfig
 
-from core import (
+from src.core import (
     BaseStageExecutor, 
     Split,
     )
 
 # from ..dataset import CMBMapDataset
 # from ..dummymodel import DummyNeuralNetwork
-from ..unet_wrapper import make_unet
+from src.cmbnncs_local.unet_wrapper import make_unet
 
-from core.asset_handlers.pytorch_model_handler import PyTorchModel  # Must be imported to get it registered
+from src.core.asset_handlers.pytorch_model_handler import PyTorchModel  # Must be imported to get it registered
 from src.utils import make_instrument, Instrument, Detector
 
 

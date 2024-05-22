@@ -3,16 +3,16 @@ import logging
 from omegaconf import DictConfig
 from tqdm import tqdm
 
-from ...core import (
+from src.core import (
     BaseStageExecutor,
     Split,
     AssetWithPathAlts
 )
 
-from ..physics_cmb import make_camb_ps
+from src.sims.physics_cmb import make_camb_ps
 
-from ...core.asset_handlers.psmaker_handler import CambPowerSpectrum # Import to register handler
-from core.asset_handlers.asset_handlers_base import Config
+from src.core.asset_handlers.psmaker_handler import CambPowerSpectrum # Import to register handler
+from src.core.asset_handlers.asset_handlers_base import Config
 
 
 logger = logging.getLogger(__name__)

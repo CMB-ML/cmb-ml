@@ -15,14 +15,14 @@ from omegaconf import DictConfig
 import healpy as hp
 
 from .pytorch_model_base_executor import PetroffModelExecutor
-from core import Split, Asset
-from core.asset_handlers.asset_handlers_base import Config
-from core.asset_handlers.pytorch_model_handler import PyTorchModel # Import for typing hint
-from core.asset_handlers.healpy_map_handler import HealpyMap
-from core.pytorch_dataset import TrainCMBMapDataset
-from core.pytorch_transform import TrainToTensor, train_remove_map_fields
-from petroff.preprocessing.scale_methods_factory import get_scale_class
-from petroff.preprocessing.pytorch_transform_pixel_reorder import ReorderTransform
+from src.core import Split, Asset
+from src.core.asset_handlers.asset_handlers_base import Config
+from src.core.asset_handlers.pytorch_model_handler import PyTorchModel # Import for typing hint
+from src.core.asset_handlers.healpy_map_handler import HealpyMap
+from src.core.pytorch_dataset import TrainCMBMapDataset
+from src.core.pytorch_transform import TrainToTensor, train_remove_map_fields
+from src.petroff.preprocessing.scale_methods_factory import get_scale_class
+from src.petroff.preprocessing.pytorch_transform_pixel_reorder import ReorderTransform
 
 
 logger = logging.getLogger(__name__)

@@ -16,10 +16,10 @@ from core import (
     GenericHandler
     )
 from src.utils import make_instrument, Instrument
-from core.asset_handlers.asset_handlers_base import Config # Import for typing hint
-from core.asset_handlers.healpy_map_handler import HealpyMap # Import for typing hint
-from petroff.preprocessing.scale_tasks_helper import TaskTarget, FrozenAsset
-from petroff.preprocessing.scale_methods_factory import get_sim_scanner, get_sim_sifter
+from src.core.asset_handlers.asset_handlers_base import Config # Import for typing hint
+from src.core.asset_handlers.healpy_map_handler import HealpyMap # Import for typing hint
+from src.petroff.preprocessing.scale_tasks_helper import TaskTarget, FrozenAsset
+from src.petroff.preprocessing.scale_methods_factory import get_sim_scanner, get_sim_sifter
 
 logger = logging.getLogger(__name__)
 

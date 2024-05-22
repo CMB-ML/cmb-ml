@@ -12,9 +12,9 @@ from core import (
     Asset
     )
 from cmbnncs.spherical import sphere2piecePlane
-from ..handler_npymap import NumpyMap             # Import to register the AssetHandler
-from core.asset_handlers.asset_handlers_base import Config # Import for typing hint
-from core.asset_handlers.healpy_map_handler import HealpyMap # Import for typing hint
+from src.cmbnncs_local.handler_npymap import NumpyMap             # Import to register the AssetHandler
+from src.core.asset_handlers.asset_handlers_base import Config # Import for typing hint
+from src.core.asset_handlers.healpy_map_handler import HealpyMap # Import for typing hint
 from src.utils import make_instrument, Instrument, Detector
 
 
