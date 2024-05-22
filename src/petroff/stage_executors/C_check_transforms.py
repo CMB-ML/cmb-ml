@@ -72,9 +72,10 @@ class CheckTransformsExecutor(PetroffModelExecutor):
             label_path_template=cmb_path_template, 
             feature_path_template=obs_path_template,
             file_handler=HealpyMap(),
+            read_to_nest=True,
             # No transforms for baseline
             pt_xforms=[],
-            hp_xforms=[]
+            # hp_xforms=[]
             )
 
         dataloader_raw = DataLoader(
@@ -100,10 +101,10 @@ class CheckTransformsExecutor(PetroffModelExecutor):
             device_transform
         ]
 
-        reorder_transform_in = ReorderTransform(from_ring=True)
-        hp_transforms = [
-            reorder_transform_in
-        ]
+        # reorder_transform_in = ReorderTransform(from_ring=True)
+        # hp_transforms = [
+        #     reorder_transform_in
+        # ]
 
         dataset_prep = TrainCMBMapDataset(
             n_sims = template_split.n_sims,
@@ -112,9 +113,10 @@ class CheckTransformsExecutor(PetroffModelExecutor):
             label_path_template=cmb_path_template, 
             feature_path_template=obs_path_template,
             file_handler=HealpyMap(),
+            read_to_nest=True,
             # Transform same as preprocessing to be done in the train loop
             pt_xforms=pt_transforms,
-            hp_xforms=hp_transforms
+            # hp_xforms=hp_transforms
             )
 
         dataloader_prep = DataLoader(
@@ -127,6 +129,9 @@ class CheckTransformsExecutor(PetroffModelExecutor):
 
         obs_part, cmb_part = data
 
+        for i in range(obs_part.shape[1]):
+            print(obs_part[0,i,:].min(), obs_part[0,i,:].max(), obs_part[0,i,:].mean(), obs_part[0,i,:].std())
+
         # Inverse transforms as done during inference
         unscale = self.unscale_class(all_map_fields=self.map_fields,
                                                     scale_factors=scale_factors,
@@ -136,9 +141,9 @@ class CheckTransformsExecutor(PetroffModelExecutor):
             train_add_map_fields,  # Only needed for observations, no impact on cmb predictions (because of singleton dimensions in scale factors for CMB)
             unscale
             ]
-        reorder_transform_out = ReorderTransform(from_ring=False)
+        # reorder_transform_out = ReorderTransform(r2n=False)
         hp_untransforms = [
-            reorder_transform_out
+            # reorder_transform_out
         ]
 
         for t in pt_untransforms:

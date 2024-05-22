@@ -1,5 +1,6 @@
 from typing import Any, Dict, List, Union
 from pathlib import Path
+import logging
 
 import numpy as np
 import healpy as hp
@@ -9,18 +10,27 @@ from core.asset_handlers import GenericHandler, make_directories
 from .asset_handler_registration import register_handler
 
 
+logger = logging.getLogger(__name__)
+
 
 class HealpyMap(GenericHandler):
-    def read(self, path: Union[Path, str], map_fields=None, precision=None):
+    def read(self, path: Union[Path, str], 
+             map_fields=None, 
+             precision=None, 
+             read_to_nest:bool=None):
         path = Path(path)
+        if read_to_nest is None:
+            read_to_nest = False
         try:
-            this_map: np.ndarray = hp.read_map(path, field=map_fields)
+            this_map: np.ndarray = hp.read_map(path, field=map_fields, nest=read_to_nest)
         except IndexError as e:
+            # IndexError occurs if a map field does not exist for a given file - especially when trying to get polarization information from 545 or 857 GHz map
             if isinstance(map_fields, int):
                 raise e
             elif len(map_fields) > 1:
+                logger.warning("Defaulting to reading a single field from the file. The 857 and 545 maps have no polarization information. Consider suppressing this warning if running a large run.")
                 map_fields = tuple([0])
-                this_map = hp.read_map(path, field=map_fields)
+                this_map = hp.read_map(path, field=map_fields, nest=read_to_nest)
             else:
                 raise e
         except FileNotFoundError as e:

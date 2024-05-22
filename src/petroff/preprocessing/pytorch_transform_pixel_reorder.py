@@ -15,16 +15,13 @@ class ReorderTransform(object):
     Args:
         from_ring (bool): If the input maps will be in ring ordering.
     """
-    def __init__(self, from_ring: bool):
-        self.from_ring = from_ring
-        if from_ring:
+    def __init__(self, r2n: bool):
+        self.r2n = r2n
+        if r2n:
             self.hp_call = dict(r2n = True)
         else:
             self.hp_call = dict(n2r = True)
 
-    def __call__(self, map_data: np.ndarray, to_ring: bool=None) -> np.ndarray:
-        if to_ring is None:
-            pass
-        elif to_ring == self.from_ring:
-            return map_data
-        return hp.reorder(map_data, **self.hp_call)
+    def __call__(self, map_data: np.ndarray) -> np.ndarray:
+        out_map = hp.reorder(map_data, **self.hp_call)
+        return out_map

@@ -115,18 +115,14 @@ class PredictionExecutor(PetroffModelExecutor):
             device_transform
             ]
 
-        hp_transforms = [
-            # ReorderTransform(from_ring=False)
-            ]
-
         dataset = TestCMBMapDataset(
             n_sims = template_split.n_sims,
             freqs = self.instrument.dets.keys(),
             map_fields=self.map_fields,
             feature_path_template=obs_path_template,
             file_handler=HealpyMap(),
+            read_to_nest=True,          # Because Petroff uses hierarchical format
             transforms=pt_transforms,
-            hp_xforms=hp_transforms
             )
 
         self.postprocess_unscale = self.unscale_class(all_map_fields=self.map_fields,
@@ -134,6 +130,6 @@ class PredictionExecutor(PetroffModelExecutor):
                                                       device="cpu",
                                                       dtype=self.dtype)
         self.hp_postprocesses = [
-            # ReorderTransform(from_ring=False)
+            ReorderTransform(r2n=False)
             ]
         return dataset

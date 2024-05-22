@@ -41,9 +41,16 @@ class AbsMaxScaleMapAbstract(object):
             cmb_abs_max[0, j] = cmb_sub_dict[field]['abs_max']
 
         # Convert lists to tensors
-        self.obs_abs_max = torch.tensor(obs_abs_max, dtype=dtype, device=device)
+        self.obs_abs_max = torch.tensor(obs_abs_max, dtype=dtype, device=device).unsqueeze(2)
+        # self.obs_max = torch.tensor(obs_max, dtype=dtype, device=device).unsqueeze(2)
 
-        self.cmb_abs_max = torch.tensor(cmb_abs_max, dtype=dtype, device=device)
+        self.cmb_abs_max = torch.tensor(cmb_abs_max, dtype=dtype, device=device).unsqueeze(2)
+        # self.cmb_max = torch.tensor(cmb_max, dtype=dtype, device=device).unsqueeze(2)
+
+        # # Convert lists to tensors
+        # self.obs_abs_max = torch.tensor(obs_abs_max, dtype=dtype, device=device)
+
+        # self.cmb_abs_max = torch.tensor(cmb_abs_max, dtype=dtype, device=device)
 
     def __call__(self, map_data: torch.Tensor) -> torch.Tensor:
         """

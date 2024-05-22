@@ -94,7 +94,8 @@ class TrainingExecutor(PetroffModelExecutor):
         self.inspect_data(dataloader)
 
         model = self.make_model()
-        self.try_model(model)
+        with torch.no_grad():
+            self.try_model(model)
 
         loss_function = torch.nn.MSELoss()
         optimizer = torch.optim.Adam(model.parameters(), lr=self.lr)
@@ -128,20 +129,22 @@ class TrainingExecutor(PetroffModelExecutor):
                     loss = loss_function(output, train_label)
                     loss.backward()
                     optimizer.step()
-                    epoch_loss += loss.item()
-                    pbar.set_postfix({'Loss': loss.item() / self.batch_size})
+                    with torch.no_grad():
+                        epoch_loss += loss.item()
+                        pbar.set_postfix({'Loss': loss.item() / self.batch_size})
+                        print(loss.item() / self.batch_size)
 
-            epoch_loss /= len(dataloader.dataset)
-            
-            logger.info(f'Epoch {epoch+1}/{self.n_epochs}, Loss: {epoch_loss:.4f}')
+            with torch.no_grad():
+                epoch_loss /= len(dataloader.dataset)
+                logger.info(f'Epoch {epoch+1}/{self.n_epochs}, Loss: {epoch_loss:.4f}')
 
-            # Checkpoint every so many epochs
-            if (epoch + 1) in self.extra_check or (epoch + 1) % self.checkpoint == 0:
-                with self.name_tracker.set_context("epoch", epoch + 1):
-                    self.out_model.write(model=model,
-                                         optimizer=optimizer,
-                                         epoch=epoch + 1,
-                                         loss=epoch_loss)
+                # Checkpoint every so many epochs
+                if (epoch + 1) in self.extra_check or (epoch + 1) % self.checkpoint == 0:
+                    with self.name_tracker.set_context("epoch", epoch + 1):
+                        self.out_model.write(model=model,
+                                            optimizer=optimizer,
+                                            epoch=epoch + 1,
+                                            loss=epoch_loss)
 
     def set_up_dataset(self, template_split: Split) -> None:
         cmb_path_template = self.make_fn_template(template_split, self.in_cmb_asset)
@@ -162,11 +165,6 @@ class TrainingExecutor(PetroffModelExecutor):
             device_transform
         ]
 
-        reorder_transform_in = ReorderTransform(from_ring=True)
-        hp_transforms = [
-            # reorder_transform_in
-        ]
-
         dataset = TrainCMBMapDataset(
             n_sims = template_split.n_sims,
             freqs = self.instrument.dets.keys(),
@@ -174,8 +172,8 @@ class TrainingExecutor(PetroffModelExecutor):
             label_path_template=cmb_path_template,
             feature_path_template=obs_path_template,
             file_handler=HealpyMap(),
+            read_to_nest=True,          # Because Petroff uses hierarchical format
             pt_xforms=pt_transforms,
-            hp_xforms=hp_transforms
             )
         return dataset
 
