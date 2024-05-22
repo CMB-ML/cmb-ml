@@ -2,6 +2,7 @@ import logging
 
 import hydra
 
+from utils.check_env_var import validate_environment_variable
 from core import (
                       PipelineContext,
                       LogMaker
@@ -54,4 +55,5 @@ def make_all_simulations(cfg):
 
 
 if __name__ == "__main__":
+    validate_environment_variable("CMB_SIMS_LOCAL_SYSTEM")
     make_all_simulations()

@@ -4,11 +4,12 @@ import hydra
 from hydra.core.hydra_config import HydraConfig
 from omegaconf import OmegaConf
 
+from utils.check_env_var import validate_environment_variable
 from core import (
                       PipelineContext,
                       LogMaker
                       )
-from src.core.A_check_hydra_configs import HydraConfigCheckerExecutor
+from core.A_check_hydra_configs import HydraConfigCheckerExecutor
 from petroff import (
                      PreprocessMakeExtremaExecutor,
                      CheckTransformsExecutor,
@@ -44,8 +45,8 @@ def make_all_simulations(cfg):
     pipeline_context.add_pipe(HydraConfigCheckerExecutor)
     # pipeline_context.add_pipe(HydraConfigPetroffCheckerExecutor)
 
-    # pipeline_context.add_pipe(PreprocessMakeExtremaExecutor)
-    # pipeline_context.add_pipe(CheckTransformsExecutor)
+    pipeline_context.add_pipe(PreprocessMakeExtremaExecutor)
+    pipeline_context.add_pipe(CheckTransformsExecutor)
     pipeline_context.add_pipe(TrainingExecutor)
     pipeline_context.add_pipe(PredictionExecutor)
     pipeline_context.add_pipe(PetroffShowSimsPostExecutor)
@@ -69,4 +70,5 @@ def make_all_simulations(cfg):
 
 
 if __name__ == "__main__":
+    validate_environment_variable("CMB_SIMS_LOCAL_SYSTEM")
     make_all_simulations()
