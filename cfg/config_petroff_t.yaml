@@ -9,8 +9,8 @@ defaults:
   - override hydra/job_logging: custom_log
 
 # dataset_name: ${scenario.map_fields}_${scenario.nside}_${splits.name}
-# dataset_name: I_128_1450_Reduced_Components
-dataset_name: I_128_1450
+dataset_name: I_128_1450_Reduced_Components
+# dataset_name: I_128_1450
 working_dir : "Petroff_Magic/"
 hydra:
   run:
@@ -35,7 +35,7 @@ preset_strings : ["d9", "s4", "f1", "a1", "co1", "cib1", "ksz1", "tsz1", "rg1"]
 
 # In the pipeline yamls
 # For prediction, postprocessing, power spectra generation:
-use_epochs       : &epochs ["init", 1, 2, 3, 4, 5, 6] #, 7, 8, 9, 10] #, 12, 20, 30, 40, 50, 75, 100]
+use_epochs       : &epochs ["init", 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]  #, 12, 20, 30, 40, 50, 75, 100]
 # For single simulation figures (maps & ps figures):
 use_epochs_imgs  : *epochs
 # For map summary statistics:
@@ -50,9 +50,9 @@ n_show_cap       : 1
 n_test_cap     : 1
 
 # In the model yaml
-n_epochs       : 6
+n_epochs       : 100
 restart_epoch  : init
 batch          : 1
-scale_method   : minmax
-initialization : kaiming
+scale_method   : absmax
+initialization : xavier
 learning_rate  : 0.001
