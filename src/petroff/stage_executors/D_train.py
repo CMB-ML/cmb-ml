@@ -169,10 +169,10 @@ class TrainingExecutor(PetroffModelExecutor):
             device_transform
         ]
 
-        reorder_transform_in = ReorderTransform(from_ring=True)
-        hp_transforms = [
-            # reorder_transform_in
-        ]
+        # reorder_transform_in = ReorderTransform(from_ring=True)
+        # hp_transforms = [
+        #     # reorder_transform_in
+        # ]
 
         dataset = TrainCMBMapDataset(
             n_sims = template_split.n_sims,
@@ -182,7 +182,7 @@ class TrainingExecutor(PetroffModelExecutor):
             feature_path_template=obs_path_template,
             file_handler=HealpyMap(),
             pt_xforms=pt_transforms,
-            hp_xforms=hp_transforms
+            # hp_xforms=hp_transforms
             )
         return dataset
 
