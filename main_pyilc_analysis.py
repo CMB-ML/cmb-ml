@@ -21,8 +21,10 @@ from analysis import (ShowSimsPrepExecutor,
 
 logger = logging.getLogger(__name__)
 
+# config_pyilc_t_HILC_backup
 
-@hydra.main(version_base=None, config_path="cfg", config_name="config_pyilc_t")
+# @hydra.main(version_base=None, config_path="cfg", config_name="config_pyilc_t")
+@hydra.main(version_base=None, config_path="cfg", config_name="config_pyilc_t_HILC_backup")
 def make_all_simulations(cfg):
     logger.debug(f"Running {__name__} in {__file__}")
 
@@ -37,8 +39,8 @@ def make_all_simulations(cfg):
     # pipeline_context.add_pipe(PredictionExecutor)
 
     pipeline_context.add_pipe(NILCShowSimsPostExecutor)
-    pipeline_context.add_pipe(PixelAnalysisExecutor)
-    pipeline_context.add_pipe(PixelSummaryExecutor)
+    # pipeline_context.add_pipe(PixelAnalysisExecutor)
+    # pipeline_context.add_pipe(PixelSummaryExecutor)
 
     pipeline_context.add_pipe(ConvertTheoryPowerSpectrumExecutor)
     pipeline_context.add_pipe(MakePredPowerSpectrumExecutor)
