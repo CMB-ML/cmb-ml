@@ -121,7 +121,6 @@ convert_theory_ps:
   assets_in:
     theory_ps: {stage: make_theory_ps, orig_name: "cmb_ps"}
   splits:
-    - train
     - test
   dir_name: Analysis_Theory_Power_Spectra
 
