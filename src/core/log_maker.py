@@ -81,7 +81,13 @@ class LogMaker:
     def extract_relevant_config_paths(self):
         hydra_cfg = HydraConfig.get()
 
-        # Filtering relevant choices
+        # Hydra has a "choices" dict containing top level choices.
+        #   These include basic hydra parameters (which we don't care about),
+        #   the defaults in the config provided by the hydra wrapper 
+        #   (around main() for cmml), those provided at the command line, 
+        #   and (possibly) those provided by the compose API.
+        #   This has only been tested with the config from the hydra wrapper.
+        # We collect them those choices as a starting place for our config search.
         relevant_choices = {}
         for k, v in hydra_cfg.runtime.choices.items():
             if 'hydra/' not in k:
@@ -89,14 +95,17 @@ class LogMaker:
                     continue
                 relevant_choices[k] = v
 
-        # Extracting paths that are not provided by 'hydra' or 'schema'
+        # Hydra also has a dict of the configuration sources.
+        # Extract the paths not provided by 'hydra' or 'schema'; we really just want
+        #    the chain of config files.
         config_paths = [
             Path(source['path']) for source in hydra_cfg.runtime.config_sources
             if source['provider'] not in ['hydra', 'schema'] and source['path']
         ]
 
         relevant_files = []
-
+        # Search the configuration paths for locations of files containing the
+        #    default choices.
         top_config_name = hydra_cfg.job.config_name
         for config_path in config_paths:
             maybe_path = config_path / f"{top_config_name}.yaml"
@@ -105,7 +114,7 @@ class LogMaker:
 
         missing_combinations = []
 
-        # Attempting to find each choice in the available config paths
+        # Attempt to find each choice in the available config paths
         for choice_key, choice_value in relevant_choices.items():
             found = False
             for config_dir in config_paths:
@@ -146,7 +155,7 @@ class LogMaker:
                             possible_path = possible_path.with_suffix('.yaml')
                         if possible_path.exists():
                             if possible_path not in relevant_files:
-                                # Generally dangerous, however in this case we cannot create an infinite loop
+                                # In this case we can not create an infinite loop
                                 relevant_files.append(possible_path)
                             else:
                                 logger.warning(f"Circular dependency detected for file: {config_path} for line {item}")
