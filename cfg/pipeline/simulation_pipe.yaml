@@ -9,25 +9,28 @@ raw:
     # wmap_chains:  # TODO
     #   handler: WMAPChains
     #   path_template: "{src_root}/{fn}"
+
 check_hydra_configs:  # No information needed here
+
 make_noise_cache:
   assets_out:
     noise_cache:
       handler: HealpyMap
-      path_template: "{root}/{dataset}/{stage}/{freq}_{field}_noise_sd_map.fits"
+      path_template: "{root}/{dataset}/{working}{stage}/{freq}_{field}_noise_sd_map.fits"
   assets_in:
     planck_deltabandpass: {stage: raw}
     noise_src_maps: {stage: raw}
   dir_name: Simulation_B_NoiseCache
+
 make_sim_configs:
   assets_out:
     split_configs:
       handler: Config
-      path_template: "{root}/{dataset}/{stage}/{split}/split_config.yaml"
+      path_template: "{root}/{dataset}/{working}{stage}/{split}/split_config.yaml"
     wmap_config:
       handler: Config
-      path_template: "{root}/{dataset}/{stage}/{split}/{sim}/wmap_params.yaml"
-      path_template_alt: "{root}/{dataset}/{stage}/{split}/wmap_params.yaml"
+      path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/wmap_params.yaml"
+      path_template_alt: "{root}/{dataset}/{working}{stage}/{split}/wmap_params.yaml"
   # assets_in:
   #   wmap_chains: {stage: raw}
   splits: &all_splits
@@ -36,17 +39,19 @@ make_sim_configs:
     - test
   dir_name: Simulation_C_Configs
   make_stage_log: True
+
 make_theory_ps:
   assets_out:
     cmb_ps:
       handler: CambPowerSpectrum
-      path_template: "{root}/{dataset}/{stage}/{split}/{sim}/cmb_ps_fid.txt"
-      path_template_alt: "{root}/{dataset}/{stage}/{split}/cmb_ps_fid.txt"
+      path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/cmb_ps_fid.txt"
+      path_template_alt: "{root}/{dataset}/{working}{stage}/{split}/cmb_ps_fid.txt"
   assets_in:
     wmap_config: {stage: make_sim_configs}
   splits: *all_splits
   dir_name: Simulation_D_CMB_Power_Spectra
   make_stage_log: True
+
 make_sims:
   assets_out:
     cmb_map:
@@ -62,5 +67,3 @@ make_sims:
   splits: *all_splits
   dir_name: Simulation
   make_stage_log: True
-
-
