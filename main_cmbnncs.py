@@ -43,14 +43,14 @@ def make_all_simulations(cfg):
     pipeline_context.add_pipe(HydraConfigCheckerExecutor)
     pipeline_context.add_pipe(HydraConfigCMBNNCSCheckerExecutor)
 
-    # pipeline_context.add_pipe(PreprocessMakeScaleExecutor)
-    # pipeline_context.add_pipe(PreprocessExecutor)
+    pipeline_context.add_pipe(PreprocessMakeScaleExecutor)
+    pipeline_context.add_pipe(PreprocessExecutor)
     # pipeline_context.add_pipe(CheckTransformsExecutor)  # Transforms are not currently workable for CMBNNCS
     # pipeline_context.add_pipe(ShowSimsPrepExecutor)
 
-    # pipeline_context.add_pipe(TrainingExecutor)
+    pipeline_context.add_pipe(TrainingExecutor)
 
-    # pipeline_context.add_pipe(PredictionExecutor)
+    pipeline_context.add_pipe(PredictionExecutor)
     # pipeline_context.add_pipe(CMBNNCSShowSimsPredExecutor)
     # pipeline_context.add_pipe(PostprocessExecutor)
     # pipeline_context.add_pipe(CMBNNCSShowSimsPostExecutor)

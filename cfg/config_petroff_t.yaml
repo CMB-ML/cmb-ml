@@ -8,10 +8,10 @@ defaults:
   - model/petroff : petroff_model
   - override hydra/job_logging: custom_log
 
-# dataset_name: ${scenario.map_fields}_${scenario.nside}_${splits.name}
-dataset_name: I_128_1450_Reduced_Components
+dataset_name: ${scenario.map_fields}_${scenario.nside}_${splits.name}
+# dataset_name: I_128_1450_Reduced_Components
 # dataset_name: I_128_1450
-working_dir : "Petroff_Magic/"
+working_dir : "Petroff_Check/"
 hydra:
   run:
     dir: Logs/${now:%Y-%m-%d-%H-%M-%S}
@@ -22,11 +22,8 @@ hydra:
 # These are not to be used directly in the python
 # They are picked up from here and MAY be used elsewhere in the yamls.
 # In the scenario yaml
-nside          : 128
-# nside          : 32
+nside          : 32
 detectors      : [30, 44, 70, 100, 143, 217, 353, 545, 857]
-# detectors      : [30, 44, 70, 100, 143, 217, 353]
-# detectors      : [70, 100, 143, 217, 353, 545, 857]
 map_fields     : "I"
 
 # In the simulation yaml (only relevant to the simulation portion of the pipeline)
@@ -45,13 +42,13 @@ use_epochs_ps_stats : [10]
 # Limit the number of simulations for which to generate figures
 n_show_cap       : 1
 
-# Limit the number of sumulations for which to generate predictions
+# Limit the number of simulations for which to generate predictions
 # In the splits yaml; null to run on all
 n_test_cap     : 1
 
 # In the model yaml
 n_epochs       : 100
-restart_epoch  : init
+restart_epoch  : null
 batch          : 1
 scale_method   : absmax
 initialization : xavier
