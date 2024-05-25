@@ -5,4 +5,3 @@ Valid:
   n_sims: 250
 Test:
   n_sims: 200
-  n_sims_cap: ${n_test_cap}
