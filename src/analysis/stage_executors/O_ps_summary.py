@@ -35,14 +35,13 @@ class PowerSpectrumSummaryExecutor(BaseStageExecutor):
         df = pd.read_csv(report_path)
         # print(df.info())
         df['epoch'] = df['epoch'].astype(str)
-        df['epoch'].replace("nan", "", inplace=True)
+        df['epoch'] = df['epoch'].replace("nan", "", inplace=True)
 
         for epoch in self.model_epochs:
             logger.info(f"Generating summary for epoch {epoch}.")
             with self.name_tracker.set_context('epoch', epoch):
                 epoch_df = df[df['epoch']==str(epoch)]
                 self.summary_tables(epoch_df)
-
 
     def summary_tables(self, df):
         # Compute overall averages, excluding non-numeric fields like 'sim' and 'split'
