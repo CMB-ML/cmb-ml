@@ -246,7 +246,8 @@ Other:
 
 ## Documentation
 
-- [ ] Citations/references for CMBNNCS, Petroff, PyILC, PySM3, CMB Summer Camp
+  - [ ] Citations/references for CMBNNCS, Petroff, PyILC, PySM3, CMB Summer Camp
+  - [ ] In what way does CMBNNCS fail when 545, 857 detectors included?
 
 ## To do (Make Simulations)
 
