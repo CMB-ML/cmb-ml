@@ -4,8 +4,8 @@ from pathlib import Path
 
 import numpy as np
 
-from core import GenericHandler, register_handler
-from core import make_directories
+from src.core import GenericHandler, register_handler
+from src.core import make_directories
 
 
 logger = logging.getLogger(__name__)

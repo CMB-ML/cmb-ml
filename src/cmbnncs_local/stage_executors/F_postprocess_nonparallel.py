@@ -4,8 +4,9 @@ import logging
 import numpy as np
 
 from omegaconf import DictConfig
+from tqdm import tqdm
 
-from core import (
+from src.core import (
     BaseStageExecutor, 
     Split,
     ExperimentParameters,
@@ -13,7 +14,6 @@ from core import (
     )
 from cmbnncs.spherical import piecePlanes2spheres
 # from ..handler_npymap import NumpyMap  # Must import to register the AssetHandler
-from tqdm import tqdm
 
 
 logger = logging.getLogger(__name__)

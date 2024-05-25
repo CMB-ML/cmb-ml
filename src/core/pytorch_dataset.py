@@ -5,7 +5,7 @@ import numpy as np
 
 from torch.utils.data import Dataset
 import torch
-from core.asset_handlers.asset_handlers_base import GenericHandler
+from src.core.asset_handlers.asset_handlers_base import GenericHandler
 
 
 class TrainCMBMapDataset(Dataset):

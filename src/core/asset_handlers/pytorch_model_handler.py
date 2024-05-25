@@ -4,9 +4,9 @@ from pathlib import Path
 
 import torch
 
-from core.asset_handlers import GenericHandler
-from core.asset_handlers import make_directories
-from core.asset import register_handler
+from src.core.asset_handlers import GenericHandler
+from src.core.asset_handlers import make_directories
+from src.core.asset import register_handler
 
 
 logger = logging.getLogger(__name__)

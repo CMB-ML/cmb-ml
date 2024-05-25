@@ -14,16 +14,16 @@ import numpy as np
 
 import healpy as hp
 
-from core import Split, Asset
-from core.asset_handlers.asset_handlers_base import Config
-from core.asset_handlers.pytorch_model_handler import PyTorchModel # Import for typing hint
+from src.core import Split, Asset
+from src.core.asset_handlers.asset_handlers_base import Config
+from src.core.asset_handlers.pytorch_model_handler import PyTorchModel # Import for typing hint
 # from core.asset_handlers.healpy_map_handler import HealpyMap
 from ..handler_npymap import NumpyMap             # Import for typing hint
-from core.pytorch_dataset import TrainCMBMapDataset
-from cmbnncs_local.preprocessing.scale_methods_factory import get_scale_class
-from cmbnncs_local.preprocessing.transform_pixel_rearrange import (sphere2rect, rect2sphere)
+from src.core.pytorch_dataset import TrainCMBMapDataset
+from src.cmbnncs_local.preprocessing.scale_methods_factory import get_scale_class
+from src.cmbnncs_local.preprocessing.transform_pixel_rearrange import (sphere2rect, rect2sphere)
 
-from core.pytorch_transform import TrainToTensor
+from src.core.pytorch_transform import TrainToTensor
 from .pytorch_model_base_executor import BaseCMBNNCSModelExecutor
 # from cmbnncs.spherical import sphere2piecePlane, piecePlanes2spheres
 

@@ -8,17 +8,17 @@ import matplotlib.gridspec as gridspec
 from omegaconf import DictConfig, ListConfig
 import healpy as hp
 
-from core import (
+from src.core import (
     BaseStageExecutor, 
     Split,
     Asset
     )
-from core.asset_handlers.asset_handlers_base import Mover
-from core.asset_handlers.healpy_map_handler import HealpyMap
+from src.core.asset_handlers.asset_handlers_base import Mover
+from src.core.asset_handlers.healpy_map_handler import HealpyMap
 
 from src.cmbnncs_local.handler_npymap import NumpyMap
-from utils.planck_instrument import make_instrument, Instrument
-from utils import planck_cmap
+from src.utils.planck_instrument import make_instrument, Instrument
+from src.utils import planck_cmap
 
 
 logger = logging.getLogger(__name__)

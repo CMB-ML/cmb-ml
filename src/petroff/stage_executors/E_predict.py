@@ -7,15 +7,15 @@ from tqdm import tqdm
 
 from omegaconf import DictConfig
 
-from core import Split, Asset
-from core.pytorch_dataset import TestCMBMapDataset
-from core.asset_handlers.asset_handlers_base import Config
-from core.asset_handlers.pytorch_model_handler import PyTorchModel
+from src.core import Split, Asset
+from src.core.pytorch_dataset import TestCMBMapDataset
+from src.core.asset_handlers.asset_handlers_base import Config
+from src.core.asset_handlers.pytorch_model_handler import PyTorchModel
 from .pytorch_model_base_executor import PetroffModelExecutor
-from core.asset_handlers.healpy_map_handler import HealpyMap
-from petroff.preprocessing.scale_methods_factory import get_scale_class
-from core.pytorch_transform import TestToTensor, test_remove_map_fields
-from petroff.preprocessing.pytorch_transform_pixel_reorder import ReorderTransform
+from src.core.asset_handlers.healpy_map_handler import HealpyMap
+from src.petroff.preprocessing.scale_methods_factory import get_scale_class
+from src.core.pytorch_transform import TestToTensor, test_remove_map_fields
+from src.petroff.preprocessing.pytorch_transform_pixel_reorder import ReorderTransform
 
 
 logger = logging.getLogger(__name__)

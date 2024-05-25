@@ -4,8 +4,8 @@ import logging
 
 from astropy.table import QTable
 
-from core import GenericHandler
-from core import register_handler
+from src.core import GenericHandler
+from src.core import register_handler
 
 
 logger = logging.getLogger(__name__)

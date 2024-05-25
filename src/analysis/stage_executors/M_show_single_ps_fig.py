@@ -6,15 +6,15 @@ import numpy as np
 import matplotlib.pyplot as plt
 from omegaconf import DictConfig
 
-from core import (
+from src.core import (
     BaseStageExecutor, 
     Split,
     Asset, AssetWithPathAlts
     )
 from tqdm import tqdm
 
-from core.asset_handlers.asset_handlers_base import EmptyHandler # Import for typing hint
-from core.asset_handlers.psmaker_handler import NumpyPowerSpectrum
+from src.core.asset_handlers.asset_handlers_base import EmptyHandler # Import for typing hint
+from src.core.asset_handlers.psmaker_handler import NumpyPowerSpectrum
 
 
 logger = logging.getLogger(__name__)

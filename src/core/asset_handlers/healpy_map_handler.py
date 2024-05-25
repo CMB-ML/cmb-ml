@@ -6,7 +6,7 @@ import numpy as np
 import healpy as hp
 from astropy.units import Quantity
 
-from core.asset_handlers import GenericHandler, make_directories
+from src.core.asset_handlers import GenericHandler, make_directories
 from .asset_handler_registration import register_handler
 
 

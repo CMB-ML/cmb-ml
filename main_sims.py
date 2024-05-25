@@ -6,7 +6,7 @@ from src.core import (
                       PipelineContext,
                       LogMaker
                       )
-from core.A_check_hydra_configs import HydraConfigCheckerExecutor
+from src.core.A_check_hydra_configs import HydraConfigCheckerExecutor
 from src.sims import (
     HydraConfigSimsCheckerExecutor,
     NoiseCacheExecutor,
@@ -14,9 +14,9 @@ from src.sims import (
     TheoryPSExecutor,
     SimCreatorExecutor
 )
-from src.analysis import (
-    ShowSimsExecutor
-)
+# from src.analysis import (
+#     ShowSimsExecutor
+# )
 
 
 logger = logging.getLogger(__name__)
@@ -37,7 +37,7 @@ def make_all_simulations(cfg):
     pipeline_context.add_pipe(ConfigExecutor)
     pipeline_context.add_pipe(TheoryPSExecutor)
     pipeline_context.add_pipe(SimCreatorExecutor)
-    pipeline_context.add_pipe(ShowSimsExecutor)
+    # pipeline_context.add_pipe(ShowSimsExecutor)
 
     pipeline_context.prerun_pipeline()
 

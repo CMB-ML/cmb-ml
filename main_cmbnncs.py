@@ -2,22 +2,25 @@ import logging
 
 import hydra
 
-from utils.check_env_var import validate_environment_variable
-from core import (
+from src.utils.check_env_var import validate_environment_variable
+from src.core import (
                       PipelineContext,
                       LogMaker
                       )
 from src.core.A_check_hydra_configs import HydraConfigCheckerExecutor
-from src.cmbnncs_local import (
-                         HydraConfigCMBNNCSCheckerExecutor,
-                         PreprocessMakeScaleExecutor,
-                         PreprocessExecutor,
-                         CheckTransformsExecutor,
-                         TrainingExecutor,
-                         PredictionExecutor,
-                         PostprocessExecutor
-                         )
-from analysis import (ShowSimsPrepExecutor, 
+# from src.cmbnncs_local import (
+#                          HydraConfigCMBNNCSCheckerExecutor,
+#                          PreprocessMakeScaleExecutor,
+#                          PreprocessExecutor,
+#                          CheckTransformsExecutor,
+#                          TrainingExecutor,
+#                          PredictionExecutor,
+#                          PostprocessExecutor
+#                          )
+
+### These imports dont work yet from some missing module
+
+from src.analysis import (ShowSimsPrepExecutor, 
                       CMBNNCSShowSimsPredExecutor, 
                       CMBNNCSShowSimsPostExecutor,
                       PixelAnalysisExecutor,
@@ -26,6 +29,12 @@ from analysis import (ShowSimsPrepExecutor,
                       MakePredPowerSpectrumExecutor,
                       ShowSinglePsFigExecutor
                       )
+
+from src.analysis import (MakePredPowerSpectrumExecutor, 
+                          ShowSinglePsFigExecutor, 
+                          PowerSpectrumAnalysisExecutor,
+                          PowerSpectrumSummaryExecutor,
+                          PostAnalysisPsFigExecutor)
 
 
 logger = logging.getLogger(__name__)
@@ -41,7 +50,7 @@ def make_all_simulations(cfg):
     pipeline_context = PipelineContext(cfg, log_maker)
 
     pipeline_context.add_pipe(HydraConfigCheckerExecutor)
-    pipeline_context.add_pipe(HydraConfigCMBNNCSCheckerExecutor)
+    # pipeline_context.add_pipe(HydraConfigCMBNNCSCheckerExecutor)
 
     pipeline_context.add_pipe(PreprocessMakeScaleExecutor)
     pipeline_context.add_pipe(PreprocessExecutor)
@@ -59,7 +68,10 @@ def make_all_simulations(cfg):
 
     # pipeline_context.add_pipe(ConvertTheoryPowerSpectrumExecutor)
     # pipeline_context.add_pipe(MakePredPowerSpectrumExecutor)
-    # pipeline_context.add_pipe(ShowSinglePsFigExecutor)
+    pipeline_context.add_pipe(ShowSinglePsFigExecutor)
+    pipeline_context.add_pipe(PowerSpectrumAnalysisExecutor)
+    pipeline_context.add_pipe(PowerSpectrumSummaryExecutor)
+    pipeline_context.add_pipe(PostAnalysisPsFigExecutor)
 
     pipeline_context.prerun_pipeline()
 

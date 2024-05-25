@@ -4,14 +4,14 @@ from tqdm import tqdm
 
 from omegaconf import DictConfig
 
-from core import BaseStageExecutor, Split, Asset
-from core.asset_handlers.asset_handlers_base import Config, EmptyHandler # Import for typing hint
-from core.asset_handlers.healpy_map_handler import HealpyMap             # Import for typing hint
+from src.core import BaseStageExecutor, Split, Asset
+from src.core.asset_handlers.asset_handlers_base import Config, EmptyHandler # Import for typing hint
+from src.core.asset_handlers.healpy_map_handler import HealpyMap             # Import for typing hint
 from .qtable_handler import QTableHandler                                # Import needed to register QTableHandler
-from utils import make_instrument, Instrument
+from src.utils import make_instrument, Instrument
 from .make_pyilc_config import ILCConfigMaker
-from pyilc_redir.pyilc_wrapper import run_ilc
-from utils.suppress_print import SuppressPrint
+from src.pyilc_redir.pyilc_wrapper import run_ilc
+from src.utils.suppress_print import SuppressPrint
 
 
 logger = logging.getLogger(__name__)

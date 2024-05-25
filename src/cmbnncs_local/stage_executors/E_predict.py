@@ -7,11 +7,11 @@ from tqdm import tqdm
 
 from omegaconf import DictConfig
 
-from core import Split, Asset
-from cmbnncs_local.dataset import TestCMBMapDataset
-from core.asset_handlers.pytorch_model_handler import PyTorchModel  # Import for typing hint
+from src.core import Split, Asset
+from src.cmbnncs_local.dataset import TestCMBMapDataset
+from src.core.asset_handlers.pytorch_model_handler import PyTorchModel  # Import for typing hint
 from .pytorch_model_base_executor import BaseCMBNNCSModelExecutor
-from ..handler_npymap import NumpyMap             # Import for typing hint
+from src.cmbnncs_local.handler_npymap import NumpyMap             # Import for typing hint
 
 
 logger = logging.getLogger(__name__)

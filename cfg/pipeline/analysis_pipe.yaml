@@ -179,6 +179,71 @@ ps_fig:
   override_n_sims: ${n_show_cap}
   dir_name: Analysis_14_F_PS_Solo_Figs
 
+ps_analysis:
+  assets_out:
+    wmap_distribution:
+      fn: ""
+      path_template: "{root}/{dataset}/{working}{stage}/wmap_distribution.json"
+      handler: EmptyHandler
+    error_distribution:
+      fn: ""
+      path_template: "{root}/{dataset}/{working}{stage}/error_distribution.json"
+      handler: EmptyHandler
+    report:
+      fn: ""
+      path_template: "{root}/{dataset}/{working}{stage}/ps_report.csv"
+      handler: EmptyHandler
+  assets_in:
+    theory_ps: {stage: convert_theory_ps}
+    auto_real: {stage: make_pred_ps}
+    auto_pred: {stage: make_pred_ps}
+  splits:
+    - train
+    - test
+  epochs: ${use_epochs_ps_stats}
+  override_n_sims: ${n_show_cap}
+  wmap_n_ps: 50
+  dir_name: Analysis_15_PS_Report
+
+ps_summary:
+  assets_out:
+    overall_stats:
+      path_template: "{root}/{dataset}/{working}{stage}/all_epochs/overall_stats.csv"
+      handler: EmptyHandler
+    epoch_stats:
+      path_template: "{root}/{dataset}/{working}{stage}/epoch_{epoch}/stats.csv"
+      handler: EmptyHandler
+    stats_per_split:
+      path_template: "{root}/{dataset}/{working}{stage}/epoch_{epoch}/stats_per_split.csv"
+      handler: EmptyHandler
+  assets_in:
+    report: {stage: ps_analysis}
+    wmap_distribution: {stage: ps_analysis}
+  splits:
+    - test
+  epochs: ${use_epochs_ps_stats}
+  dir_name: Analysis_16_PS_Summary
+
+post_ps_fig:
+  assets_out:
+    ps_figure_theory:
+      path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/cmb_ps_figure_theory_{epoch}.png"
+      handler: EmptyHandler
+    ps_figure_real:
+      path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/cmb_ps_figure_real_{epoch}.png"
+      handler: EmptyHandler
+  assets_in:
+    theory_ps: {stage: convert_theory_ps}
+    auto_real: {stage: make_pred_ps}
+    auto_pred: {stage: make_pred_ps}
+    wmap_distribution: {stage: ps_analysis}
+    error_distribution: {stage: ps_analysis}
+  splits:
+    - test
+  epochs: ${use_epochs_ps_stats}
+  override_n_sims: ${n_show_cap}
+  dir_name: Analysis_17_F_Post_PS_Solo_Figs
+
 # # ps_analysis:
 # #   assets_out:
 # #     report:

@@ -1,6 +1,6 @@
 from typing import NamedTuple
 from pathlib import Path
-from core.asset_handlers import GenericHandler
+from src.core.asset_handlers import GenericHandler
 
 
 class FrozenAsset(NamedTuple):

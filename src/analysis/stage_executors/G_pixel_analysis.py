@@ -9,14 +9,14 @@ from tqdm import tqdm
 
 from omegaconf import DictConfig
 
-from core import (
+from src.core import (
     BaseStageExecutor,
     Asset,
     GenericHandler
     )
-from ..px_statistics import get_func
-from core.asset_handlers.asset_handlers_base import Config # Import for typing hint
-from core.asset_handlers.healpy_map_handler import HealpyMap # Import for typing hint
+from src.analysis.px_statistics import get_func
+from src.core.asset_handlers.asset_handlers_base import Config # Import for typing hint
+from src.core.asset_handlers.healpy_map_handler import HealpyMap # Import for typing hint
 
 logger = logging.getLogger(__name__)
 
@@ -82,8 +82,18 @@ class PixelAnalysisExecutor(BaseStageExecutor):
             # Convert the results to a regular list after multiprocessing is complete
             #     and before the scope of the manager ends
             results_list = list(results)
+        self.review_report(results_list)
         # Use the out_report asset to write all results to disk
         self.out_report.write(data=results_list)
+
+    def review_report(self, report_list):
+        found_error = False
+        for res in report_list:
+            if 'error' in res.keys():
+                logger.error(f"Error in split {res['split']}, sim {res['sim']}, epoch {res['epoch']}: {res['error']}")
+                found_error = True
+        if found_error:
+            raise OSError("Errors were found in the report. Please review the log for details.")
 
     def build_tasks(self):
         tasks = []
@@ -128,12 +138,17 @@ def process_target(task_target: TaskTarget, stat_funcs):
     """
     Each stat_func should accept true, pred, and **kwargs to catch other things
     """
-    true = task_target.true_asset
-    true_data = true.handler.read(true.path)
-    pred = task_target.pred_asset
-    pred_data = pred.handler.read(pred.path)
-
     res = {'split': task_target.split_name, 'sim': task_target.sim_num, 'epoch':task_target.epoch}
+    true = task_target.true_asset
+    pred = task_target.pred_asset
+    try:
+        true_data = true.handler.read(true.path)
+    except OSError as e:
+        return {'error': f"Could not read true data from {true.path}. Error: {str(e)}", **res}
+    try:
+        pred_data = pred.handler.read(pred.path)
+    except OSError as e:
+        return {'error': f"Could not read pred data from {pred.path}. Error: {str(e)}", **res}
 
     # Ensure that the shapes match
     if pred_data.shape != true_data.shape:

@@ -3,7 +3,7 @@ from omegaconf import DictConfig
 
 import numpy as np
 
-from core import (
+from src.core import (
     BaseStageExecutor,
     Split,
     Asset

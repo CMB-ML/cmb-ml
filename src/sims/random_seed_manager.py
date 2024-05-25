@@ -6,7 +6,7 @@ from omegaconf import DictConfig
 
 from omegaconf.errors import ConfigAttributeError
 
-from ..core import Split
+from src.core import Split
 
 
 logger = logging.getLogger('seed_logger')

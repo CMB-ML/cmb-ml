@@ -1,6 +1,6 @@
 import torch
 
-from utils.planck_instrument import Instrument
+from src.utils.planck_instrument import Instrument
 from .scale_tasks_helper import TaskTarget
 
 

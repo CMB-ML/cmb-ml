@@ -9,12 +9,12 @@ import re
 
 # import torch
 
-from core.asset import Asset, AssetWithPathAlts
-from core.namers import Namer
-from core.split import Split
+from src.core.asset import Asset, AssetWithPathAlts
+from src.core.namers import Namer
+from src.core.split import Split
 
 # from core.dataset import LabelledCMBMapDataset
-from utils.planck_instrument import make_instrument, Instrument
+from src.utils.planck_instrument import make_instrument, Instrument
 # from core.asset_handlers.healpy_map_handler import HealpyMap
 # from core.asset_handlers.pytorch_model_handler import PyTorchModel
 
