@@ -280,14 +280,17 @@ class LogMaker:
 
     def copy_hydra_run_to_dataset_log(self):
         self.namer.dataset_logs_path.mkdir(parents=True, exist_ok=True)
-        self.copy_hydra_run_to_log(self.namer.dataset_logs_path)
+        self._copy_hydra_run_to_log(self.namer.dataset_logs_path)
 
     def copy_hydra_run_to_stage_log(self, stage):
-        stage_path = self.namer.stage_logs_path(stage)
+        if stage == "Simulation":
+            stage_path = self.namer.stage_logs_path(stage, is_simulation=True)
+        else:
+            stage_path = self.namer.stage_logs_path(stage)
         stage_path.mkdir(parents=True, exist_ok=True)
-        self.copy_hydra_run_to_log(stage_path)
+        self._copy_hydra_run_to_log(stage_path)
 
-    def copy_hydra_run_to_log(self, target_root):
+    def _copy_hydra_run_to_log(self, target_root):
         for item in self.namer.hydra_path.iterdir():
             destination = target_root / item.name
             if item.is_dir():
@@ -306,8 +309,9 @@ class LogsNamer:
         self.scripts_subdir = cfg.file_system.subdir_for_log_scripts
         # self.dataset_logs_dir = cfg.file_system.subdir_for_logs
         self.dataset_template_str = cfg.file_system.log_dataset_template_str
-        self.working_dir = cfg.working_dir
+        # self.working_dir = cfg.working_dir
         self.stage_template_str = cfg.file_system.log_stage_template_str
+        self.simulation_template_str = cfg.file_system.simulation_template_str
         self.namer = Namer(cfg)
 
     @property
@@ -324,8 +328,11 @@ class LogsNamer:
             path = self.namer.path(self.dataset_template_str)
         return path
 
-    def stage_logs_path(self, stage_dir) -> Path:
+    def stage_logs_path(self, stage_dir, is_simulation:bool=False) -> Path:
+        use_template = self.stage_template_str
+        if is_simulation:
+            use_template = self.simulation_template_str
         with self.namer.set_contexts({"hydra_run_dir": self.hydra_run_dir,
                                       "stage": stage_dir}):
-            path = self.namer.path(self.stage_template_str)
+            path = self.namer.path(use_template)
         return path
