@@ -20,7 +20,7 @@ class BaseStageExecutor(ABC):
     def __init__(self, cfg, stage_str):
         self.cfg: DictConfig = cfg
         self.stage_str: str = stage_str
-        assert stage_str in cfg.pipeline, "Stage not found in pipeline yaml."
+        assert stage_str in cfg.pipeline, f"Stage {stage_str} not found in pipeline yaml."
         self.name_tracker: Namer = Namer(cfg)
         self._config_help = _ch = ConfigHelper(cfg, stage_str)
 
