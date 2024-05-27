@@ -24,10 +24,10 @@ from src.core.asset_handlers.psmaker_handler import NumpyPowerSpectrum
 logger = logging.getLogger(__name__)
 
 
-class PowerSpectrumAnalysisExecutor(BaseStageExecutor):
+class PowerSpectrumAnalysisExecutorSerial(BaseStageExecutor):
     def __init__(self, cfg: DictConfig) -> None:
         # The following string must match the pipeline yaml
-        super().__init__(cfg, stage_str="ps_analysis")
+        super().__init__(cfg, stage_str="ps_analysis2")
 
         self.out_wmap_distribution: Asset = self.assets_out["wmap_distribution"]
         out_distribution_handler: EmptyHandler

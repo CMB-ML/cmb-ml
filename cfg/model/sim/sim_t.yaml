@@ -7,8 +7,13 @@ defaults:
 #    While debugging code, it is often convenient to use lower resolution nside_sky
 #    Only one of the two should be set. The other should be "null". Setting both may given unexpected results.
 # Moved to top level for now
-nside_sky          : ${nside_sky}
-nside_sky_factor   : null
+nside_sky            : ${nside_sky}
+nside_sky_factor     : null
+pysm_beam_lmax_ratio : 3.0      # TODO: Figure out the right ratio for this 
+                                #       (sqrt(3*pi)~=3.07 is a healpix magic number)
+                                #       Ell scale of a map
+                                #       is pi / hp.pixelfunc.nsidetoresol(nside)
+                                #       Algebra shows this 3.07 falling out for all nside
 
 # See https://galsci.github.io/blog/2022/common-fiducial-sky/ and https://galsci.github.io/blog/2022/common-fiducial-extragalactic-cmb/ for more suggestions
 # Moved to top level for now

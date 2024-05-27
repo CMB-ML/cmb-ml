@@ -36,9 +36,9 @@ class PostAnalysisPsFigExecutor(BaseStageExecutor):
         self.in_ps_pred: Asset = self.assets_in["auto_pred"]
         self.in_wmap_distribution: Asset = self.assets_in["wmap_distribution"]
         self.in_error_distribution: Asset = self.assets_in["error_distribution"]
-        out_ps_handler: NumpyPowerSpectrum
+        in_ps_handler: NumpyPowerSpectrum
 
-        self.fig_n_override = self.override_sim_nums
+        # self.override_sim_nums = self.override_sim_nums
 
     def execute(self) -> None:
         # Remove this function
@@ -53,10 +53,10 @@ class PostAnalysisPsFigExecutor(BaseStageExecutor):
         logger.info(f"Running {self.__class__.__name__} process_split() for split: {split.name}.")
 
         # We may want to process a subset of all sims
-        if self.fig_n_override is None:
+        if self.override_sim_nums is None:
             sim_iter = split.iter_sims()
         else:
-            sim_iter = self.fig_n_override
+            sim_iter = self.override_sim_nums
 
         if split.ps_fidu_fixed:
             ps_theory = self.in_ps_theory.read(use_alt_path=True)
@@ -126,18 +126,17 @@ class PostAnalysisPsFigExecutor(BaseStageExecutor):
     def make_ps_figure(self, ps_real, ps_pred, ps_theory, wmap_band, error_band, baseline="real"):
         n_ells = ps_real.shape[0]
         ells = np.arange(1, n_ells+1)
-        norm = ells * (ells + 1) / (2 * np.pi)
 
-        pred_conved = ps_pred * norm
-        real_conved = ps_real * norm
+        pred_conved = ps_pred
+        real_conved = ps_real
 
         fig, (ax1, ax2) = plt.subplots(2, 1, sharex=True, gridspec_kw={'height_ratios': [3, 1]}, figsize=(10, 6))
 
+        ax1.fill_between(ells, wmap_band[0][0][:n_ells], wmap_band[0][1][:n_ells], color='limegreen', alpha=0.5, label=r'1$\sigma$ WMAP')
+        ax1.fill_between(ells, wmap_band[1][0][:n_ells], wmap_band[1][1][:n_ells], color='lime', alpha=0.5, label=r'2$\sigma$ WMAP')
         ax1.plot(ells, ps_theory[:n_ells], label='Theory', color='black')
         ax1.scatter(ells,real_conved, label='Realization', color='red', s=10)
         ax1.scatter(ells, pred_conved, label='Prediction', color='blue', s=10)
-        ax1.fill_between(ells, wmap_band[0][0][:n_ells], wmap_band[0][1][:n_ells], color='limegreen', alpha=0.5, label=r'1$\sigma$ WMAP')
-        ax1.fill_between(ells, wmap_band[1][0][:n_ells], wmap_band[1][1][:n_ells], color='lime', alpha=0.5, label=r'2$\sigma$ WMAP')
         ax1.set_ylabel(r'$D_{\ell}^{TT} [\mu K^2]$')
         # ax1.set_ylabel(r'$\ell(\ell+1)C_\ell/(2\pi)$ $\;$ [$\mu K^2$]')
         ax1.set_ylim(-300, 6500)
@@ -151,7 +150,7 @@ class PostAnalysisPsFigExecutor(BaseStageExecutor):
             # ax2.fill_between(ells, error_band[1][0][:n_ells], error_band[1][1][:n_ells], color='orange', alpha=0.5, label=r'2$\sigma$ Error')
             ax2.set_ylabel(r'Theory $\Delta$')
             ax2.set_xlabel(r'$\ell$')
-            ax2.set_ylim(-1250,1250)
+            # ax2.set_ylim(-1250,1250)
             ax2.legend(loc='upper right')
         elif baseline == "real":
             ax2.axhline(0, color='red', linestyle='--', linewidth=0.5, label='Realization')

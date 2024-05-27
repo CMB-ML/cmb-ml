@@ -25,18 +25,24 @@ logger = logging.getLogger(__name__)
 
 
 class ShowSimsExecutor(BaseStageExecutor):
+    """
+    Abstract.
+
+    Makes pairs of images of maps - one is always the simulation CMB. The other
+        depends on the child class.
+
+    Will only make a subset of test set as images given by `override_n_sims`
+        in the pipeline yaml for this stage.
+    """
     def __init__(self, cfg: DictConfig, stage_str: str) -> None:
         # The following stage_str must match the pipeline yaml
         super().__init__(cfg, stage_str=stage_str)
 
         if self.__class__.__name__ == "ShowSimsExecutor":
             # TODO: Can I ABC this?
-            raise NotImplementedError("This is a base class. Kinda. Sorta. Not sure if I can ABC this.")
+            raise NotImplementedError("This is a base class.")
 
         self.instrument: Instrument = make_instrument(cfg=cfg)
-
-        # Only produce visualizations for a subset of sims
-
         if self.override_sim_nums is None:
             logger.warning("No particular sim indices specified. Outputs will be produced for all. This is not recommended.")
         self.min_max = self.get_plot_min_max()
@@ -171,7 +177,7 @@ class ShowSimsPrepExecutor(ShowSimsExecutor):
 
 class CMBNNCSShowSimsPredExecutor(ShowSimsExecutor):
     def __init__(self, cfg: DictConfig) -> None:
-        stage_str = "show_sims_pred_cmbnncs"
+        stage_str = "show_cmb_pred_cmbnncs"
         super().__init__(cfg, stage_str)
 
         self.right_subplot_title = "Predicted"
@@ -198,8 +204,7 @@ class CMBNNCSShowSimsPredExecutor(ShowSimsExecutor):
 
 class ShowSimsPostExecutor(ShowSimsExecutor):
     def __init__(self, cfg: DictConfig, stage_str=None) -> None:
-        if stage_str is None:
-            stage_str = "show_sims_post"
+        stage_str = "show_cmb_post"
         super().__init__(cfg, stage_str)
 
         self.right_subplot_title = "Predicted"
@@ -207,6 +212,7 @@ class ShowSimsPostExecutor(ShowSimsExecutor):
         self.out_cmb_figure: Asset = self.assets_out["cmb_map_render"]
         out_cmb_figure_handler: Mover
 
+        self.in_cmb_map_post: Asset = self.assets_in["cmb_map_post"]
         self.in_cmb_map_sim: Asset = self.assets_in["cmb_map_sim"]
         in_cmb_map_handler: HealpyMap
 
@@ -214,12 +220,15 @@ class ShowSimsPostExecutor(ShowSimsExecutor):
         for epoch in self.model_epochs:
             with self.name_tracker.set_context('epoch', epoch):
                 cmb_map_sim = self.in_cmb_map_sim.read()
-                cmb_map_post = self.in_cmb_map.read()
+                cmb_map_post = self.in_cmb_map_post.read()
                 self.make_maps_per_field(cmb_map_sim, 
                                          cmb_map_post, 
                                          out_asset=self.out_cmb_figure)
 
     def make_maps_per_field(self, map_sim, map_post, out_asset):
+        """
+        Makes a figure for each field in the maps (e.g., IQU will result in 3 figures)
+        """
         split = self.name_tracker.context['split']
         sim_n = f"{self.name_tracker.context['sim_num']:0{self.cfg.file_system.sim_str_num_digits}d}"
         fields = self.cfg.scenario.map_fields
@@ -239,41 +248,18 @@ class ShowSimsPostExecutor(ShowSimsExecutor):
 
 
 class CMBNNCSShowSimsPostExecutor(ShowSimsPostExecutor):
-    def __init__(self, cfg: DictConfig, stage_str=None) -> None:
-        if stage_str is None:
-            stage_str = "show_sims_post_cmbnncs"
-        super().__init__(cfg, stage_str)
-        # Cheating a bit with the stage string
-        # TODO Better this
-        # Have to refer to these differently
-        # CMBNNCS has Pre- and Post-processing stages with outputs
-        #   requiring imshow()
-        self.in_cmb_map: Asset = self.assets_in["cmb_map_post"]
-
+    def __init__(self, cfg: DictConfig) -> None:
+        super().__init__(cfg)
         self.right_subplot_title = "CMBNNCS Predicted"
 
 
 class PetroffShowSimsPostExecutor(ShowSimsPostExecutor):
     def __init__(self, cfg: DictConfig) -> None:
-        # Cheating a bit with the stage string
-        # TODO Better this
-        # Have to refer to these differently
-        # Petroff has prediction requiring mollview()
-        stage_str = "show_sims_pred_petroff"
-        super().__init__(cfg, stage_str)
-        self.in_cmb_map: Asset = self.assets_in["cmb_map_pred"]
-
+        super().__init__(cfg)
         self.right_subplot_title = "Petroff Predicted"
 
 
 class NILCShowSimsPostExecutor(ShowSimsPostExecutor):
     def __init__(self, cfg: DictConfig) -> None:
-        # Cheating a bit with the stage string
-        # TODO Better this
-        # Have to refer to these differently
-        # ILC methods have prediction requiring mollview()
-        stage_str = "show_sims_pred_nilc"
-        super().__init__(cfg, stage_str)
-        self.in_cmb_map: Asset = self.assets_in["cmb_map_pred"]
-
+        super().__init__(cfg)
         self.right_subplot_title = "NILC Predicted"

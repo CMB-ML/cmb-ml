@@ -18,20 +18,16 @@ from src.core.asset_handlers.asset_handlers_base import Config # Import for typi
 logger = logging.getLogger(__name__)
 
 
-class PixelSummaryExecutor(BaseStageExecutor):
+class PixelSummaryFigsExecutor(BaseStageExecutor):
     def __init__(self, cfg: DictConfig) -> None:
         # The following string must match the pipeline yaml
-        super().__init__(cfg, stage_str="pixel_summary")
+        super().__init__(cfg, stage_str="pixel_summary_figs")
 
         self.in_report: Asset = self.assets_in["report"]
         in_report_handler: Config
 
-        self.out_overall_stats: Asset = self.assets_out["overall_stats"]
-        self.out_stats_per_split: Asset = self.assets_out["stats_per_split"]
         self.out_boxplots: Asset = self.assets_out["boxplots"]
         self.out_histogram: Asset = self.assets_out["histogram"]
-        out_overall_stats_handler: EmptyHandler
-        out_stats_per_split_handler: EmptyHandler
         out_boxplots_handler: EmptyHandler
         out_histogram_handler: EmptyHandler
 
@@ -53,7 +49,6 @@ class PixelSummaryExecutor(BaseStageExecutor):
             logger.info(f"Generating summary for epoch {epoch}.")
             with self.name_tracker.set_context('epoch', epoch):
                 epoch_df = df[df['epoch']==str(epoch)]
-                self.summary_tables(epoch_df)
                 self.make_split_histograms(epoch_df)
                 self.make_boxplots(epoch_df)
 
@@ -70,24 +65,6 @@ class PixelSummaryExecutor(BaseStageExecutor):
 
         return df
 
-    def summary_tables(self, df):
-        # Compute overall averages, excluding non-numeric fields like 'sim' and 'split'
-        numeric_columns = df.select_dtypes(include=[np.number]).columns
-        overall_stats = df[numeric_columns].agg(['mean', 'std'])
-        stats_per_split = df.groupby('split')[numeric_columns].agg(['mean', 'std'])
-
-        # Every now and then, it's ok to just comment out code. I promise this to you, Jim. - Jim
-        # print(f"For epoch {self.name_tracker.context['epoch']}")
-        # print("Overall:")
-        # print(overall_stats)
-        # print("\n per Split:")
-        # print(stats_per_split)
-        overall_path = self.out_overall_stats.path
-        self.out_overall_stats.write()
-        overall_stats.reset_index().to_csv(overall_path, index=False)
-        per_split_path = self.out_stats_per_split.path
-        stats_per_split.reset_index().to_csv(per_split_path, index=False)
-
     def make_split_histograms(self, df):
         numeric_columns = df.select_dtypes(include=[np.number]).columns
 
@@ -95,10 +72,11 @@ class PixelSummaryExecutor(BaseStageExecutor):
             with self.name_tracker.set_context("metric", metric):
                 if "{metric}" not in self.out_histogram.path_template:
                     logger.warning("If multiple metrics were used, they will be overwritten by the last one. #WAAH")
+                self.out_histogram.write()  # Make directory
                 path = self.out_histogram.path
                 g = sns.FacetGrid(df, col="split", col_wrap=4, height=3)
                 g.map(sns.histplot, metric)
-                g.figure.suptitle(f"Distribution of {metric} by Split, Epoch {self.name_tracker.context['epoch']}")
+                g.figure.suptitle(f"Per Pixel Distribution of {metric} by Split, Epoch {self.name_tracker.context['epoch']}")
                 plt.subplots_adjust(top=0.9)                             # Adjust the top margin to fit the suptitle
                 g.savefig(path)
                 plt.close(g.figure)
@@ -112,8 +90,9 @@ class PixelSummaryExecutor(BaseStageExecutor):
             ax.set_title(self.labels_lookup[metric]["plot_name"])
             ax.set_ylabel(self.labels_lookup[metric]["axis_name"])
 
-        plt.suptitle(f"Metric Distribution by Split, Epoch {self.name_tracker.context['epoch']}")
+        plt.suptitle(f"Per Pixel Metric Distribution by Split, Epoch {self.name_tracker.context['epoch']}")
         plt.tight_layout(rect=[0, 0.03, 1, 0.95])
+        self.out_boxplots.write()  # Make directory
         path = self.out_boxplots.path
         plt.savefig(path)
         plt.close()

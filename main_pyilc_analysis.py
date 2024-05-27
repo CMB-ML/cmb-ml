@@ -1,3 +1,4 @@
+from functools import partial
 import logging
 
 import hydra
@@ -8,24 +9,18 @@ from src.core import (
                       LogMaker
                       )
 from src.core.A_check_hydra_configs import HydraConfigCheckerExecutor
-# from pyilc_local.B_predict_executor import PredictionExecutor
 
-### These imports dont work yet from some missing module
-
-# from analysis import (ShowSimsPrepExecutor, 
-#                       NILCShowSimsPostExecutor,
-#                       PixelAnalysisExecutor,
-#                       PixelSummaryExecutor,
-#                       ConvertTheoryPowerSpectrumExecutor,
-#                       MakePredPowerSpectrumExecutor,
-#                       ShowSinglePsFigExecutor
-#                       )
-
-from src.analysis import (MakePredPowerSpectrumExecutor, 
-                          ShowSinglePsFigExecutor, 
-                          PowerSpectrumAnalysisExecutor,
-                          PowerSpectrumSummaryExecutor,
-                          PostAnalysisPsFigExecutor)
+from src.analysis import   (PixelAnalysisExecutor,
+                            PixelSummaryExecutor,
+                            ConvertTheoryPowerSpectrumExecutor,
+                            MakeTheoryPSStats,
+                            PyILCMakePSExecutor,
+                            PixelSummaryFigsExecutor,
+                            PSAnalysisExecutor,
+                            PowerSpectrumAnalysisExecutorSerial,
+                            PowerSpectrumSummaryExecutor,
+                            PowerSpectrumSummaryFigsExecutor,
+                            PostAnalysisPsFigExecutor)
 
 logger = logging.getLogger(__name__)
 
@@ -33,7 +28,7 @@ logger = logging.getLogger(__name__)
 
 # @hydra.main(version_base=None, config_path="cfg", config_name="config_pyilc_t")
 @hydra.main(version_base=None, config_path="cfg", config_name="config_pyilc_t_HILC_backup")
-def make_all_simulations(cfg):
+def run_pyilc_analysis(cfg):
     logger.debug(f"Running {__name__} in {__file__}")
 
     log_maker = LogMaker(cfg)
@@ -43,18 +38,20 @@ def make_all_simulations(cfg):
 
     pipeline_context.add_pipe(HydraConfigCheckerExecutor)
 
-    # Due to PyILC-matplotlib interaction, these cannot be imported at the same time
-    # pipeline_context.add_pipe(PredictionExecutor)
-
-    # pipeline_context.add_pipe(NILCShowSimsPostExecutor)
     # pipeline_context.add_pipe(PixelAnalysisExecutor)
     # pipeline_context.add_pipe(PixelSummaryExecutor)
+    # pipeline_context.add_pipe(PixelSummaryFigsExecutor)
 
-    # pipeline_context.add_pipe(ConvertTheoryPowerSpectrumExecutor)
-    # pipeline_context.add_pipe(MakePredPowerSpectrumExecutor)
-    pipeline_context.add_pipe(ShowSinglePsFigExecutor)
-    pipeline_context.add_pipe(PowerSpectrumAnalysisExecutor)
+    # Not needed in every analysis pipeline, but needed in one
+    pipeline_context.add_pipe(ConvertTheoryPowerSpectrumExecutor)
+    pipeline_context.add_pipe(MakeTheoryPSStats)
+    
+    # PyILC's Predictions as Power Spectra Anaylsis
+    pipeline_context.add_pipe(PyILCMakePSExecutor)
+    pipeline_context.add_pipe(PowerSpectrumAnalysisExecutorSerial)
+    pipeline_context.add_pipe(PSAnalysisExecutor)
     pipeline_context.add_pipe(PowerSpectrumSummaryExecutor)
+    pipeline_context.add_pipe(PowerSpectrumSummaryFigsExecutor)
     pipeline_context.add_pipe(PostAnalysisPsFigExecutor)
 
     pipeline_context.prerun_pipeline()
@@ -71,4 +68,4 @@ def make_all_simulations(cfg):
 
 if __name__ == "__main__":
     validate_environment_variable("CMB_SIMS_LOCAL_SYSTEM")
-    make_all_simulations()
+    run_pyilc_analysis()

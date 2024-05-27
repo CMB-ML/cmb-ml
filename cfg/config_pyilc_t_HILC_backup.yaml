@@ -12,7 +12,7 @@ defaults:
 # dataset_name: ${scenario.map_fields}_${scenario.nside}_${splits.name}
 # dataset_name: IQU_${scenario.nside}_1450
 dataset_name: I_512_1450
-working_dir : "PyILC_LOCAL_TEST_HILC/"
+working_dir : "PyILC/"
 seed_base_string: 'cmml'
 hydra:
   run:
@@ -33,15 +33,15 @@ map_fields     : "I"
 
 # In the pipeline yamls
 # No epochs exist for PyILC method; use a placeholder:
-use_epochs       : [""]
-use_epochs_imgs  : [""]
-use_epochs_map_stats : [""]
-use_epochs_ps_stats : [""]
+use_epochs           : &epochs [""]
+use_epochs_imgs      : *epochs
+use_epochs_map_stats : *epochs
+use_epochs_ps_stats  : *epochs
 # Limit the number of simulations for which to generate figures
 n_show_cap       : 1
 
 # In the splits yaml; null to run on all
-n_test_cap     : 1
+n_test_cap     : null
 
 # In the model yaml, for HILC:
 # ELLMAX: 511   # For 128

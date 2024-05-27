@@ -1,3 +1,4 @@
+from functools import partial
 import logging
 
 import hydra
@@ -8,40 +9,39 @@ from src.core import (
                       LogMaker
                       )
 from src.core.A_check_hydra_configs import HydraConfigCheckerExecutor
-# from src.cmbnncs_local import (
-#                          HydraConfigCMBNNCSCheckerExecutor,
-#                          PreprocessMakeScaleExecutor,
-#                          PreprocessExecutor,
-#                          CheckTransformsExecutor,
-#                          TrainingExecutor,
-#                          PredictionExecutor,
-#                          PostprocessExecutor
-#                          )
+from src.cmbnncs_local import (
+                         HydraConfigCMBNNCSCheckerExecutor,
+                         PreprocessMakeScaleExecutor,
+                         PreprocessExecutor,
+                         CheckTransformsExecutor,
+                         TrainingExecutor,
+                         PredictionExecutor,
+                         PostprocessExecutor
+                         )
 
 ### These imports dont work yet from some missing module
 
-from src.analysis import (ShowSimsPrepExecutor, 
-                      CMBNNCSShowSimsPredExecutor, 
-                      CMBNNCSShowSimsPostExecutor,
-                      PixelAnalysisExecutor,
-                      PixelSummaryExecutor,
-                      ConvertTheoryPowerSpectrumExecutor,
-                      MakePredPowerSpectrumExecutor,
-                      ShowSinglePsFigExecutor
-                      )
-
-from src.analysis import (MakePredPowerSpectrumExecutor, 
-                          ShowSinglePsFigExecutor, 
-                          PowerSpectrumAnalysisExecutor,
-                          PowerSpectrumSummaryExecutor,
-                          PostAnalysisPsFigExecutor)
+from src.analysis import   (ShowSimsPrepExecutor, 
+                            CMBNNCSShowSimsPredExecutor, 
+                            CMBNNCSShowSimsPostExecutor,
+                            PixelAnalysisExecutor,
+                            PixelSummaryExecutor,
+                            ConvertTheoryPowerSpectrumExecutor,
+                            MakeTheoryPSStats,
+                            OtherMakePSExecutor,
+                            PixelSummaryFigsExecutor,
+                            PSAnalysisExecutor,
+                            PowerSpectrumAnalysisExecutorSerial,
+                            PowerSpectrumSummaryExecutor,
+                            PowerSpectrumSummaryFigsExecutor,
+                            PostAnalysisPsFigExecutor)
 
 
 logger = logging.getLogger(__name__)
 
 
 @hydra.main(version_base=None, config_path="cfg", config_name="config_cmbnncs_t")
-def make_all_simulations(cfg):
+def run_cmbnncs(cfg):
     logger.debug(f"Running {__name__} in {__file__}")
 
     log_maker = LogMaker(cfg)
@@ -50,27 +50,34 @@ def make_all_simulations(cfg):
     pipeline_context = PipelineContext(cfg, log_maker)
 
     pipeline_context.add_pipe(HydraConfigCheckerExecutor)
-    # pipeline_context.add_pipe(HydraConfigCMBNNCSCheckerExecutor)
+    pipeline_context.add_pipe(HydraConfigCMBNNCSCheckerExecutor)
 
-    pipeline_context.add_pipe(PreprocessMakeScaleExecutor)
-    pipeline_context.add_pipe(PreprocessExecutor)
-    # pipeline_context.add_pipe(CheckTransformsExecutor)  # Transforms are not currently workable for CMBNNCS
+    # pipeline_context.add_pipe(PreprocessMakeScaleExecutor)
+    # pipeline_context.add_pipe(PreprocessExecutor)
     # pipeline_context.add_pipe(ShowSimsPrepExecutor)
 
-    pipeline_context.add_pipe(TrainingExecutor)
+    # pipeline_context.add_pipe(TrainingExecutor)
 
-    pipeline_context.add_pipe(PredictionExecutor)
+    # pipeline_context.add_pipe(PredictionExecutor)
     # pipeline_context.add_pipe(CMBNNCSShowSimsPredExecutor)
-    # pipeline_context.add_pipe(PostprocessExecutor)
-    # pipeline_context.add_pipe(CMBNNCSShowSimsPostExecutor)
-    # pipeline_context.add_pipe(PixelAnalysisExecutor)
-    # pipeline_context.add_pipe(PixelSummaryExecutor)
 
-    # pipeline_context.add_pipe(ConvertTheoryPowerSpectrumExecutor)
-    # pipeline_context.add_pipe(MakePredPowerSpectrumExecutor)
-    pipeline_context.add_pipe(ShowSinglePsFigExecutor)
-    pipeline_context.add_pipe(PowerSpectrumAnalysisExecutor)
+    # pipeline_context.add_pipe(PostprocessExecutor)
+    pipeline_context.add_pipe(CMBNNCSShowSimsPostExecutor)
+
+    pipeline_context.add_pipe(PixelAnalysisExecutor)
+    pipeline_context.add_pipe(PixelSummaryExecutor)
+    pipeline_context.add_pipe(PixelSummaryFigsExecutor)
+
+    # # Not needed in every analysis pipeline, but needed in one
+    pipeline_context.add_pipe(ConvertTheoryPowerSpectrumExecutor)
+    pipeline_context.add_pipe(MakeTheoryPSStats)
+
+    # CMBNNCS's Predictions as Power Spectra Anaylsis
+    pipeline_context.add_pipe(OtherMakePSExecutor)
+    pipeline_context.add_pipe(PowerSpectrumAnalysisExecutorSerial)
+    pipeline_context.add_pipe(PSAnalysisExecutor)
     pipeline_context.add_pipe(PowerSpectrumSummaryExecutor)
+    pipeline_context.add_pipe(PowerSpectrumSummaryFigsExecutor)
     pipeline_context.add_pipe(PostAnalysisPsFigExecutor)
 
     pipeline_context.prerun_pipeline()
@@ -87,4 +94,4 @@ def make_all_simulations(cfg):
 
 if __name__ == "__main__":
     validate_environment_variable("CMB_SIMS_LOCAL_SYSTEM")
-    make_all_simulations()
+    run_cmbnncs()

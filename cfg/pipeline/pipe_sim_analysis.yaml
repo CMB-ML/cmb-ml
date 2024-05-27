@@ -2,10 +2,10 @@ show_sims:
   assets_out:
     cmb_map_render:
       handler: Mover
-      path_template: "{root}/{dataset}/{stage}/{split}/{sim}/{view}_cmb_{field}.png"
+      path_template: "{root}/{dataset}/Sims_Analysis/{stage}/{split}/{sim}/{view}_cmb_{field}.png"
     obs_map_render:
       handler: Mover
-      path_template: "{root}/{dataset}/{stage}/{split}/{sim}/{view}_obs_{field}_{freq}.png"
+      path_template: "{root}/{dataset}/Sims_Analysis/{stage}/{split}/{sim}/{view}_obs_{field}_{freq}.png"
   assets_in:
     cmb_map: {stage: make_sims}
     obs_maps: {stage: make_sims}
@@ -24,24 +24,26 @@ convert_theory_ps:
     theory_ps:
       # Alt in the case of ps_fidu_fixed
       # Note: not in working directory! Alongside Simulations in top level.
-      path_template_alt: "{root}/{dataset}/{stage}/{split}/theory_ps.npy"
-      path_template: "{root}/{dataset}/{stage}/{split}/{sim}/theory_ps.npy"
+      path_template_alt: "{root}/{dataset}/Sims_Analysis/{stage}/{split}/theory_ps.npy"
+      path_template: "{root}/{dataset}/Sims_Analysis/{stage}/{split}/{sim}/theory_ps.npy"
       handler: NumpyPowerSpectrum
   assets_in:
     theory_ps: {stage: make_theory_ps, orig_name: "cmb_ps"}
   splits:
+    - train
     - test
-  dir_name: Analysis_Theory_Power_Spectra
+  wmap_n_ps: &wmap_n_ps 50
+  dir_name: Analysis_Theory_PS
 
 ps_theory_stats:
   assets_out:
     wmap_ave:
       fn: ""
-      path_template: "{root}/{dataset}/{working}{stage}/wmap_ave.npy"
+      path_template: "{root}/{dataset}/Sims_Analysis/{stage}/wmap_ave.npy"
       handler: NumpyPowerSpectrum
     wmap_std:
       fn: ""
-      path_template: "{root}/{dataset}/{working}{stage}/wmap_std.npy"
+      path_template: "{root}/{dataset}/Sims_Analysis/{stage}/wmap_std.npy"
       handler: NumpyPowerSpectrum
   assets_in:
     theory_ps: {stage: convert_theory_ps}
@@ -49,5 +51,5 @@ ps_theory_stats:
     - train
   epochs: ${use_epochs_ps_stats}
   override_n_sims: ${n_test_cap}
-  wmap_n_ps: 50
-  dir_name: Analysis_15_PS_Theory_Range
+  wmap_n_ps: *wmap_n_ps
+  dir_name: Analysis_Theory_PS_Range

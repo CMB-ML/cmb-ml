@@ -172,6 +172,8 @@ Big:
     - [x] Run for all test set
     - [x] PS is really slow - since it's junk anyways for now; downgrading level of effort there (produce only prediction spectra, not cross-spectra or difference spectra)
   - [ ] Get power spectra; send to Ammar
+  - [ ] `final_infer` in pipeline configured?
+  - [ ] Look at results at 512 at epoch 120 (after analysis done at next step)
 
 ## Adding ILC
   - [x] ILC - Run at 512 on Markov
@@ -179,6 +181,7 @@ Big:
     - [ ] Why high values?
   - [ ] What output precision for ILC Maps? (float or double) How many fields on IQU maps?
   - [ ] Get power spectra for HILC results
+  - [ ] Look at results at 512 at epoch 120 (after analysis done at next step)
 
 ## Adding Petroff
   - [ ] What output precision? Float
@@ -215,6 +218,7 @@ Polarization:
     - Later comparisons would assume the same fields when comparing maps, instead of checking for each
 
 Other:
+  - [ ] Logger line with expected output directories at asset creation?
   - [ ] Simulation logs going into working directory
   - [ ] Analysis: Run ANAFAST on maps after conversion to double precision
   - [ ] Separate folders for Simulation / Working / Analysis

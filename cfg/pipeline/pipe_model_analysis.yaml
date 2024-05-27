@@ -15,10 +15,10 @@ show_cmb_prep:
     - train
   override_n_sims: ${n_show_cap}     # int: first n_sims; null: all sims; list: particular sims by index
   plot_min_max: 500                  # value, v: plots from -v to +v; null: allow MPL to choose; list (size 2): min and max val
-  dir_name: Analysis_1_Show_CMB_Prep
+  dir_name: Analysis_2_Show_CMB_Prep
   make_stage_log: False
 
-show_cmb_pred:
+show_cmb_pred_cmbnncs:
   assets_out:
     cmb_map_render:
       handler: Mover
@@ -47,7 +47,7 @@ show_cmb_post:
   override_n_sims: 1                 # int: first n_sims; null: all sims; list: particular sims by index
   plot_min_max: 500                  # value, v: plots from -v to +v; null: allow MPL to choose; list (size 2): min and max val
   make_stage_log: False
-  dir_name: Analysis_3_Show_CMB_Post
+  dir_name: Analysis_2_Show_CMB_Post
   epochs: ${use_epochs_imgs}
 
 pixel_analysis:
@@ -61,9 +61,9 @@ pixel_analysis:
   splits:
     - test
   epochs: ${use_epochs_map_stats}
-  dir_name: Analysis_10_Pixel_Report
+  dir_name: Analysis_F_Pixel_Report
 
-pixel_summary:
+pixel_summary_tables:
   assets_out:
     overall_stats:
       path_template: "{root}/{dataset}/{working}{stage}/epoch_{epoch}/overall_stats.csv"
@@ -71,6 +71,15 @@ pixel_summary:
     stats_per_split:
       path_template: "{root}/{dataset}/{working}{stage}/epoch_{epoch}/stats_per_split.csv"
       handler: EmptyHandler
+  assets_in:
+    report: {stage: pixel_analysis}
+  splits:
+    - test
+  epochs: ${use_epochs_map_stats}
+  dir_name: Analysis_3_Pixel_Summary_Tables
+
+pixel_summary_figs:
+  assets_out:
     boxplots:
       path_template: "{root}/{dataset}/{working}{stage}/epoch_{epoch}/boxplots.png"
       handler: EmptyHandler
@@ -82,7 +91,7 @@ pixel_summary:
   splits:
     - test
   epochs: ${use_epochs_map_stats}
-  dir_name: Analysis_11_Pixel_Summary
+  dir_name: Analysis_4_Pixel_Summary_Figs
 
 # Need to define an external resource for the next stage, make_pred_ps
 mask:
@@ -91,7 +100,7 @@ mask:
       # Need a more official source for this.
       path_template: "{src_root}/Yunan/planck_mask.fits"
       handler: HealpyMap
-      use_fields: 1
+      use_fields: 0
 
 make_pred_ps:
   assets_out:
@@ -114,27 +123,11 @@ make_pred_ps:
   assets_in:
     cmb_map_real: {stage: make_sims, orig_name: cmb_map}
     cmb_map_post: {stage: final_infer, orig_name: cmb_map}
-    # mask: {stage: mask}
+    mask: {stage: mask}  # Remove or set to null for no masking
   splits:
     - test
   epochs: ${use_epochs_ps_stats}
-  dir_name: Analysis_13_Power_Spectra
-
-ps_fig:
-  assets_out:
-    ps_figure:
-      path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/cmb_ps_figure_{epoch}.png"
-      handler: EmptyHandler
-  assets_in:
-    theory_ps: {stage: convert_theory_ps}
-    auto_real: {stage: make_pred_ps}
-    auto_pred: {stage: make_pred_ps}
-  splits:
-    - test
-  epochs: ${use_epochs_ps_stats}
-  override_n_sims: ${n_show_cap}
-  dir_name: Analysis_14_F_PS_Solo_Figs
-
+  dir_name: Analysis_K_Power_Spectra
 
 ps_analysis:
   assets_out:
@@ -151,69 +144,85 @@ ps_analysis:
   epochs: ${use_epochs_ps_stats}
   override_n_sims: ${n_test_cap}
   wmap_n_ps: 50
-  dir_name: Analysis_15_PS_Report
+  dir_name: Analysis_L_PS_Report
 
-# ps_analysis2:
-#   assets_out:
-#     wmap_distribution:
-#       fn: ""
-#       path_template: "{root}/{dataset}/{working}{stage}/wmap_distribution.json"
-#       handler: EmptyHandler
-#     error_distribution:
-#       fn: ""
-#       path_template: "{root}/{dataset}/{working}{stage}/error_distribution.json"
-#       handler: EmptyHandler
-#     report:
-#       fn: ""
-#       path_template: "{root}/{dataset}/{working}{stage}/ps_report.csv"
-#       handler: EmptyHandler
-#   assets_in:
-#     theory_ps: {stage: convert_theory_ps}
-#     auto_real: {stage: make_pred_ps}
-#     auto_pred: {stage: make_pred_ps}
-#   splits:
-#     - train
-#     - test
-#   epochs: ${use_epochs_ps_stats}
-#   override_n_sims: ${n_test_cap}
-#   wmap_n_ps: 50
-#   dir_name: Analysis_15_PS_Report
+ps_analysis2:
+  assets_out:
+    wmap_distribution:
+      fn: ""
+      path_template: "{root}/{dataset}/{working}{stage}/wmap_distribution.json"
+      handler: EmptyHandler
+    error_distribution:
+      fn: ""
+      path_template: "{root}/{dataset}/{working}{stage}/error_distribution.json"
+      handler: EmptyHandler
+    report:
+      fn: ""
+      path_template: "{root}/{dataset}/{working}{stage}/ps_report.csv"
+      handler: EmptyHandler
+  assets_in:
+    theory_ps: {stage: convert_theory_ps}
+    auto_real: {stage: make_pred_ps}
+    auto_pred: {stage: make_pred_ps}
+  splits:
+    - train
+    - test
+  epochs: ${use_epochs_ps_stats}
+  override_n_sims: ${n_test_cap}
+  wmap_n_ps: 50
+  dir_name: Analysis_L_PS_Report2
 
-# ps_summary:
-#   assets_out:
-#     overall_stats:
-#       path_template: "{root}/{dataset}/{working}{stage}/all_epochs/overall_stats.csv"
-#       handler: EmptyHandler
-#     epoch_stats:
-#       path_template: "{root}/{dataset}/{working}{stage}/epoch_{epoch}/stats.csv"
-#       handler: EmptyHandler
-#     stats_per_split:
-#       path_template: "{root}/{dataset}/{working}{stage}/epoch_{epoch}/stats_per_split.csv"
-#       handler: EmptyHandler
-#   assets_in:
-#     report: {stage: ps_analysis}
-#     wmap_distribution: {stage: ps_analysis}
-#   splits:
-#     - test
-#   epochs: ${use_epochs_ps_stats}
-#   dir_name: Analysis_16_PS_Summary
+ps_summary_tables:
+  assets_out:
+    overall_stats:
+      path_template: "{root}/{dataset}/{working}{stage}/all_epochs/overall_stats.csv"
+      handler: PandasCsvHandler
+    epoch_stats:
+      path_template: "{root}/{dataset}/{working}{stage}/epoch_{epoch}/stats.csv"
+      handler: PandasCsvHandler
+    stats_per_split:
+      path_template: "{root}/{dataset}/{working}{stage}/epoch_{epoch}/stats_per_split.csv"
+      handler: PandasCsvHandler
+  assets_in:
+    report: {stage: ps_analysis}
+    wmap_ave: {stage: ps_theory_stats}
+    wmap_std: {stage: ps_theory_stats}
+  splits:
+    - test
+  epochs: ${use_epochs_ps_stats}
+  dir_name: Analysis_5_PS_Summary_Tables
 
-# post_ps_fig:
-#   assets_out:
-#     ps_figure_theory:
-#       path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/cmb_ps_figure_theory_{epoch}.png"
-#       handler: EmptyHandler
-#     ps_figure_real:
-#       path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/cmb_ps_figure_real_{epoch}.png"
-#       handler: EmptyHandler
-#   assets_in:
-#     theory_ps: {stage: convert_theory_ps}
-#     auto_real: {stage: make_pred_ps}
-#     auto_pred: {stage: make_pred_ps}
-#     wmap_distribution: {stage: ps_analysis}
-#     error_distribution: {stage: ps_analysis}
-#   splits:
-#     - test
-#   epochs: ${use_epochs_ps_stats}
-#   override_n_sims: ${n_show_cap}
-#   dir_name: Analysis_17_F_Post_PS_Solo_Figs
+ps_summary_figs:
+  assets_out:
+    boxplots:
+      path_template: "{root}/{dataset}/{working}{stage}/epoch_{epoch}/boxplots.png"
+      handler: EmptyHandler
+    histogram:
+      path_template: "{root}/{dataset}/{working}{stage}/epoch_{epoch}/{metric}_histogram.png"
+      handler: EmptyHandler
+  assets_in:
+    report: {stage: ps_analysis}
+  splits:
+    - test
+  epochs: ${use_epochs_ps_stats}
+  dir_name: Analysis_6_PS_Summary_Figs
+
+post_ps_fig:
+  assets_out:
+    ps_figure_theory:
+      path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/cmb_ps_figure_theory_{epoch}.png"
+      handler: EmptyHandler
+    ps_figure_real:
+      path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/cmb_ps_figure_real_{epoch}.png"
+      handler: EmptyHandler
+  assets_in:
+    theory_ps: {stage: convert_theory_ps}
+    auto_real: {stage: make_pred_ps}
+    auto_pred: {stage: make_pred_ps}
+    wmap_distribution: {stage: ps_analysis2}
+    error_distribution: {stage: ps_analysis2}
+  splits:
+    - test
+  epochs: ${use_epochs_ps_stats}
+  override_n_sims: ${n_show_cap}
+  dir_name: Analysis_7_F_Post_PS_Solo_Figs

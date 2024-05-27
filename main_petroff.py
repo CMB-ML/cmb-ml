@@ -22,7 +22,6 @@ from analysis import (
                       PixelSummaryExecutor,
                       ConvertTheoryPowerSpectrumExecutor,
                       MakePredPowerSpectrumExecutor,
-                      ShowSinglePsFigExecutor
                       )
 
 
@@ -31,7 +30,7 @@ logger = logging.getLogger(__name__)
 
 
 @hydra.main(version_base=None, config_path="cfg", config_name="config_petroff_t")
-def make_all_simulations(cfg):
+def run_petroff(cfg):
     logger.debug(f"Running {__name__} in {__file__}")
 
     # Write hydra's full composed config to a log
@@ -71,4 +70,4 @@ def make_all_simulations(cfg):
 
 if __name__ == "__main__":
     validate_environment_variable("CMB_SIMS_LOCAL_SYSTEM")
-    make_all_simulations()
+    run_petroff()

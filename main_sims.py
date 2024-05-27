@@ -14,16 +14,14 @@ from src.sims import (
     TheoryPSExecutor,
     SimCreatorExecutor
 )
-# from src.analysis import (
-#     ShowSimsExecutor
-# )
+from src.analysis import ShowSimsExecutor
 
 
 logger = logging.getLogger(__name__)
 
 
 @hydra.main(version_base=None, config_path="cfg", config_name="config_sim_t")
-def make_all_simulations(cfg):
+def run_simulations(cfg):
     logger.debug(f"Running {__name__} in {__file__}")
 
     log_maker = LogMaker(cfg)
@@ -37,6 +35,7 @@ def make_all_simulations(cfg):
     pipeline_context.add_pipe(ConfigExecutor)
     pipeline_context.add_pipe(TheoryPSExecutor)
     pipeline_context.add_pipe(SimCreatorExecutor)
+    # TODO: Put this back in the pipeline yaml; fix/make executor
     # pipeline_context.add_pipe(ShowSimsExecutor)
 
     pipeline_context.prerun_pipeline()
@@ -52,4 +51,4 @@ def make_all_simulations(cfg):
 
 
 if __name__ == "__main__":
-    make_all_simulations()
+    run_simulations()

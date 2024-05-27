@@ -42,3 +42,15 @@ ps_functions:
     kwargs: {normalization: "euclidean"}
 ps_operations:
   num_processes: 10
+
+lmax_ratio: 0.5
+# lmax_ratio: 3.0
+beam_other:
+  _target_: src.utils.physics_beam.GaussianBeam
+  _partial_: true  # lmax will come from python code
+  beam_fwhm: 5
+
+beam_pyilc:
+  _target_: src.utils.physics_beam.GaussianBeam
+  _partial_: true  # lmax will come from python code
+  beam_fwhm: 5

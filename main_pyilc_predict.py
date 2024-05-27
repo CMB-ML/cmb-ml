@@ -9,22 +9,14 @@ from core import (
                       )
 from src.core.A_check_hydra_configs import HydraConfigCheckerExecutor
 from pyilc_local.B_predict_executor import PredictionExecutor
-from analysis import (ShowSimsPrepExecutor, 
-                      NILCShowSimsPostExecutor,
-                      PixelAnalysisExecutor,
-                      PixelSummaryExecutor,
-                      ConvertTheoryPowerSpectrumExecutor,
-                      MakePredPowerSpectrumExecutor,
-                      ShowSinglePsFigExecutor
-                      )
 
 
 logger = logging.getLogger(__name__)
 
 
-@hydra.main(version_base=None, config_path="cfg", config_name="config_pyilc_t_HILC_backup")
-# @hydra.main(version_base=None, config_path="cfg", config_name="config_pyilc_t")
-def make_all_simulations(cfg):
+# @hydra.main(version_base=None, config_path="cfg", config_name="config_pyilc_t_HILC_backup")
+@hydra.main(version_base=None, config_path="cfg", config_name="config_pyilc_t")
+def run_pyilc_predictions(cfg):
     logger.debug(f"Running {__name__} in {__file__}")
 
     log_maker = LogMaker(cfg)
@@ -49,4 +41,4 @@ def make_all_simulations(cfg):
 
 if __name__ == "__main__":
     validate_environment_variable("CMB_SIMS_LOCAL_SYSTEM")
-    make_all_simulations()
+    run_pyilc_predictions()

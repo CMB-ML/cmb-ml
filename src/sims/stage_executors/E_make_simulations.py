@@ -66,7 +66,7 @@ class SimCreatorExecutor(BaseStageExecutor):
         self.nside_out = cfg.scenario.nside
         logger.info(f"Simulations will be output at nside_out = {self.nside_out}")
         
-        self.lmax_pysm3_smoothing = int(cfg.model.sim.cmb.derived_ps_nsmax_x * self.nside_out)
+        self.lmax_pysm3_smoothing = int(cfg.model.sim.pysm_beam_lmax_ratio * self.nside_out)
         logger.info(f"Simulation beam convolution will occur with lmax = {self.lmax_pysm3_smoothing}.")
         
         self.units = cfg.scenario.units
