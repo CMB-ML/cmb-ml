@@ -9,9 +9,9 @@ defaults:
   - model/analysis            : basic_analysis
   - override hydra/job_logging: custom_log
 
-dataset_name    : I_128_1450
-working_dir     : "PyILC_HILC_Test/"
-seed_base_string: 'cmml'
+dataset_name       : I_128_1450
+working_dir        : "PyILC_HILC_Test/"
+fig_model_name : HILC
 hydra:
   run:
     dir  : Logs/${now:%Y-%m-%d-%H-%M-%S}

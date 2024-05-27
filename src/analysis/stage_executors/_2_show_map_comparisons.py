@@ -46,6 +46,7 @@ class ShowSimsExecutor(BaseStageExecutor):
         if self.override_sim_nums is None:
             logger.warning("No particular sim indices specified. Outputs will be produced for all. This is not recommended.")
         self.min_max = self.get_plot_min_max()
+        self.fig_model_name = cfg.fig_model_name
 
     def get_plot_min_max(self):
         """

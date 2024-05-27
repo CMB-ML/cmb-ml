@@ -195,10 +195,10 @@ ps_summary_tables:
 ps_summary_figs:
   assets_out:
     boxplots:
-      path_template: "{root}/{dataset}/{working}{stage}/epoch_{epoch}/boxplots.png"
+      path_template: "{root}/{dataset}/{working}{stage}/epoch_{epoch}/{baseline}_boxplots.png"
       handler: EmptyHandler
     histogram:
-      path_template: "{root}/{dataset}/{working}{stage}/epoch_{epoch}/{metric}_histogram.png"
+      path_template: "{root}/{dataset}/{working}{stage}/epoch_{epoch}/{baseline}_{metric}_histogram.png"
       handler: EmptyHandler
   assets_in:
     report: {stage: ps_analysis}

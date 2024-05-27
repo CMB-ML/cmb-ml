@@ -12,6 +12,7 @@ dataset_name: ${scenario.map_fields}_${scenario.nside}_${splits.name}
 # dataset_name: I_128_1450_Reduced_Components
 # dataset_name: I_128_1450
 working_dir : "Petroff_Check/"
+fig_model_name: DeepSphere
 hydra:
   run:
     dir: Logs/${now:%Y-%m-%d-%H-%M-%S}

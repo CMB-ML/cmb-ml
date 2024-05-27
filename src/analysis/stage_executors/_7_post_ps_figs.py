@@ -38,7 +38,7 @@ class PostAnalysisPsFigExecutor(BaseStageExecutor):
         self.in_error_distribution: Asset = self.assets_in["error_distribution"]
         in_ps_handler: NumpyPowerSpectrum
 
-        # self.override_sim_nums = self.override_sim_nums
+        self.fig_model_name = cfg.fig_model_name
 
     def execute(self) -> None:
         # Remove this function
@@ -99,7 +99,8 @@ class PostAnalysisPsFigExecutor(BaseStageExecutor):
         error_band = [(error_mean - error_std, error_mean + error_std), (error_mean - 2*error_std, error_mean + 2*error_std)]
 
         self.make_ps_figure(ps_real, ps_pred, ps_theory, wmap_band, error_band, baseline="real")
-        plt.suptitle(f"CMBNNCS After Training for {epoch} Epochs, {split}:{sim_num}")
+        title = self.make_title(epoch, split, sim_num)
+        plt.suptitle(title)
         self.out_ps_figure_real.write()
         fn = self.out_ps_figure_real.path
         print(f'writing to {fn}')
@@ -107,21 +108,13 @@ class PostAnalysisPsFigExecutor(BaseStageExecutor):
         plt.close()
 
         self.make_ps_figure(ps_real, ps_pred, ps_theory, wmap_band, error_band, baseline="theory")
-        plt.suptitle(f"CMBNNCS After Training for {epoch} Epochs, {split}:{sim_num}")
+        title = self.make_title(epoch, split, sim_num)
+        plt.suptitle(title)
         self.out_ps_figure_theory.write()
         fn = self.out_ps_figure_theory.path
         print(f'writing to {fn}')
         plt.savefig(fn)
         plt.close()
-
-    # def make_ps_figure(self, ps_real, ps_pred, ps_theory):
-    #     n_ells = ps_real.shape[0]
-    #     ells = np.arange(1, n_ells+1)
-    #     norm = ells * (ells + 1) / (2 * np.pi)
-    #     plt.plot(ps_real * norm, label="Realization")
-    #     plt.plot(ps_pred * norm, label="Prediction")
-    #     plt.plot(ps_theory[:n_ells], label="Theory")
-    #     plt.legend()
 
     def make_ps_figure(self, ps_real, ps_pred, ps_theory, wmap_band, error_band, baseline="real"):
         n_ells = ps_real.shape[0]
@@ -164,4 +157,10 @@ class PostAnalysisPsFigExecutor(BaseStageExecutor):
             ax2.legend(loc='upper right')
         else:
             raise ValueError("Baseline must be 'real' or 'theory'")
-        
+    
+    def make_title(self, epoch, split, sim_num):
+        if epoch != "":
+            e_phrase = f" After Training for {epoch} Epochs"
+        else:
+            e_phrase = ""
+        return f"{self.fig_model_name} Predictions{e_phrase}, {split}:{sim_num}"

@@ -32,6 +32,7 @@ class PixelSummaryFigsExecutor(BaseStageExecutor):
         out_histogram_handler: EmptyHandler
 
         self.labels_lookup = self.get_labels_lookup()
+        self.fig_model_name = cfg.fig_model_name
 
     def get_labels_lookup(self):
         lookup = dict(self.cfg.model.analysis.px_functions)
@@ -71,12 +72,12 @@ class PixelSummaryFigsExecutor(BaseStageExecutor):
         for metric in numeric_columns:
             with self.name_tracker.set_context("metric", metric):
                 if "{metric}" not in self.out_histogram.path_template:
-                    logger.warning("If multiple metrics were used, they will be overwritten by the last one. #WAAH")
+                    logger.warning("If multiple metrics were used, they will be overwritten by the last one.")
                 self.out_histogram.write()  # Make directory
                 path = self.out_histogram.path
                 g = sns.FacetGrid(df, col="split", col_wrap=4, height=3)
                 g.map(sns.histplot, metric)
-                g.figure.suptitle(f"Per Pixel Distribution of {metric} by Split, Epoch {self.name_tracker.context['epoch']}")
+                g.figure.suptitle(f"")
                 plt.subplots_adjust(top=0.9)                             # Adjust the top margin to fit the suptitle
                 g.savefig(path)
                 plt.close(g.figure)
@@ -90,9 +91,13 @@ class PixelSummaryFigsExecutor(BaseStageExecutor):
             ax.set_title(self.labels_lookup[metric]["plot_name"])
             ax.set_ylabel(self.labels_lookup[metric]["axis_name"])
 
-        plt.suptitle(f"Per Pixel Metric Distribution by Split, Epoch {self.name_tracker.context['epoch']}")
+        title = self.make_title(metric)
+        plt.suptitle(title)
         plt.tight_layout(rect=[0, 0.03, 1, 0.95])
         self.out_boxplots.write()  # Make directory
         path = self.out_boxplots.path
         plt.savefig(path)
         plt.close()
+
+    def make_title(self, metric):
+        return f"{self.fig_model_name} Per Pixel Distribution of {metric} by Split, Epoch {self.name_tracker.context['epoch']}"

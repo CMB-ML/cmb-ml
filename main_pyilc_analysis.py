@@ -26,8 +26,8 @@ logger = logging.getLogger(__name__)
 
 # config_pyilc_t_HILC_backup
 
-# @hydra.main(version_base=None, config_path="cfg", config_name="config_pyilc_t")
-@hydra.main(version_base=None, config_path="cfg", config_name="config_pyilc_t_HILC_backup")
+@hydra.main(version_base=None, config_path="cfg", config_name="config_pyilc_t")
+# @hydra.main(version_base=None, config_path="cfg", config_name="config_pyilc_t_HILC_backup")
 def run_pyilc_analysis(cfg):
     logger.debug(f"Running {__name__} in {__file__}")
 
@@ -38,15 +38,15 @@ def run_pyilc_analysis(cfg):
 
     pipeline_context.add_pipe(HydraConfigCheckerExecutor)
 
-    # pipeline_context.add_pipe(PixelAnalysisExecutor)
-    # pipeline_context.add_pipe(PixelSummaryExecutor)
-    # pipeline_context.add_pipe(PixelSummaryFigsExecutor)
+    pipeline_context.add_pipe(PixelAnalysisExecutor)
+    pipeline_context.add_pipe(PixelSummaryExecutor)
+    pipeline_context.add_pipe(PixelSummaryFigsExecutor)
 
-    # Not needed in every analysis pipeline, but needed in one
+    # # Not needed in every analysis pipeline, but needed in one
     pipeline_context.add_pipe(ConvertTheoryPowerSpectrumExecutor)
     pipeline_context.add_pipe(MakeTheoryPSStats)
     
-    # PyILC's Predictions as Power Spectra Anaylsis
+    # # PyILC's Predictions as Power Spectra Anaylsis
     pipeline_context.add_pipe(PyILCMakePSExecutor)
     pipeline_context.add_pipe(PowerSpectrumAnalysisExecutorSerial)
     pipeline_context.add_pipe(PSAnalysisExecutor)
