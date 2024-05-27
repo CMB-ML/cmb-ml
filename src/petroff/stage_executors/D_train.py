@@ -181,8 +181,8 @@ class TrainingExecutor(PetroffModelExecutor):
             label_path_template=cmb_path_template,
             feature_path_template=obs_path_template,
             file_handler=HealpyMap(),
+            read_to_nest=True,          # Because Petroff uses hierarchical format
             pt_xforms=pt_transforms,
-            # hp_xforms=hp_transforms
             )
         return dataset
 
