@@ -1,10 +1,9 @@
 defaults:
   - _self_
-  - simulation_pipe
-  - sim_analysis_pipe
-  - petroff_pipe
-  - analysis_pipe
-  # - cmbnncs_analysis_pipe
+  - pipe_sim
+  - pipe_sim_analysis
+  - pipe_model_petroff
+  - pipe_model_analysis
 
 # This has neither preprocess nor postprocess. 
 #   Redirect those to predict.

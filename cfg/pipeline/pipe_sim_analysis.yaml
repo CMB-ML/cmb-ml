@@ -1,0 +1,53 @@
+show_sims:
+  assets_out:
+    cmb_map_render:
+      handler: Mover
+      path_template: "{root}/{dataset}/{stage}/{split}/{sim}/{view}_cmb_{field}.png"
+    obs_map_render:
+      handler: Mover
+      path_template: "{root}/{dataset}/{stage}/{split}/{sim}/{view}_obs_{field}_{freq}.png"
+  assets_in:
+    cmb_map: {stage: make_sims}
+    obs_maps: {stage: make_sims}
+  splits:
+    - train
+  override_n_sims: 1                 # int: first n_sims; null: all sims; list: particular sims by index
+  plot_min_max: null                 # value, v: plots from -v to +v; null: allow MPL to choose; list (size 2): min and max val
+  # plot_rot: [250, -50]             # Goodish direction for RG
+  plot_rot: null                     # Useful for looking in specific directions; difficult to figure out the values needed
+  plot_gnom_res: 12                  # Arcmins per pixel in the gnonomic view
+  dir_name: Analysis_1_Render_Simulation_Maps
+  make_stage_log: False
+
+convert_theory_ps:
+  assets_out:
+    theory_ps:
+      # Alt in the case of ps_fidu_fixed
+      # Note: not in working directory! Alongside Simulations in top level.
+      path_template_alt: "{root}/{dataset}/{stage}/{split}/theory_ps.npy"
+      path_template: "{root}/{dataset}/{stage}/{split}/{sim}/theory_ps.npy"
+      handler: NumpyPowerSpectrum
+  assets_in:
+    theory_ps: {stage: make_theory_ps, orig_name: "cmb_ps"}
+  splits:
+    - test
+  dir_name: Analysis_Theory_Power_Spectra
+
+ps_theory_stats:
+  assets_out:
+    wmap_ave:
+      fn: ""
+      path_template: "{root}/{dataset}/{working}{stage}/wmap_ave.npy"
+      handler: NumpyPowerSpectrum
+    wmap_std:
+      fn: ""
+      path_template: "{root}/{dataset}/{working}{stage}/wmap_std.npy"
+      handler: NumpyPowerSpectrum
+  assets_in:
+    theory_ps: {stage: convert_theory_ps}
+  splits:
+    - train
+  epochs: ${use_epochs_ps_stats}
+  override_n_sims: ${n_test_cap}
+  wmap_n_ps: 50
+  dir_name: Analysis_15_PS_Theory_Range

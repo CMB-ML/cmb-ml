@@ -1,4 +1,4 @@
-show_sims_prep: &show_sims_prep
+show_cmb_prep:
   assets_out:
     cmb_map_render:
       handler: Mover
@@ -14,18 +14,11 @@ show_sims_prep: &show_sims_prep
   splits:
     - train
   override_n_sims: ${n_show_cap}     # int: first n_sims; null: all sims; list: particular sims by index
-  plot_min_max: null                 # value, v: plots from -v to +v; null: allow MPL to choose; list (size 2): min and max val
+  plot_min_max: 500                  # value, v: plots from -v to +v; null: allow MPL to choose; list (size 2): min and max val
+  dir_name: Analysis_1_Show_CMB_Prep
   make_stage_log: False
 
-show_sims_prep_cmbnncs:
-  <<: *show_sims_prep
-  dir_name: Analysis_1_Render_Prep_Maps
-
-# show_sims_prep_petroff:
-#   <<: *show_sims_prep
-#   dir_name: Analysis_Petroff_1_Render_Prep_Maps
-
-show_sims_pred: &show_sims_pred
+show_cmb_pred:
   assets_out:
     cmb_map_render:
       handler: Mover
@@ -36,27 +29,12 @@ show_sims_pred: &show_sims_pred
   splits:
     - test
   override_n_sims: ${n_show_cap}     # int: first n_sims; null: all sims; list: particular sims by index
-  plot_min_max: null                 # value, v: plots from -v to +v; null: allow MPL to choose; list (size 2): min and max val
+  plot_min_max: 500                  # value, v: plots from -v to +v; null: allow MPL to choose; list (size 2): min and max val
   make_stage_log: False
-
-show_sims_pred_cmbnncs:
-  <<: *show_sims_pred
-  dir_name: Analysis_2_Render_Pred_Maps
+  dir_name: Analysis_2_Show_CMB_Pred
   epochs: ${use_epochs_imgs}
 
-show_sims_pred_petroff:
-  <<: *show_sims_pred
-  dir_name: Analysis_2_Render_Pred_Maps
-  epochs: ${use_epochs_imgs}
-  plot_min_max: 500
-
-show_sims_pred_nilc:
-  <<: *show_sims_pred
-  dir_name: Analysis_2_Render_Pred_Maps
-  epochs: ${use_epochs_imgs}
-  plot_min_max: 500
-
-show_sims_post: &show_sims_post
+show_cmb_post:
   assets_out:
     cmb_map_render:
       handler: Mover
@@ -67,14 +45,10 @@ show_sims_post: &show_sims_post
   splits:
     - test
   override_n_sims: 1                 # int: first n_sims; null: all sims; list: particular sims by index
-  plot_min_max: null                 # value, v: plots from -v to +v; null: allow MPL to choose; list (size 2): min and max val
+  plot_min_max: 500                  # value, v: plots from -v to +v; null: allow MPL to choose; list (size 2): min and max val
   make_stage_log: False
-
-show_sims_post_cmbnncs:
-  <<: *show_sims_post
-  dir_name: Analysis_3_Render_Post_Maps
+  dir_name: Analysis_3_Show_CMB_Post
   epochs: ${use_epochs_imgs}
-  plot_min_max: 500
 
 pixel_analysis:
   assets_out:
@@ -110,20 +84,6 @@ pixel_summary:
   epochs: ${use_epochs_map_stats}
   dir_name: Analysis_11_Pixel_Summary
 
-convert_theory_ps:
-  assets_out:
-    theory_ps:
-      # Alt in the case of ps_fidu_fixed
-      # Note: not in working directory! Alongside Simulations in top level.
-      path_template_alt: "{root}/{dataset}/{stage}/{split}/theory_ps.npy"
-      path_template: "{root}/{dataset}/{stage}/{split}/{sim}/theory_ps.npy"
-      handler: NumpyPowerSpectrum
-  assets_in:
-    theory_ps: {stage: make_theory_ps, orig_name: "cmb_ps"}
-  splits:
-    - test
-  dir_name: Analysis_Theory_Power_Spectra
-
 # Need to define an external resource for the next stage, make_pred_ps
 mask:
   assets_out:
@@ -151,10 +111,6 @@ make_pred_ps:
     diff_real_pred:
       path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/ps_diff_{epoch}.npy"
       handler: NumpyPowerSpectrum
-    # Autocorrelation for the map containing the absolute value of the difference between realization - prediction
-    abs_diff_real_pred:
-      path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/ps_abs_diff_{epoch}.npy"
-      handler: NumpyPowerSpectrum
   assets_in:
     cmb_map_real: {stage: make_sims, orig_name: cmb_map}
     cmb_map_post: {stage: final_infer, orig_name: cmb_map}
@@ -179,67 +135,85 @@ ps_fig:
   override_n_sims: ${n_show_cap}
   dir_name: Analysis_14_F_PS_Solo_Figs
 
+
 ps_analysis:
   assets_out:
-    wmap_distribution:
-      fn: ""
-      path_template: "{root}/{dataset}/{working}{stage}/wmap_distribution.json"
-      handler: EmptyHandler
-    error_distribution:
-      fn: ""
-      path_template: "{root}/{dataset}/{working}{stage}/error_distribution.json"
-      handler: EmptyHandler
     report:
       fn: ""
       path_template: "{root}/{dataset}/{working}{stage}/ps_report.csv"
-      handler: EmptyHandler
+      handler: PandasCsvHandler
   assets_in:
     theory_ps: {stage: convert_theory_ps}
     auto_real: {stage: make_pred_ps}
     auto_pred: {stage: make_pred_ps}
   splits:
-    - train
     - test
   epochs: ${use_epochs_ps_stats}
-  override_n_sims: ${n_show_cap}
+  override_n_sims: ${n_test_cap}
   wmap_n_ps: 50
   dir_name: Analysis_15_PS_Report
 
-ps_summary:
-  assets_out:
-    overall_stats:
-      path_template: "{root}/{dataset}/{working}{stage}/all_epochs/overall_stats.csv"
-      handler: EmptyHandler
-    epoch_stats:
-      path_template: "{root}/{dataset}/{working}{stage}/epoch_{epoch}/stats.csv"
-      handler: EmptyHandler
-    stats_per_split:
-      path_template: "{root}/{dataset}/{working}{stage}/epoch_{epoch}/stats_per_split.csv"
-      handler: EmptyHandler
-  assets_in:
-    report: {stage: ps_analysis}
-    wmap_distribution: {stage: ps_analysis}
-  splits:
-    - test
-  epochs: ${use_epochs_ps_stats}
-  dir_name: Analysis_16_PS_Summary
+# ps_analysis2:
+#   assets_out:
+#     wmap_distribution:
+#       fn: ""
+#       path_template: "{root}/{dataset}/{working}{stage}/wmap_distribution.json"
+#       handler: EmptyHandler
+#     error_distribution:
+#       fn: ""
+#       path_template: "{root}/{dataset}/{working}{stage}/error_distribution.json"
+#       handler: EmptyHandler
+#     report:
+#       fn: ""
+#       path_template: "{root}/{dataset}/{working}{stage}/ps_report.csv"
+#       handler: EmptyHandler
+#   assets_in:
+#     theory_ps: {stage: convert_theory_ps}
+#     auto_real: {stage: make_pred_ps}
+#     auto_pred: {stage: make_pred_ps}
+#   splits:
+#     - train
+#     - test
+#   epochs: ${use_epochs_ps_stats}
+#   override_n_sims: ${n_test_cap}
+#   wmap_n_ps: 50
+#   dir_name: Analysis_15_PS_Report
 
-post_ps_fig:
-  assets_out:
-    ps_figure_theory:
-      path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/cmb_ps_figure_theory_{epoch}.png"
-      handler: EmptyHandler
-    ps_figure_real:
-      path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/cmb_ps_figure_real_{epoch}.png"
-      handler: EmptyHandler
-  assets_in:
-    theory_ps: {stage: convert_theory_ps}
-    auto_real: {stage: make_pred_ps}
-    auto_pred: {stage: make_pred_ps}
-    wmap_distribution: {stage: ps_analysis}
-    error_distribution: {stage: ps_analysis}
-  splits:
-    - test
-  epochs: ${use_epochs_ps_stats}
-  override_n_sims: ${n_show_cap}
-  dir_name: Analysis_17_F_Post_PS_Solo_Figs
+# ps_summary:
+#   assets_out:
+#     overall_stats:
+#       path_template: "{root}/{dataset}/{working}{stage}/all_epochs/overall_stats.csv"
+#       handler: EmptyHandler
+#     epoch_stats:
+#       path_template: "{root}/{dataset}/{working}{stage}/epoch_{epoch}/stats.csv"
+#       handler: EmptyHandler
+#     stats_per_split:
+#       path_template: "{root}/{dataset}/{working}{stage}/epoch_{epoch}/stats_per_split.csv"
+#       handler: EmptyHandler
+#   assets_in:
+#     report: {stage: ps_analysis}
+#     wmap_distribution: {stage: ps_analysis}
+#   splits:
+#     - test
+#   epochs: ${use_epochs_ps_stats}
+#   dir_name: Analysis_16_PS_Summary
+
+# post_ps_fig:
+#   assets_out:
+#     ps_figure_theory:
+#       path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/cmb_ps_figure_theory_{epoch}.png"
+#       handler: EmptyHandler
+#     ps_figure_real:
+#       path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/cmb_ps_figure_real_{epoch}.png"
+#       handler: EmptyHandler
+#   assets_in:
+#     theory_ps: {stage: convert_theory_ps}
+#     auto_real: {stage: make_pred_ps}
+#     auto_pred: {stage: make_pred_ps}
+#     wmap_distribution: {stage: ps_analysis}
+#     error_distribution: {stage: ps_analysis}
+#   splits:
+#     - test
+#   epochs: ${use_epochs_ps_stats}
+#   override_n_sims: ${n_show_cap}
+#   dir_name: Analysis_17_F_Post_PS_Solo_Figs
