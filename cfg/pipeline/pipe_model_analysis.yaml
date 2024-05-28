@@ -67,10 +67,10 @@ pixel_summary_tables:
   assets_out:
     overall_stats:
       path_template: "{root}/{dataset}/{working}{stage}/epoch_{epoch}/overall_stats.csv"
-      handler: EmptyHandler
+      handler: PandasCsvHandler
     stats_per_split:
       path_template: "{root}/{dataset}/{working}{stage}/epoch_{epoch}/stats_per_split.csv"
-      handler: EmptyHandler
+      handler: PandasCsvHandler
   assets_in:
     report: {stage: pixel_analysis}
   splits:
@@ -178,7 +178,7 @@ ps_summary_tables:
       path_template: "{root}/{dataset}/{working}{stage}/all_epochs/overall_stats.csv"
       handler: PandasCsvHandler
     epoch_stats:
-      path_template: "{root}/{dataset}/{working}{stage}/epoch_{epoch}/stats.csv"
+      path_template: "{root}/{dataset}/{working}{stage}/epoch_{epoch}/epoch_stats.csv"
       handler: PandasCsvHandler
     stats_per_split:
       path_template: "{root}/{dataset}/{working}{stage}/epoch_{epoch}/stats_per_split.csv"

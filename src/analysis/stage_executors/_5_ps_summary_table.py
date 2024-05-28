@@ -48,16 +48,17 @@ class PowerSpectrumSummaryExecutor(BaseStageExecutor):
     def summary_tables(self, df):
         # Compute overall averages, excluding non-numeric fields like 'sim' and 'split'
         numeric_columns = df.select_dtypes(include=[np.number]).columns
+        numeric_columns = numeric_columns.drop('sim')
 
         # Write out stats across all splits
-        overall_stats = df[numeric_columns].agg(['mean', 'std'])
-        overall_stats.reset_index()
-        self.epoch_stats.write(data=overall_stats)
+        epoch_stats = df[numeric_columns].agg(['mean', 'std'])
+        epoch_stats.reset_index()
+        self.epoch_stats.write(data=epoch_stats, index=True)
 
         # Write out stats per split
         stats_per_split = df.groupby('split')[numeric_columns].agg(['mean', 'std'])
         stats_per_split.reset_index()
-        self.out_stats_per_split.write(data=stats_per_split)
+        self.out_stats_per_split.write(data=stats_per_split, index=True)
 
     # def summary_tables(self, df):
     #     # Compute overall averages, excluding non-numeric fields like 'sim' and 'split'

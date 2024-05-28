@@ -12,21 +12,21 @@ from .asset_handler_registration import register_handler
 logger = logging.getLogger(__name__)
 
 
-class PandasCsvHandler(GenericHandler):
+class TextHandler(GenericHandler):
     def read(self, path: Union[Path, str]):
-        res = pd.read_csv(path)
+        path = Path(path)
+        with open(path, 'r') as f:
+            res = f.read()
         return res
 
     def write(self, 
               path: Union[Path, str], 
-              data: Union[dict, pd.DataFrame],
-              index: bool=False
+              data: str
               ):
+        path = Path(path)
         make_directories(path)
-        try:
-            data.to_csv(path, index=index)
-        except:
-            pd.DataFrame(data).to_csv(path, index=index)
+        with open(path, 'w') as f:
+            f.write(data)
 
 
-register_handler("PandasCsvHandler", PandasCsvHandler)
+register_handler("TextHandler", TextHandler)

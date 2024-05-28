@@ -1,20 +1,24 @@
 # For maps
-px_functions:
+px_functions: &stat_funcs
   mse:
     plot_name: "Mean Squared Error (MSE)"
     axis_name: "MSE"
+    label: MSE
     func: "skimage.metrics.mean_squared_error"
   psnr:
     plot_name: "Peak Signal-to-Noise Ratio (PNSR)"
     axis_name: "PNSR"
+    label: PSNR
     func: "psnr"
   mae:
     plot_name: "Mean Absolute Error (MAE)"
     axis_name: "MAE"
+    label: MAE
     func: "sklearn.metrics.mean_absolute_error"
   nrmse:
     plot_name: "Normalized Root MSE (NRMSE)"
     axis_name: "NRMSE"
+    label: NRMSE
     func: "skimage.metrics.normalized_root_mse"
     kwargs: {normalization: "euclidean"}
 px_operations:
@@ -22,26 +26,6 @@ px_operations:
 
 # For power spectra
 mask_threshold: 0.9  # Per Planck's 2015 results:IX. Diffuse component separation: CMB maps
-ps_functions:
-  mse:
-    plot_name: "Mean Squared Error (MSE)"
-    axis_name: "MSE"
-    func: "skimage.metrics.mean_squared_error"
-  psnr:
-    plot_name: "Peak Signal-to-Noise Ratio (PNSR)"
-    axis_name: "PNSR"
-    func: "psnr"
-  mae:
-    plot_name: "Mean Absolute Error (MAE)"
-    axis_name: "MAE"
-    func: "sklearn.metrics.mean_absolute_error"
-  nrmse:
-    plot_name: "Normalized Root MSE (NRMSE)"
-    axis_name: "NRMSE"
-    func: "skimage.metrics.normalized_root_mse"
-    kwargs: {normalization: "euclidean"}
-ps_operations:
-  num_processes: 10
 
 lmax_ratio: 0.5
 # lmax_ratio: 3.0
@@ -54,3 +38,7 @@ beam_pyilc:
   _target_: src.utils.physics_beam.GaussianBeam
   _partial_: true  # lmax will come from python code
   beam_fwhm: 5
+
+ps_functions: *stat_funcs
+ps_operations:
+  num_processes: 10

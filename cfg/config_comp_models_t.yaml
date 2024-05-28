@@ -1,10 +1,10 @@
 defaults:
   - local_system   : ${oc.env:CMB_SIMS_LOCAL_SYSTEM}
   - file_system    : common_fs
-  - pipeline       : assembly_cmbnncs
+  - pipeline       : assembly_model_comp
   - scenario       : scenario_t
   - splits         : all_t
-  - model/cmbnncs  : cmbnncs_model
+  # - model/cmbnncs  : cmbnncs_model
   - model/analysis : basic_analysis
   - override hydra/job_logging: custom_log
   - _self_
@@ -13,21 +13,31 @@ defaults:
 # When creating multiple datasets, using interpolation like this may be easier:
 # dataset_name: IQU_${scenario.nside}_${splits.name}
 dataset_name       : ${scenario.map_fields}_${scenario.nside}_${splits.name}
-working_dir        : "CMBNNCS/"
-fig_model_name     : CMBNNCS
+working_dir        : "placeholder_set_below/"
+fig_model_name : CMBNNCS
 hydra:
   run:
-    dir            : Logs/${now:%Y-%m-%d-%H-%M-%S}
-  verbose          : true
+    dir: Logs/${now:%Y-%m-%d-%H-%M-%S}
+  verbose: true
+
+models_comp:
+  - cmbnncs:
+    model_name        : CMBNNCS
+    working_directory : CMBNNCS/
+    epoch             : 40
+  - pyilc:
+    model_name        : HILC
+    working_directory : PyILC_HILC_Test/
+    # No epochs for this model
+    epoch             : ""
 
 # Settings below this point are used for interpolation.
 # These are not to be used directly in the python
 # They are picked up from here and MAY be used elsewhere in the yamls.
 # In the scenario yaml
-nside              : 128
-detectors          : [100, 143, 217, 353]
-# detectors          : [30, 44, 70, 100, 143, 217, 353] # , 545, 857]
-map_fields         : "I"
+nside          : 128
+# detectors      : [30, 44, 70, 100, 143, 217, 353] # , 545, 857]
+map_fields     : "I"
 
 # In the model yaml
 num_epochs       : 40
@@ -39,7 +49,7 @@ use_epochs       : &epochs ["init", 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 25, 40, 6
 use_epochs_imgs  : *epochs
 # For summary statistics:
 # use_epochs_map_stats : ["init", 1, 2, 6, 25, 40, 120]
-use_epochs_map_stats : [20, 40]
+use_epochs_map_stats : [40, 20]
 # For summary statistics:
 use_epochs_ps_stats : [40]
 # Limit the number of simulations for which to generate figures

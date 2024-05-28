@@ -285,6 +285,9 @@ Markov:
 
 ## Cleaning Up To-Do's
 
+- Analysis Compares
+  - [ ] Detectors in config file is potentially confusing, but hydraconfigs checker looks for it; make solution? Or replace configchecker
+
 - Configs
   - [x] In pipeline / local system: establish better {src_root} system
   - [x] Clean up local_system: use interpolation for directories?

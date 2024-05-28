@@ -12,7 +12,9 @@ class Namer:
         self.sim_folder_prefix: str = cfg.file_system.sim_folder_prefix
         self.sim_str_num_digits: int = cfg.file_system.sim_str_num_digits
 
-        self.context = {}
+        self.context = dict(dataset=self.dataset_name,
+                            working=self.working_dir,
+                            root=str(self.root))
 
     @contextmanager
     def set_context(self, level, value):
@@ -52,10 +54,7 @@ class Namer:
         return template
 
     def path(self, path_template: str):
-        temp_context = dict(**self.context, 
-                            root=str(self.root), 
-                            dataset=self.dataset_name,
-                            working=self.working_dir)
+        temp_context = dict(**self.context)
         if "sim" not in self.context and "sim_num" in self.context:
             temp_context["sim"] = self.sim_name()
 
