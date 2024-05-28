@@ -27,8 +27,8 @@ px_operations:
 # For power spectra
 mask_threshold: 0.9  # Per Planck's 2015 results:IX. Diffuse component separation: CMB maps
 
-lmax_ratio: 0.5
-# lmax_ratio: 3.0
+# lmax_ratio: 0.5
+lmax_ratio: 3.0
 beam_other:
   _target_: src.utils.physics_beam.GaussianBeam
   _partial_: true  # lmax will come from python code
