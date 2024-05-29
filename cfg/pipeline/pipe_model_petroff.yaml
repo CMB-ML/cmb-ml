@@ -12,6 +12,25 @@ make_normalization:
   make_stage_log: True
   dir_name: Petroff_B_Extrema
 
+preprocess:
+  assets_out:
+    cmb_map: 
+      handler: HealpyMap
+      path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/cmb_map.fits"
+    obs_maps: 
+      handler: HealpyMap
+      path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/obs_{freq}_map.fits"
+  assets_in:
+    norm_file: {stage: make_normalization}
+    cmb_map: {stage: make_sims}
+    obs_maps: {stage: make_sims}
+  splits: &all_splits
+    - train
+    - valid
+    - test
+  dir_name: Petroff_C_Preprocess
+  make_stage_log: True
+
 train:
   assets_out:
     model: 
@@ -22,6 +41,21 @@ train:
     model: {stage: train}
     cmb_map: {stage: make_sims}
     obs_maps: {stage: make_sims}
+  splits:
+    - train
+  dir_name: Petroff_D_Model
+  make_stage_log: True
+
+train_on_preprocessed:
+  assets_out:
+    model: 
+      handler: PyTorchModel
+      path_template: "{root}/{dataset}/{working}{stage}/model_{epoch}.pth"
+  assets_in:
+    norm_file: {stage: make_normalization}
+    model: {stage: train}
+    cmb_map: {stage: preprocess}
+    obs_maps: {stage: preprocess}
   splits:
     - train
   dir_name: Petroff_D_Model

@@ -45,7 +45,8 @@ def train_remove_map_fields(data):
     # Within the dataloader, each is processed individually
     # Tensors are detectors x map_fields x npix (shape is size 3)
     obs, cmb = data
-    obs, cmb = obs.squeeze(1), cmb.squeeze(1)
+    obs = obs.squeeze(1)
+    cmb = cmb.squeeze(1)
     return obs, cmb
 
 def test_remove_map_fields(data):

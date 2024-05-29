@@ -51,6 +51,9 @@ class TrainCMBMapDataset(Dataset):
                                sim_idx=sim_idx)
         label = _do_np_xforms(label, self.np_xforms)
 
+        # Match shape of features
+        label = label.reshape(1, -1)
+
         data = (features, label)
         if self.pt_xforms:
             try:
@@ -121,7 +124,12 @@ def _get_label_idx(path_template, handler, read_to_nest, n_map_fields, sim_idx):
     label_path = path_template.format(sim_idx=sim_idx)
     label = handler.read(label_path, read_to_nest=read_to_nest)
     if label.shape[0] == 3 and n_map_fields == 1:
-        label = label[0, :]
+        # The CMB is always output from PySM3 with QU fields
+        # TODO: Fix this at the make_sim stage.
+        label = label[0, :].reshape(1, -1)
+    elif len(label.shape) == 1:
+        # When CMB data has no QU fields
+        label = label.reshape(1, -1)
     return label
 
 

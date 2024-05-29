@@ -5,6 +5,8 @@ defaults:
 preprocess:
   scaling          : ${scale_method}  # absmax and minmax are supported
   num_processes    : 10
+  batch_size       : 1          # When using standalone preprocess executor, batch size 1 is required
+  num_workers      : 0
 train:
   device           : null       # Set to null to allow PyTorch to choose based on availability
   learning_rate    : ${learning_rate}

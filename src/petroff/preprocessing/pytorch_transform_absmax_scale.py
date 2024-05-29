@@ -82,7 +82,9 @@ class TrainAbsMaxScaleMap(AbsMaxScaleMapAbstract):
                 cmb (batch x 1 x N_pix tensor): cmb map
         """
         obs, cmb = map_data
-        return abs_max_scale(obs, self.obs_abs_max), abs_max_scale(cmb, self.cmb_abs_max)
+        obs = abs_max_scale(obs, self.obs_abs_max)
+        cmb = abs_max_scale(cmb, self.cmb_abs_max)
+        return obs, cmb
 
 
 class TestAbsMaxScaleMap(AbsMaxScaleMapAbstract):

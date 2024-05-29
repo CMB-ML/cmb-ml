@@ -12,16 +12,18 @@ from core import (
 from core.A_check_hydra_configs import HydraConfigCheckerExecutor
 from petroff import (
                      PreprocessMakeExtremaExecutor,
+                     PreprocessExecutor,
                      CheckTransformsExecutor,
                      TrainingExecutor,
-                     PredictionExecutor,
+                     TrainingOnPreprocessedExecutor,
+                     PredictionExecutor
                      )
 from analysis import (
                       PetroffShowSimsPostExecutor,
                       PixelAnalysisExecutor,
                       PixelSummaryExecutor,
                       ConvertTheoryPowerSpectrumExecutor,
-                      MakePredPowerSpectrumExecutor,
+                    #   MakePredPowerSpectrumExecutor,
                       )
 
 
@@ -45,10 +47,12 @@ def run_petroff(cfg):
     # pipeline_context.add_pipe(HydraConfigPetroffCheckerExecutor)
 
     pipeline_context.add_pipe(PreprocessMakeExtremaExecutor)
-    pipeline_context.add_pipe(CheckTransformsExecutor)
+    # pipeline_context.add_pipe(CheckTransformsExecutor)
+    # pipeline_context.add_pipe(PreprocessExecutor)
+    # pipeline_context.add_pipe(TrainingOnPreprocessedExecutor)
     pipeline_context.add_pipe(TrainingExecutor)
     pipeline_context.add_pipe(PredictionExecutor)
-    pipeline_context.add_pipe(PetroffShowSimsPostExecutor)
+    # pipeline_context.add_pipe(PetroffShowSimsPostExecutor)
 
     # pipeline_context.add_pipe(PixelAnalysisExecutor)
     # pipeline_context.add_pipe(PixelSummaryExecutor)

@@ -28,7 +28,7 @@ from src.petroff.preprocessing.pytorch_transform_pixel_reorder import ReorderTra
 logger = logging.getLogger(__name__)
 
 
-class TrainingExecutor(PetroffModelExecutor):
+class TrainingOnPreprocessedExecutor(PetroffModelExecutor):
     def __init__(self, cfg: DictConfig) -> None:
         # The following string must match the pipeline yaml
         super().__init__(cfg, stage_str="train")
@@ -154,25 +154,12 @@ class TrainingExecutor(PetroffModelExecutor):
         cmb_path_template = self.make_fn_template(template_split, self.in_cmb_asset)
         obs_path_template = self.make_fn_template(template_split, self.in_obs_assets)
 
-        scale_factors = self.in_norm.read()
-        dtype_transform = TrainToTensor(self.dtype, device="cpu")
-        scale_map_transform = self.scale_class(all_map_fields=self.map_fields,
-                                               scale_factors=scale_factors,
-                                               device="cpu",
-                                               dtype=self.dtype)
         device_transform = TrainToTensor(self.dtype, device=self.device)
         remove_map_field_transform = train_remove_map_fields
         pt_transforms = [
-            dtype_transform,
-            scale_map_transform,
-            remove_map_field_transform,
-            device_transform
+            device_transform,
+            remove_map_field_transform
         ]
-
-        # reorder_transform_in = ReorderTransform(from_ring=True)
-        # hp_transforms = [
-        #     # reorder_transform_in
-        # ]
 
         dataset = TrainCMBMapDataset(
             n_sims = template_split.n_sims,
