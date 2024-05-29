@@ -4,10 +4,11 @@ import torch
 
 from omegaconf import DictConfig
 
-from core import (BaseStageExecutor, Split)
+from src.core import BaseStageExecutor, Split
 
 from src.petroff.deepsphere_model.model import PetroffNet
 from src.core.asset_handlers.pytorch_model_handler import PyTorchModel  # Must be imported for registration
+from src.core.asset_handlers.qtable_handler import QTableHandler
 from src.utils import make_instrument, Instrument
 from src.core.asset_handlers.healpy_map_handler import HealpyMap
 
