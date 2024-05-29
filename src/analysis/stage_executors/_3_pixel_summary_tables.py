@@ -65,11 +65,11 @@ class PixelSummaryExecutor(BaseStageExecutor):
         numeric_columns = df.select_dtypes(include=[np.number]).columns
         # Also get rid of the 'sim' column, ('sim' is just an ID number, no statistics wanted.)
         numeric_columns = numeric_columns.drop('sim')
-        overall_stats = df[numeric_columns].agg(['mean', 'std'])
-        stats_per_split = df.groupby('split')[numeric_columns].agg(['mean', 'std'])
 
+        overall_stats = df[numeric_columns].agg(['mean', 'std'])
         overall_stats.reset_index()
         self.out_overall_stats.write(data=overall_stats, index=True)
 
+        stats_per_split = df.groupby('split')[numeric_columns].agg(['mean', 'std'])
         stats_per_split.reset_index()
         self.out_stats_per_split.write(data=stats_per_split, index=True)

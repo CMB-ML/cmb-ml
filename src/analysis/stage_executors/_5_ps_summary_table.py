@@ -21,16 +21,11 @@ class PowerSpectrumSummaryExecutor(BaseStageExecutor):
     def __init__(self, cfg: DictConfig) -> None:
         super().__init__(cfg, stage_str="ps_summary_tables")
 
-        self.overall_stats: Asset = self.assets_out["overall_stats"]
         self.epoch_stats: Asset = self.assets_out["epoch_stats"]
-        self.out_stats_per_split: Asset = self.assets_out["stats_per_split"]
         out_ps_stats_handlers: PandasCsvHandler
 
         self.in_ps_report: Asset = self.assets_in["report"]
-        self.in_ps_ave: Asset = self.assets_in["wmap_ave"]
-        self.in_ps_std: Asset = self.assets_in["wmap_std"]
         in_ps_report_handler: PandasCsvHandler
-        in_ps_stats_handlers: NumpyPowerSpectrum
 
     def execute(self) -> None:
         logger.debug(f"Running {self.__class__.__name__} execute()")
@@ -39,55 +34,36 @@ class PowerSpectrumSummaryExecutor(BaseStageExecutor):
         df['epoch'] = df['epoch'].astype(str)
         df['epoch'] = df['epoch'].replace("nan", "")
 
-        for epoch in self.model_epochs:
-            logger.info(f"Generating summary for epoch {epoch}.")
-            with self.name_tracker.set_context('epoch', epoch):
-                epoch_df = df[df['epoch']==str(epoch)]
-                self.summary_tables(epoch_df)
+        rel_to = df['baseline'].unique()
+
+        all_summaries = []
+        for baseline in rel_to:
+            rel_to_df = df[df['baseline'] == baseline]
+            for epoch in self.model_epochs:
+                logger.info(f"Generating summary for epoch {epoch}, relative to {baseline}.")
+                context_dict = dict(epoch=epoch, baseline=baseline)
+                with self.name_tracker.set_contexts(context_dict):
+                    epoch_df = rel_to_df[rel_to_df['epoch']==str(epoch)]
+                    summary_df = self.summary_tables(epoch_df)
+                    summary_df['epoch'] = epoch  # Add epoch as a column
+                    summary_df['baseline'] = baseline  # Add baseline as a column
+                    all_summaries.append(summary_df)
+        final_summary = pd.concat(all_summaries, ignore_index=True)
+        self.epoch_stats.write(data=final_summary, index=True)
 
     def summary_tables(self, df):
         # Compute overall averages, excluding non-numeric fields like 'sim' and 'split'
         numeric_columns = df.select_dtypes(include=[np.number]).columns
         numeric_columns = numeric_columns.drop('sim')
 
-        # Write out stats across all splits
+        # Get mean and st dev
         epoch_stats = df[numeric_columns].agg(['mean', 'std'])
-        epoch_stats.reset_index()
-        self.epoch_stats.write(data=epoch_stats, index=True)
+        epoch_stats = epoch_stats.unstack().reset_index()
+        epoch_stats.columns = ['metric', 'type', 'value']
+        return epoch_stats
+        # self.epoch_stats.write(data=epoch_stats, index=True)
 
         # Write out stats per split
-        stats_per_split = df.groupby('split')[numeric_columns].agg(['mean', 'std'])
-        stats_per_split.reset_index()
-        self.out_stats_per_split.write(data=stats_per_split, index=True)
-
-    # def summary_tables(self, df):
-    #     # Compute overall averages, excluding non-numeric fields like 'sim' and 'split'
-    #     numeric_columns = df.select_dtypes(include=[np.number]).columns
-    #     overall_stats = df[numeric_columns].agg(['mean', 'std'])
-    #     stats_per_split = df.groupby('split')[numeric_columns].agg(['mean', 'std'])
-    #     overall_path = self.epoch_stats.path
-    #     self.epoch_stats.write()
-    #     overall_stats.reset_index().to_csv(overall_path, index=False)
-    #     per_split_path = self.out_stats_per_split.path
-    #     stats_per_split.reset_index().to_csv(per_split_path, index=False)
-
-    # @Ammar: Was the following intended to do something? 
-
-    # def generate_stats(self):
-    #     report_data = self.in_ps_report.read()
-    #     # dist_data = json.load(self.in_ps_dist.path)
-
-    #     report_df = pd.DataFrame(report_data)
-
-    #     pairs = ['real_pred', 'real_theory', 'pred_theory']
-
-    #     for pair in pairs:
-    #         report_df[pair + '_rmse'] = np.sqrt(report_df[pair + '_mse'])
-
-    #     agg_df = report_df.groupby(['epoch', 'split']).agg(['mean', 'std'])
-
-    #     report_path = self.out_ps_overall_stats.path
-    #     self.out_ps_overall_stats.write()
-    #     agg_df.reset_index().to_csv(report_path)
-
-    #     print(pd.read_csv(report_path))
+        # stats_per_split = df.groupby('split')[numeric_columns].agg(['mean', 'std'])
+        # stats_per_split.reset_index()
+        # self.out_stats_per_split.write(data=stats_per_split, index=True)

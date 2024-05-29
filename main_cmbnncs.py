@@ -75,7 +75,7 @@ def run_cmbnncs(cfg):
     # CMBNNCS's Predictions as Power Spectra Anaylsis
     # pipeline_context.add_pipe(OtherMakePSExecutor)
     # pipeline_context.add_pipe(PowerSpectrumAnalysisExecutorSerial)
-    pipeline_context.add_pipe(PSAnalysisExecutor)
+    # pipeline_context.add_pipe(PSAnalysisExecutor)
     pipeline_context.add_pipe(PowerSpectrumSummaryExecutor)
     # pipeline_context.add_pipe(PowerSpectrumSummaryFigsExecutor)
     # pipeline_context.add_pipe(PostAnalysisPsFigExecutor)
