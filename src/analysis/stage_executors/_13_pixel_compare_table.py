@@ -79,7 +79,7 @@ class PixelCompareTableExecutor(BaseStageExecutor):
             # Format the results as 'mean +/- std' or the latex equivalent
             results[model_name] = [format_mean_std(mean, std, latex=latex) 
                                    for mean, std in zip(mean_values, std_values)]
-        
+
         # Create a DataFrame from the results dictionary
         result_df = pd.DataFrame(results).transpose()
         result_df.columns = summary.columns[1:]

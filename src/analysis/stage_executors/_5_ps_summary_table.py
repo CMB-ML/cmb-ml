@@ -49,7 +49,7 @@ class PowerSpectrumSummaryExecutor(BaseStageExecutor):
                     summary_df['baseline'] = baseline  # Add baseline as a column
                     all_summaries.append(summary_df)
         final_summary = pd.concat(all_summaries, ignore_index=True)
-        self.epoch_stats.write(data=final_summary, index=True)
+        self.epoch_stats.write(data=final_summary, index=False)
 
     def summary_tables(self, df):
         # Compute overall averages, excluding non-numeric fields like 'sim' and 'split'
