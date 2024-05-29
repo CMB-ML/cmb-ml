@@ -18,6 +18,8 @@
 # from core.asset_handlers.asset_handlers_base import Config
 # from core.asset_handlers.healpy_map_handler import HealpyMap
 # from src.utils import make_instrument, Instrument, Detector
+# from src.petroff.preprocessing.scale_find_absmax import abs_max_scale
+# from src.petroff.preprocessing.scale_find_minmax import min_max_scale
 
 
 # logger = logging.getLogger(__name__)
@@ -67,7 +69,7 @@
 #         first_task = tasks.pop(0)
 #         self.try_a_task(parallel_preprocess, first_task)
 
-#         self.run_all_tasks(parallel_preprocess, tasks)
+#         # self.run_all_tasks(parallel_preprocess, tasks)
 
 #     def build_tasks(self):
 #         scale_factors = self.in_norm_file.read()
