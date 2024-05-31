@@ -30,6 +30,7 @@ class PredictionExecutor(BaseStageExecutor):
         out_cmb_map_handler: HealpyMap  # Switch to EmptyHandler?
 
         self.in_obs_assets: Asset = self.assets_in["obs_maps"]
+        self.in_mask: Asset = self.assets_in.get("mask", None)
         self.in_planck_deltabandpass: Asset = self.assets_in["planck_deltabandpass"]
         in_obs_handler: HealpyMap  # Switch to EmptyHandler?
         in_planck_deltabandpass_handler: QTableHandler
@@ -66,8 +67,13 @@ class PredictionExecutor(BaseStageExecutor):
                 # Convert to string; we're going to convert this information to a yaml file
                 input_paths.append(str(path))
 
+        if self.in_mask is not None:
+            mask_path = self.in_mask.path
+        else:
+            mask_path = None
         cfg_dict = self.model_cfg_maker.make_config(output_path=working_path,
-                                                    input_paths=input_paths)
+                                                    input_paths=input_paths,
+                                                    mask_path=mask_path)
         self.out_config.write(data=cfg_dict, verbose=False)
         # logger.debug("Running PyILC Code...")
         with SuppressPrint():

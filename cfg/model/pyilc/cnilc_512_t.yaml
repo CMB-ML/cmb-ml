@@ -7,21 +7,16 @@
 # UNIQUE: The choice of Harmonic / Gaussian Needlet / Cosine Needlet is set here
 #         with wavelet_type. Other parameters follow, which are particular to that method
 
-
-# In case specific parameters are found which need to be set algorithmically in this python repo
-#         need to choose a particular config_maker.
-# Currently unused; TODO Remove this!
-# config_maker: ILCConfigMaker
-
 ################# To make/set in python #################
 ### OUTPUT
-# output_dir: '///mnt/ceph/users/fmccarthy/pyilc_test_harmonic//' # the directory where the covariances, needlet coefficients, and maps will be saved
+# output_dir: '' # the directory where the covariances, needlet coefficients, and maps will be saved
 
 ### INPUT
+# N_freqs: # number of freqs_delta_ghz and freq_map_files in the next two keys
 # freqs_delta_ghz: {detectors}
-# N_freqs: <the number of things in the row above???> why let me make mistakes?
 # freq_map_files: {map_file_list}
 # N_side: {nside}
+beam_FWHM_arcmin: "{beam_fwhm_values}"
 
 ################## GLOBAL PYILC #########################
 ### OUTPUT ONLY
@@ -29,18 +24,19 @@ output_prefix: 'CN_'                             # the prefix for all the files 
 output_suffix: ''                                # the suffix for all the files that will be saved
 save_as: 'fits'
 save_weights: 'no'                               # set to yes to save the weight maps
-ELLMAX: 1534                                     # Reasons
+ELLMAX: ${ELLMAX}                                # Pull from the higher level config. Value set to maximum used in PyILC for this nside
 perform_ILC_at_beam: 5                           # Choose this based on ???
 ILC_preserved_comp: 'CMB'
 ILC_bias_tol: 0.01
-N_deproj: 0                                      # Unknown purpose/effect; fails without param
+N_deproj: 0                                      # The PyILC methods can extract components other than the CMB. 
+                                                 #    This parameters is the number of those other components.
+taper_width: 0                                   # The scientific backing of this is unknown; default is 200
 
 ################## CHOICES, ALL METHODS #################
 ### INPUT ONLY
 
 # How beam function was defined for input maps
 beam_type: 'Gaussians'
-beam_FWHM_arcmin: "{beam_fwhm_values}"
 
 # For each detector, we must describe the bandpass shapes.
 #    This can be either the actual response waveform in a file,
@@ -51,9 +47,9 @@ bandpass_type: 'DeltaBandpasses'  # No further information
 ILC_deproj_comps: []
 override_ILCbiastol_threshold: 'False'
 
-
 ################# CNILC UNIQUE #############################
-wavelet_type: 'CosineNeedlets'                   # This "chooses" the CNILC method
-N_scales: 13
-ellmin: 0
-ellpeaks: [50, 100, 150, 250, 350, 550, 650, 800, 1000, 1200, 1400, 1535]
+distinct:
+  wavelet_type: 'CosineNeedlets'                   # This "chooses" the CNILC method
+  N_scales: 8
+  ellmin: 0
+  ellpeaks: [100, 200, 300, 400, 600, 800, 1535]

@@ -67,3 +67,19 @@ make_sims:
   splits: *all_splits
   dir_name: Simulation
   make_stage_log: True
+
+mask_in:
+  assets_out:
+    mask: 
+      path_template: "{src_root}/Planck/COM_CMB_IQU-nilc_2048_R3.00_full.fits"
+      handler: HealpyMap
+      use_fields: 3  # Healpy indices are 0-based. We are using Healpy. FITS file indices are 1-based. If you inspect the FITS file, this may lead to confusion.
+
+make_mask:
+  assets_out:
+    mask:
+      handler: HealpyMap
+      path_template: "{root}/{dataset}/{working}{stage}/mask.fits"
+  assets_in:
+    mask: {stage: mask_in}
+  dir_name: Simulation_Mask

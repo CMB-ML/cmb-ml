@@ -12,6 +12,7 @@ predict: &final_inference
   assets_in:
     obs_maps: {stage: make_sims}
     planck_deltabandpass: {stage: raw}
+    mask: {stage: make_mask}  # Remove or set to null for no masking
   splits:
     - test
   dir_name: NILC_B_Predict

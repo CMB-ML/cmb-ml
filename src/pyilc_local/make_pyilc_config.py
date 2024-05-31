@@ -111,13 +111,19 @@ class ILCConfigMaker:
     def get_freq_bp_files(self):
         raise NotImplementedError()
 
-    def make_config(self, output_path, input_paths: List[str]):
+    def make_config(self, output_path, input_paths: List[str], mask_path=None):
         """
         input_paths may be List[str] or List[Path]
         """
         this_template = self.template.copy()
         this_template["freq_map_files"] = input_paths
         this_template["output_dir"] = str(output_path) + r"/"
+        if mask_path is not None:
+            # The yaml library doesn't like to print square brackets or spaces; 
+            #     we escape [] for now and fix it in the write() method
+            #     we also do not include a space after the comma
+            #     this works, but deviates from pyilc's instructions.
+            this_template["mask_before_covariance_computation"] = f'\[{mask_path},0\]'
         return this_template
 
     def make_freq_map_paths(self, input_template):
@@ -126,6 +132,7 @@ class ILCConfigMaker:
             det_str = f"{detector}"
             paths.append(str(input_template).format(det=det_str))
         return paths
+    
 
 
 # class HarmonicILC(ILCConfigMaker):

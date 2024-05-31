@@ -5,18 +5,65 @@ import numpy as np
 
 
 class Beam:
+    """
+    Utility class representing an detector beam for convolution or deconvolution.
+    Beams may need to be squared for autopower spectra.
+
+    Attributes:
+        beam: The beam profile used for convolution or deconvolution.
+
+    Methods:
+        conv1(ps): Apply the beam to the input power spectrum using convolution.
+        conv2(ps): Apply the squared beam to the input power spectrum using convolution.
+        deconv1(ps): Remove the effect of the beam from the input power spectrum using deconvolution.
+        deconv2(ps): Remove the effect of the squared beam from the input power spectrum using deconvolution.
+    """
+
     def __init__(self, beam) -> None:
         self.beam = beam
 
     def conv1(self, ps):
+        """
+        Apply the beam to the input power crosspectrum using convolution.
+        The expectation is that this beam is for one map and another beam will
+        be applied for the other map.
+
+        Args:
+            ps: The input power spectrum.
+
+        Returns:
+            The power spectrum with the beam applied.
+        """
         ps_applied = ps * self.beam
         return ps_applied
 
     def conv2(self, ps):
+        """
+        Apply the squared beam to the input power autospectrum using convolution.
+        This beam is effectively applied twice (for the same map appearing twice in the
+        autopower spectrum calculation)
+
+        Args:
+            ps: The input power spectrum.
+
+        Returns:
+            The power spectrum with the squared beam applied.
+        """
         ps_applied = ps * (self.beam ** 2)
         return ps_applied
 
     def deconv1(self, ps):
+        """
+        Remove the effect of the beam from the input power spectrum using deconvolution.
+        The expectation is that this beam is for one map and another beam will
+        be applied for the other map.
+
+        Args:
+            ps: The input power spectrum.
+
+        Returns:
+            The power spectrum with the beam effect removed.
+        """
         # TODO: Handle zeros in beam
         ps_applied = ps / self.beam
 
@@ -28,6 +75,19 @@ class Beam:
         return ps_applied
 
     def deconv2(self, ps):
+        """
+        Remove the effect of the squared beam from the input power spectrum using deconvolution.
+        This beam is effectively applied twice (for the same map appearing twice in the
+        autopower spectrum calculation)
+
+        Args:
+            ps: The input power spectrum.
+
+        Returns:
+            The power spectrum with the squared beam effect removed.
+        """
+        # TODO: Implement deconvolution with squared beam
+        pass
         # TODO: Handle zeros in beam
         ps_applied = ps / (self.beam ** 2)
 

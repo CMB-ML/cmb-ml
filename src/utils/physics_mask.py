@@ -6,7 +6,7 @@ import healpy as hp
 logger = logging.getLogger(__name__)
 
 
-def downgrade_mask(mask_data, nside_out, threshold=0.9):
+def downgrade_mask(mask_data, nside_out, threshold):
     nside_in = hp.get_map_size(mask_data)
     if nside_in == nside_out:
         logger.info(f"Mask resolution matches map resolution. In: {nside_in}, Out: {nside_out}. No action taken.")
@@ -18,7 +18,7 @@ def downgrade_mask(mask_data, nside_out, threshold=0.9):
     return mask
 
 
-def apply_threshold(mask, thresh=0.9):
+def apply_threshold(mask, thresh):
     # Per Planck 2015 results:IX. Diffuse component separation: CMB maps
     #    When downscaling mask maps; threshold the downscaled map
     #    They use 0.9

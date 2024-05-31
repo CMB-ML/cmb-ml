@@ -40,12 +40,16 @@ def _dl_to_cl(dl, ells):
 
 
 class PowerSpectrum(ABC):
-    def __init__(self, name: str, cl: np.ndarray, ells: np.ndarray):
+    def __init__(self, 
+                 name: str, 
+                 cl: np.ndarray, 
+                 ells: np.ndarray, 
+                 is_convolved:bool=True):
         self.name = name
         self.ells = ells
         self._ps = cl
         self._is_cl: bool = True
-        self._is_beam_convolved: bool = True
+        self._is_beam_convolved: bool = is_convolved
 
     @property
     def conv_cl(self):
@@ -105,8 +109,13 @@ class PowerSpectrum(ABC):
 
 
 class AutoSpectrum(PowerSpectrum):
-    def __init__(self, name: str, cl: np.ndarray, ells: np.ndarray, beam: Beam):
-        super().__init__(name, cl, ells)
+    def __init__(self, 
+                 name: str, 
+                 cl: np.ndarray, 
+                 ells: np.ndarray, 
+                 beam: Beam, 
+                 is_convolved: bool):
+        super().__init__(name, cl, ells, is_convolved)
         self.beam = beam
 
     def convolve(self):
@@ -125,8 +134,14 @@ class AutoSpectrum(PowerSpectrum):
 
 
 class CrossSpectrum(PowerSpectrum):
-    def __init__(self, name: str, cl: np.ndarray, ells: np.ndarray, beam1: Beam, beam2: Beam):
-        super().__init__(name, cl, ells)
+    def __init__(self, 
+                 name: str, 
+                 cl: np.ndarray, 
+                 ells: np.ndarray, 
+                 beam1: Beam, 
+                 beam2: Beam, 
+                 is_convolved:bool):
+        super().__init__(name, cl, ells, is_convolved)
         self.beam1 = beam1
         self.beam2 = beam2
 
@@ -145,16 +160,16 @@ class CrossSpectrum(PowerSpectrum):
             logger.warning("CrossSpectrum is already deconvolved. No action taken.")
 
 
-def get_auto_ps_result(map_, mask, lmax, beam, name=None) -> PowerSpectrum:
+def get_auto_ps_result(map_, mask, lmax, beam, is_convolved, name=None) -> PowerSpectrum:
     cl = get_autopower(map_, mask, lmax)
     ells = np.arange(lmax + 1)
-    return AutoSpectrum(name, cl, ells, beam)
+    return AutoSpectrum(name, cl, ells, beam, is_convolved)
 
 
-def get_x_ps_result(map1, map2, mask, lmax, beam1, beam2, name=None) -> PowerSpectrum:
+def get_x_ps_result(map1, map2, mask, lmax, beam1, beam2, is_convolved, name=None) -> PowerSpectrum:
     cl = get_xpower(map1=map1,
                     map2=map2,
                     mask=mask,
                     lmax=lmax)
     ells = np.arange(lmax + 1)
-    return CrossSpectrum(name, cl, ells, beam1, beam2)
+    return CrossSpectrum(name, cl, ells, beam1, beam2, is_convolved)

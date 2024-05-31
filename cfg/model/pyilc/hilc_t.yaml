@@ -25,17 +25,17 @@
 
 ################## GLOBAL PYILC #########################
 ### OUTPUT ONLY
-output_prefix: 'hilc_'              # the prefix for all the files that will be saved
-output_suffix: ''                   # the suffix for all the files that will be saved
+output_prefix: 'hilc_'                             # the prefix for all the files that will be saved
+output_suffix: ''                                  # the suffix for all the files that will be saved
 save_as: 'fits'
-save_weights: 'no'                               # set to yes to save the weight maps
-ELLMAX: ${ELLMAX}   # Pull from top level config
-perform_ILC_at_beam: 5                           # Choose this based on ???
+save_weights: 'no'                                 # set to yes to save the weight maps
+ELLMAX: ${ELLMAX}                                  # Pull from top level config
+perform_ILC_at_beam: 5                             # Choose this based on ???
 ILC_preserved_comp: 'CMB'
 ILC_bias_tol: 0.01
-N_deproj: 0                                      # Unknown purpose/effect; fails without param
-taper_width: 10                                 # Unknown what this is; default is 200; needed for use with small nside for testing
-# taper_width: 200                                 # Unknown what this is; default is 200; needed for use with small nside for testing
+N_deproj: 0                                        # Unknown purpose/effect; fails without param
+taper_width: 0                                     # The scientific backing of this is unknown; default is 200
+                                                   #    It tapers the beam at the high ells
 
 ################## CHOICES, ALL METHODS #################
 ### INPUT ONLY
