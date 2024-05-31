@@ -93,15 +93,6 @@ pixel_summary_figs:
   epochs: ${use_epochs_map_stats}
   dir_name: Analysis_4_Pixel_Summary_Figs
 
-# Need to define an external resource for the next stage, make_pred_ps
-mask:
-  assets_out:
-    mask: 
-      # Need a more official source for this.
-      path_template: "{src_root}/Yunan/planck_mask.fits"
-      handler: HealpyMap
-      use_fields: 0
-
 make_pred_ps:
   assets_out:
     # Autocorrelation for realization (target)
@@ -123,7 +114,7 @@ make_pred_ps:
   assets_in:
     cmb_map_real: {stage: make_sims, orig_name: cmb_map}
     cmb_map_post: {stage: final_infer, orig_name: cmb_map}
-    mask: {stage: mask}  # Remove or set to null for no masking
+    mask: {stage: make_mask}  # Remove or set to null for no masking
   splits:
     - test
   epochs: ${use_epochs_ps_stats}
@@ -211,8 +202,10 @@ post_ps_fig:
     theory_ps: {stage: convert_theory_ps}
     auto_real: {stage: make_pred_ps}
     auto_pred: {stage: make_pred_ps}
-    wmap_distribution: {stage: ps_analysis2}
-    error_distribution: {stage: ps_analysis2}
+    wmap_ave: {stage: ps_theory_stats}
+    wmap_std: {stage: ps_theory_stats}
+    # wmap_distribution: {stage: ps_analysis2}
+    # error_distribution: {stage: ps_analysis2}
   splits:
     - test
   epochs: ${use_epochs_ps_stats}

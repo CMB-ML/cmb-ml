@@ -41,8 +41,14 @@ class Config(GenericHandler):
             logger.debug(f"Writing config to '{path}'")
         make_directories(path)
         unnumpy_data = _convert_numpy(data)
+
+        # Patch to handle the yaml library not liking square brackets in entries
+        #    addressing the config for input to the PyILC code
+        yaml_string = yaml.dump(unnumpy_data, default_flow_style=False)
+        if "\[" in yaml_string and "\]" in yaml_string:
+            yaml_string = yaml_string.replace("\[", "[").replace("\]", "]")
         with open(path, 'w') as outfile:
-            yaml.dump(unnumpy_data, outfile, default_flow_style=False)
+            outfile.write(yaml_string)
 
 
 class Mover(GenericHandler):

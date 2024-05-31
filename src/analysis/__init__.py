@@ -20,6 +20,6 @@ from .stage_executors.C_make_ps_theory_stats import MakeTheoryPSStats
 
 from .stage_executors.F_pixel_analysis import PixelAnalysisExecutor
 
-from .stage_executors.K_make_pred_ps import PyILCMakePSExecutor, OtherMakePSExecutor
+from .stage_executors.K_make_pred_ps import PyILCMakePSExecutor, CMBNNCSMakePSExecutor
 from .stage_executors.L_ps_analysis import PSAnalysisExecutor
 from .stage_executors.L_ps_analysis_serial import PowerSpectrumAnalysisExecutorSerial

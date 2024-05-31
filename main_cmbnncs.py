@@ -19,8 +19,6 @@ from src.cmbnncs_local import (
                          PostprocessExecutor
                          )
 
-### These imports dont work yet from some missing module
-
 from src.analysis import   (ShowSimsPrepExecutor, 
                             CMBNNCSShowSimsPredExecutor, 
                             CMBNNCSShowSimsPostExecutor,
@@ -28,7 +26,7 @@ from src.analysis import   (ShowSimsPrepExecutor,
                             PixelSummaryExecutor,
                             ConvertTheoryPowerSpectrumExecutor,
                             MakeTheoryPSStats,
-                            OtherMakePSExecutor,
+                            CMBNNCSMakePSExecutor,
                             PixelSummaryFigsExecutor,
                             PSAnalysisExecutor,
                             PowerSpectrumAnalysisExecutorSerial,
@@ -62,23 +60,23 @@ def run_cmbnncs(cfg):
     # pipeline_context.add_pipe(CMBNNCSShowSimsPredExecutor)
 
     # pipeline_context.add_pipe(PostprocessExecutor)
-    # pipeline_context.add_pipe(CMBNNCSShowSimsPostExecutor)
+    pipeline_context.add_pipe(CMBNNCSShowSimsPostExecutor)
 
-    # pipeline_context.add_pipe(PixelAnalysisExecutor)
-    # pipeline_context.add_pipe(PixelSummaryExecutor)
-    # pipeline_context.add_pipe(PixelSummaryFigsExecutor)
+    pipeline_context.add_pipe(PixelAnalysisExecutor)
+    pipeline_context.add_pipe(PixelSummaryExecutor)
+    pipeline_context.add_pipe(PixelSummaryFigsExecutor)
 
     # # Not needed in every analysis pipeline, but needed in one
-    # pipeline_context.add_pipe(ConvertTheoryPowerSpectrumExecutor)
-    # pipeline_context.add_pipe(MakeTheoryPSStats)
+    pipeline_context.add_pipe(ConvertTheoryPowerSpectrumExecutor)
+    pipeline_context.add_pipe(MakeTheoryPSStats)
 
     # CMBNNCS's Predictions as Power Spectra Anaylsis
-    # pipeline_context.add_pipe(OtherMakePSExecutor)
+    pipeline_context.add_pipe(CMBNNCSMakePSExecutor)
     # pipeline_context.add_pipe(PowerSpectrumAnalysisExecutorSerial)
-    # pipeline_context.add_pipe(PSAnalysisExecutor)
+    pipeline_context.add_pipe(PSAnalysisExecutor)
     pipeline_context.add_pipe(PowerSpectrumSummaryExecutor)
-    # pipeline_context.add_pipe(PowerSpectrumSummaryFigsExecutor)
-    # pipeline_context.add_pipe(PostAnalysisPsFigExecutor)
+    pipeline_context.add_pipe(PowerSpectrumSummaryFigsExecutor)
+    pipeline_context.add_pipe(PostAnalysisPsFigExecutor)
 
     pipeline_context.prerun_pipeline()
 

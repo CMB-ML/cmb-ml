@@ -34,8 +34,10 @@ class PostAnalysisPsFigExecutor(BaseStageExecutor):
         self.in_ps_theory: AssetWithPathAlts = self.assets_in["theory_ps"]
         self.in_ps_real: Asset = self.assets_in["auto_real"]
         self.in_ps_pred: Asset = self.assets_in["auto_pred"]
-        self.in_wmap_distribution: Asset = self.assets_in["wmap_distribution"]
-        self.in_error_distribution: Asset = self.assets_in["error_distribution"]
+        self.in_wmap_ave: Asset = self.assets_in["wmap_ave"]
+        self.in_wmap_std: Asset = self.assets_in["wmap_std"]
+        # self.in_wmap_distribution: Asset = self.assets_in["wmap_distribution"]
+        # self.in_error_distribution: Asset = self.assets_in["error_distribution"]
         in_ps_handler: NumpyPowerSpectrum
 
         self.fig_model_name = cfg.fig_model_name
@@ -84,21 +86,25 @@ class PostAnalysisPsFigExecutor(BaseStageExecutor):
         if ps_theory is None:
             ps_theory = self.in_ps_theory.read(use_alt_path=False)
 
-        with open(self.in_wmap_distribution.path, 'r') as f:
-            wmap_data = json.load(f)
-        with open(self.in_error_distribution.path, 'r') as f:
-            error_data = json.load(f)
+        # with open(self.in_wmap_distribution.path, 'r') as f:
+        #     wmap_data = json.load(f)
+        # with open(self.in_error_distribution.path, 'r') as f:
+        #     error_data = json.load(f)
 
-        wmap_mean = np.array(wmap_data['wmap_mean'])
-        wmap_std = np.array(wmap_data['wmap_std'])
+        wmap_ave = self.in_wmap_ave.read()
+        wmap_std = self.in_wmap_std.read()
+        
+        # wmap_mean = np.array(wmap_data['wmap_mean'])
+        # wmap_std = np.array(wmap_data['wmap_std'])
 
-        error_mean = np.array(error_data[f'{epoch}_mean'])
-        error_std = np.array(error_data[f'{epoch}_std'])
+        # error_mean = np.array(error_data[f'{epoch}_mean'])
+        # error_std = np.array(error_data[f'{epoch}_std'])
 
-        wmap_band = [(wmap_mean - wmap_std, wmap_mean + wmap_std), (wmap_mean - 2*wmap_std, wmap_mean + 2*wmap_std)]
-        error_band = [(error_mean - error_std, error_mean + error_std), (error_mean - 2*error_std, error_mean + 2*error_std)]
+        wmap_band = [(wmap_ave - wmap_std, wmap_ave + wmap_std), (wmap_ave - 2*wmap_std, wmap_ave + 2*wmap_std)]
+        # error_band = [(error_mean - error_std, error_mean + error_std), (error_mean - 2*error_std, error_mean + 2*error_std)]
 
-        self.make_ps_figure(ps_real, ps_pred, ps_theory, wmap_band, error_band, baseline="real")
+        # self.make_ps_figure(ps_real, ps_pred, ps_theory, wmap_band, error_band, baseline="real")
+        self.make_ps_figure(ps_real, ps_pred, ps_theory, wmap_band, baseline="real")
         title = self.make_title(epoch, split, sim_num)
         plt.suptitle(title)
         self.out_ps_figure_real.write()
@@ -107,7 +113,8 @@ class PostAnalysisPsFigExecutor(BaseStageExecutor):
         plt.savefig(fn)
         plt.close()
 
-        self.make_ps_figure(ps_real, ps_pred, ps_theory, wmap_band, error_band, baseline="theory")
+        # self.make_ps_figure(ps_real, ps_pred, ps_theory, wmap_band, error_band, baseline="theory")
+        self.make_ps_figure(ps_real, ps_pred, ps_theory, wmap_band, baseline="theory")
         title = self.make_title(epoch, split, sim_num)
         plt.suptitle(title)
         self.out_ps_figure_theory.write()
@@ -116,7 +123,8 @@ class PostAnalysisPsFigExecutor(BaseStageExecutor):
         plt.savefig(fn)
         plt.close()
 
-    def make_ps_figure(self, ps_real, ps_pred, ps_theory, wmap_band, error_band, baseline="real"):
+    # def make_ps_figure(self, ps_real, ps_pred, ps_theory, wmap_band, error_band, baseline="real"):
+    def make_ps_figure(self, ps_real, ps_pred, ps_theory, wmap_band, baseline="real"):
         n_ells = ps_real.shape[0]
         ells = np.arange(1, n_ells+1)
 

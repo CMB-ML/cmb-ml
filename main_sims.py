@@ -20,7 +20,8 @@ from src.analysis import ShowSimsExecutor
 logger = logging.getLogger(__name__)
 
 
-@hydra.main(version_base=None, config_path="cfg", config_name="config_sim_t")
+# @hydra.main(version_base=None, config_path="cfg", config_name="config_sim_t")
+@hydra.main(version_base=None, config_path="cfg", config_name="config_sim_one_off")
 def run_simulations(cfg):
     logger.debug(f"Running {__name__} in {__file__}")
 

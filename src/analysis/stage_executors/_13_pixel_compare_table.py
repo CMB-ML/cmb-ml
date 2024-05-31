@@ -43,18 +43,18 @@ class PixelCompareTableExecutor(BaseStageExecutor):
             all_summaries.append(self.gather_from(working_directory, epoch))
 
         # Create for the console & log
-        st = self.create_summary_table(all_summaries)
+        summary_table = self.create_summary_table(all_summaries)
         relabel_map = {k: v['label'] for k, v in self.labels_lookup.items()}
-        st.rename(columns=relabel_map, inplace=True)
-        st = st.sort_index(axis=1)
-        logger.info(f"Pixel Comparison: \n\n{st}\n")
+        summary_table.rename(columns=relabel_map, inplace=True)
+        summary_table = summary_table.sort_index(axis=1)
+        logger.info(f"Pixel Comparison: \n\n{summary_table}\n")
 
         # Create for LaTeX
-        st = self.create_summary_table(all_summaries, latex=True)
-        st.rename(columns=relabel_map, inplace=True)
-        st = st.sort_index(axis=1)
-        column_format = "l" + "c" * (len(st.columns))
-        latex_table = st.to_latex(escape=False, 
+        summary_table = self.create_summary_table(all_summaries, latex=True)
+        summary_table.rename(columns=relabel_map, inplace=True)
+        summary_table = summary_table.sort_index(axis=1)
+        column_format = "l" + "c" * (len(summary_table.columns))
+        latex_table = summary_table.to_latex(escape=False, 
                                   caption="Pixel Space Performance", 
                                   label="tab:px_metrics", 
                                   column_format=column_format)

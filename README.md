@@ -304,6 +304,9 @@ Markov:
 ## More todos from a text file... need to organize and clean these out
 
 Later:
+    - [ ] Confirm simulations are repeatable
+    - Use CSV handler for px analysis
+    - [ ] Logging: "Output to ____ for X asset"
     - [x] Cross-check if Wang prediction dropoff matches simulation nside_max (Result: It's from applying the beam; we set an lmax there.)
     - [x] Script backup needs to include 
         - [x] library versions

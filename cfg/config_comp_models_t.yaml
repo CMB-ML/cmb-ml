@@ -18,7 +18,7 @@ fig_model_name : CMBNNCS
 hydra:
   run:
     dir: Logs/${now:%Y-%m-%d-%H-%M-%S}
-  verbose: true
+  verbose: false
 
 models_comp:
   - cmbnncs:
@@ -30,6 +30,8 @@ models_comp:
     working_directory : PyILC_HILC_Test/
     # No epochs for this model
     epoch             : ""
+ps_baseline           : theory
+
 
 # Settings below this point are used for interpolation.
 # These are not to be used directly in the python
