@@ -112,7 +112,7 @@ class MakePredPowerSpectrumExecutor(BaseStageExecutor):
 
     def make_real_ps(self, real_map):
         auto_real_ps = get_auto_ps_result(real_map,
-                                          mask=self.mask,
+                                          mask=None,           # Do not mask the raw realization
                                           lmax=self.lmax,
                                           beam=self.beam_real,
                                           is_convolved=False)

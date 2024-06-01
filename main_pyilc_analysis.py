@@ -50,12 +50,12 @@ def run_pyilc_analysis(cfg):
     pipeline_context.add_pipe(MakeTheoryPSStats)
     
     # # PyILC's Predictions as Power Spectra Anaylsis
-    # pipeline_context.add_pipe(MaskCreatorExecutor)
+    pipeline_context.add_pipe(MaskCreatorExecutor)
     pipeline_context.add_pipe(PyILCMakePSExecutor)
     # pipeline_context.add_pipe(PowerSpectrumAnalysisExecutorSerial)
-    pipeline_context.add_pipe(PSAnalysisExecutor)
-    pipeline_context.add_pipe(PowerSpectrumSummaryExecutor)
-    pipeline_context.add_pipe(PowerSpectrumSummaryFigsExecutor)
+    # pipeline_context.add_pipe(PSAnalysisExecutor)
+    # pipeline_context.add_pipe(PowerSpectrumSummaryExecutor)
+    # pipeline_context.add_pipe(PowerSpectrumSummaryFigsExecutor)
     pipeline_context.add_pipe(PostAnalysisPsFigExecutor)
 
     pipeline_context.prerun_pipeline()
