@@ -62,7 +62,7 @@ class ConfigHelper:
         return Split(split_name, self.cfg.splits[split_name])
 
     def get_assets_out(self, name_tracker:Namer, stage_str: str=None) -> Dict[str, Asset]:
-        assets_out = self.get_stage_elem_silent("assets_out")
+        # assets_out = self.get_stage_elem_silent("assets_out", stage_str=stage_str)
         if stage_str is None:
             stage_str = self.stage_str
         return get_assets(self.cfg, stage_str, name_tracker, in_or_out="out")
@@ -92,6 +92,7 @@ class ConfigHelper:
     def get_override_sim_ns(self, stage_str=None):
         or_sn = self.get_stage_elem_silent(stage_element="override_n_sims")
         return or_sn
+
 
 def create_asset_instance(asset_type: str, cfg: DictConfig, source_stage: str, asset_name: str, name_tracker: Namer, in_or_out: str):
     AssetClass = AssetWithPathAlts if asset_type == 'path_template_alt' else Asset
