@@ -51,8 +51,9 @@ class SimCreatorExecutor(BaseStageExecutor):
         in_cmb_ps_handler: CambPowerSpectrum
         in_det_table_handler: QTableHandler
 
-        with self.name_tracker.set_context('src_root', cfg.local_system.assets_dir):
-            det_info = in_det_table.read()
+        # TODO: Check this. Remove other instances in other Executors.
+        # with self.name_tracker.set_context('src_root', cfg.local_system.assets_dir):
+        det_info = in_det_table.read()
         self.instrument: Instrument = make_instrument(cfg=cfg, det_info=det_info)
 
         # seed maker objects
@@ -114,7 +115,7 @@ class SimCreatorExecutor(BaseStageExecutor):
                                                                          detector.fwhm, 
                                                                          lmax=self.lmax_pysm3_smoothing, 
                                                                          output_nside=self.nside_out)
-                noise_seed = self.noise_seed_factory.get_seed(split, sim_num, freq, field_str)
+                noise_seed = self.noise_seed_factory.get_seed(split.name, sim_num, freq, field_str)
                 noise_map = self.get_noise_map(freq, field_str, noise_seed)
                 final_map = map_smoothed + noise_map
                 obs_map.append(final_map)
