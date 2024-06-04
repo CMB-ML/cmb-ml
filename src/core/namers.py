@@ -6,15 +6,48 @@ from contextlib import contextmanager, ExitStack
 
 class Namer:
     def __init__(self, cfg) -> None:
-        self.root = Path(cfg.local_system.datasets_root)
-        self.dataset_name: str = cfg.dataset_name
-        self.working_dir: str = cfg.get("working_dir", "")
+        self._root = Path(cfg.local_system.datasets_root)
+        self._dataset_name: str = cfg.dataset_name
+        self._working_dir: str = cfg.get("working_dir", "")
         self.sim_folder_prefix: str = cfg.file_system.sim_folder_prefix
         self.sim_str_num_digits: int = cfg.file_system.sim_str_num_digits
+        self.src_root: str = cfg.local_system.assets_dir
+        self.context: Dict[str, str] = {}
 
-        self.context = dict(dataset=self.dataset_name,
-                            working=self.working_dir,
-                            root=str(self.root))
+        self._update_context()
+
+    @property
+    def root(self):
+        return self._root
+
+    @root.setter
+    def root(self, value):
+        self._root = Path(value)
+        self._update_context()
+
+    @property
+    def dataset_name(self):
+        return self._dataset_name
+
+    @dataset_name.setter
+    def dataset_name(self, value):
+        self._dataset_name = value
+        self._update_context()
+
+    @property
+    def working_dir(self):
+        return self._working_dir
+
+    @working_dir.setter
+    def working_dir(self, value):
+        self._working_dir = value
+        self._update_context()
+
+    def _update_context(self):
+        self.context['dataset'] = self._dataset_name
+        self.context['working'] = self._working_dir
+        self.context['root'] = str(self._root)
+        self.context['src_root'] = self.src_root
 
     @contextmanager
     def set_context(self, level, value):
