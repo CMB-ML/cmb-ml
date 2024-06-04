@@ -45,8 +45,7 @@ class MakePredPowerSpectrumExecutor(BaseStageExecutor):
 
         # Prepare to load mask (in execute())
         self.mask_threshold = self.cfg.model.analysis.mask_threshold
-        self.mask_2048 = None
-        self.mask_512 = None
+        self.mask = None
 
         # Prepare to load beam (in execute())
         # beam_type is either "beam_pyilc" or "beam_other"
@@ -57,20 +56,23 @@ class MakePredPowerSpectrumExecutor(BaseStageExecutor):
 
     def execute(self) -> None:
         logger.debug(f"Running {self.__class__.__name__} execute().")
-        self.mask = self.get_masks()
+        self.mask = self.get_mask()
         # self.beam_real = GaussianBeam(beam_fwhm=5, lmax=self.lmax)
         self.beam_real = NoBeam(self.lmax)
         self.beam_pred = self.get_pred_beam()
         self.default_execute()
 
-    def get_masks(self):
+    def get_mask(self):
         mask = None
-        with self.name_tracker.set_context("src_root", self.cfg.local_system.assets_dir):
-            logger.info(f"Using mask from {self.in_mask.path}")
-            mask = self.in_mask.read(map_fields=self.in_mask.use_fields)[0]
-        self.mask_2048 = mask
-        self.mask_512 = downgrade_mask(mask, self.nside_out, threshold=self.mask_threshold)
-        return
+        if self.in_mask:
+            with self.name_tracker.set_context("src_root", self.cfg.local_system.assets_dir):
+                logger.info(f"Using mask from {self.in_mask.path}")
+                mask = self.in_mask.read(map_fields=self.in_mask.use_fields)[0]
+            mask = downgrade_mask(mask, self.nside_out, threshold=self.mask_threshold)
+            # self.show_mask(mask)
+        else:
+            logger.warning("Not using any mask for calculating power spectra.")
+        return mask
 
     # def show_mask(self, mask):
     #     """
@@ -110,26 +112,30 @@ class MakePredPowerSpectrumExecutor(BaseStageExecutor):
 
     def make_real_ps(self, real_map):
         auto_real_ps = get_auto_ps_result(real_map,
-                                          mask=None,
+                                          mask=None,           # Do not mask the raw realization
                                           lmax=self.lmax,
                                           beam=self.beam_real,
                                           is_convolved=False)
-        ps1 = auto_real_ps._ps
         ps = auto_real_ps.deconv_dl
-        # print(max(ps-ps1))
         self.out_auto_real.write(data=ps)
 
     def make_pred_ps(self, real_map) -> None:
         pred_map = self.in_cmb_map_pred.read()
         auto_pred_ps = get_auto_ps_result(pred_map,
-                                          mask=self.mask_512,
+                                          mask=self.mask,
                                           lmax=self.lmax,
                                           beam=self.beam_pred,
                                           is_convolved=True)
-        ps1 = auto_pred_ps._ps
         ps = auto_pred_ps.deconv_dl
-        # print(max(ps-ps1))
         self.out_auto_pred.write(data=ps)
+
+        # x_real_pred_ps = get_x_ps_result(map_data1=pred_map, 
+        #                                  map_data2=real_map,
+        #                                  mask_data=self.mask,
+        #                                  beam1=self.beam_pred,
+        #                                  beam2=self.beam_real)
+        # ps = x_real_pred_ps.conv_dl
+        # self.out_x_real_pred.write(data=ps)
 
 
 class PyILCMakePSExecutor(MakePredPowerSpectrumExecutor):
