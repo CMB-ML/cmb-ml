@@ -88,11 +88,11 @@ class FieldLevelSeedFactory(SeedMaker):
         super().__init__(cfg, sky_component)
 
     def get_seed(self, 
-                 split: Split, 
+                 split: str, 
                  sim: int, 
                  freq: int, 
                  field_str: str):
-        split_str = split.name
+        split_str = split
         sim_str = self.sim_num_str(sim)
         freq_str = str(freq)
         return self._get_seed(split_str, sim_str, freq_str, field_str, self.component)
