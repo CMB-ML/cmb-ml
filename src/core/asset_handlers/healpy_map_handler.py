@@ -67,7 +67,7 @@ class HealpyMap(GenericHandler):
                 data = [datum.value for datum in data]
         if isinstance(data, Quantity):
             if column_units is None:
-                column_units = data.unit
+                column_units = [data.unit]
             data = data.value
 
         # Convert np.ndarrays of higher dimension to a list of 1D np.ndarrays (we really should use hdf5 instead...)
