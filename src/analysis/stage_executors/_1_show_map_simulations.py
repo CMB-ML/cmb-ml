@@ -43,6 +43,8 @@ class ShowSimsExecutor(BaseStageExecutor):
         # Only produce visualizations for a subset of sims
         self.sim_ns = self.get_override_sim_ns(cfg.pipeline[self.stage_str].override_n_sims)
         self.min_max = self.get_plot_min_max(cfg.pipeline[self.stage_str].plot_min_max)
+        
+        # For Gnomonic view
         self.plot_rot = cfg.pipeline[self.stage_str].plot_rot
         self.gnom_plot_res = cfg.pipeline[self.stage_str].plot_gnom_res
 
@@ -78,7 +80,6 @@ class ShowSimsExecutor(BaseStageExecutor):
         else:
             sim_iter = self.sim_ns
 
-        # for sim in tqdm(sim_iter):
         for sim in sim_iter:
             with self.name_tracker.set_context("sim_num", sim):
                 self.process_sim()
@@ -98,14 +99,14 @@ class ShowSimsExecutor(BaseStageExecutor):
             title_start = "CMB Realization (Target)"
             fields = self.cfg.scenario.map_fields
         else:
-            title_start = f"Observation, {det} GHz"
+            title_start = f"Observation, {det} GHz (Feature)"
             fields = self.instrument.dets[det].fields
         for field_str in fields:
             with self.name_tracker.set_context("field", field_str):
                 field_idx = {'I': 0, 'Q': 1, 'U': 2}[field_str]
-                self.make_gnomview(some_map[field_idx])
-                with self.name_tracker.set_context("view", "gnom"):
-                    self.save_figure(title_start, split, sim_n, field_str, out_asset)
+                # self.make_gnomview(some_map[field_idx])
+                # with self.name_tracker.set_context("view", "gnom"):
+                #     self.save_figure(title_start, split, sim_n, field_str, out_asset)
                 self.make_mollview(some_map[field_idx])
                 with self.name_tracker.set_context("view", "moll"):
                     self.save_figure(title_start, split, sim_n, field_str, out_asset)
@@ -125,7 +126,8 @@ class ShowSimsExecutor(BaseStageExecutor):
             max=self.min_max[1],
             rot=self.plot_rot,
             cmap=planck_cmap.colombi1_cmap,
-            hold=True
+            hold=True,
+            norm='log'
         )
         hp.mollview(some_map, **plot_params)
 
@@ -137,6 +139,7 @@ class ShowSimsExecutor(BaseStageExecutor):
             rot=self.plot_rot,
             reso=self.gnom_plot_res,
             cmap=planck_cmap.colombi1_cmap,
-            hold=True
+            hold=True,
+            norm='log'
         )
         hp.gnomview(some_map, **plot_params)

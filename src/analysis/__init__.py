@@ -1,4 +1,5 @@
 from .stage_executors._1_show_map_simulations import ShowSimsExecutor
+from .stage_executors._1_show_map_simulations_log import ShowSimsLogExecutor
 from .stage_executors._2_show_map_comparisons import  (
     ShowSimsPrepExecutor, 
     CMBNNCSShowSimsPredExecutor, 
