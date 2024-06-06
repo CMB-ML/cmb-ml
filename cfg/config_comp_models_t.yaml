@@ -23,7 +23,7 @@ hydra:
 models_comp:
   - cmbnncs:
     model_name        : CMBNNCS
-    working_directory : CMBNNCS/
+    working_directory : CMBNNCS_UNet8/
     epoch             : 120
   - pyilc:
     model_name        : CNILC
