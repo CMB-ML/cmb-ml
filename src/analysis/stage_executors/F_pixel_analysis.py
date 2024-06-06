@@ -9,6 +9,7 @@ from tqdm import tqdm
 
 from omegaconf import DictConfig
 
+import numpy as np
 import healpy as hp
 
 from src.core import (
@@ -163,7 +164,10 @@ def process_target(task_target: TaskTarget, stat_funcs):
         else:
             res['error'] = f"The true data has shape {true_data.shape} and the predicted data has shape {pred_data.shape}. This mismatch will cause errors."
 
-    mask = true_data[true_data == hp.UNSEEN]
+    true_data = true_data.flatten()
+    pred_data = pred_data.flatten()
+
+    mask = true_data == hp.UNSEEN
 
     true_data = hp.ma(true_data)
     true_data.mask = mask
