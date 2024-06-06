@@ -5,14 +5,17 @@ defaults:
   - pipeline                  : assembly_pyilc
   - scenario                  : scenario_t
   - splits                    : all_t
+  # - model/pyilc               : hilc_t
   - model/pyilc               : cnilc_512_t
   - model/analysis            : basic_analysis
   - override hydra/job_logging: custom_log
 
 # dataset_name: IQU_${scenario.nside}_1450
 dataset_name   : ${scenario.map_fields}_${scenario.nside}_${splits.name}
+# working_dir    : "PyILC_HILC/"
+# fig_model_name : HILC
 working_dir    : "PyILC_CNILC/"
-fig_model_name : HILC
+fig_model_name : CNILC
 hydra:
   run:
     dir        : Logs/${now:%Y-%m-%d-%H-%M-%S}
@@ -35,7 +38,7 @@ use_epochs_imgs      : *epochs
 use_epochs_map_stats : *epochs
 use_epochs_ps_stats  : *epochs
 # Limit the number of simulations for which to generate figures
-n_show_cap           : 1
+n_show_cap           : 1   # int: first n_sims; null: all sims; list: particular sims by index
 
 # In the splits yaml; null to run on all
 n_test_cap           : 1
