@@ -205,7 +205,7 @@ Big:
   - [ ] Add bulk PS figure
 
 ## General
-
+- [ ] Handle epochs in strings better; currently "" for non-epoch is hacky and leaves rogue _ in fns
 - [ ] Simulation Working Dir: Fix it
 - [x] Clean up import structure 
     - [x] look for "...core"
