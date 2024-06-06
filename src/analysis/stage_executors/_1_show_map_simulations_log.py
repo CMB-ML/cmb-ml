@@ -20,7 +20,7 @@ from src.core import (
 from src.core.asset_handlers.asset_handlers_base import Mover
 from src.core.asset_handlers.healpy_map_handler import HealpyMap
 from src.utils.planck_instrument import make_instrument, Instrument
-from src.utils import planck_cmap
+from src.utils.planck_cmap import colombi1_cmap
 
 
 logger = logging.getLogger(__name__)
@@ -131,7 +131,7 @@ class ShowSimsLogExecutor(BaseStageExecutor):
             min=0,
             max=1,
             rot=self.plot_rot,
-            cmap=planck_cmap.colombi1_cmap,
+            cmap=colombi1_cmap,
             hold=True,
             title=title)
 
@@ -157,7 +157,7 @@ class ShowSimsLogExecutor(BaseStageExecutor):
         hp.mollview(some_map_norm, **plot_params, cbar=False, sub=ax1)
 
         ax2 = fig.add_axes([0.05, 0.125, 0.9, 0.025])
-        mappable = cm.ScalarMappable(norm=norm, cmap=planck_cmap.colombi1_cmap)
+        mappable = cm.ScalarMappable(norm=norm, cmap=colombi1_cmap)
         cb = plt.colorbar(mappable, cax=ax2, orientation='horizontal')
         cb.formatter.set_powerlimits((0, 0))
         cb.update_ticks()
@@ -217,7 +217,7 @@ class ShowSimsLogExecutor(BaseStageExecutor):
         hp.mollview(some_map_norm, **plot_params, cbar=False, sub=ax1)
 
         ax2 = fig.add_axes([0.05, 0.125, 0.9, 0.025])
-        mappable = cm.ScalarMappable(norm=norm, cmap=planck_cmap.colombi1_cmap)
+        mappable = cm.ScalarMappable(norm=norm, cmap=colombi1_cmap)
         cb = plt.colorbar(mappable, cax=ax2, orientation='horizontal')
         cb.update_ticks()
         cb.set_label('$\\delta \\text{T} \\; [\\mu \\text{K}_\\text{CMB}]$')

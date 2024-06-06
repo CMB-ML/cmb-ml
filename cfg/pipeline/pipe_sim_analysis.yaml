@@ -2,15 +2,18 @@ show_sims:
   assets_out:
     cmb_map_render:
       handler: Mover
+      path_template: "{root}/{dataset}/Sims_Analysis/{stage}/{split}/{sim}/{view}_cmb_{field}_log.png"
+    cmb_map_render2:
+      handler: Mover
       path_template: "{root}/{dataset}/Sims_Analysis/{stage}/{split}/{sim}/{view}_cmb_{field}.png"
     obs_map_render:
       handler: Mover
-      path_template: "{root}/{dataset}/Sims_Analysis/{stage}/{split}/{sim}/{view}_obs_{field}_{freq}.png"
+      path_template: "{root}/{dataset}/Sims_Analysis/{stage}/{split}/{sim}/{view}_obs_{field}_{freq}_log.png"
   assets_in:
     cmb_map: {stage: make_sims}
     obs_maps: {stage: make_sims}
   splits:
-    - train
+    - test
   override_n_sims: 1                 # int: first n_sims; null: all sims; list: particular sims by index
   plot_min_max: null                 # value, v: plots from -v to +v; null: allow MPL to choose; list (size 2): min and max val
   # plot_rot: [250, -50]             # Goodish direction for RG
