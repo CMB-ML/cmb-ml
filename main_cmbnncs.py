@@ -65,9 +65,9 @@ def run_cmbnncs(cfg):
 
     # pipeline_context.add_pipe(PostprocessExecutor)
     ## pipeline_context.add_pipe(CMBNNCSShowSimsPostExecutor)
-    # pipeline_context.add_pipe(CommonRealPostExecutor)
-    # pipeline_context.add_pipe(CommonCMBNNCSPredPostExecutor)
-    # pipeline_context.add_pipe(CommonCMBNNCSShowSimsPostExecutor)
+    pipeline_context.add_pipe(CommonRealPostExecutor)
+    pipeline_context.add_pipe(CommonCMBNNCSPredPostExecutor)
+    pipeline_context.add_pipe(CommonCMBNNCSShowSimsPostExecutor)
 
     pipeline_context.add_pipe(PixelAnalysisExecutor)
     pipeline_context.add_pipe(PixelSummaryExecutor)
