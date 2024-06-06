@@ -28,10 +28,14 @@ px_operations:
 mask_threshold: 0.9  # Per Planck's 2015 results:IX. Diffuse component separation: CMB maps
 
 lmax_ratio: 3.0
+beam_real:
+  _target_: src.utils.physics_beam.NoBeam
+  _partial_: true  # lmax will come from python code
+
 beam_cmbnncs:
   _target_: src.utils.physics_beam.GaussianBeam
   _partial_: true  # lmax will come from python code
-  beam_fwhm: 7.27
+  beam_fwhm: 5
 
 beam_pyilc:
   _target_: src.utils.physics_beam.GaussianBeam
