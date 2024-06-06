@@ -9,6 +9,7 @@ from src.core import (
                       LogMaker
                       )
 from src.core.A_check_hydra_configs import HydraConfigCheckerExecutor
+from src.sims import MaskCreatorExecutor
 from src.cmbnncs_local import (
                          HydraConfigCMBNNCSCheckerExecutor,
                          PreprocessMakeScaleExecutor,
@@ -20,6 +21,9 @@ from src.cmbnncs_local import (
                          )
 
 from src.analysis import   (ShowSimsPrepExecutor, 
+                            CommonRealPostExecutor,
+                            CommonCMBNNCSPredPostExecutor,
+                            CommonCMBNNCSShowSimsPostExecutor,
                             CMBNNCSShowSimsPredExecutor, 
                             CMBNNCSShowSimsPostExecutor,
                             PixelAnalysisExecutor,
@@ -60,7 +64,10 @@ def run_cmbnncs(cfg):
     # pipeline_context.add_pipe(CMBNNCSShowSimsPredExecutor)
 
     # pipeline_context.add_pipe(PostprocessExecutor)
-    pipeline_context.add_pipe(CMBNNCSShowSimsPostExecutor)
+    ## pipeline_context.add_pipe(CMBNNCSShowSimsPostExecutor)
+    # pipeline_context.add_pipe(CommonRealPostExecutor)
+    # pipeline_context.add_pipe(CommonCMBNNCSPredPostExecutor)
+    pipeline_context.add_pipe(CommonCMBNNCSShowSimsPostExecutor)
 
     # pipeline_context.add_pipe(PixelAnalysisExecutor)
     # pipeline_context.add_pipe(PixelSummaryExecutor)
@@ -71,12 +78,13 @@ def run_cmbnncs(cfg):
     # pipeline_context.add_pipe(MakeTheoryPSStats)
 
     # CMBNNCS's Predictions as Power Spectra Anaylsis
-    pipeline_context.add_pipe(CMBNNCSMakePSExecutor)
+    # pipeline_context.add_pipe(MaskCreatorExecutor)
+    # pipeline_context.add_pipe(CMBNNCSMakePSExecutor)
     # pipeline_context.add_pipe(PowerSpectrumAnalysisExecutorSerial)
     # pipeline_context.add_pipe(PSAnalysisExecutor)
     # pipeline_context.add_pipe(PowerSpectrumSummaryExecutor)
     # pipeline_context.add_pipe(PowerSpectrumSummaryFigsExecutor)
-    pipeline_context.add_pipe(PostAnalysisPsFigExecutor)
+    # pipeline_context.add_pipe(PostAnalysisPsFigExecutor)
 
     pipeline_context.prerun_pipeline()
 
