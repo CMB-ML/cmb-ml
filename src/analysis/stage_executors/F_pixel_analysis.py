@@ -9,6 +9,8 @@ from tqdm import tqdm
 
 from omegaconf import DictConfig
 
+import healpy as hp
+
 from src.core import (
     BaseStageExecutor,
     Asset,
@@ -32,6 +34,7 @@ class TaskTarget(NamedTuple):
     split_name: str
     sim_num: str
     epoch: int
+
 
 
 class PixelAnalysisExecutor(BaseStageExecutor):
@@ -159,6 +162,16 @@ def process_target(task_target: TaskTarget, stat_funcs):
             true_data = true_data[:pred_data.shape[0]]
         else:
             res['error'] = f"The true data has shape {true_data.shape} and the predicted data has shape {pred_data.shape}. This mismatch will cause errors."
+
+    mask = true_data[true_data == hp.UNSEEN]
+
+    true_data = hp.ma(true_data)
+    true_data.mask = mask
+    true_data = true_data.compressed()
+
+    pred_data = hp.ma(pred_data)
+    pred_data.mask = mask
+    pred_data = pred_data.compressed()
 
     try:
         for stat_name, func in stat_funcs.items():
