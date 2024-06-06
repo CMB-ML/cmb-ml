@@ -51,7 +51,7 @@ class PredictionExecutor(BaseStageExecutor):
 
     def process_split(self, 
                       split: Split) -> None:
-        logger.info(f"Executing PredictExecutor process_split() for split: {split.name}.")
+        logger.info(f"Executing PredictExecutor process_split() for split: {split.name}, for {split.n_sims} simulations.")
         for sim in tqdm(split.iter_sims()):
             with self.name_tracker.set_context("sim_num", sim):
                 self.process_sim()
@@ -80,6 +80,7 @@ class PredictionExecutor(BaseStageExecutor):
             run_ilc(self.out_config.path)
         # logger.debug("Moving resulting map.")
         self.move_result()
+        self.clear_pyilc_working_directory()
 
     def move_result(self):
         result_dir = self.out_model.path
@@ -93,3 +94,9 @@ class PredictionExecutor(BaseStageExecutor):
         destination_path.parent.mkdir(exist_ok=True, parents=True)
 
         result_path.rename(destination_path)
+
+    def clear_pyilc_working_directory(self):
+        working_path = self.out_model.path
+        for file in working_path.iterdir():
+            file.unlink()
+        return
