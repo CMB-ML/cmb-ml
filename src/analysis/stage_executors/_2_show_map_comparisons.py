@@ -13,7 +13,7 @@ from src.core import (
     Split,
     Asset
     )
-from src.core.asset_handlers.asset_handlers_base import Mover
+from src.core.asset_handlers.asset_handlers_base import EmptyHandler
 from src.core.asset_handlers.healpy_map_handler import HealpyMap
 
 from src.cmbnncs_local.handler_npymap import NumpyMap
@@ -116,10 +116,10 @@ class ShowSimsExecutor(BaseStageExecutor):
     def save_figure(self, title, split_name, sim_num, field_str, out_asset):
         plt.suptitle(f"{title}, {split_name}:{sim_num} {field_str} Stokes")
 
-        fn = out_asset.path.name
+        fn = out_asset.path
+        out_asset.write()
         plt.savefig(fn)
         plt.close()
-        out_asset.write(source_location=fn)
 
     def make_imshow(self, some_map, ax):
         plt.axes(ax)
@@ -133,16 +133,21 @@ class ShowSimsExecutor(BaseStageExecutor):
         ax.set_axis_off()
         plt.colorbar
 
-    def make_mollview(self, some_map, ax, show_cbar=False, title="Raw Simulation"):
+    def make_mollview(self, some_map, ax, unit='\\mu \\text{K}_\\text{CMB}', min_or=None, max_or=None, show_cbar=False, title="Raw Simulation"):
         plt.axes(ax)
+        vmin = self.min_max[0] if min_or is None else min_or
+        vmax = self.min_max[1] if max_or is None else max_or
         plot_params = dict(
-            min=self.min_max[0], 
-            max=self.min_max[1],
+            xsize=2400,
+            min=vmin, 
+            max=vmax,
+            unit=unit,
             cmap=planck_cmap.colombi1_cmap,
             hold=True,
             cbar=show_cbar
         )
         hp.mollview(some_map, **plot_params)
+
         plt.title(title)
 
 
@@ -155,8 +160,8 @@ class ShowSimsPrepExecutor(ShowSimsExecutor):
 
         self.out_cmb_figure: Asset = self.assets_out["cmb_map_render"]
         self.out_obs_figure: Asset = self.assets_out["obs_map_render"]
-        out_cmb_figure_handler: Mover
-        out_obs_figure_handler: Mover
+        out_cmb_figure_handler: EmptyHandler
+        out_obs_figure_handler: EmptyHandler
 
         self.in_cmb_map_sim: Asset = self.assets_in["cmb_map_sim"]
         self.in_cmb_map_prep: Asset = self.assets_in["cmb_map_prep"]
@@ -184,7 +189,7 @@ class CMBNNCSShowSimsPredExecutor(ShowSimsExecutor):
         self.right_subplot_title = "Predicted"
 
         self.out_cmb_figure: Asset = self.assets_out["cmb_map_render"]
-        out_cmb_figure_handler: Mover
+        out_cmb_figure_handler: EmptyHandler
 
         self.in_cmb_map_sim: Asset = self.assets_in["cmb_map_sim"]
         self.in_cmb_map_pred: Asset = self.assets_in["cmb_map_pred"]
@@ -205,13 +210,13 @@ class CMBNNCSShowSimsPredExecutor(ShowSimsExecutor):
 
 class ShowSimsPostExecutor(ShowSimsExecutor):
     def __init__(self, cfg: DictConfig, stage_str=None) -> None:
-        stage_str = "show_cmb_post"
+        stage_str = "show_cmb_post_masked"
         super().__init__(cfg, stage_str)
 
         self.right_subplot_title = "Predicted"
 
         self.out_cmb_figure: Asset = self.assets_out["cmb_map_render"]
-        out_cmb_figure_handler: Mover
+        out_cmb_figure_handler: EmptyHandler
 
         self.in_cmb_map_post: Asset = self.assets_in["cmb_map_post"]
         self.in_cmb_map_sim: Asset = self.assets_in["cmb_map_sim"]
@@ -237,14 +242,38 @@ class ShowSimsPostExecutor(ShowSimsExecutor):
         for field_str in fields:
             with self.name_tracker.set_context("field", field_str):
                 field_idx = {'I': 0, 'Q': 1, 'U': 2}[field_str]
-                fig = plt.figure(figsize=(12, 6))
-                gs = gridspec.GridSpec(1, 2, width_ratios=[6, 6], wspace=0.1)
+                fig = plt.figure(figsize=(30, 7), dpi=150)
+                gs = gridspec.GridSpec(1, 4, width_ratios=[6, 6, 6, 6], wspace=0.1)
 
-                (ax1, ax2) = [plt.subplot(gs[i]) for i in [0,1]]
+                axs = [plt.subplot(gs[i]) for i in range(4)]
 
-                self.make_mollview(map_sim[field_idx], ax1, show_cbar=True, title="Realization")
-                self.make_mollview(map_post[field_idx], ax2, show_cbar=True, title="Prediction")
+                mask = map_sim[field_idx] == hp.UNSEEN
 
+                diff = map_post[field_idx] - map_sim[field_idx]
+
+                diff = hp.ma(diff)
+                diff.mask = mask
+
+                plot_params = dict(show_cbar=True, unit='$\\mu \\text{K}_\\text{CMB}$')
+
+                self.make_mollview(map_sim[field_idx], axs[0], title="Realization", **plot_params)
+                self.make_mollview(map_post[field_idx], axs[1], title="Prediction", **plot_params)
+                self.make_mollview(diff, axs[2], title="Difference", min_or=-120, max_or=120, **plot_params)
+
+                # healpy applies the graticule to every subplot, so we only need to do it once; 
+                # if this were in self.make_mollview, earlier subplots will have multiple graticules applied.
+                hp.graticule(dpar=45, dmer=45)
+
+                n_bins = 50
+
+                plt.axes(axs[3])
+                plt.hist(diff.compressed(), bins=n_bins, range=(-120, 120), color="#524FA1", histtype='stepfilled')
+                axs[3].set_yticks([])
+                axs[3].set_xlabel("Deviation from Zero Difference ($\\mu \\text{K}_\\text{CMB}$)")
+                axs[3].set_ylabel("Pixel Count")
+                axs[3].set_title("Histogram of Difference")
+                for x in [-100, -50, 0, 50, 100]:
+                    axs[3].axvline(x=x, color='black', linestyle='--', linewidth=0.5)
                 self.save_figure("CMB Predictions", split, sim_n, field_str, out_asset)
 
 
@@ -261,6 +290,30 @@ class PetroffShowSimsPostExecutor(ShowSimsPostExecutor):
 
 
 class NILCShowSimsPostExecutor(ShowSimsPostExecutor):
+    def __init__(self, cfg: DictConfig) -> None:
+        super().__init__(cfg)
+        self.right_subplot_title = "NILC Predicted"
+
+
+class CommonRealPostExecutor(ShowSimsPostExecutor):
+    def __init__(self, cfg: DictConfig) -> None:
+        stage_str = "show_cmb_post_masked"
+        super().__init__(cfg, stage_str=stage_str)
+
+
+class CommonCMBNNCSShowSimsPostExecutor(CommonRealPostExecutor):
+    def __init__(self, cfg: DictConfig) -> None:
+        super().__init__(cfg)
+        self.right_subplot_title = "CMBNNCS Predicted"
+
+
+class CommonPetroffShowSimsPostExecutor(CommonRealPostExecutor):
+    def __init__(self, cfg: DictConfig) -> None:
+        super().__init__(cfg)
+        self.right_subplot_title = "Petroff Predicted"
+
+
+class CommonNILCShowSimsPostExecutor(CommonRealPostExecutor):
     def __init__(self, cfg: DictConfig) -> None:
         super().__init__(cfg)
         self.right_subplot_title = "NILC Predicted"
