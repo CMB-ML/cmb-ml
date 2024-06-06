@@ -10,6 +10,11 @@ raw:
     #   handler: WMAPChains
     #   path_template: "{src_root}/{fn}"
 
+raw_reference:
+  assets_in:
+    planck_deltabandpass: {stage: raw}
+    noise_src_maps: {stage: raw}
+
 check_hydra_configs:  # No information needed here
 
 make_noise_cache:
