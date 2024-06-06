@@ -72,14 +72,6 @@ class MakePredPowerSpectrumExecutor(BaseStageExecutor):
         self.mask_512 = downgrade_mask(mask, self.nside_out, threshold=self.mask_threshold)
         return
 
-    # def show_mask(self, mask):
-    #     """
-    #     TODO: Move this elsewhere
-    #     """
-    #     import matplotlib.pyplot as plt
-    #     hp.mollview(mask)
-    #     plt.savefig("Mask.png")
-
     def get_pred_beam(self):
         # Partially instantiate the beam object, defined in the hydra configs
         # Currently tested are GaussianBeam and NoBeam, which differ only in how they are instantiated
