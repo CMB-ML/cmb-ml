@@ -10,6 +10,7 @@ hydra:
 force_download: false
 
 # List of chunks of assets needed from different sources
+# TODO: better integration with other configs (pipeline, model.sims.noise), instead of repeating information
 assets_to_get:
   - mission_dir: Planck
     base_url: "https://github.com/galsci/mapsims/tree/main/mapsims/data/planck_deltabandpass"
@@ -27,6 +28,7 @@ assets_to_get:
   - mission_dir: Planck
     base_url: "https://irsa.ipac.caltech.edu/data/Planck/release_3/all-sky-maps/maps"
     files:
+    # TODO: better integration with noise sims config
       - "LFI_SkyMap_030-BPassCorrected_1024_R3.00_full.fits"
       - "LFI_SkyMap_044-BPassCorrected_1024_R3.00_full.fits"
       - "LFI_SkyMap_070-BPassCorrected_1024_R3.00_full.fits"
