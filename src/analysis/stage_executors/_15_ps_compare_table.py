@@ -80,7 +80,7 @@ class PSCompareTableExecutor(BaseStageExecutor):
         num_data_columns = len(latex_table.columns)
         column_format = "l" * num_index_levels + "c" * num_data_columns
         latex_table = latex_table.to_latex(escape=False,
-                                           caption="Pixel Space Performance",
+                                           caption="Power Spectrum Performance",
                                            label="tab:px_metrics", 
                                            column_format=column_format)
         latex_table = latex_table.replace("\\begin{table}",
