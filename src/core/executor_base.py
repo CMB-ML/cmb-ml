@@ -24,6 +24,8 @@ class BaseStageExecutor(ABC):
         self.name_tracker: Namer = Namer(cfg)
         self._config_help = _ch = ConfigHelper(cfg, stage_str)
 
+        self.top_level_working = self._config_help.get_stage_elem_silent("top_level_working")
+
         self.assets_out = _ch.get_assets_out(name_tracker=self.name_tracker)
         self.assets_in = _ch.get_assets_in(name_tracker=self.name_tracker)
 

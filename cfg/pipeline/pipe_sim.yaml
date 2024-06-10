@@ -49,8 +49,8 @@ make_theory_ps:
   assets_out:
     cmb_ps:
       handler: CambPowerSpectrum
-      path_template: "{root}/{dataset}/{stage}/{split}/{sim}/cmb_ps_fid.txt"
-      path_template_alt: "{root}/{dataset}/{stage}/{split}/cmb_ps_fid.txt"
+      path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/cmb_ps_fid.txt"
+      path_template_alt: "{root}/{dataset}/{working}{stage}/{split}/cmb_ps_fid.txt"
   assets_in:
     wmap_config: {stage: make_sim_configs}
   splits: *all_splits
@@ -72,6 +72,7 @@ make_sims:
   splits: *all_splits
   dir_name: Simulation
   make_stage_log: True
+  top_level_working: True
 
 mask_in:
   assets_out:

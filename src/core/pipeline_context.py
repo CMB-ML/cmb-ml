@@ -76,7 +76,8 @@ class PipelineContext:
             logger.info(f"Done running stage: {stage.__name__}")
             if executor.make_stage_logs:
                 stage_str = executor.stage_str
+                top_level_working = executor.top_level_working
                 stage_dir = self.cfg.pipeline[stage_str].dir_name
-                self.log_maker.copy_hydra_run_to_stage_log(stage_dir)
+                self.log_maker.copy_hydra_run_to_stage_log(stage_dir, top_level_working)
             else:
                 logger.warning(f"Skipping stage logs for stage {stage.__name__}.")

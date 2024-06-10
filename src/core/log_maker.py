@@ -282,9 +282,9 @@ class LogMaker:
         self.namer.dataset_logs_path.mkdir(parents=True, exist_ok=True)
         self._copy_hydra_run_to_log(self.namer.dataset_logs_path)
 
-    def copy_hydra_run_to_stage_log(self, stage):
+    def copy_hydra_run_to_stage_log(self, stage, top_level_working):
         if stage == "Simulation":
-            stage_path = self.namer.stage_logs_path(stage, is_simulation=True)
+            stage_path = self.namer.stage_logs_path(stage, top_level_working=top_level_working)
         else:
             stage_path = self.namer.stage_logs_path(stage)
         stage_path.mkdir(parents=True, exist_ok=True)
@@ -311,7 +311,7 @@ class LogsNamer:
         self.dataset_template_str = cfg.file_system.log_dataset_template_str
         # self.working_dir = cfg.working_dir
         self.stage_template_str = cfg.file_system.log_stage_template_str
-        self.simulation_template_str = cfg.file_system.simulation_template_str
+        self.top_level_work_template_str = cfg.file_system.top_level_work_template_str
         self.namer = Namer(cfg)
 
     @property
@@ -328,10 +328,10 @@ class LogsNamer:
             path = self.namer.path(self.dataset_template_str)
         return path
 
-    def stage_logs_path(self, stage_dir, is_simulation:bool=False) -> Path:
+    def stage_logs_path(self, stage_dir, top_level_working:bool=False) -> Path:
         use_template = self.stage_template_str
-        if is_simulation:
-            use_template = self.simulation_template_str
+        if top_level_working:
+            use_template = self.top_level_work_template_str
         with self.namer.set_contexts({"hydra_run_dir": self.hydra_run_dir,
                                       "stage": stage_dir}):
             path = self.namer.path(use_template)
