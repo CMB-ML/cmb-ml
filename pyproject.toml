@@ -1,12 +1,17 @@
 [tool.poetry]
-name = "cmml"
+name = "cmb-ml"
 version = "0.0.0"
 description = ""
 authors = ["JamesAmato <116766236+JamesAmato@users.noreply.github.com>"]
 readme = "README.md"
 packages = [
     { include = "core", from = "src" },
-    { include = "sims", from = "src" }
+    { include = "sims", from = "src" },
+    { include = "analysis", from = "src" },
+    { include = "pyilc_local", from = "src" },
+    { include = "pyilc_redir", from = "src" },
+    { include = "cmbnncs_local", from = "src" },
+    { include = "petroff", from = "src" }
 ]
 
 [tool.poetry.dependencies]
