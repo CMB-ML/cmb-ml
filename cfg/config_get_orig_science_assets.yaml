@@ -13,7 +13,7 @@ force_download: false
 # TODO: better integration with other configs (pipeline, model.sims.noise), instead of repeating information
 assets_to_get:
   - mission_dir: Planck
-    base_url: "https://github.com/galsci/mapsims/tree/main/mapsims/data/planck_deltabandpass"
+    base_url: "https://github.com/galsci/mapsims/raw/main/mapsims/data/planck_deltabandpass"
     files:
       - planck_deltabandpass.tbl
     match_size: false
