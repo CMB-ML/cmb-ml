@@ -1,0 +1,19 @@
+# Moved to top level for now.
+nside            : ${nside}
+detector_freqs   : ${detectors}
+map_fields       : ${map_fields}
+
+
+precision        : float
+units            : K_CMB
+
+full_instrument:
+  30 : IQU
+  44 : IQU
+  70 : IQU
+  100: IQU
+  143: IQU
+  217: IQU
+  353: IQU
+  545: I
+  857: I
