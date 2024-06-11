@@ -11,10 +11,10 @@ defaults:
 
 # dataset_name: CMML_Dataset
 # When creating multiple datasets, using interpolation like this may be easier:
-# dataset_name: IQU_${scenario.nside}_${splits.name}
-dataset_name       : ${scenario.map_fields}_${scenario.nside}_${splits.name}
-working_dir        : "placeholder_set_below/"
-fig_model_name : CMBNNCS
+dataset_name: IQU_${scenario.nside}_${splits.name}
+# dataset_name       : ${scenario.map_fields}_${scenario.nside}_${splits.name}
+working_dir          : null
+fig_model_name       : null
 hydra:
   run:
     dir: Logs/${now:%Y-%m-%d-%H-%M-%S}

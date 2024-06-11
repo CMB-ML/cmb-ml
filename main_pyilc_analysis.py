@@ -1,17 +1,43 @@
+"""
+This script runs a pipeline for analysis of the cleaned CMB signal generated with PyILC.
+
+The pipeline consists of the following steps:
+1. Generating per-pixel analysis results for each simulation
+2. Generating per-pixel summary statistics for each simulation
+3. Converting the theory power spectrum to a format that can be used for analysis
+4. Generating per-ell power spectrum analysis results for each simulation
+5. Generating per-ell power spectrum summary statistics for each simulation
+
+And also generating various analysis figures, throughout.
+
+Because settings in PyILC cause conflicts for Matplotlib, this analysis is performed separately from `main_pyilc_predict.py`.
+
+The script uses the Hydra library for configuration management.
+
+Usage:
+    python main_pyilc_predict.py
+
+Note: This script requires the project to be installed, with associated libraries in pyproject.toml.
+Note: This script may require the environment variable "CMB_SIMS_LOCAL_SYSTEM" to be set,
+        or for appropriate settings in your configuration for local_system.
+
+Author: James Amato
+Date: June 11, 2024
+"""
 from functools import partial
 import logging
 
 import hydra
 
-from src.utils.check_env_var import validate_environment_variable
-from src.core import (
+from cmbml.utils.check_env_var import validate_environment_variable
+from cmbml.core import (
                       PipelineContext,
                       LogMaker
                       )
-from src.core.A_check_hydra_configs import HydraConfigCheckerExecutor
-from src.sims import MaskCreatorExecutor
+from cmbml.core.A_check_hydra_configs import HydraConfigCheckerExecutor
+from cmbml.sims import MaskCreatorExecutor
 
-from src.analysis import   (
+from cmbml.analysis import   (
                             NILCShowSimsPostExecutor,
                             CommonRealPostExecutor,
                             CommonPyILCPredPostExecutor,

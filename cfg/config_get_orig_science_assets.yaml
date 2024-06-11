@@ -1,0 +1,52 @@
+defaults:
+  - local_system: ${oc.env:CMB_SIMS_LOCAL_SYSTEM}
+  - file_system : common_fs
+  - _self_
+hydra:
+  run:
+    dir: Logs/${now:%Y-%m-%d-%H-%M-%S}
+  verbose: true
+
+force_download: false
+
+# List of chunks of assets needed from different sources
+# TODO: better integration with other configs (pipeline, model.sims.noise), instead of repeating information
+assets_to_get:
+  - mission_dir: Planck
+    base_url: "https://github.com/galsci/mapsims/raw/main/mapsims/data/planck_deltabandpass"
+    files:
+      - planck_deltabandpass.tbl
+    match_size: false
+
+  # TODO: Use Planck Mission data from IRSA instead of from Simons Observatory GitHub
+  # - mission_dir: Planck
+  #   base_url: "https://irsa.ipac.caltech.edu/data/Planck/release_3/ancillary-data"
+  #   files:
+  #     - "HFI_RIMO_R3.00.fits"
+  #     - "LFI_RIMO_R3.31.fits"
+
+  - mission_dir: Planck
+    base_url: "https://irsa.ipac.caltech.edu/data/Planck/release_3/all-sky-maps/maps"
+    files:
+    # TODO: better integration with noise sims config
+      - "LFI_SkyMap_030-BPassCorrected_1024_R3.00_full.fits"
+      - "LFI_SkyMap_044-BPassCorrected_1024_R3.00_full.fits"
+      - "LFI_SkyMap_070-BPassCorrected_1024_R3.00_full.fits"
+      - "HFI_SkyMap_100_2048_R3.01_full.fits"
+      - "HFI_SkyMap_143_2048_R3.01_full.fits"
+      - "HFI_SkyMap_217_2048_R3.01_full.fits"
+      - "HFI_SkyMap_353-psb_2048_R3.01_full.fits"
+      - "HFI_SkyMap_545_2048_R3.01_full.fits"
+      - "HFI_SkyMap_857_2048_R3.01_full.fits"
+
+  - mission_dir: Planck
+    base_url: "https://irsa.ipac.caltech.edu/data/Planck/release_3/all-sky-maps/maps/component-maps/cmb"
+    files:
+      - "COM_CMB_IQU-nilc_2048_R3.00_full.fits"
+
+  - mission_dir: WMAP
+    base_url: "https://lambda.gsfc.nasa.gov/data/map/dr5/dcp/chains"
+    files:
+      # - "wmap_lcdm_wmap9_chains_v5.tar.gz"
+      - "wmap_lcdm_mnu_wmap9_chains_v5.tar.gz"
+    extract: true

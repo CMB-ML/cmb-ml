@@ -1,7 +1,7 @@
-sim_folder_prefix       : "sim"
-sim_str_num_digits      : 4
+sim_folder_prefix           : "sim"
+sim_str_num_digits          : 4
 
-subdir_for_log_scripts  : "scripts"
-log_dataset_template_str: "{root}/{dataset}/{hydra_run_dir}"
-log_stage_template_str  : "{root}/{dataset}/{working}{stage}/{hydra_run_dir}"
-simulation_template_str : "{root}/{dataset}/{stage}/{hydra_run_dir}"
+subdir_for_log_scripts      : "scripts"
+log_dataset_template_str    : "{root}/{dataset}/{hydra_run_dir}"
+log_stage_template_str      : "{root}/{dataset}/{working}{stage}/{hydra_run_dir}"
+top_level_work_template_str : "{root}/{dataset}/{stage}/{hydra_run_dir}"

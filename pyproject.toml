@@ -1,13 +1,9 @@
 [tool.poetry]
-name = "cmml"
+name = "cmbml"
 version = "0.0.0"
 description = ""
 authors = ["JamesAmato <116766236+JamesAmato@users.noreply.github.com>"]
 readme = "README.md"
-packages = [
-    { include = "core", from = "src" },
-    { include = "sims", from = "src" }
-]
 
 [tool.poetry.dependencies]
 python = "^3.9"
@@ -24,6 +20,7 @@ seaborn = "^0.13.2"
 cmbnncs = {git = "https://github.com/Guo-Jian-Wang/cmbnncs.git"}
 h5py = "^3.11.0"
 jinja2 = "^3.1.4"
+requests = "^2.32.3"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.0.1"

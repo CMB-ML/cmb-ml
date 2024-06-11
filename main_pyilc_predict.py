@@ -1,15 +1,36 @@
-import logging
+"""
+This script runs a pipeline for cleaning CMB signal using PyILC.
 
+The pipeline consists of the following steps:
+1. Checking configurations
+2. Creating needed precursor assets (masks)
+3. Generating predictions using PyILC
+
+Because settings in PyILC cause conflicts for Matplotlib, analysis is performed in `main_pyilc_analysis.py`.
+
+The script uses the Hydra library for configuration management.
+
+Usage:
+    python main_pyilc_predict.py
+
+Note: This script requires the project to be installed, with associated libraries in pyproject.toml.
+Note: This script may require the environment variable "CMB_SIMS_LOCAL_SYSTEM" to be set,
+        or for appropriate settings in your configuration for local_system.
+
+Author: James Amato
+Date: June 11, 2024
+"""
+import logging
 import hydra
 
-from utils.check_env_var import validate_environment_variable
-from core import (
+from cmbml.utils.check_env_var import validate_environment_variable
+from cmbml.core import (
                       PipelineContext,
                       LogMaker
                       )
-from src.sims import MaskCreatorExecutor
-from src.core.A_check_hydra_configs import HydraConfigCheckerExecutor
-from pyilc_local.B_predict_executor import PredictionExecutor
+from cmbml.sims import MaskCreatorExecutor
+from cmbml.core.A_check_hydra_configs import HydraConfigCheckerExecutor
+from cmbml.pyilc_local.B_predict_executor import PredictionExecutor
 
 
 logger = logging.getLogger(__name__)

@@ -2,13 +2,13 @@ import hydra
 
 import torch
 
-from core.asset import Asset, AssetWithPathAlts
-from core.namers import Namer
-from core.config_helper import ConfigHelper
-from core.pytorch_make_dataset import create_dataset_from_cfg
-from core.pytorch_transform import ToTensorDtype
+from cmbml.core.asset import Asset, AssetWithPathAlts
+from cmbml.core.namers import Namer
+from cmbml.core.config_helper import ConfigHelper
+from cmbml.core.pytorch_make_dataset import create_dataset_from_cfg
+from cmbml.core.pytorch_transform import ToTensor
 
-from petroff.pytorch_transform_absmax_scale import MinMaxScaleMap
+from cmbml.petroff.preprocessing.pytorch_transform_minmax_scale import TrainMinMaxScaleMap
 
 
 def get_scale_factors(cfg, name_tracker):
@@ -32,8 +32,8 @@ def main(cfg):
 
     scale_factors = get_scale_factors(cfg, name_tracker)
 
-    to_tensor = ToTensorDtype(dtype)
-    normalize = MinMaxScaleMap("I", scale_factors, dtype=dtype, device=device)
+    to_tensor = ToTensor(dtype=dtype)
+    normalize = TrainMinMaxScaleMap("I", scale_factors, dtype=dtype, device=device)
 
     for i in dataset:
         j = to_tensor(i)

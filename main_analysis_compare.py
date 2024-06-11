@@ -3,11 +3,11 @@ import logging
 
 import hydra
 
-from src.utils.check_env_var import validate_environment_variable
-from src.core import PipelineContext, LogMaker
-from src.core.A_check_hydra_configs import HydraConfigCheckerExecutor
+from cmbml.utils.check_env_var import validate_environment_variable
+from cmbml.core import PipelineContext, LogMaker
+from cmbml.core.A_check_hydra_configs import HydraConfigCheckerExecutor
 
-from src.analysis import   (
+from cmbml.analysis import   (
     PixelCompareTableExecutor,
     PSCompareTableExecutor,
     PostAnalysisPsCompareFigExecutor
