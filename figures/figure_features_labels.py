@@ -1,24 +1,17 @@
-from functools import partial
 import logging
 
 import hydra
 
-from cmbml.utils.check_env_var import validate_environment_variable
 from cmbml.core import PipelineContext, LogMaker
 from cmbml.core.A_check_hydra_configs import HydraConfigCheckerExecutor
-
-from cmbml.analysis import   (
-    PixelCompareTableExecutor,
-    PSCompareTableExecutor,
-    PostAnalysisPsCompareFigExecutor
-)
+from cmbml.analysis import ShowSimsLogExecutor
 
 
 logger = logging.getLogger(__name__)
 
 
-@hydra.main(version_base=None, config_path="cfg", config_name="config_comp_models_t")
-def run_pyilc_analysis(cfg):
+@hydra.main(version_base=None, config_path="../cfg", config_name="config_sim_t")
+def make_sim_figs(cfg):
     logger.debug(f"Running {__name__} in {__file__}")
 
     log_maker = LogMaker(cfg)
@@ -26,11 +19,8 @@ def run_pyilc_analysis(cfg):
 
     pipeline_context = PipelineContext(cfg, log_maker)
 
-    # pipeline_context.add_pipe(HydraConfigCheckerExecutor)
-
-    pipeline_context.add_pipe(PixelCompareTableExecutor)
-    pipeline_context.add_pipe(PSCompareTableExecutor)
-    pipeline_context.add_pipe(PostAnalysisPsCompareFigExecutor)
+    pipeline_context.add_pipe(HydraConfigCheckerExecutor)
+    pipeline_context.add_pipe(ShowSimsLogExecutor)
 
     pipeline_context.prerun_pipeline()
 
@@ -45,5 +35,4 @@ def run_pyilc_analysis(cfg):
 
 
 if __name__ == "__main__":
-    validate_environment_variable("CMB_SIMS_LOCAL_SYSTEM")
-    run_pyilc_analysis()
+    make_sim_figs()
