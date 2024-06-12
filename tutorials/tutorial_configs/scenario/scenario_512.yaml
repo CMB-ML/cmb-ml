@@ -1,0 +1,4 @@
+nside            : 512
+map_fields       : IQU
+precision        : float
+units            : K_CMB

@@ -1,0 +1,7 @@
+shapes:
+  - icon1:
+    shape: square
+    color: blue
+  - icon2:
+    shape: circle
+    color: red
