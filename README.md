@@ -126,7 +126,7 @@ Tutorials exist for:
   - And a short example of [Hydra in scripts](./tutorials/B_hydra_script_tutorial.ipynb)
 <!-- [Notebook Name](https://nbviewer.jupyter.org/github/username/repository/blob/branch/path/to/notebook.ipynb) -->
 - [Setting up your environment](.tutorials/C_setting_up_local.ipynb)
-- [Using PySM3 to create one-off simulations](./tutorials/D_using_pysm3_to_make_simulations.ipynb) Partially complete due to refactors...
+<!-- - [Using PySM3 to create one-off simulations](./tutorials/D_using_pysm3_to_make_simulations.ipynb) Partially complete due to refactors... -->
 - Using pipeline elements (coming soon!)
 - Getting and looking at simulation instances (coming soon!)
 
