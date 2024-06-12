@@ -1,6 +1,6 @@
 defaults:
   - _self_
-  - local_system  : ${oc.env:CMB_SIMS_LOCAL_SYSTEM}
+  - local_system  : ${oc.env:CMB_ML_LOCAL_SYSTEM}
   - file_system   : common_fs
   - pipeline      : assembly_petroff
   - scenario      : scenario_t

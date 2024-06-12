@@ -1,5 +1,5 @@
 defaults:
-  - local_system: ${oc.env:CMB_SIMS_LOCAL_SYSTEM}
+  - local_system: ${oc.env:CMB_ML_LOCAL_SYSTEM}
   - file_system : common_fs
   - pipeline    : assembly_sim
   - scenario    : scenario_t
@@ -28,4 +28,5 @@ map_fields     : "I"
 nside_sky      : 2048
 preset_strings : ["d9", "s4", "f1", "a1", "co1", "cib1", "ksz1", "tsz1", "rg1"]
 
-n_test_cap: 1
+# In the splits yaml
+n_test_cap: null
