@@ -121,7 +121,9 @@ Setting up the repository:
 # Tutorials
 
 Tutorials exist for:
-- [Hydra and its use in CMB-ML](./tutorials/hydra_tutorial.ipynb)
+- Python notebook: [Hydra and its use in CMB-ML](./tutorials/A_hydra_tutorial.ipynb)
+<!-- [Notebook Name](https://nbviewer.jupyter.org/github/username/repository/blob/branch/path/to/notebook.ipynb) -->
+  - And a short example [Hydra in scripts](./tutorials/B_hydra_script_tutorial.ipynb)
 <!-- [Notebook Name](https://nbviewer.jupyter.org/github/username/repository/blob/branch/path/to/notebook.ipynb) -->
 - Getting science assets
 - Using PySM3 to create one-off simulations
