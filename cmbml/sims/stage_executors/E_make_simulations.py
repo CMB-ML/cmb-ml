@@ -110,7 +110,7 @@ class SimCreatorExecutor(BaseStageExecutor):
             obs_map = []
             column_names = []
             for skymap, field_str in zip(skymaps, detector.fields):
-                # Use pysm3.apply_smoothing_...  to convolve the map with the planck detector beam
+                # Use pysm3.apply_smoothing... to convolve the map with the planck detector beam
                 map_smoothed = pysm3.apply_smoothing_and_coord_transform(skymap, 
                                                                          detector.fwhm, 
                                                                          lmax=self.lmax_pysm3_smoothing, 
@@ -138,7 +138,6 @@ class SimCreatorExecutor(BaseStageExecutor):
     def get_noise_map(self, freq, field_str, noise_seed, center_frequency=None):
         with self.name_tracker.set_context('freq', freq):
             with self.name_tracker.set_context('field', field_str):
-                # logger.debug(f"For {self.name_tracker.context['split']}:{self.name_tracker.context['sim_num']}, Getting noise map for {freq} GHz, {field_str}")
                 sd_map = self.in_noise_cache.read()
                 noise_map = make_random_noise_map(sd_map, noise_seed, center_frequency)
                 return noise_map
