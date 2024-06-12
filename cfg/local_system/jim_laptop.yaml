@@ -1,6 +1,0 @@
-test_key         : "jim_laptop"
-datasets_root    : "/Users/jimcamato/Data/SPACE_datasets"
-instr_table_path : "/Users/jimcamato/Data/SPACE/Assets/Planck/planck_deltabandpass.tbl"
-noise_src_dir    : "/Users/jimcamato/Data/SPACE/Assets/Planck/"
-wmap_chains_dir  : "/Users/jimcamato/Data/SPACE/Assets/WMAP/wmap_lcdm_mnu_wmap9_chains_v5"
-noise_cache_dir  : "/Users/jimcamato/Data/SPACE/Cache/noise/"
