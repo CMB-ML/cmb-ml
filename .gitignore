@@ -2,6 +2,7 @@
 creation_logs/
 Logs/
 Data/
+outputs/
 
 # Ignore potentially large files
 *.fits
