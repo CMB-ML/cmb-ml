@@ -32,7 +32,7 @@ class FileNotFound:
         raise NotImplementedError("This sentinel class should not be instantiated.")
 
 
-@hydra.main(version_base=None, config_path="cfg", config_name="config_get_science_assets")
+@hydra.main(version_base=None, config_path="../cfg", config_name="config_get_science_assets")
 def main(cfg):
     force_download = cfg.force_download
     assets_to_get = cfg.assets_to_get
@@ -226,6 +226,7 @@ def download_file(url, destination, remote_file_size) -> None:
 def extract_file(file_path: Path) -> None:
     """
     Extracts a file to a target directory with a progress bar and error handling.
+    Used for the WMAP9 chains.
 
     Args:
     file_path (Path): Path to the file to extract.

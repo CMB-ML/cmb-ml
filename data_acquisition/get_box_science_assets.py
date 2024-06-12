@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 logging.getLogger("urllib3.connectionpool").setLevel(logging.WARNING)
 
 
-@hydra.main(version_base=None, config_path="cfg", config_name="config_get_box_science_assets")
+@hydra.main(version_base=None, config_path="../cfg", config_name="config_get_box_science_assets")
 def main(cfg):
     destination = Path(cfg.local_system.assets_dir)
 
