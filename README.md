@@ -5,18 +5,34 @@
 </p>
 
 Contents:
+- [Quick Start](#quick-start)
+- [Introduction](#introduction)
+  - [Simulation](#simulation)
+  - [Baselines](#baselines)
+  - [Metrics](#metrics)
+- [Installation](#installation)
+- [Tutorials](#tutorials)
+- [Comparing Results](#comparing-results)
+  - [Outside Works](#outside-works)
+  - [Errata](#errata)
+- [Data File Links](#data-file-links)
 
 # Quick Start
 
 To get started:
 - Get this repository
-- Set up your Python environment
-- Create or download datasets
-- Train models
+- Set up your Python environment, using the pyproject.toml
+- Create or download datasets, see [Data File Links](#data-file-links)
+- Train models 
 - Run inference
 - Compare results
 
+See [Installation](#installation) and [Tutorials](#tutorials) for more detail.
+
+
 # Introduction
+
+![CMB Radiation Example](assets/cmb.png)
 
 The Cosmic Microwave Background radiation (CMB) signal is one of the cornerstones upon which modern cosmologists understand the universe. The signal is measured at different microwave frequencies - similar to how humans detect three different colors of light. Other natural phenomena either emit microwave signals or change the CMB signal itself. Thus, the signal must be separated out from these other contaminants. Modern machine learning and computer vision algorithms are seemingly perfect for the task, but generation of the data is cumbersome and no standard public datasets are available. Models and algorithms created for the task are seldom compared outside the largest collaborations. 
 
@@ -30,7 +46,10 @@ It uses Hydra to manage manage a pipeline so that coherent configurations are ap
   (At least... it will. Again, this page page and repository are currently under continuous construction. Feedback and participation are welcomed.)
 </p>
 
+
 ## Simulation
+
+![CMB Radiation Example](assets/observations_and_cmb_small.png)
 
 The real CMB signal is observed at several microwave wavelengths. To mimic this, we make a ground truth CMB map and several contaminant foregrounds. We "observe" these at the different wavelengths, where each foreground has different levels. Then we apply instrumentation effects to get a set of observed maps.
 
@@ -47,9 +66,11 @@ PyILC implements three different Internal Linear Combination methods. We use one
 
 CMBNNCS implements  -->
 
+
 ## Metrics
 
 We can compare the CMB predictions to the ground truths in order to determine how well the model works. However, because the models operate in fundamentally different ways, care is needed to ensure that they are compared in a consistent way. We first mask each prediction where the signal is often to bright to get meaningful predictions. We then remove effects of instrumentation from the predictions. The pipeline set up to run each method is then used in a slightly different way, to pull results from each method and produce output which directly compares them.
+
 
 # Installation
 
@@ -96,13 +117,16 @@ Setting up the repository:
   - To compare results between CMBNNCS and PyILC, use `main_analysis_compare.py`
     - PyILC and CMBNNCS analysis must already be done
 
+
 # Tutorials
 
 Tutorials exist for:
-- Hydra
+- [Hydra and its use in CMB-ML](./tutorials/hydra_tutorial.ipynb)
+<!-- [Notebook Name](https://nbviewer.jupyter.org/github/username/repository/blob/branch/path/to/notebook.ipynb) -->
 - Getting science assets
 - Using PySM3 to create one-off simulations
 - Using pipeline elements to 
+
 
 # Comparing Results
 
@@ -119,6 +143,7 @@ We list below the datasets and model's aggregated (across the Test split) perfor
 | CMBNNCS | $\bf{8.105 \pm 0.066}$ | $\bf{107.0 \pm 1.7}$ | $\bf{0.1020 \pm 0.0014}$ | $\bf{39.96 \pm 0.37}$ |
 | CNILC   | $22.34 \pm 5.48$       | $813.6 \pm 386.2$    | $0.2744 \pm 0.0609$      | $32.36 \pm 1.79$      |
 
+
 ### Power Spectrum Performance
 
 | Model   | MAE                  | MSE                                 | NRMSE                      | PSNR                  |
@@ -126,17 +151,21 @@ We list below the datasets and model's aggregated (across the Test split) perfor
 | CMBNNCS | $119.0 \pm 4.0$      | $\bf{(2.882 \pm 0.209)\times 10^4}$ | $\bf{0.07764 \pm 0.00190}$ | $\bf{31.00 \pm 0.27}$ |
 | CNILC   | $\bf{101.6 \pm 3.7}$ | $(3.044 \pm 1.458)\times 10^4$      | $0.07855 \pm 0.01411$      | $30.94 \pm 0.86$      |
 
+
 # Outside Works
 
 CMB-ML was built in the hopes that researchers can compare on this as a standard. In the future, we hope to add more datasets. If you would like your model or dataset listed, please contact us.
+
 
 ## Works using datasets from this repository
 
 None so far!
 
+
 ## Errata
 
 Any issues in the original dataset will be listed here. If there are critical issues, we will do our best to keep the current dataset and release an updated one as well.
+
 
 # Data File Links
 
@@ -165,6 +194,7 @@ We provide links to the various data used. Alternatives to get this data are in 
         - [Planck delta bandpass table, from Simons Observatory](https://github.com/galsci/mapsims/raw/main/mapsims/data/planck_deltabandpass/planck_deltabandpass.tbl)
   - On Box: 
     - [All Science Assets](https://utdallas.box.com/v/cmb-ml-science-assets)
+
 - Datasets
   - IQU-512-1450
     - Bulk data: [Box link, IQU-512-1450, monolithic](https://utdallas.box.com/v/cmb-ml-IQU-512-1450-lump), Note that this is ~1 TB
