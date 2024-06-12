@@ -1,5 +1,0 @@
-initialization   : ${initialization}
-model_precision  : float
-kernel_size      : 9
-n_features       : 6
-laplacian_type   : normalized
