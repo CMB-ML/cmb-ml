@@ -1,5 +1,7 @@
 # CMB-ML: A Cosmic Microwave Background Radiation Dataset for Machine Learning
 
+[![DOI](https://zenodo.org/badge/733740847.svg)](https://zenodo.org/badge/latestdoi/733740847)
+
 <p align="center">
   (This page is under continuous construction.)
 </p>
