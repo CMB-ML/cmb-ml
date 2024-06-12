@@ -97,13 +97,13 @@ Setting up the repository:
   - In the configuration files, enter the directories where you will keep datasets and science assets
 - Download the science assets
   - These are available from the original sources and a mirror set up for this purpose
-  - Files can be downloaded manually from [box_link](Box)
+  - Files can be downloaded manually from [Science Assets on Box](Box)
   - Scripts are available in the data_acquisition folder
   - The tutorials (TODO: links here) 
   - If you are not creating simulations, you only need one science asset: "COM_CMB_IQU-nilc_2048_R3.00_full.fits" (for the mask)
 - Download the simulations
   - These can also be generated, as they are completely deterministic, given the same configurations
-  - These can be downloaded manually on [box_link](Box)
+  - These can be downloaded manually on [Simulations on Box](Box)
   - Scripts for download are available as well
 - Run code
   - Set up configurations
@@ -121,13 +121,14 @@ Setting up the repository:
 # Tutorials
 
 Tutorials exist for:
-- Python notebook: [Hydra and its use in CMB-ML](./tutorials/A_hydra_tutorial.ipynb)
+- Python notebook for [Hydra and its use in CMB-ML](./tutorials/A_hydra_tutorial.ipynb)
 <!-- [Notebook Name](https://nbviewer.jupyter.org/github/username/repository/blob/branch/path/to/notebook.ipynb) -->
-  - And a short example [Hydra in scripts](./tutorials/B_hydra_script_tutorial.ipynb)
+  - And a short example of [Hydra in scripts](./tutorials/B_hydra_script_tutorial.ipynb)
 <!-- [Notebook Name](https://nbviewer.jupyter.org/github/username/repository/blob/branch/path/to/notebook.ipynb) -->
-- Getting science assets
-- Using PySM3 to create one-off simulations
-- Using pipeline elements to 
+- [Setting up your environment](.tutorials/C_setting_up_local.ipynb)
+- [Using PySM3 to create one-off simulations](./tutorials/D_using_pysm3_to_make_simulations.ipynb) Partially complete due to refactors...
+- Using pipeline elements (coming soon!)
+- Getting and looking at simulation instances (coming soon!)
 
 
 # Comparing Results
@@ -173,8 +174,6 @@ Any issues in the original dataset will be listed here. If there are critical is
 
 We provide links to the various data used. Alternatives to get this data are in `data_acquisition` and the `tutorials`.
 
-
-
 - Science assets
   - From the source
     - Planck Maps
@@ -211,6 +210,33 @@ We provide links to the various data used. Alternatives to get this data are in 
       - Each simulation instance is in its own tar file and will need to be extracted before use
       - The power spectra and cosmological parameters are in Simulation_Working.tar.gz
       - Log files, including the exact code used to generate simulations, are in Logs.tar.gz. No changes of substance have been made to the code in this archive.
+  - I-128-1450
+    - Lower resolution simulations ($\text{N}_\text{side}=128$), for use when testing code and models
+    - Instructions and examples on the way (Estimated June 24)
+    - Bulk files: [Box link, I-128-1450, monolithic](https://utdallas.box.com/v/cmb-ml-I-128-1450-lump)
+      - Files must be assembled with `cat`, as described above, then extracted
+    - Individual instance files: [Box Link, I-128-1450, individual](https://utdallas.box.com/v/cmb-ml-I-128-1450)
+  - Files are expected to be in the following folder structure, any other structure requires changes to the pipeline yaml's:
+```
+└─ Datasets
+   ├─ Simulations
+   |   ├─ Train
+   |   |     ├─ sim0000
+   |   |     ├─ sim0001
+   |   |     └─ etc...
+   |   ├─ Valid
+   |   |     ├─ sim0000
+   |   |     ├─ sim0001
+   |   |     └─ etc...
+   |   └─ Test
+   |         ├─ sim0000
+   |         ├─ sim0001
+   |         └─ etc...
+   └─ Simulation_Working
+       ├─ Simulation_B_Noise_Cache
+       ├─ Simulation_C_Configs            (containing cosmological parameters)
+       └─ Simulation_CMB_Power_Spectra
+```
 - Trained models
   - CMBNNCS
     - [UNet8 trained on IQU_512_1450, at various epochs](https://utdallas.box.com/v/ml-cmb-UNet8-IQU-512-1450-bl)
