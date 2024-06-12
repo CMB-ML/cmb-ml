@@ -1,0 +1,14 @@
+wmap_params        : ['H0', 'omegach2', 'omegabh2', 'ns002', 'tau', 'mnu']
+camb_params_equiv  : ['H0', 'omch2', 'ombh2', 'ns', 'tau', 'mnu']
+ell_max            : 8150  # Testing shows no change above ~3.5*nside
+                           # We use 8150 as a default incase we do resolution 2048 maps.
+                           # TODO: Reduce this to 3.5 x nside or exchange with factor parameter
+derived_ps_nsmax_x : 3.00  # TODO: Figure out the right ratio for this 
+                           #       (sqrt(3*pi)~=3.07 is a healpix magic number)
+                           #       Ell scale of a map
+                           #       is pi / hp.pixelfunc.nsidetoresol(nside)
+                           #       Algebra shows this 3.07 falling out for all nside
+seed_string        : cmb
+make_ps_if_absent  : true
+wmap_indcs_seed    : 8675309  # Random number
+wmap_chain_length  : 603936   # Length of cahins files; change if using different list of cosmo parameters

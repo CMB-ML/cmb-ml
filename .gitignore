@@ -1,20 +1,10 @@
 # Ignore data folders
-out/
-out4/
-out5/
-out_old/
+creation_logs/
+Logs/
+Data/
 outputs/
 
-# Ignnore all output figures (for now)
-# TODO: Fix this?
-*.png
-
-# Ignore temporary cmb power spectrum file used when making maps
-# TODO: Change the method to not produce these files outside temp folders
-cmb_spectrum.txt
-
-# Ignore potentially large files and symlinks
-wmap_assets/wmap_chains
+# Ignore potentially large files
 *.fits
 *.tar.gz
 
@@ -24,3 +14,6 @@ wmap_assets/wmap_chains
 __pycache__/
 .DS_Store
 */.DS_Store
+
+junk.py
+junk*.py

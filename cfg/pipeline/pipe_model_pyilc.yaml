@@ -1,0 +1,21 @@
+predict: &final_inference
+  assets_out:
+    model: 
+      handler: EmptyHandler
+      path_template: "{root}/{dataset}/{working}NILC_A_Working_Dir/"
+    config_file: 
+      handler: Config
+      path_template: "{root}/{dataset}/{working}{stage}/config_all_dets.yaml"
+    cmb_map: 
+      handler: HealpyMap
+      path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/cmb_pred.fits"
+  assets_in:
+    obs_maps: {stage: make_sims}
+    planck_deltabandpass: {stage: raw}
+    mask: {stage: make_mask}  # Remove or set to null for no masking
+  splits:
+    - test
+  dir_name: NILC_B_Predict
+  make_stage_log: True
+
+final_infer: *final_inference

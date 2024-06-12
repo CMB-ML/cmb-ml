@@ -1,0 +1,6 @@
+defaults:
+  - scenario: scenario_512
+  - splits: all
+  - _self_
+
+preset_strings : ["d9", "s4", "f1"]

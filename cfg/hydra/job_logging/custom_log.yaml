@@ -1,5 +1,7 @@
 version: 1
 formatters:
+  simplest:
+    format: '%(message)s'
   simpler:
     format: '[%(levelname)s] - %(message)s'
   simple:
@@ -13,6 +15,59 @@ handlers:
     class: logging.FileHandler
     formatter: simple
     filename: ${hydra.runtime.output_dir}/${hydra.job.name}.log
+  hydra_file:
+    class: logging.FileHandler
+    formatter: simplest
+    filename: ${hydra.runtime.output_dir}/${hydra.job.name}_hydra_conf.log
+  unresolved_imports_file:
+    class: logging.FileHandler
+    formatter: simplest
+    filename: ${hydra.runtime.output_dir}/${hydra.job.name}_unresolved_imports.log
+  stage_file:
+    class: logging.FileHandler
+    formatter: simple
+    filename: ${hydra.runtime.output_dir}/${hydra.job.name}_stages.log
+  seed_file:
+    class: logging.FileHandler
+    formatter: simple
+    filename: ${hydra.runtime.output_dir}/${hydra.job.name}_seeds.log
+loggers:
+  pysm3:
+    level: WARNING
+    propagate: false
+  healpy:
+    level: WARNING
+    propagate: false
+  matplotlib:
+    level: INFO
+    propagate: false
+  PIL:
+    level: INFO
+    propagate: false
+  numba:
+    level: INFO
+    propagate: false
+  unresolved_imports:
+    propagate: false
+    handlers:
+    - unresolved_imports_file
+  hydraconf:
+    handlers:
+    - hydra_file
+    propagate: false
+  stages:
+    handlers:
+    - console
+    - file
+    - stage_file
+    level: INFO
+    propagate: false
+  seed_logger:
+    handlers:
+    - file
+    - seed_file
+    level: INFO
+    propagate: false
 root:
   handlers:
   - console

@@ -1,0 +1,11 @@
+defaults:
+  - local_system: ${oc.env:CMB_ML_LOCAL_SYSTEM}
+  - file_system : common_fs
+  - _self_
+hydra:
+  run:
+    dir: Logs/${now:%Y-%m-%d-%H-%M-%S}
+  verbose: true
+
+
+shared_links: "shared_link_jsons/upload_data_Assets.json"

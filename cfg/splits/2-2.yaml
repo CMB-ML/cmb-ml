@@ -1,0 +1,5 @@
+name: "2-2"
+Train:
+  n_sims: 2
+Test0:
+  n_sims: 2

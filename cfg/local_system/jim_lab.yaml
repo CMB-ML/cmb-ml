@@ -1,5 +1,2 @@
-datasets_root    : "/home/jim/cmb_datasets/"
-instr_table_path : "./planck_assets/planck_deltabandpass.tbl"
-noise_src_dir    : "./planck_assets/"
-wmap_chains_dir  : "./wmap_assets/wmap_chains/"
-noise_cache_dir  : ./local_files/noise/
+datasets_root    : /data/jim/CMB_Data/Datasets/
+assets_dir       : /data/jim/CMB_Data/Assets/
