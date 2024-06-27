@@ -10,10 +10,10 @@ Contents:
 - [Quick Start](#quick-start)
 - [Introduction](#introduction)
   - [Simulation](#simulation)
-  - [Baselines](#baselines)
+  - [Baseline Models](#baseline-models)
   - [Metrics](#metrics)
 - [Installation](#installation)
-- [Tutorials](#tutorials)
+- [Demonstrations](#Demonstrations)
 - [Comparing Results](#comparing-results)
   - [Outside Works](#outside-works)
   - [Errata](#errata)
@@ -29,7 +29,7 @@ To get started:
 - Run inference
 - Compare results
 
-See [Installation](#installation) and [Tutorials](#tutorials) for more detail.
+See [Installation](#installation) and [Demonstrations](#Demonstrations) for more detail.
 
 
 # Introduction
@@ -40,13 +40,7 @@ The Cosmic Microwave Background radiation (CMB) signal is one of the cornerstone
 
 The CMB-ML dataset bridges these gaps. It handles simulation, modeling, and analysis.
 
-(diagram)
-
-It uses Hydra to manage manage a pipeline so that coherent configurations are applied consistently. It uses the PySM3 simulation library in conjunction with CAMB, astropy, and Healpy to handle much of the astrophysics. Two baselines are implemented, with more to follow. One baseline comes from astrophysics: PyILC's implementation of the CNILC method. The other baseline uses machine learning: CMBNNCS's UNet8. The analysis portion of the pipeline first puts predictions into a consistent form, then generates summary statistics, and finally compares between models' performances.
-
-<p align="center">
-  (At least... it will. Again, this page page and repository are currently under continuous construction. Feedback and participation are welcomed.)
-</p>
+Hydra is used to manage manage a pipeline so that coherent configurations are applied consistently. It uses the PySM3 simulation library in conjunction with CAMB, astropy, and Healpy to handle much of the astrophysics. Two baselines are implemented, with more to follow. One baseline comes from astrophysics: PyILC's implementation of the CNILC method. The other baseline uses machine learning: CMBNNCS's UNet8. The analysis portion of the pipeline first puts predictions into a consistent form, then generates summary statistics, and finally compares between models' performances.
 
 
 ## Simulation
@@ -55,7 +49,7 @@ It uses Hydra to manage manage a pipeline so that coherent configurations are ap
 
 The real CMB signal is observed at several microwave wavelengths. To mimic this, we make a ground truth CMB map and several contaminant foregrounds. We "observe" these at the different wavelengths, where each foreground has different levels. Then we apply instrumentation effects to get a set of observed maps.
 
-## Baselines
+## Baseline Models
 
 Several methods have been used to clean the signal, but comparison is difficult. On the astrophysics side, the methods are generally considered "parametric" or "non-parametric." Algorithms of the first class model each foreground component, while the latter simply considers them all a common nuissance without differentiating them. Those typically operate on just a single map. There are also machine learning methods, which generally use UNets and consider the task a regression task, relying on many instances to train a model to make the differentiation.
 
@@ -76,37 +70,50 @@ We can compare the CMB predictions to the ground truths in order to determine ho
 
 # Installation
 
-Installation of CMB-ML requires setting up the repository, then getting the data assets for the portion you want to run. Tutorials are available with many practical examples. The early ones cover how to set up CMB-ML to run on your system. The latter give examples of how to use the software, for those curious or hoping to extend it.
+Installation of CMB-ML requires setting up the repository, then getting the data assets for the portion you want to run. Demonstrations are available with many practical examples. The early ones cover how to set up CMB-ML to run on your system. The latter give examples of how to use the software, for those curious or hoping to extend it.
 
 Setting up the repository:
 - Download the repository
   - We suggest using `git clone https://github.com/JamesAmato/cmb-ml.git`, as the library is under development and may be updated.
 - Get Python 3.9
-  - CMBNNCS does not work with Python 3.10 at this time
+  - General installation instructions are at: [Downloading Python](https://wiki.python.org/moin/BeginnersGuide/Download)
+  - Be sure to get Python 3.9
+    - One of the models, CMBNNCS, does not work with Python 3.10 at this time
   - Creating a conda environment with 3.9 will suffice
-    - If you choose to do this: 
-    - Activate the environment
-    - Use `which python` to get the location of the python executable
-    - Exit the environment
+    - If you choose to do this:
+    - Create the environment: `conda create -n <env_name> python=3.9` 
+    - Activate the environment: `conda activate <env_name>`
+    - Get the location of the python executable: `which python`
+    - Exit the environment: `conda deactivate`
     - Do not use the environment for other things
-- Get [https://python-poetry.org/](Poetry)
+- Get [Poetry](https://python-poetry.org/)
 - Create a virtual environment:
   - Exit any virtual environments, otherwise Poetry will manage the currently active one instead
+  - `poetry env use <your python location here>` will direct Poetry to use the appropriate Python installation, if it is not your default.
   - `poetry install` will get the libraries required, as listed in pyproject.toml
   - `poetry shell` will make it easier to run scripts from the command line
   - Alternatively, `poetry env info` will give you this virtual environment's python executable; this can be used with VS Code
 - Configure your local system
   - In the configuration files, enter the directories where you will keep datasets and science assets
+  - See [Setting up your environment](.demonstrations/C_setting_up_local.ipynb) for more information
 - Download the science assets
   - These are available from the original sources and a mirror set up for this purpose
-  - Files can be downloaded manually from [Science Assets on Box](Box)
-  - Scripts are available in the data_acquisition folder
-  - The tutorials (TODO: links here) 
   - If you are not creating simulations, you only need one science asset: "COM_CMB_IQU-nilc_2048_R3.00_full.fits" (for the mask)
+  - Files can be downloaded manually from [Science Assets on Box](https://utdallas.box.com/v/cmb-ml-science-assets)
+  - Scripts are available in the data_acquisition folder, which will download all files.
+    - [Download from original sources](./data_acquisition/get_orig_science_assets.py)
+    - [Download from Box](./data_acquisition/get_box_science_assets.py)
 - Download the simulations
+  - Two sets are available
+    - The full set is IQU-512-1450
+    - A smaller set for demonstration and debugging is I-128-1450
   - These can also be generated, as they are completely deterministic, given the same configurations
-  - These can be downloaded manually on [Simulations on Box](Box)
+  - These can be downloaded manually at these box links:
+    - [Box link for IQU-512-1450](https://utdallas.box.com/v/cmb-ml-IQU-512-1450)
+    - [Box link for I-128-1450](https://utdallas.box.com/v/cmb-ml-I-128-1450)
   - Scripts for download are available as well
+    - 
+    - 
 - Run code
   - Set up configurations
   - To generate simulations, use `main_sims.py`
@@ -120,18 +127,14 @@ Setting up the repository:
     - PyILC and CMBNNCS analysis must already be done
 
 
-# Tutorials
+# Demonstrations
 
-Tutorials exist for:
-- Python notebook for [Hydra and its use in CMB-ML](./tutorials/A_hydra_tutorial.ipynb)
-<!-- [Notebook Name](https://nbviewer.jupyter.org/github/username/repository/blob/branch/path/to/notebook.ipynb) -->
-  - And a short example of [Hydra in scripts](./tutorials/B_hydra_script_tutorial.ipynb)
-<!-- [Notebook Name](https://nbviewer.jupyter.org/github/username/repository/blob/branch/path/to/notebook.ipynb) -->
-- [Setting up your environment](.tutorials/C_setting_up_local.ipynb)
-<!-- - [Using PySM3 to create one-off simulations](./tutorials/D_using_pysm3_to_make_simulations.ipynb) Partially complete due to refactors... -->
-- Using pipeline elements (coming soon!)
-- Getting and looking at simulation instances (coming soon!)
-
+Demonstrations exist for:
+- [Hydra and its use in CMB-ML](./demonstrations/A_hydra_tutorial.ipynb) <!-- [Notebook Name](https://nbviewer.jupyter.org/github/username/repository/blob/branch/path/to/notebook.ipynb) -->
+- [Hydra in scripts](./demonstrations/B_hydra_script_tutorial.ipynb) (*.py files)<!-- [Notebook Name](https://nbviewer.jupyter.org/github/username/repository/blob/branch/path/to/notebook.ipynb) -->
+- [Setting up your environment](./demonstrations/C_setting_up_local.ipynb)
+- [Getting and looking at simulation instances](./demonstrations/D_getting_dataset_instances.ipynb)
+<!-- [Downloading full datasets](.) -->
 
 # Comparing Results
 
@@ -171,10 +174,11 @@ None so far!
 
 Any issues in the original dataset will be listed here. If there are critical issues, we will do our best to keep the current dataset and release an updated one as well.
 
+- The CMB ground truth may have been downgraded in a way that affects the power spectrum. We are investigating and looking at a different method.
 
 # Data File Links
 
-We provide links to the various data used. Alternatives to get this data are in `data_acquisition` and the `tutorials`.
+We provide links to the various data used. Alternatives to get this data are in `data_acquisition` and the `Demonstrations`.
 
 - Science assets
   - From the source

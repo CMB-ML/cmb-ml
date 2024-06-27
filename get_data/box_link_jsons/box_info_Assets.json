@@ -1,0 +1,416 @@
+{
+  "Planck": {
+    "COM_CMB_IQU-nilc_2048_R3.00_full.fits": {
+      "file_name": "COM_CMB_IQU-nilc_2048_R3.00_full.fits",
+      "box_id": "1555506145847",
+      "token": "rla6ua1h1370qpat81xdxao87z9eaxc9",
+      "md5": "59150071035f9ae32aa2cf0b53d911b0"
+    },
+    "HFI_RIMO_R3.00.fits": {
+      "file_name": "HFI_RIMO_R3.00.fits",
+      "box_id": "1555502848194",
+      "token": "jw845ikt9i9h17d8t15sycswsidxikfc",
+      "md5": "32ac7c5e153264e5c83914ac3fe7da07"
+    },
+    "HFI_SkyMap_100_2048_R3.01_full.fits": {
+      "file_name": "HFI_SkyMap_100_2048_R3.01_full.fits",
+      "box_id": "1555521061840",
+      "token": "6q2io0cbrdyykhyrv37zziche3jqmxts",
+      "md5": "2bb9d1c09f2e75ad1af014b60486e00e"
+    },
+    "HFI_SkyMap_143_2048_R3.01_full.fits": {
+      "file_name": "HFI_SkyMap_143_2048_R3.01_full.fits",
+      "box_id": "1555508053581",
+      "token": "pvht8tolcw1z6xi9a3mfugu87qhknprx",
+      "md5": "4151e22bea78a318ea19a8040625f502"
+    },
+    "HFI_SkyMap_217_2048_R3.01_full.fits": {
+      "file_name": "HFI_SkyMap_217_2048_R3.01_full.fits",
+      "box_id": "1555520291295",
+      "token": "7o99fu9xmnevr9vp1ob3zxomxka5es0j",
+      "md5": "03101e030eb246e307c8e5e81c3cffd1"
+    },
+    "HFI_SkyMap_353-psb_2048_R3.01_full.fits": {
+      "file_name": "HFI_SkyMap_353-psb_2048_R3.01_full.fits",
+      "box_id": "1555509440808",
+      "token": "hsgwn1cg6lcz8bf4zhui6hwkrv4huj2j",
+      "md5": "c76f79779b54e720938741fbab9b883d"
+    },
+    "HFI_SkyMap_545_2048_R3.01_full.fits": {
+      "file_name": "HFI_SkyMap_545_2048_R3.01_full.fits",
+      "box_id": "1555497310923",
+      "token": "36oz1mzobh6c2tt4x6py0wiz1q479ns4",
+      "md5": "4f031bdf33def2ab50aab30fc2308952"
+    },
+    "HFI_SkyMap_857_2048_R3.01_full.fits": {
+      "file_name": "HFI_SkyMap_857_2048_R3.01_full.fits",
+      "box_id": "1555502601360",
+      "token": "qb1a1orxnp93exwsgplm5uopgfvd9vlq",
+      "md5": "468b924c6a8777b3ac4ab282ed61bd24"
+    },
+    "LFI_RIMO_R3.31.fits": {
+      "file_name": "LFI_RIMO_R3.31.fits",
+      "box_id": "1555503565371",
+      "token": "t4i1c2ka33yh7coob1k40lb4ms1h7b6j",
+      "md5": "e21e3afd705fc7676b103c838dd22e70"
+    },
+    "LFI_SkyMap_030-BPassCorrected_1024_R3.00_full.fits": {
+      "file_name": "LFI_SkyMap_030-BPassCorrected_1024_R3.00_full.fits",
+      "box_id": "1555504962537",
+      "token": "7m173l1swj0kb4035f58qccuv0nao4fc",
+      "md5": "aee80baf3cc7ffff6911a7b984e8087b"
+    },
+    "LFI_SkyMap_044-BPassCorrected_1024_R3.00_full.fits": {
+      "file_name": "LFI_SkyMap_044-BPassCorrected_1024_R3.00_full.fits",
+      "box_id": "1555507274196",
+      "token": "rkrhtcg8sa0x5cgzpl8bhrxv47qqqe0u",
+      "md5": "0503588ddf774ee6597adeddd42d7e6f"
+    },
+    "LFI_SkyMap_070-BPassCorrected_1024_R3.00_full.fits": {
+      "file_name": "LFI_SkyMap_070-BPassCorrected_1024_R3.00_full.fits",
+      "box_id": "1555504381233",
+      "token": "c7kuajoh07qlivjhtfpnjaubsnx3e5eh",
+      "md5": "b81d8a2cded20bcf2e0ad9770929c145"
+    },
+    "planck_deltabandpass.tbl": {
+      "file_name": "planck_deltabandpass.tbl",
+      "box_id": "1555502058298",
+      "token": "ymtbf3gp74eui3k55pg0oeot21l750x0",
+      "md5": "46e7b91eddffec9f3b40d74b15038059"
+    }
+  },
+  "WMAP": {
+    "wmap_lcdm_mnu_wmap9_chains_v5": {
+      "a002": {
+        "file_name": "a002",
+        "box_id": "1555502687769",
+        "token": "phmk47423hazlp2ljjf278huc5x543f2",
+        "md5": "84c2878fb7697c45a5ae307168a41b58"
+      },
+      "age": {
+        "file_name": "age",
+        "box_id": "1555500302048",
+        "token": "8i5vkkajddlc7nhjl9xyhqf76en954gf",
+        "md5": "ca81c2340dd1cb3a59b13c7e5fc419cd"
+      },
+      "agestar": {
+        "file_name": "agestar",
+        "box_id": "1555504858971",
+        "token": "k576hp1ahu8czz7iybw5itmdrax7f1q4",
+        "md5": "eab68d92747ba8018b86d1ce7edd1f51"
+      },
+      "asz": {
+        "file_name": "asz",
+        "box_id": "1555505470981",
+        "token": "96uyitln1ek5egzgb908t7bdh2r2i6oi",
+        "md5": "b9657d7efaff3918fbdfe0c91afbf291"
+      },
+      "c220": {
+        "file_name": "c220",
+        "box_id": "1555502082729",
+        "token": "79j9te5uuexy0vx8cyqod3vzpyn127tc",
+        "md5": "fe3a1dd1abe0b642ab0ad6a5b4ed359f"
+      },
+      "daeq": {
+        "file_name": "daeq",
+        "box_id": "1555521414008",
+        "token": "qnzj2mjnk03e36t93y1as6z6bpdasfon",
+        "md5": "2312d16b9fb27f565429288490cc03a9"
+      },
+      "dastar": {
+        "file_name": "dastar",
+        "box_id": "1555520072580",
+        "token": "lgyi6dr11yyxixs9x84crg1bubvjkk39",
+        "md5": "b49b72e958bed348f48275e4940eaaa1"
+      },
+      "description.txt": {
+        "file_name": "description.txt",
+        "box_id": "1555503675769",
+        "token": "mrkbcl4viank5yux4wbz3ijtvykg9g7q",
+        "md5": "4e1d1372920bed5fd35bcf600ffa27c5"
+      },
+      "eta": {
+        "file_name": "eta",
+        "box_id": "1555506251961",
+        "token": "on7cmdron6c6ewwzf9k03uhv9mnebgkp",
+        "md5": "83f24c3e1cf0a5a3d4625f39d424a45a"
+      },
+      "H0": {
+        "file_name": "H0",
+        "box_id": "1555507254643",
+        "token": "notszduzg3cw7qaeioj1eev5htd1u2xa",
+        "md5": "82269091d071ea864d927c35c31fd3a2"
+      },
+      "h0_like": {
+        "file_name": "h0_like",
+        "box_id": "1555510988853",
+        "token": "283ax6z16qy5pwjuhytwvgpan46bbvbm",
+        "md5": "d1a6747ff1cabbf1d7379c7766e32921"
+      },
+      "keq": {
+        "file_name": "keq",
+        "box_id": "1555519406193",
+        "token": "a8qdthn9rc7we2c14r24mluq57vdubk2",
+        "md5": "bb066e67d17d07f6fe1a92f28aba8bc1"
+      },
+      "leq": {
+        "file_name": "leq",
+        "box_id": "1555520223602",
+        "token": "lf49aca28qotlnzqq91eucm3fstiojru",
+        "md5": "87907c842ff217a26ca77109bcc7ea05"
+      },
+      "lstar": {
+        "file_name": "lstar",
+        "box_id": "1555503112437",
+        "token": "s213vmfc9z04w9z8qwfacbhu7u4mvdv1",
+        "md5": "29c43dc4e929544cd764edfd6c5da23e"
+      },
+      "mnu": {
+        "file_name": "mnu",
+        "box_id": "1555500174054",
+        "token": "dloh1c2071rl18j1ebpu6tpkxd5rkg6y",
+        "md5": "ab35cbbe71ad2cb6585f7747064bc1ad"
+      },
+      "nb": {
+        "file_name": "nb",
+        "box_id": "1555516165749",
+        "token": "22650su67wz8o1kh46v9giw3xbtq3kok",
+        "md5": "ca300266a0de5935f99f5390b2352eaf"
+      },
+      "neglnlike": {
+        "file_name": "neglnlike",
+        "box_id": "1555502942259",
+        "token": "z052cv1sydgja1rjemvqmfuw05t6anqu",
+        "md5": "a166d4a8accb0631a34b8aab1fbb1cd2"
+      },
+      "neglnlike_including_2012bao": {
+        "file_name": "neglnlike_including_2012bao",
+        "box_id": "1555507386377",
+        "token": "6ekzaeu3ya4bhhcox64rki50gd0n6zbd",
+        "md5": "d65e73b58e0f9d1509d0796157596e8d"
+      },
+      "neglnlike_including_2012bao_h0": {
+        "file_name": "neglnlike_including_2012bao_h0",
+        "box_id": "1555521899718",
+        "token": "aw6w42h66ectc9n23bjhw9kzuk5ae96a",
+        "md5": "cd61cb4b8d6fd4c2e60429a0f377826b"
+      },
+      "neglnlike_including_h0": {
+        "file_name": "neglnlike_including_h0",
+        "box_id": "1555519674457",
+        "token": "z8gugea12pti6ixx274qizufrr8d9spc",
+        "md5": "47d0706ec520316dc0247a203edd3e36"
+      },
+      "ns002": {
+        "file_name": "ns002",
+        "box_id": "1555507651140",
+        "token": "0kd9m887ce9a36f3cdi122ez2v22vn5v",
+        "md5": "b819955de6d364b945dd2b8aa4bb045f"
+      },
+      "omegab": {
+        "file_name": "omegab",
+        "box_id": "1555507307136",
+        "token": "eky1i7oe41j9rfpr53avct90o4zzirue",
+        "md5": "e1930bc861c809cda398d8a81f6e906f"
+      },
+      "omegabh2": {
+        "file_name": "omegabh2",
+        "box_id": "1555506865395",
+        "token": "3584vucto3j1ap5t9bj2e81ukaddk7qw",
+        "md5": "439b29e75a7c3925b136c92066d3e743"
+      },
+      "omegac": {
+        "file_name": "omegac",
+        "box_id": "1555503304560",
+        "token": "k8ucs2q0agveih3dlsfnnhq4pg4iv2ai",
+        "md5": "db2dffebcc27a7d39a1ef8caee058e07"
+      },
+      "omegach2": {
+        "file_name": "omegach2",
+        "box_id": "1555521962163",
+        "token": "qttibfi1p6uj7il43pmxo0yga5qiqdmi",
+        "md5": "44fa333ac6daaa5c8ba16b74716d9d94"
+      },
+      "omegal": {
+        "file_name": "omegal",
+        "box_id": "1555498317000",
+        "token": "qhnbzi0moxao6zy3k9x3ew1d18h2zqpx",
+        "md5": "2aa9a8a02649c84de8c9332126ba7949"
+      },
+      "omegam": {
+        "file_name": "omegam",
+        "box_id": "1555500462320",
+        "token": "l130a4k0e670nncvuwfjx3fktdbwzivh",
+        "md5": "038aaace1df35dc0f36a25c41941c973"
+      },
+      "omegamh2": {
+        "file_name": "omegamh2",
+        "box_id": "1555500184455",
+        "token": "qtje5cd55u70srsamqgp1yr08rrpkwwg",
+        "md5": "7170fae8880c2ee81a2dae951f6b783d"
+      },
+      "omeganh2": {
+        "file_name": "omeganh2",
+        "box_id": "1555507859715",
+        "token": "gztm8b8zw99gm904idwhh5sga5qnv126",
+        "md5": "f1c50f71c7bcc83ac4ac3862c059d636"
+      },
+      "rsdrag": {
+        "file_name": "rsdrag",
+        "box_id": "1555505757012",
+        "token": "llw3zbf3qearczxu0fil51see5bccenw",
+        "md5": "661521def8fc2e57113ed4442fa66bae"
+      },
+      "rsdvz0106": {
+        "file_name": "rsdvz0106",
+        "box_id": "1555499646054",
+        "token": "659nl2xuui24406xyiox9s8xee00pvk9",
+        "md5": "a6e058ada7ba67edf2ab749a26014ddc"
+      },
+      "rsdvz02": {
+        "file_name": "rsdvz02",
+        "box_id": "1555507295121",
+        "token": "aporyg1c2a93srg20vu36h4wvez10ryc",
+        "md5": "7726a3433e6906b3176a9b1037bd211f"
+      },
+      "rsdvz035": {
+        "file_name": "rsdvz035",
+        "box_id": "1555504863838",
+        "token": "x111bg0u0o1658qli1p1r72hrsifynzf",
+        "md5": "e76d517654b08247d84feee5830782cb"
+      },
+      "rsdvz044": {
+        "file_name": "rsdvz044",
+        "box_id": "1555504864713",
+        "token": "8vdkeftzuknne3ac2sbbfdoyvukmig3q",
+        "md5": "3490e35d4feff462efb7ad43795a78fc"
+      },
+      "rsdvz054": {
+        "file_name": "rsdvz054",
+        "box_id": "1555506179756",
+        "token": "gni493dstr46e3wujvada84taudfi1q5",
+        "md5": "6394fceaa82dd957e3dd3aeff3deee06"
+      },
+      "rsdvz057": {
+        "file_name": "rsdvz057",
+        "box_id": "1555505158823",
+        "token": "5j1qkbiwny9iz8d1ve00i1zuh9rrrrth",
+        "md5": "5793c8aece04072452cf5327bf791f31"
+      },
+      "rsdvz06": {
+        "file_name": "rsdvz06",
+        "box_id": "1555502209217",
+        "token": "36kpjqi1acoe0qvw6nw13nvi4p54oymp",
+        "md5": "1a870fa7152908104927ce0613b4bd36"
+      },
+      "rsdvz073": {
+        "file_name": "rsdvz073",
+        "box_id": "1555508648874",
+        "token": "vvg0u4jnezofk5k1gkhxffxaqu3ub62p",
+        "md5": "b5a8956b6bb6e793c4d6bfedc3f7b7ff"
+      },
+      "rsstar": {
+        "file_name": "rsstar",
+        "box_id": "1555506632937",
+        "token": "7r770cu7q9yex8g35u1n5jf9s5gx52yz",
+        "md5": "8c5c7b361e50427bdf5b00c29816e50d"
+      },
+      "shift": {
+        "file_name": "shift",
+        "box_id": "1555505874750",
+        "token": "90tj5wj5l0qs7rawj0luggv2ga0miov4",
+        "md5": "a12fab656aaaed378fed4e770aeca0db"
+      },
+      "sigma8": {
+        "file_name": "sigma8",
+        "box_id": "1555504883187",
+        "token": "kjcjavd6e1kik4ozn4nowodys8jhf1q8",
+        "md5": "94c10a09c8d74fc154d7c18760b1c2b9"
+      },
+      "tau": {
+        "file_name": "tau",
+        "box_id": "1555505743180",
+        "token": "34be31i9wgrg796zcuqbr87txv5ptskm",
+        "md5": "10f3bf9d43d76fe8d4ba8150f83b19d7"
+      },
+      "thetastar": {
+        "file_name": "thetastar",
+        "box_id": "1555510468157",
+        "token": "bpu25kmz8ooxy3l8nmr5px5jwofgk5km",
+        "md5": "d50aa5afd18442775c64eedc1d6d0675"
+      },
+      "trec": {
+        "file_name": "trec",
+        "box_id": "1555503742969",
+        "token": "4krd0n5kx2wrq7ilnezdpqlxinbuar2x",
+        "md5": "653a977013327d59a3d61503d29885c6"
+      },
+      "treion": {
+        "file_name": "treion",
+        "box_id": "1555507566019",
+        "token": "o8xe3grrqh5nt8swaw6gw74qg8prrr2w",
+        "md5": "7bb9651f4e7c55b2e271b87c6e77eeb3"
+      },
+      "weight": {
+        "file_name": "weight",
+        "box_id": "1555507996214",
+        "token": "8o5phl4vt8ahzmg2ms8u3xd5d7529ls4",
+        "md5": "98611d74421e6d228a4a0f2a179ad121"
+      },
+      "weight_including_2012bao": {
+        "file_name": "weight_including_2012bao",
+        "box_id": "1555509270189",
+        "token": "hc2okmiqjea1jjxj7kvuslgk1ilc33ed",
+        "md5": "c5051b58f07b24069b2d9cde9490c6c2"
+      },
+      "weight_including_2012bao_h0": {
+        "file_name": "weight_including_2012bao_h0",
+        "box_id": "1555506666911",
+        "token": "0dxuetd4ur4q21563xkfcvpbxl9dzer7",
+        "md5": "bf18baa736c8beac25f14e609a680bd8"
+      },
+      "weight_including_h0": {
+        "file_name": "weight_including_h0",
+        "box_id": "1555506729176",
+        "token": "wedahah8ctluswipbj5xz636pdrcqubg",
+        "md5": "a70183e48413670c1870a510025a71c6"
+      },
+      "wmap_neglnlike": {
+        "file_name": "wmap_neglnlike",
+        "box_id": "1555502313163",
+        "token": "1s5mf7oe4zl7jxhzncb55nrhs1b0wef8",
+        "md5": "a166d4a8accb0631a34b8aab1fbb1cd2"
+      },
+      "zdrag": {
+        "file_name": "zdrag",
+        "box_id": "1555506844584",
+        "token": "5ul4az0ekfirzkzl02tq453gp4ifrk5e",
+        "md5": "1a4433b329ad4f54c3d355c3126d4448"
+      },
+      "zeq": {
+        "file_name": "zeq",
+        "box_id": "1555506230322",
+        "token": "33c3s7t3wf2723q2u8dnn88rcesmtl7b",
+        "md5": "7f4d33d28e280981c9fdabd9f3343738"
+      },
+      "zrec": {
+        "file_name": "zrec",
+        "box_id": "1555505598914",
+        "token": "79mxcpnloxsovlfjs3gd7c19wlu34toj",
+        "md5": "0b02907a5a7c4b8739379861ba00f3ef"
+      },
+      "zreion": {
+        "file_name": "zreion",
+        "box_id": "1555510789923",
+        "token": "y3ao7d5sg2g8ltotaze8y0a5k1e9vril",
+        "md5": "cfb6b4ab484a56bf6c0b5d6cba4c987c"
+      },
+      "zstar": {
+        "file_name": "zstar",
+        "box_id": "1555503311421",
+        "token": "beztq75gk7vsoabu7ohbpzbc1g01bq78",
+        "md5": "8466392bd3f50dd5cf7f06efb02475e8"
+      }
+    }
+  }
+}

@@ -4,7 +4,7 @@ import logging
 import numpy as np
 import healpy as hp
 
-from cmbml.utils.physics_beam import Beam
+from cmbml.utils.physics_beam import Beam, NoBeam
 
 
 logger = logging.getLogger(__name__)
@@ -29,12 +29,12 @@ def get_xpower(map1, map2, mask, lmax, use_pixel_weights=False):
     return ps
 
 
-def _cl_to_dl(cl, ells):
+def cl_to_dl(cl, ells):
     norm = ells * (ells+1) / (np.pi * 2)
     return cl * norm
 
 
-def _dl_to_cl(dl, ells):
+def dl_to_cl(dl, ells):
     norm = ells * (ells+1) / (np.pi * 2)
     return dl / norm
 
@@ -100,11 +100,11 @@ class PowerSpectrum(ABC):
         pass
 
     def cl_2_dl(self):
-        self._ps = _cl_to_dl(cl=self._ps, ells=self.ells)
+        self._ps = cl_to_dl(cl=self._ps, ells=self.ells)
         self._is_cl = False
 
     def dl_2_cl(self):
-        self._ps = _dl_to_cl(cl=self._ps, ells=self.ells)
+        self._ps = dl_to_cl(cl=self._ps, ells=self.ells)
         self._is_cl = True
 
 
@@ -160,13 +160,20 @@ class CrossSpectrum(PowerSpectrum):
             logger.warning("CrossSpectrum is already deconvolved. No action taken.")
 
 
-def get_auto_ps_result(map_, mask, lmax, beam, is_convolved, name=None) -> PowerSpectrum:
+def get_auto_ps_result(map_, lmax, is_convolved=False, beam=None, mask=None, name=None) -> PowerSpectrum:
+    if beam is None:
+        beam = NoBeam(lmax)
     cl = get_autopower(map_, mask, lmax)
     ells = np.arange(lmax + 1)
     return AutoSpectrum(name, cl, ells, beam, is_convolved)
 
 
-def get_x_ps_result(map1, map2, mask, lmax, beam1, beam2, is_convolved, name=None) -> PowerSpectrum:
+def get_x_ps_result(map1, map2, lmax, is_convolved=False, beam1=None, beam2=None, mask=None, name=None) -> PowerSpectrum:
+    if beam1 is None:
+        beam1 = NoBeam(lmax)
+    if beam2 is None:
+        beam2 = NoBeam(lmax)
+    
     cl = get_xpower(map1=map1,
                     map2=map2,
                     mask=mask,

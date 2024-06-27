@@ -14,6 +14,9 @@ class Namer:
         self.src_root: str = cfg.local_system.assets_dir
         self.context: Dict[str, str] = {}
 
+        # For use outside of pipeline executors
+        self.default_path_template = cfg.file_system.default_dataset_template_str
+
         self._update_context()
 
     @property
@@ -96,6 +99,13 @@ class Namer:
         except KeyError as e:
             raise KeyError(f"Key {e.args[0]} not found in the context. Ensure that the path_template {path_template} is correct in the pipeline yaml.")
         return Path(result_path_str)
+
+    @property
+    def default_path(self):
+        """
+        For use outside of pipeline executors
+        """
+        return self.path(path_template=self.default_path_template)
 
 
 class Sentinel:
