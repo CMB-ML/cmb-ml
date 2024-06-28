@@ -30,7 +30,7 @@ class ConfigExecutor(BaseStageExecutor):
 
         self.wmap_param_labels = cfg.model.sim.cmb.wmap_params
         self.wmap_chain_length = cfg.model.sim.cmb.wmap_chain_length
-        self.wmap_chains_dir = Path(cfg.local_system.assets_dir / cfg.file_system.wmap_chains_dir)
+        self.wmap_chains_dir = Path(cfg.local_system.assets_dir) / cfg.file_system.wmap_chains_dir
 
         self.seed = cfg.model.sim.cmb.wmap_indcs_seed
 
