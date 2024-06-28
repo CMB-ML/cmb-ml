@@ -12,7 +12,7 @@ import json
 
 import hydra
 
-from get_data.utils.box_links import get_box_links_from_json, FromBoxDownloader, LinkInfo
+from .utils.box_links import get_box_links_from_json, FromBoxDownloader, LinkInfo
 
 
 logger = logging.getLogger(__name__)
