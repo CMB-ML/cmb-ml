@@ -100,9 +100,9 @@ Setting up the repository:
   - These are available from the original sources and a mirror set up for this purpose
   - If you are not creating simulations, you only need one science asset: "COM_CMB_IQU-nilc_2048_R3.00_full.fits" (for the mask)
   - Files can be downloaded manually from [Science Assets on Box](https://utdallas.box.com/v/cmb-ml-science-assets)
-  - Scripts are available in the data_acquisition folder, which will download all files.
-    - [Download from original sources](./data_acquisition/get_orig_science_assets.py)
-    - [Download from Box](./data_acquisition/get_box_science_assets.py)
+  - Scripts are available in the `get_data` folder, which will download all files.
+    - [Download from original sources](./get_data/get_orig_science_assets.py)
+    - [Download from Box](./get_data/get_box_science_assets.py)
 - Download the simulations
   - Two sets are available
     - The full set is IQU-512-1450
@@ -112,8 +112,8 @@ Setting up the repository:
     - [Box link for IQU-512-1450](https://utdallas.box.com/v/cmb-ml-IQU-512-1450)
     - [Box link for I-128-1450](https://utdallas.box.com/v/cmb-ml-I-128-1450)
   - Scripts for download are available as well
-    - 
-    - 
+    - [Script for downloading IQU-512-1450](./get_data/get_box_IQU_512_1450.py)
+    - [Script for downloading I-128-1450](./get_data/get_box_I_128_1450.py)
 - Run code
   - Set up configurations
   - To generate simulations, use `main_sims.py`
@@ -178,7 +178,7 @@ Any issues in the original dataset will be listed here. If there are critical is
 
 # Data File Links
 
-We provide links to the various data used. Alternatives to get this data are in `data_acquisition` and the `Demonstrations`.
+We provide links to the various data used. Alternatives to get this data are in `get_data` and the `Demonstrations`. "Science assets" refers to data created externally.
 
 - Science assets
   - From the source
@@ -199,8 +199,10 @@ We provide links to the various data used. Alternatives to get this data are in 
         - [WMAP9 Chains, direct download](https://lambda.gsfc.nasa.gov/data/map/dr5/dcp/chains/wmap_lcdm_mnu_wmap9_chains_v5.tar.gz)
       - Planck delta bandpass table:
         - [Planck delta bandpass table, from Simons Observatory](https://github.com/galsci/mapsims/raw/main/mapsims/data/planck_deltabandpass/planck_deltabandpass.tbl)
+      - [Downloading script](./get_data/get_orig_science_assets.py)
   - On Box: 
     - [All Science Assets](https://utdallas.box.com/v/cmb-ml-science-assets)
+    - [Downloading script](./get_data/get_box_science_assets.py)
 
 - Datasets
   - IQU-512-1450
@@ -216,12 +218,14 @@ We provide links to the various data used. Alternatives to get this data are in 
       - Each simulation instance is in its own tar file and will need to be extracted before use
       - The power spectra and cosmological parameters are in Simulation_Working.tar.gz
       - Log files, including the exact code used to generate simulations, are in Logs.tar.gz. No changes of substance have been made to the code in this archive.
+      - A script for these download is available [here](./get_data/get_box_IQU_512_1450.py)
   - I-128-1450
     - Lower resolution simulations ($\text{N}_\text{side}=128$), for use when testing code and models
     - Instructions and examples on the way (Estimated June 24)
     - Bulk files: [Box link, I-128-1450, monolithic](https://utdallas.box.com/v/cmb-ml-I-128-1450-lump)
       - Files must be assembled with `cat`, as described above, then extracted
     - Individual instance files: [Box Link, I-128-1450, individual](https://utdallas.box.com/v/cmb-ml-I-128-1450)
+    - A script for these download is available [here](./get_data/get_box_IQU_512_1450.py)
   - Files are expected to be in the following folder structure, any other structure requires changes to the pipeline yaml's:
 ```
 └─ Datasets
