@@ -5,7 +5,7 @@ defaults:
 hydra:
   run:
     dir: Logs/${now:%Y-%m-%d-%H-%M-%S}
-  verbose: true
+  verbose: false
 
 
 shared_links: "shared_link_jsons/upload_data_Assets.json"

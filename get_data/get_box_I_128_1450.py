@@ -11,7 +11,7 @@ from pathlib import Path
 import hydra
 from tqdm import tqdm
 
-from cmbml.utils.box_links import get_box_links_from_json, FromBoxDownloader
+from get_data.utils.box_links import get_box_links_from_json, FromBoxDownloader
 
 
 logger = logging.getLogger(__name__)
@@ -23,6 +23,8 @@ def main(cfg):
     # Need to change directory to the location of this script to ensure that the
     # relative path of the json file is correct.
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
+
+    logger.info("Downloading files. Note that the first few are a different size than the rest.")
 
     cfg.nside = 128
     cfg.map_fields = "I"

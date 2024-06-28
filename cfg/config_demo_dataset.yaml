@@ -11,7 +11,9 @@ working_dir : "Simulation_Working/"
 hydra:
   run:
     dir: Logs/${now:%Y-%m-%d-%H-%M-%S}
-  verbose: true
+  verbose: false
+
+force_download: false
 
 # Settings below this point are used for interpolation.
 # These are not to be used directly in the python

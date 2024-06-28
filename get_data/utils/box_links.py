@@ -7,6 +7,9 @@ from dataclasses import dataclass
 import logging
 
 
+from .download import download_file, md5_checksum, is_tar_gz_file, find_remote_size
+
+
 logger = logging.getLogger(__name__)
 
 
@@ -97,8 +100,8 @@ class FromBoxDownloader:
     Class to download files from Box using the LinkInfo.
     """
     def __init__(self, 
-                 destination_root: Path, 
-                 do_untar: bool=True, 
+                 destination_root: Path,
+                 do_untar: bool=True,
                  remove_tar: bool=True):
         self.destination_root = destination_root
         self.do_untar = do_untar
@@ -127,8 +130,10 @@ class FromBoxDownloader:
 
         url = link_info.generate_url()
 
+        remote_size = find_remote_size(url)
+
         try:
-            download_file(url, dest_path)
+            download_file(url, dest_path, remote_size)
         except (requests.exceptions.HTTPError, requests.exceptions.RequestException) as e:
             logger.error(f"Error downloading file: {e}", exc_info=True)
             return False
@@ -162,48 +167,3 @@ class FromBoxDownloader:
 
     def remove_downloaded_tar(self, tar_path: Path):
         tar_path.unlink()
-
-
-def download_file(url, dest_path):
-    """
-    Downloads a file from some URL and saves it to a specified destination.
-
-    The file is downloaded in chunks to manage memory usage efficiently.
-
-    Args:
-        url (str): Remote location of the asset.
-        dest_path (str or Path): The file system path where the downloaded file should be saved.
-
-    Returns:
-        bool: True if the file was downloaded successfully, False otherwise.
-
-    Raises:
-        requests.exceptions.HTTPError: If the HTTP request returned an unsuccessful status code.
-        requests.exceptions.RequestException: For network-related errors.
-        IOError: If there are issues writing the file to disk.
-    """
-    with requests.get(url, stream=True, allow_redirects=True) as r:
-        r.raise_for_status()  # Note the exception(s) raised in the docstring
-        with open(dest_path, 'wb') as f:
-            for chunk in r.iter_content(chunk_size=8192):
-                f.write(chunk)
-    return True
-
-
-def md5_checksum(file_path):
-    # Create the hash object
-    hash_md5 = hashlib.md5()
-    # Open the file in binary mode
-    with open(file_path, "rb") as f:
-        # Read in chunks to manage memory
-        for chunk in iter(lambda: f.read(4096), b""):
-            # Update the hash with the chunk
-            hash_md5.update(chunk)
-    # Return the hexadecimal checksum
-    return hash_md5.hexdigest()
-
-
-def is_tar_gz_file(file_path):
-    path = Path(file_path)
-    # Check if the last two suffixes are '.tar' and '.gz'
-    return path.suffixes[-2:] == ['.tar', '.gz']

@@ -11,7 +11,7 @@ from pathlib import Path
 import hydra
 from tqdm import tqdm
 
-from cmbml.utils.box_links import get_box_links_from_json, FromBoxDownloader
+from get_data.utils.box_links import get_box_links_from_json, FromBoxDownloader
 
 
 logger = logging.getLogger(__name__)
@@ -24,6 +24,8 @@ def main(cfg):
     # relative path of the json file is correct.
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
+    logger.info("Downloading files. Note that the first few are a different size than the rest.")
+
     cfg.nside = 512
     cfg.map_fields = "IQU"
 
@@ -35,7 +37,7 @@ def main(cfg):
     downloader = FromBoxDownloader(destination_root=dest,
                                    remove_tar=True)
 
-    box_links = get_box_links_from_json(json_file)
+    box_links = get_box_links_from_json(json_file, compose_path=False)
 
     for link_info in tqdm(box_links.values()):
         downloaded = downloader.download(link_info)

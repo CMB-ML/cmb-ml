@@ -1,1 +1,1 @@
-from ..cmbml.utils.box_links import *
+from ..get_data.utils.box_links import *

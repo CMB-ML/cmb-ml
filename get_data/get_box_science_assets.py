@@ -12,7 +12,7 @@ import json
 
 import hydra
 
-from cmbml.utils.box_links import get_box_links_from_json, FromBoxDownloader, LinkInfo
+from get_data.utils.box_links import get_box_links_from_json, FromBoxDownloader, LinkInfo
 
 
 logger = logging.getLogger(__name__)
@@ -22,6 +22,8 @@ logging.getLogger("urllib3.connectionpool").setLevel(logging.WARNING)
 @hydra.main(version_base=None, config_path="../cfg", config_name="config_demo_dataset")
 def main(cfg):
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
+
+    force_download = cfg.force_download
 
     destination = Path(cfg.local_system.assets_dir)
 
