@@ -61,8 +61,8 @@ class CommonPostExecutor(BaseStageExecutor):
         return mask
 
     def get_beam(self):
-        # Partially instantiate the beam object, defined in the hydra configs
-        beam = instantiate(self.beam_cfg)
+        # Partially instantiate the beam object, defined in the hydra configs (cfg.model.analysis)
+        beam = instantiate(self.beam_cfg)  # Defined in children classes (at bottom of file)
         beam = beam(lmax=self.lmax)
         return beam
 
