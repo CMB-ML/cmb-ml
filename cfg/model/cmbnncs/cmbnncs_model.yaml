@@ -1,5 +1,5 @@
 defaults:
-  - network: unet5
+  - network: unet8
   - _self_
 
 preprocess:
