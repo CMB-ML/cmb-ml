@@ -78,7 +78,7 @@ def run_pyilc_analysis(cfg):
     pipeline_context.add_pipe(PixelSummaryFigsExecutor)
 
     # # Not needed in every analysis pipeline, but needed in one
-    pipeline_context.add_pipe(ConvertTheoryPowerSpectrumExecutor)
+    # pipeline_context.add_pipe(ConvertTheoryPowerSpectrumExecutor)
     pipeline_context.add_pipe(MakeTheoryPSStats)
     
     # # PyILC's Predictions as Power Spectra Anaylsis
