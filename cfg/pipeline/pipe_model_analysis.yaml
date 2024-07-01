@@ -18,6 +18,26 @@ show_cmb_prep:
   dir_name: Analysis_2_Show_CMB_Prep
   make_stage_log: False
 
+show_sims_prep_cmbnncs:
+  assets_out:
+    cmb_map_render:
+      handler: EmptyHandler
+      path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/cmb_{field}.png"
+    obs_map_render:
+      handler: EmptyHandler
+      path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/obs_{field}_{freq}.png"
+  assets_in:
+    cmb_map_sim: {stage: make_sims, orig_name: cmb_map}
+    cmb_map_prep: {stage: preprocess, orig_name: cmb_map}
+    obs_maps_sim: {stage: make_sims, orig_name: obs_maps}
+    obs_maps_prep: {stage: preprocess, orig_name: obs_maps}
+  splits:
+    - train
+  override_n_sims: ${n_show_cap}
+  plot_min_max: 500                  # value, v: plots from -v to +v; null: allow MPL to choose; list (size 2): min and max val
+  dir_name: Analysis_2_Show_Sims_Prep_CMBNNCS
+  make_stage_log: False
+
 show_cmb_pred_cmbnncs:
   assets_out:
     cmb_map_render:
