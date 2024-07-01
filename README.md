@@ -36,12 +36,11 @@ See [Installation](#installation) and [Demonstrations](#Demonstrations) for more
 
 ![CMB Radiation Example](assets/cmb.png)
 
-The Cosmic Microwave Background radiation (CMB) signal is one of the cornerstones upon which modern cosmologists understand the universe. The signal is measured at different microwave frequencies - similar to how humans detect three different colors of light. Other natural phenomena either emit microwave signals or change the CMB signal itself. Thus, the signal must be separated out from these other contaminants. Modern machine learning and computer vision algorithms are seemingly perfect for the task, but generation of the data is cumbersome and no standard public datasets are available. Models and algorithms created for the task are seldom compared outside the largest collaborations. 
+The Cosmic Microwave Background radiation (CMB) signal is one of the cornerstones upon which modern cosmologists understand the universe. The signal must be separated out from these other natural phenomena which either emit microwave signals or change the CMB signal itself. Modern machine learning and computer vision algorithms are seemingly perfect for the task, but generation of the data is cumbersome and no standard public datasets are available. Models and algorithms created for the task are seldom compared outside the largest collaborations. 
 
-The CMB-ML dataset bridges these gaps. It handles simulation, modeling, and analysis.
+The CMB-ML dataset bridges the gap between astrophysics and machine learning. It handles simulation, modeling, and analysis.
 
-Hydra is used to manage manage a pipeline so that coherent configurations are applied consistently. It uses the PySM3 simulation library in conjunction with CAMB, astropy, and Healpy to handle much of the astrophysics. Two baselines are implemented, with more to follow. One baseline comes from astrophysics: PyILC's implementation of the CNILC method. The other baseline uses machine learning: CMBNNCS's UNet8. The analysis portion of the pipeline first puts predictions into a consistent form, then generates summary statistics, and finally compares between models' performances.
-
+Several tools enable this work. [Hydra](https://hydra.cc/) is used to manage manage a pipeline so that coherent configurations are applied consistently. It uses the [PySM3](https://pysm3.readthedocs.io/en/latest/) simulation library in conjunction with [CAMB](https://camb.info/), [astropy](https://www.astropy.org/), and [Healpy](https://healpy.readthedocs.io/en/latest/) to handle much of the astrophysics. Two baselines are implemented, with more to follow. One baseline comes from astrophysics: [PyILC](https://github.com/jcolinhill/pyilc)'s implementation of the CNILC method. The other baseline uses machine learning: [CMBNNCS](https://github.com/Guo-Jian-Wang/cmbnncs)'s UNet8. The analysis portion of the pipeline first puts predictions into a consistent form, then generates summary statistics, and finally compares between models' performances.
 
 ## Simulation
 
@@ -74,7 +73,7 @@ Installation of CMB-ML requires setting up the repository, then getting the data
 
 Setting up the repository:
 - Download the repository
-  - We suggest using `git clone https://github.com/JamesAmato/cmb-ml.git`, as the library is under development and may be updated.
+  - `git clone https://github.com/JamesAmato/cmb-ml.git`
 - Get Python 3.9
   - General installation instructions are at: [Downloading Python](https://wiki.python.org/moin/BeginnersGuide/Download)
   - Be sure to get Python 3.9
@@ -102,18 +101,18 @@ Setting up the repository:
   - Files can be downloaded manually from [Science Assets on Box](https://utdallas.box.com/v/cmb-ml-science-assets)
   - Scripts are available in the `get_data` folder, which will download all files.
     - [Download from original sources](./get_data/get_orig_science_assets.py)
-    - [Download from Box](./get_data/get_box_science_assets.py)
+    - [Download from Box](./get_data/get_box_science_assets.py) (Recommended)
 - Download the simulations
   - Two sets are available
     - The full set is IQU-512-1450
     - A smaller set for demonstration and debugging is I-128-1450
   - These can also be generated, as they are completely deterministic, given the same configurations
-  - These can be downloaded manually at these box links:
-    - [Box link for IQU-512-1450](https://utdallas.box.com/v/cmb-ml-IQU-512-1450)
-    - [Box link for I-128-1450](https://utdallas.box.com/v/cmb-ml-I-128-1450)
-  - Scripts for download are available as well
+  - Scripts are available for easier downloading of full datasets:
     - [Script for downloading IQU-512-1450](./get_data/get_box_IQU_512_1450.py)
     - [Script for downloading I-128-1450](./get_data/get_box_I_128_1450.py)
+  - Alternatively, all links for the dataset are available here:
+    - [Box link for IQU-512-1450](https://utdallas.box.com/v/cmb-ml-IQU-512-1450)
+    - [Box link for I-128-1450](https://utdallas.box.com/v/cmb-ml-I-128-1450)
 - Run code
   - Set up configurations
   - To generate simulations, use `main_sims.py`
