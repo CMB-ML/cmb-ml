@@ -69,16 +69,16 @@ def run_pyilc_analysis(cfg):
 
     pipeline_context.add_pipe(HydraConfigCheckerExecutor)
 
-    # pipeline_context.add_pipe(NILCShowSimsPostExecutor)
-    # pipeline_context.add_pipe(CommonRealPostExecutor)
-    # pipeline_context.add_pipe(CommonPyILCPredPostExecutor)
-    # pipeline_context.add_pipe(CommonNILCShowSimsPostExecutor)
+    pipeline_context.add_pipe(CommonRealPostExecutor)
+    pipeline_context.add_pipe(CommonPyILCPredPostExecutor)
+    pipeline_context.add_pipe(CommonNILCShowSimsPostExecutor)
+
     pipeline_context.add_pipe(PixelAnalysisExecutor)
     pipeline_context.add_pipe(PixelSummaryExecutor)
     pipeline_context.add_pipe(PixelSummaryFigsExecutor)
 
     # # Not needed in every analysis pipeline, but needed in one
-    # pipeline_context.add_pipe(ConvertTheoryPowerSpectrumExecutor)
+    # pipeline_context.add_pipe(ConvertTheoryPowerSpectrumExecutor)  # Moved to main_convert_theory.py due to working_dir conflict.
     pipeline_context.add_pipe(MakeTheoryPSStats)
     
     # # PyILC's Predictions as Power Spectra Anaylsis
@@ -98,10 +98,10 @@ def run_pyilc_analysis(cfg):
         logger.exception("An exception occured during the pipeline.", exc_info=e)
         raise e
     finally:
-        logger.info("Simulation pipeline completed.")
+        logger.info("Pipeline completed.")
         log_maker.copy_hydra_run_to_dataset_log()
 
 
 if __name__ == "__main__":
-    validate_environment_variable("CMB_SIMS_LOCAL_SYSTEM")
+    validate_environment_variable("CMB_ML_LOCAL_SYSTEM")
     run_pyilc_analysis()

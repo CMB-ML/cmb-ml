@@ -1,11 +1,12 @@
 defaults:
-  - local_system: ${oc.env:CMB_ML_LOCAL_SYSTEM}
-  - file_system : common_fs
-  - pipeline    : assembly_sim
-  - scenario    : scenario_t
-  - splits      : all_t
+  - local_system   : ${oc.env:CMB_ML_LOCAL_SYSTEM}
+  - file_system    : common_fs
+  - pipeline       : assembly_sim
+  - scenario       : scenario_t
+  - splits         : all_t
   # simulation must listed be after scenario and splits to build the simulation seed
-  - model/sim   : sim_t
+  - model/sim      : sim_t
+  - model/analysis : basic_analysis
   - override hydra/job_logging: custom_log
   - _self_
 
