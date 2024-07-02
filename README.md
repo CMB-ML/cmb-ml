@@ -148,11 +148,11 @@ This will run more quickly than the higher resolution.
 - Run CMBNNCS on I_128_1450 (the smaller UNet5 must be used):
     - `python main_cmbnncs.py dataset_name=I_128_1450 working_dir=CMBNNCS_UNet5/ nside=128 num_epochs=2 use_epochs=[2] model/cmbnncs/network=unet5`
 - Run PyILC on I_128_1450:
-    - `python main_pyilc_predict.py dataset_name=I_128_1450 ELLMAX=382 model/pyilc/N_scales=5 model/pyilc/ellpeaks=[100,200,300,383]`
-    - `python main_pyilc_analysis.py dataset_name=I_128_1450 ELLMAX=382 model/pyilc/N_scales=5 model/pyilc/ellpeaks=[100,200,300,383]`
+    - `python main_pyilc_predict.py dataset_name=I_128_1450 nside=128 ELLMAX=382 model.pyilc.distinct.N_scales=5 model.pyilc.distinct.ellpeaks=[100,200,300,383]`
+    - `python main_pyilc_analysis.py dataset_name=I_128_1450 nside=128 ELLMAX=382 model.pyilc.distinct.N_scales=5 model.pyilc.distinct.ellpeaks=[100,200,300,383]`
     - An even faster method is available, using PyILC's HILC method.
 - Run Comparison:
-    - `python main_analysis_compare.py  dataset_name=I_128_1450 models_comp='[{cmbnncs.model_name=CMBNNCS, cmbnncs.working_directory=CMBNNCS_UNet5, cmbnncs.epoch=2}, {pyilc.model_name=CNILC, pyilc.working_directory=PyILC_CNILC/}]' nside=128 num_epochs=2 use_epochs_map_stats=[2] use_epochs_ps_stats=[2]`
+    - `python main_analysis_compare.py --config-name config_comp_models_t_128`
 
 
 # Demonstrations
