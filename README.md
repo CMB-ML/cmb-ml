@@ -98,16 +98,10 @@ Setting up the repository:
 - Download the science assets
   - These are available from the original sources and a mirror set up for this purpose
   - If you are not creating simulations, you only need one science asset: "COM_CMB_IQU-nilc_2048_R3.00_full.fits" (for the mask)
-  - Files can be downloaded manually from [Science Assets on Box](https://utdallas.box.com/v/cmb-ml-science-assets)
   - Scripts are available in the `get_data` folder, which will download all files.
     - [Download from original sources](./get_data/get_orig_science_assets.py)
     - [Download from Box](./get_data/get_box_science_assets.py) (Recommended)
-- Download the simulations
-  - Two sets are available
-    - The full set is IQU-512-1450
-    - A smaller set for demonstration and debugging is I-128-1450
-  - These can also be generated, as they are completely deterministic, given the same configurations
-  - Scripts are available for easier downloading of full datasets:
+  - Files can be downloaded manually from [Science Assets on Box](https://utdallas.box.com/v/cmb-ml-science-assets)
 
 # Run CMB-ML
 
@@ -157,7 +151,7 @@ This will run more quickly than the higher resolution.
 
 # Demonstrations
 
-Demonstrations exist for:
+Demonstrations exist for both installation and introduction to core concepts. Most of these are jupyter notebooks:
 - [Hydra and its use in CMB-ML](./demonstrations/A_hydra_tutorial.ipynb) <!-- [Notebook Name](https://nbviewer.jupyter.org/github/username/repository/blob/branch/path/to/notebook.ipynb) -->
 - [Hydra in scripts](./demonstrations/B_hydra_script_tutorial.ipynb) (*.py files)<!-- [Notebook Name](https://nbviewer.jupyter.org/github/username/repository/blob/branch/path/to/notebook.ipynb) -->
 - [Setting up your environment](./demonstrations/C_setting_up_local.ipynb)
