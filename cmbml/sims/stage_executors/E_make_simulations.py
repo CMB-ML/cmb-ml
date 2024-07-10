@@ -27,7 +27,7 @@ from cmbml.core.asset_handlers.psmaker_handler import CambPowerSpectrum # Import
 from cmbml.core.asset_handlers.healpy_map_handler import HealpyMap # Import for VS Code hints
 
 from cmbml.utils.map_formats import convert_pysm3_to_hp
-from cmbml.sims.physics_cmb import change_nside_of_map
+from cmbml.sims.physics_cmb import downgrade_map
 from cmbml.sims.physics_instrument_noise import make_random_noise_map
 
 
@@ -54,6 +54,10 @@ class SimCreatorExecutor(BaseStageExecutor):
         # TODO: Check this. Remove other instances in other Executors.
         # with self.name_tracker.set_context('src_root', cfg.local_system.assets_dir):
         det_info = in_det_table.read()
+
+        # The instrument object contains both
+        #   - information about physical detector parameters
+        #   - information about configurations, (such as fields to use)
         self.instrument: Instrument = make_instrument(cfg=cfg, det_info=det_info)
 
         # seed maker objects
@@ -66,21 +70,23 @@ class SimCreatorExecutor(BaseStageExecutor):
 
         self.nside_out = cfg.scenario.nside
         logger.info(f"Simulations will be output at nside_out = {self.nside_out}")
-        
-        self.lmax_pysm3_smoothing = int(cfg.model.sim.pysm_beam_lmax_ratio * self.nside_out)
-        logger.info(f"Simulation beam convolution will occur with lmax = {self.lmax_pysm3_smoothing}.")
-        
+
+        self.lmax_out = int(cfg.model.sim.pysm_beam_lmax_ratio * self.nside_out)
+        logger.info(f"Simulation beam convolution will occur with lmax = {self.lmax_out}")
+
         self.units = cfg.scenario.units
         logger.info(f"Simulations will have units of {self.units}")
 
         self.preset_strings = list(cfg.model.sim.preset_strings)
         logger.info(f"Preset strings are {self.preset_strings}")
-        self.sky = None
         self.output_units = cfg.scenario.units
         self.cmb_factory = CMBFactory(self.nside_sky)
 
+        # Placeholder so we don't recreate the sky object over and over
+        self.sky = None
+
     def execute(self) -> None:
-        logger.debug(f"Running {self.__class__.__name__} execute() method.")
+        logger.debug(f"Running {self.__class__.__name__} execute() method")
         placeholder = pysm3.Model(nside=self.nside_sky, max_nside=self.nside_sky)
         logger.debug('Creating PySM3 Sky object')
         self.sky = pysm3.Sky(nside=self.nside_sky,
@@ -100,7 +106,7 @@ class SimCreatorExecutor(BaseStageExecutor):
         logger.debug(f"Creating simulation {split.name}:{sim_name}")
         cmb_seed = self.cmb_seed_factory.get_seed(split, sim_num)
         ps_path = self.in_cmb_ps.path_alt if split.ps_fidu_fixed else self.in_cmb_ps.path
-        cmb = self.cmb_factory.make_cmb_lensed(cmb_seed, ps_path)
+        cmb = self.cmb_factory.make_cmb(cmb_seed, ps_path)
         self.sky.components[0] = cmb
         self.save_cmb_map_realization(cmb)
 
@@ -113,7 +119,7 @@ class SimCreatorExecutor(BaseStageExecutor):
                 # Use pysm3.apply_smoothing... to convolve the map with the planck detector beam
                 map_smoothed = pysm3.apply_smoothing_and_coord_transform(skymap, 
                                                                          detector.fwhm, 
-                                                                         lmax=self.lmax_pysm3_smoothing, 
+                                                                         lmax=self.lmax_out, 
                                                                          output_nside=self.nside_out)
                 noise_seed = self.noise_seed_factory.get_seed(split.name, sim_num, freq, field_str)
                 noise_map = self.get_noise_map(freq, field_str, noise_seed)
@@ -130,9 +136,15 @@ class SimCreatorExecutor(BaseStageExecutor):
 
     def save_cmb_map_realization(self, cmb: CMBLensed):
         cmb_realization: Quantity = cmb.map
-        nside_out = self.nside_out
+        # PySM3 components always include T, Q, U, so we need to extract the temperature map
+        if self.instrument.map_fields == 'I':
+            cmb_realization = cmb_realization[0]
+
+        # Break out astropy units information, healpy doesn't play well with it (downgrade function)
         cmb_data, cmb_units = convert_pysm3_to_hp(cmb_realization)
-        scaled_map = change_nside_of_map(cmb_data, nside_out)
+
+        scaled_map = downgrade_map(cmb_data, self.nside_out, lmax_in=None, lmax_out=self.lmax_out)
+
         self.out_cmb_map.write(data=scaled_map, column_units=cmb_units)
 
     def get_noise_map(self, freq, field_str, noise_seed, center_frequency=None):

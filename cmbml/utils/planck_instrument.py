@@ -16,6 +16,7 @@ class Detector:
 @dataclass(frozen=True)
 class Instrument:
     dets: Dict[int, Detector]
+    map_fields: str
 
 
 def make_detector(det_info, band, fields):
@@ -51,4 +52,4 @@ def make_instrument(cfg, det_info=None):
         else:
             det = Detector(nom_freq=freq, fields=selected_fields)
         instrument_dets[freq] = det
-    return Instrument(instrument_dets)
+    return Instrument(dets=instrument_dets, map_fields=scen_fields)
