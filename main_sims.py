@@ -31,12 +31,8 @@ from cmbml.sims import (
     TheoryPSExecutor,
     SimCreatorExecutor
 )
-from cmbml.analysis import ShowSimsExecutor
 
 logger = logging.getLogger(__name__)
-
-import os
-os.environ["CMB_ML_LOCAL_SYSTEM"] = "jim_lab"
 
 
 @hydra.main(version_base=None, config_path="cfg", config_name="config_sim_t")
