@@ -70,70 +70,69 @@ def _log_camb_args(set_cosmo_args, init_power_args) -> None:
     logger.debug(f"CAMB init_power args: {init_power_args}")
 
 
-def alm_downgrade(map_in, nside_out, lmax_in, lmax_out):
-    """
-    Downgrades a map from one nside to another, in the spherical
-    harmonic transform space.
+# def alm_downgrade(map_in, nside_out, lmax_in, lmax_out):
+#     """
+#     Downgrades a map from one nside to another, in the spherical
+#     harmonic transform space.
 
-    Args:
-        map_in (np.array): The input map
-        nside_out (int): The nside of the output map
-        lmax_in (int): The maximum l value of the input map
-        lmax_out (int): The maximum l value of the output map
+#     Args:
+#         map_in (np.array): The input map
+#         nside_out (int): The nside of the output map
+#         lmax_in (int): The maximum l value of the input map
+#         lmax_out (int): The maximum l value of the output map
 
-    Returns:
-        The output map
-    """
-    # Get a_lm's from map_in
-    nside_in = hp.get_nside(map_in)
-    if nside_out > nside_in:
-        raise ValueError("Map resolution is lower than specified output resolution.")
-    elif nside_out == nside_in:
-        logger.warning("Input and output resolutions are the same. Returning input map.")
-        return map_in
-    if lmax_in is None:
-        # TODO: I don't like the magic number here
-        lmax_in = 3*nside_in - 1
+#     Returns:
+#         The output map
+#     """
+#     # Get a_lm's from map_in
+#     nside_in = hp.get_nside(map_in)
+#     if nside_out > nside_in:
+#         raise ValueError("Map resolution is lower than specified output resolution.")
+#     elif nside_out == nside_in:
+#         logger.warning("Input and output resolutions are the same. Returning input map.")
+#         return map_in
+#     if lmax_in is None:
+#         # TODO: I don't like the magic number here
+#         lmax_in = 3*nside_in - 1
 
-    alm_in = hp.map2alm(map_in, lmax = lmax_in)
+#     alm_in = hp.map2alm(map_in, lmax = lmax_in)
 
-    alm_out = hp.almxfl(alm_in, np.ones(lmax_out + 1))
-    map_out = hp.alm2map(alm_out, nside_out)
-    return map_out
+#     alm_out = hp.almxfl(alm_in, np.ones(lmax_out + 1))
+#     map_out = hp.alm2map(alm_out, nside_out)
+#     return map_out
 
 
-def downgrade_map(cmb_maps: Union[np.ndarray, List[np.ndarray]], 
-                  nside_out: int, 
-                  lmax_in: int, 
-                  lmax_out: int):
-    """
-    \doc
-    Downgrades maps, preserving power spectrum.
+# def downgrade_map(cmb_maps: Union[np.ndarray, List[np.ndarray]], 
+#                   nside_out: int, 
+#                   lmax_in: int, 
+#                   lmax_out: int):
+#     """
+#     Downgrades maps, preserving power spectrum.
 
-    Args:
-        cmb_maps (np.array): Input map or maps; map is shape (npix, ), maps is shape (n_maps, npix)
-        nside_out (int): The nside of the output map
-        lmax_in (int): The maximum l value of the input map
-        lmax_out (int): The maximum l value of the output map
+#     Args:
+#         cmb_maps (np.array): Input map or maps; map is shape (npix, ), maps is shape (n_maps, npix)
+#         nside_out (int): The nside of the output map
+#         lmax_in (int): The maximum l value of the input map
+#         lmax_out (int): The maximum l value of the output map
 
-    Returns:
-        The output map or maps (np.array or list of np.array)
-    """
-    try:
-        # Assume single map; if not, cmb_maps.dtype will fail duck typing
-        scaled_map = alm_downgrade(cmb_maps, nside_out=nside_out, lmax_in=lmax_in, lmax_out=lmax_out)
-        # OLD  # scaled_map = hp.ud_grade(cmb_maps, nside_out=nside_out, dtype=cmb_maps.dtype)
-    # except AttributeError:
-    #     # healpy's ud_grade raises this for lists of maps
-    #     scaled_map = [hp.ud_grade(cmb_map, 
-    #                               nside_out=nside_out, 
-    #                               dtype=cmb_map.dtype
-    #                               ) for cmb_map in cmb_maps]
-    except ValueError:
-        # healpy's almxfl raises this for lists of maps
-        scaled_map = [alm_downgrade(cmb_map, 
-                                  nside_out=nside_out, 
-                                  lmax_in=lmax_in, 
-                                  lmax_out=lmax_out
-                                  ) for cmb_map in cmb_maps]
-    return scaled_map
+#     Returns:
+#         The output map or maps (np.array or list of np.array)
+#     """
+#     try:
+#         # Assume single map; if not, cmb_maps.dtype will fail duck typing
+#         scaled_map = alm_downgrade(cmb_maps, nside_out=nside_out, lmax_in=lmax_in, lmax_out=lmax_out)
+#         # OLD  # scaled_map = hp.ud_grade(cmb_maps, nside_out=nside_out, dtype=cmb_maps.dtype)
+#     # except AttributeError:
+#     #     # healpy's ud_grade raises this for lists of maps
+#     #     scaled_map = [hp.ud_grade(cmb_map, 
+#     #                               nside_out=nside_out, 
+#     #                               dtype=cmb_map.dtype
+#     #                               ) for cmb_map in cmb_maps]
+#     except ValueError:
+#         # healpy's almxfl raises this for lists of maps
+#         scaled_map = [alm_downgrade(cmb_map, 
+#                                   nside_out=nside_out, 
+#                                   lmax_in=lmax_in, 
+#                                   lmax_out=lmax_out
+#                                   ) for cmb_map in cmb_maps]
+#     return scaled_map
