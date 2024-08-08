@@ -136,16 +136,15 @@ class SimCreatorExecutor(BaseStageExecutor):
 
     def save_cmb_map_realization(self, cmb: CMBLensed):
         cmb_realization: Quantity = cmb.map
-        # PySM3 components always include T, Q, U, so we need to extract the temperature map
+        # PySM3 components always include T, Q, U, so we may need to extract the temperature map
         if self.instrument.map_fields == 'I':
             cmb_realization = cmb_realization[0]
 
-        # Break out astropy units information, healpy doesn't play well with it (downgrade function)
-        cmb_data, cmb_units = convert_pysm3_to_hp(cmb_realization)
-
-        scaled_map = downgrade_map(cmb_data, self.nside_out, lmax_in=None, lmax_out=self.lmax_out)
-
-        self.out_cmb_map.write(data=scaled_map, column_units=cmb_units)
+        scaled_map = pysm3.apply_smoothing_and_coord_transform(cmb_realization,
+                                                               fwhm=None,
+                                                               lmax=self.lmax_out,
+                                                               output_nside=self.nside_out)
+        self.out_cmb_map.write(data=scaled_map)
 
     def get_noise_map(self, freq, field_str, noise_seed, center_frequency=None):
         with self.name_tracker.set_context('freq', freq):
