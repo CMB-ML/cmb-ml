@@ -21,22 +21,21 @@ class CMBFactory:
         self.delensing_ells = None
         self.map_dist = None
 
-    def make_cmb(self, seed, cmb_ps_fid_path) -> CMBLensed:
+    def make_basic_cmb(self, seed, cmb_ps_fid_path) -> CMBMap:
         return BasicCMB(nside=self.nside,
                         cmb_spectra=cmb_ps_fid_path,
                         cmb_seed=seed,
                         max_nside=self.max_nside_pysm_component,
                         map_dist=self.map_dist)
 
-    # def make_cmb_lensed(self, seed, cmb_ps_fid_path) -> CMBLensed:
-    #     return CMBLensed(nside=self.nside,
-    #                      cmb_spectra=cmb_ps_fid_path,
-    #                      cmb_seed=seed,
-    #                      max_nside=self.max_nside_pysm_component,
-    #                      apply_delens=self.apply_delens,
-    #                      delensing_ells=self.delensing_ells,
-    #                      map_dist=self.map_dist)
-
+    def make_cmb(self, seed, cmb_ps_fid_path) -> CMBLensed:
+        return CMBLensed(nside=self.nside,
+                         cmb_spectra=cmb_ps_fid_path,
+                         cmb_seed=seed,
+                         max_nside=self.max_nside_pysm_component,
+                         apply_delens=self.apply_delens,
+                         delensing_ells=self.delensing_ells,
+                         map_dist=self.map_dist)
 
 
 class BasicCMB(CMBMap):
@@ -46,14 +45,13 @@ class BasicCMB(CMBMap):
         cmb_spectra,
         max_nside=None,
         cmb_seed=None,
-        map_dist=None,
-    ):
+        map_dist=None
+        ):
         """Lensed CMB
 
-        Takes an input unlensed CMB and lensing spectrum from CAMB and uses
-        Taylens to apply lensing, it optionally simulates delensing by
-        suppressing the lensing power at specific scales with the user
-        provided `delensing_ells`.
+        Takes an input unlensed CMB power spectrum from CAMB and uses
+        part of the Taylens code and synfast to generate correlated CMB maps.
+        Code tested with power spectra including lensing potential.
 
         Parameters
         ----------
