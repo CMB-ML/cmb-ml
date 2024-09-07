@@ -6,4 +6,5 @@ strides: [2,2,2,2,2,2,2,2, 2,2,2,2,2,2,2,2]
 mainActive: 'prelu'
 finalActive: 'prelu'
 finalBN: false
+model_precision  : float
 # nside: 512
