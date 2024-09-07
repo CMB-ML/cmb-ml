@@ -12,7 +12,7 @@ defaults:
 
 dataset_name   : IQU_${scenario.nside}_1450
 # dataset_name   : ${scenario.map_fields}_${scenario.nside}_${splits.name}
-working_dir    : "PyILC_CNILC/"
+working_dir    : "PyILC_CNILC_Test_tol_mask/"
 fig_model_name : CNILC
 hydra:
   run:
@@ -39,7 +39,7 @@ use_epochs_ps_stats  : *epochs
 n_show_cap           : 1   # int: first n_sims; null: all sims; list: particular sims by index
 
 # In the splits yaml; null to run on all
-n_test_cap           : null
+n_test_cap           : 1
 
 # In the model yaml, for HILC:
 # ELLMAX: 511   # For 128
