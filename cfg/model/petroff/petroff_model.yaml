@@ -20,4 +20,4 @@ train:
   restart_epoch    : ${restart_epoch}
 predict:
   device           : null       # Set to null to allow PyTorch to choose based on availability
-  batch_size       : 8
+  batch_size       : ${batch}
