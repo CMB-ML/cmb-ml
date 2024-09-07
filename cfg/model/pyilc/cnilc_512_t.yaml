@@ -27,7 +27,7 @@ save_weights: 'no'                               # set to yes to save the weight
 ELLMAX: ${ELLMAX}                                # Pull from the higher level config. Value set to maximum used in PyILC for this nside
 perform_ILC_at_beam: 5                           # Choose this based on ???
 ILC_preserved_comp: 'CMB'
-ILC_bias_tol: 0.01
+ILC_bias_tol: 0.001
 N_deproj: 0                                      # The PyILC methods can extract components other than the CMB. 
                                                  #    This parameters is the number of those other components.
 taper_width: 0                                   # The scientific backing of this is unknown; default is 200
@@ -50,6 +50,6 @@ override_ILCbiastol_threshold: 'False'
 ################# CNILC UNIQUE #############################
 distinct:
   wavelet_type: 'CosineNeedlets'                   # This "chooses" the CNILC method
-  N_scales: 8
+  N_scales: 10
   ellmin: 0
-  ellpeaks: [100, 200, 300, 400, 600, 800, 1535]
+  ellpeaks: [100, 200, 300, 400, 600, 800, 1000, 1200, 1535]
