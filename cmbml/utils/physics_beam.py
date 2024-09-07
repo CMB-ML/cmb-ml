@@ -122,7 +122,7 @@ class PlanckBeam(Beam):
 class NoBeam(Beam):
     def __init__(self, lmax) -> None:
         self.lmax = lmax
-        beam = np.ones(lmax)
+        beam = np.ones(lmax+1)
         super().__init__(beam)
 
 
