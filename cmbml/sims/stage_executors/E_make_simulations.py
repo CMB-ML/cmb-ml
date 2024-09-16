@@ -34,6 +34,35 @@ logger = logging.getLogger(__name__)
 
 
 class SimCreatorExecutor(BaseStageExecutor):
+    """
+    SimCreatorExecutor is responsible for generating the simulated maps for a given simulation scenario.
+
+    Attributes:
+        out_cmb_map (Asset): The output asset for the CMB map.
+        out_obs_maps (Asset): The output asset for the observed maps.
+        in_noise_cache (Asset): The input asset for the noise cache.
+        in_cmb_ps (AssetWithPathAlts): The input asset for the CMB power spectra.
+        in_det_table (Asset): The input asset for the detector table.
+        instrument (Instrument): The instrument configuration used for the simulation.
+        cmb_seed_factory (SimLevelSeedFactory): The seed factory for the CMB.
+        noise_seed_factory (FieldLevelSeedFactory): The seed factory for the noise.
+        nside_sky (int): The nside for the sky.
+        nside_out (int): The nside for the output maps.
+        lmax_out (int): The lmax for the output maps.
+        units (str): The units for the output maps.
+        preset_strings (List[str]): The preset strings for the sky.
+        output_units (str): The output units for the sky.
+        cmb_factory (CMBFactory): The factory for the CMB.
+        sky (pysm3.Sky): The sky object for the simulation.
+
+    Methods:
+        execute() -> None:
+            Executes the simulation generation process.
+        process_split(split: Split) -> None:
+            Produces all sims for a split.
+        process_sim(split: Split, sim_num: int) -> None:
+            Processes the given split and simulation number.
+    """
     def __init__(self, cfg: DictConfig) -> None:
         # The following stage_str must match the pipeline yaml
         super().__init__(cfg, stage_str='make_sims')
@@ -85,6 +114,9 @@ class SimCreatorExecutor(BaseStageExecutor):
         self.sky = None
 
     def execute(self) -> None:
+        """
+        Creates simulations for all sims within all splits.
+        """
         logger.debug(f"Running {self.__class__.__name__} execute() method")
         placeholder = pysm3.Model(nside=self.nside_sky, max_nside=self.nside_sky)
         logger.debug('Creating PySM3 Sky object')
@@ -96,11 +128,24 @@ class SimCreatorExecutor(BaseStageExecutor):
         self.default_execute()
 
     def process_split(self, split: Split) -> None:
+        """
+        Processes all sims for a split, making simulations.
+
+        Args:
+            split (Split): The split to process.
+        """
         for sim in split.iter_sims():
             with self.name_tracker.set_context("sim_num", sim):
                 self.process_sim(split, sim_num=sim)
 
     def process_sim(self, split: Split, sim_num: int) -> None:
+        """
+        Produces a single simulation. Expects the sky object to be initialized.
+
+        Args:
+            split (Split): The split to process. Needed for some configuration information.
+            sim_num (int): The simulation number.
+        """
         sim_name = self.name_tracker.sim_name()
         logger.debug(f"Creating simulation {split.name}:{sim_name}")
         cmb_seed = self.cmb_seed_factory.get_seed(split, sim_num)
@@ -134,6 +179,12 @@ class SimCreatorExecutor(BaseStageExecutor):
         logger.debug(f"For {split.name}:{sim_name}, done with simulation")
 
     def save_cmb_map_realization(self, cmb: CMBLensed):
+        """
+        Saves a realization of the CMB map to the output asset.
+
+        Args:
+            cmb (CMBLensed): The CMB object to save.
+        """
         cmb_realization: Quantity = cmb.map
         # PySM3 components always include T, Q, U, so we may need to extract the temperature map
         if self.instrument.map_fields == 'I':
@@ -146,6 +197,15 @@ class SimCreatorExecutor(BaseStageExecutor):
         self.out_cmb_map.write(data=scaled_map)
 
     def get_noise_map(self, freq, field_str, noise_seed, center_frequency=None):
+        """
+        Returns a noise map for the given frequency and field.
+
+        Args:
+            freq (int): The frequency of the map.
+            field_str (str): The field of the map.
+            noise_seed (int): The seed for the noise map.
+            center_frequency (float): The center frequency of the detector.
+        """
         with self.name_tracker.set_context('freq', freq):
             with self.name_tracker.set_context('field', field_str):
                 sd_map = self.in_noise_cache.read()
@@ -153,6 +213,10 @@ class SimCreatorExecutor(BaseStageExecutor):
                 return noise_map
 
     def get_nside_sky(self):
+        """
+        Returns the nside to use for PySM3's sky object. May be set with one of two 
+        configuration options.
+        """
         nside_out = self.cfg.scenario.nside
         nside_sky_set = self.cfg.model.sim.get("nside_sky", None)
         nside_sky_factor = self.cfg.model.sim.get("nside_sky_factor", None)

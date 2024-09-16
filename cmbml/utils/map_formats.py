@@ -1,3 +1,18 @@
+"""
+Module Name: map_formats.py
+
+This module contains a function for getting just the data from astropy Quantity objects (created by PySM3)
+so that they can be used with Healpy. I do not recall which Healpy function required this.
+
+Functions:
+    convert_pysm3_to_hp: Convert PySM3 data to Healpy data.
+
+Author: James Amato
+Date: June 11, 2024
+Version: 0.1.0
+
+Edits: Sept 16, 2024 - Added documentation
+"""
 from typing import List, Union, Tuple
 from contextlib import contextmanager
 
@@ -5,20 +20,16 @@ import numpy as np
 from astropy.units import Quantity
 
 
-"""
-I'm trying to figure out if there's a way to do these transformations as needed,
-capturing them with a single internal object, tracking units, and able to transform
-to whatever format is needed elsewhere.
-
-Eventually, I guess.
-"""
-
-
 def convert_pysm3_to_hp(data: List[Quantity]) -> Tuple[List[np.ndarray], List[str]]:
     """
     PySM3 format is typically either a Quantity or list of Quantity objects.
 
     Healpy expects lists of np.ndarrays and associated units.
+    Args:
+        data (List): The data in PySM3 format.
+
+    Returns:
+        Tuple: The data in Healpy format.
     """
     # Handle Quantity objects first
     if isinstance(data, list):
@@ -51,10 +62,8 @@ def convert_pysm3_to_hp(data: List[Quantity]) -> Tuple[List[np.ndarray], List[st
     return (data, column_units)
 
 
-def convert_to_ndarray():
-    """
-    PyTorch uses tensors, which are a stone's throw from higher-dimension
-    np.ndarrays
-    """
-
-
+# def convert_to_ndarray():
+#     """
+#     PyTorch uses tensors, which are a stone's throw from higher-dimension
+#     np.ndarrays
+#     """

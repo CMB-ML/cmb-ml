@@ -13,6 +13,18 @@ logger = logging.getLogger(__name__)
 
 
 class HydraConfigSimsCheckerExecutor(BaseStageExecutor):
+    """
+    A stage executor class that checks Hydra configs for any issues.
+
+    Attributes:
+        cfg (DictConfig): The Hydra config to check.
+
+    Methods:
+        execute(): Check for any conflicts in the Hydra configs.
+        check_units(): Check if the units are supported.
+        check_noise_yaml(): Check if a detector is in the noise yaml.
+        check_simulation_yaml(): Check if the simulation yaml has any conflicts.
+    """
     def __init__(self, cfg: DictConfig) -> None:
         # The following stage_str must match the pipeline yaml
         super().__init__(cfg, stage_str='check_hydra_configs')
@@ -21,6 +33,13 @@ class HydraConfigSimsCheckerExecutor(BaseStageExecutor):
         self.issues = []
 
     def execute(self) -> None:
+        """
+        Execute the HydraConfigSimsChecker stage to check for
+        any issues in the Hydra configs.
+
+        Raises:
+            ValueError: If any conflicts are found in the Hydra configs.
+        """
         self.check_noise_yaml()
         self.check_simulation_yaml()
         for issue in self.issues:
@@ -30,15 +49,25 @@ class HydraConfigSimsCheckerExecutor(BaseStageExecutor):
         logger.debug("No conflict in Hydra Configs found.")
 
     def check_units(self) -> None:
+        """
+        Check if the units are supported.
+        Currently only K_CMB is supported.
+        """
         if self.cfg.scenario.units != "K_CMB":
             self.issues.append("Currently, the only supported units are K_CMB. Hardcoding for this exists throughout, but will be removed in a future version.")
 
     def check_noise_yaml(self) -> None:
+        """
+        Ensure all detectors' noise files are in the simulation.noise yaml.
+        """
         for freq in self.cfg.scenario.detector_freqs:
             if freq not in self.cfg.model.sim.noise.src_files:
                 self.issues.append(f"Detector {freq} not in simulation.noise yaml.")
 
     def check_simulation_yaml(self) -> None:
+        """
+        Check if the simulation yaml for some known potential conflicts.
+        """
         nside_out = self.cfg.scenario.nside
         nside_sky_set = self.cfg.model.sim.get("nside_sky", None)
         nside_sky_factor = self.cfg.model.sim.get("nside_sky_factor", None)

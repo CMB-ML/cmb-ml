@@ -16,6 +16,16 @@ logger = logging.getLogger(__name__)
 
 
 def make_camb_ps(cosmo_params, lmax) -> camb.CAMBdata:
+    """
+    Make a CAMB power spectrum object.
+
+    Args:
+        cosmo_params (Dict[str, Any]): Dictionary of cosmological parameters.
+        lmax (int): The maximum l value.
+    
+    Returns:
+        camb.CAMBdata: The CAMB power spectrum object.
+    """
     #Set up a new set of parameters for CAMB
     # logger.debug(f"Beginning CAMB")
     pars: camb.CAMBparams = setup_camb(cosmo_params, lmax)
@@ -24,6 +34,16 @@ def make_camb_ps(cosmo_params, lmax) -> camb.CAMBdata:
 
 
 def setup_camb(cosmo_params: Dict[str, Any], lmax:int) -> camb.CAMBparams:
+    """
+    Set up the CAMB parameters.
+
+    Args:
+        cosmo_params (Dict[str, Any]): Dictionary of cosmological parameters.
+        lmax (int): The maximum l value.
+
+    Returns:
+        camb.CAMBparams: The CAMB parameters object.
+    """
     pars = camb.CAMBparams()
 
     set_cosmology_args, init_power_args = _split_cosmo_params_dict(cosmo_params, pars)
@@ -35,7 +55,16 @@ def setup_camb(cosmo_params: Dict[str, Any], lmax:int) -> camb.CAMBparams:
 
 
 def _split_cosmo_params_dict(cosmo_params: Dict, camb_pars):
-    # Turn cosmo_params (a single dictionary) into input suitable for CAMB
+    """
+    Turn cosmo_params (a single dictionary) into input suitable for CAMB.
+
+    Args:
+        cosmo_params (Dict): Dictionary of cosmological parameters.
+        camb_pars (camb.CAMBparams): The CAMB parameters object.
+
+    Returns:
+        Tuple[Dict, Dict]: Tuple of dictionaries for set_cosmology and InitPower.set_params
+    """
     def get_camb_input_params(method):
         sig = inspect.signature(method)
         return [param.name for param in sig.parameters.values() if param.name != 'self']

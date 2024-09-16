@@ -13,6 +13,24 @@ logger = logging.getLogger(__name__)
 
 
 def planck_result_to_sd_map(fits_fn, hdu, field_idx, nside_out, cen_freq):
+    """
+    Convert a Planck variance map to a standard deviation map.
+
+    In the observation maps provided by Planck, fields 0,1,2 are stokes 
+    parameters for T, Q, and U (resp). The HITMAP is field 3. The remainder
+    are variance maps: II, IQ, IU, QQ, QU, UU. We use variance maps to generate
+    noise maps, albeit with the huge simplification of ignoring covariance 
+    between the stokes parameters.
+
+    Args:
+        fits_fn (str): The filename of the fits file.
+        hdu (int): The HDU to read.
+        field_idx (int): The field index to read. For temperature, this is 4. 
+        nside_out (int): The nside for the output map.
+        cen_freq (float): The central frequency for the map.
+    Returns:
+        np.ndarray: The standard deviation map.
+    """
     logger.debug(f"physics_instrument_noise.planck_result_to_sd_map start")
     source_skymap = hp.read_map(fits_fn, hdu=hdu, field=field_idx)
 
@@ -37,6 +55,14 @@ def planck_result_to_sd_map(fits_fn, hdu, field_idx, nside_out, cen_freq):
 
 
 def make_random_noise_map(sd_map, random_seed, center_frequency):
+    """
+    Make a random noise map.
+
+    Args:
+        sd_map (np.ndarray): The standard deviation map created with planck_result_to_sd_map.
+        random_seed (int): The seed for the random number generator.
+        center_frequency (float): The center frequency of the detector.
+    """
     #TODO: set units when redoing this function
     rng = np.random.default_rng(random_seed)
     noise_map = rng.normal(scale=sd_map)
