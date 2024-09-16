@@ -14,6 +14,24 @@ logger = logging.getLogger(__name__)
 
 
 class CMBFactory:
+    """
+    Factory for returning objects with the CMB component.
+    Returns a basic CMB map or a lensed CMB map.
+    Lensed is default by virtue of 'make_cmb()'.
+
+    Attributes:
+        nside (int): The nside for the sky.
+        max_nside_pysm_component (int): The maximum nside for the PySM component.
+        apply_delens (bool): Whether to apply delensing.
+        delensing_ells (str): The delensing ells.
+        map_dist (str): The map distribution for the CMB.
+    
+    Methods:
+        make_basic_cmb(seed: int, cmb_ps_fid_path: str) -> CMBMap:
+            Returns a basic CMB map.
+        make_cmb(seed: int, cmb_ps_fid_path: str) -> CMBLensed:
+            Returns a lensed CMB
+    """
     def __init__(self, nside_sky):
         self.nside = nside_sky
         self.max_nside_pysm_component = None
@@ -39,6 +57,21 @@ class CMBFactory:
 
 
 class BasicCMB(CMBMap):
+    """
+    Basic CMB
+    Pulled from PySM3's CMBLensed class, with lensing removed.
+    Correctness not guaranteed.
+    
+    Attributes:
+        nside (int): The nside for the sky.
+        cmb_spectra (str): The input text file from CAMB, spectra unlensed.
+        cmb_seed (int): The numpy random seed for synfast, set to None for a random seed.
+        map_dist (str): The map distribution.
+
+    Methods:
+        make_cmb() -> np.ndarray:
+            Returns correlated CMB (T, Q, U) maps.
+    """
     def __init__(
         self,
         nside,
@@ -47,25 +80,6 @@ class BasicCMB(CMBMap):
         cmb_seed=None,
         map_dist=None
         ):
-        """Lensed CMB
-
-        Takes an input unlensed CMB power spectrum from CAMB and uses
-        part of the Taylens code and synfast to generate correlated CMB maps.
-        Code tested with power spectra including lensing potential.
-
-        Parameters
-        ----------
-
-        cmb_spectra : path
-            Input text file from CAMB, spectra unlensed
-        cmb_seed : int
-            Numpy random seed for synfast, set to None for a random seed
-        apply_delens : bool
-            If true, simulate delensing with taylens
-        delensing_ells : path
-            Space delimited file with ells in the first columns and suppression
-            factor (1 for no suppression) in the second column
-        """
         try:
             super().__init__(nside=nside, max_nside=max_nside, map_dist=map_dist)
         except ValueError:

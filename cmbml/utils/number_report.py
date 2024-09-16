@@ -1,18 +1,67 @@
+"""
+Module Name: number_report.py
+
+This module contains functions for formatting numbers to a specified number of decimal places or in scientific notation.
+Used for outputting tables of information with consistent formatting in the analysis pipeline.
+
+Functions:
+    format_decimal_places: Format a number to a specified number of decimal places.
+    format_sci: Format a number in scientific notation.
+    format_mean_std: Format mean and standard deviation to the same precision.
+
+Author: James Amato (with GPT assistance)
+Date: June 11, 2024
+Version: 0.1.0
+
+Edits: Sept 16, 2024 - Added documentation
+"""
 import numpy as np
 
 
 def format_decimal_places(value, decimal_places):
-    """Format the number to the specified number of decimal places."""
+    """
+    Format the number to the specified number of decimal places.
+    
+    Args:
+        value (float): Number to format.
+        decimal_places (int): Number of decimal places to show.
+
+    Returns:
+        str: The formatted number as a string.
+    """
     formatted = f"{value:.{decimal_places}f}"
     return formatted
 
 def format_sci(value, exp, decimal_places):
+    """
+    Format the number to scientific notation.
+
+    Args:
+        value (float): Number to format.
+        exp (int): Exponent for scientific notation.
+        decimal_places (int): Number of decimal places to show.
+
+    Returns:
+        str: The formatted number as a string.
+    """
     v = value / 10**exp
     formatted = f"{v:.{decimal_places-1}f}"
     return formatted
 
 def format_mean_std(mean, std, sig_digs=4, latex=False):
-    """Format mean and standard deviation to the same precision, using scientific notation if needed."""
+    """
+    Format mean and standard deviation to the same precision,
+    using scientific notation if needed.
+
+    Args:
+        mean (float): The mean.
+        std (float): The standard deviation.
+        sig_digs (int): The number of significant figures. TODO: Should be sig_figs?
+        latex (bool): Optional boolean to use LaTeX formatting or not.
+
+    Returns:
+        str: Formatted mean and standard deviation as a string.
+    """
     sci_low_threshold = 0.001
     sci_high_threshold = 1000
     pm = r"\pm" if latex else "+/-"

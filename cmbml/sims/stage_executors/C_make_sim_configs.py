@@ -19,6 +19,29 @@ logger = logging.getLogger(__name__)
 
 
 class ConfigExecutor(BaseStageExecutor):
+    """
+    ConfigExecutor is responsible for generating the configuration files for the simulation.
+
+    Attributes:
+        out_split_config (Asset): The output asset for the split configuration.
+        out_wmap_config (AssetWithPathAlts): The output asset for the WMAP configuration.
+        wmap_param_labels (List[str]): The labels for the WMAP parameters.
+        wmap_chain_length (int): The length of the WMAP chains.
+        wmap_chains_dir (Path): The directory containing the WMAP chains.
+        seed (int): The seed for the WMAP indices.
+
+    Methods:
+        execute() -> None:
+            Executes the configuration generation process.
+        process_split(split: Split, these_idces) -> None:
+            Processes the given split with the given WMAP indices.
+        n_ps_for_split(split: Split) -> int:
+            Determines the number of power spectra for the given split.
+        make_chain_idcs_for_each_split(seed: int) -> Dict[str, List[int]]:
+            Generates the WMAP chain indices for each split.
+        make_cosmo_param_configs(chain_idcs, split) -> None:
+            Generates the cosmological parameter configurations for the given chain indices
+    """
     def __init__(self, cfg: DictConfig) -> None:
         # The following stage_str must match the pipeline yaml
         super().__init__(cfg, stage_str="make_sim_configs")
@@ -35,6 +58,9 @@ class ConfigExecutor(BaseStageExecutor):
         self.seed = cfg.model.sim.cmb.wmap_indcs_seed
 
     def execute(self) -> None:
+        """
+        Executes the configuration generation process for all splits and sims.
+        """
         logger.debug(f"Running {self.__class__.__name__} execute() method.")
         all_idices = self.make_chain_idcs_for_each_split(self.seed)
         for split in self.splits:
@@ -42,6 +68,13 @@ class ConfigExecutor(BaseStageExecutor):
                 self.process_split(split, all_idices[split.name])
 
     def process_split(self, split: Split, these_idces) -> None:
+        """
+        Processes the given split with the given WMAP indices.
+
+        Args:
+            split (Split): The split to process.
+            these_idces (List[int]): The rows of the WMAP chain for this split.
+        """
         split_cfg_dict = dict(
             ps_fidu_fixed = split.ps_fidu_fixed,
             n_sims = split.n_sims,
@@ -58,11 +91,17 @@ class ConfigExecutor(BaseStageExecutor):
         return 1 if split.ps_fidu_fixed else split.n_sims
 
     def make_chain_idcs_for_each_split(self, seed:int) -> Dict[str, List[int]]:
-        # We want to generate a set of WMAP parameters for each power spectrum to be generated.
-        # We ALSO want all of the sets to be different.
-        # We first compile a list of indices so that we know they're distinct, then 
-        #    portion them out to the splits.
-        
+        """
+        Compile a list of distinct indices for each split. Structured this way to 
+        produce sets of WMAP parameters which are distinct across all splits.
+
+        Args:
+            seed (int): The seed to use for generation.
+
+        Returns:
+            Dict: A dictionary where the keys are the split names and the values
+            are Lists of the chain indices.
+        """
         # Some splits will have only one power spectrum, others will have one for each simulation.
         #   Count them:
         n_indices_total = 0
@@ -86,6 +125,13 @@ class ConfigExecutor(BaseStageExecutor):
         return chain_idcs_dict
 
     def make_cosmo_param_configs(self, chain_idcs, split):
+        """
+        Make the cosmological parameter configurations for the given chain indices.
+
+        Args:
+            chain_idcs (List[int]): The indices of the WMAP chain to use.
+            split (Split): The split for which to make the configurations.
+        """
         wmap_params = pull_params_from_file(wmap_chain_path=self.wmap_chains_dir,
                                             chain_idcs=chain_idcs,
                                             params_to_get=self.wmap_param_labels,

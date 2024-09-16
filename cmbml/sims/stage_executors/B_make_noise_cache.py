@@ -21,6 +21,24 @@ logger = logging.getLogger(__name__)
 
 
 class NoiseCacheExecutor(BaseStageExecutor):
+    """
+    NoiseCacheExecutor is responsible for generating and caching noise maps for a given simulation scenario.
+
+    Attributes:
+        out_noise_cache (Asset): The output asset for the noise cache.
+        in_noise_src (Asset): The input asset for the noise source maps.
+        instrument (Instrument): The instrument configuration used for the simulation.
+
+    Methods:
+        execute() -> None:
+            Executes the noise cache generation process.
+        write_wrapper(data: Quantity, field_str: str) -> None:
+            Writes the noise map data to the output cache with appropriate column names and units.
+        get_field_idx(src_path: str, field_str: str) -> int:
+            Determines the field index corresponding to the given field string from the FITS file.
+        get_src_path(detector: int) -> str:
+            Retrieves the path for the source noise file based on the configuration.
+    """
     def __init__(self, cfg: DictConfig) -> None:
         # The following stage_str must match the pipeline yaml
         super().__init__(cfg, stage_str='make_noise_cache')
@@ -39,6 +57,9 @@ class NoiseCacheExecutor(BaseStageExecutor):
         self.instrument: Instrument = make_instrument(cfg=cfg, det_info=det_info)
 
     def execute(self) -> None:
+        """
+        Executes the noise cache generation process.
+        """
         logger.debug(f"Running {self.__class__.__name__} execute() method.")
         hdu = self.cfg.model.sim.noise.hdu_n
         nside = self.cfg.scenario.nside
@@ -55,6 +76,13 @@ class NoiseCacheExecutor(BaseStageExecutor):
                     self.write_wrapper(data=st_dev_skymap, field_str=field_str)
 
     def write_wrapper(self, data: Quantity, field_str):
+        """
+        Wraps the write method for the noise cache asset to ensure proper column names and units.
+
+        Parameters:
+        data (Quantity): The standard deviation map to write to the noise cache.
+        field_str (str): The field string (One of T,Q,U).
+        """
         units = data.unit
         data = data.value
         
