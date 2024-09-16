@@ -27,7 +27,6 @@ from cmbml.core.asset_handlers.psmaker_handler import CambPowerSpectrum # Import
 from cmbml.core.asset_handlers.healpy_map_handler import HealpyMap # Import for VS Code hints
 
 from cmbml.utils.map_formats import convert_pysm3_to_hp
-from cmbml.sims.physics_cmb import downgrade_map
 from cmbml.sims.physics_instrument_noise import make_random_noise_map
 
 
