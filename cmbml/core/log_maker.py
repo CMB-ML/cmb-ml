@@ -21,7 +21,7 @@ class LogMaker:
                  cfg: DictConfig) -> None:
 
         self.namer = LogsNamer(cfg, HydraConfig.get())
-        self.source_dir = "src"
+        self.source_dir = "cmbml"
 
     def log_procedure_to_hydra(self, source_script) -> None:
         target_root = self.namer.hydra_scripts_path
