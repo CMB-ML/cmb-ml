@@ -58,7 +58,7 @@ logger = logging.getLogger(__name__)
 
 # config_pyilc_t_HILC_backup
 
-@hydra.main(version_base=None, config_path="cfg", config_name="config_pyilc_t_HILC")
+@hydra.main(version_base=None, config_path="cfg", config_name="config_pyilc_t")
 def run_pyilc_analysis(cfg):
     logger.debug(f"Running {__name__} in {__file__}")
 
@@ -79,11 +79,11 @@ def run_pyilc_analysis(cfg):
 
     # # Not needed in every analysis pipeline, but needed in one
     # pipeline_context.add_pipe(ConvertTheoryPowerSpectrumExecutor)  # Moved to main_convert_theory.py due to working_dir conflict.
-    pipeline_context.add_pipe(MakeTheoryPSStats)
+    # pipeline_context.add_pipe(MakeTheoryPSStats)
     
     # # # PyILC's Predictions as Power Spectra Anaylsis
     # pipeline_context.add_pipe(MaskCreatorExecutor)
-    pipeline_context.add_pipe(PyILCMakePSExecutor)
+    # pipeline_context.add_pipe(PyILCMakePSExecutor)
     # pipeline_context.add_pipe(PowerSpectrumAnalysisExecutorSerial)
     # pipeline_context.add_pipe(PSAnalysisExecutor)
     # pipeline_context.add_pipe(PowerSpectrumSummaryExecutor)
