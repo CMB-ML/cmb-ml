@@ -1,6 +1,8 @@
 import importlib
+import numpy as np
 from skimage.metrics import (
-                             peak_signal_noise_ratio, 
+                             peak_signal_noise_ratio,
+                             mean_squared_error
                             #  structural_similarity
                              )
 
@@ -24,6 +26,10 @@ def get_func(func_str):
 def psnr(true, pred):
     data_range = get_data_range(true, pred)
     return peak_signal_noise_ratio(true, pred, data_range=data_range)
+
+
+def rmse(true, pred):
+    return np.sqrt(mean_squared_error(true, pred))
 
 
 def ssim(true, pred):
