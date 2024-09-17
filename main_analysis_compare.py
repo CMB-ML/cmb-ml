@@ -29,8 +29,8 @@ def run_pyilc_analysis(cfg):
     # pipeline_context.add_pipe(HydraConfigCheckerExecutor)
 
     pipeline_context.add_pipe(PixelCompareTableExecutor)
-    pipeline_context.add_pipe(PSCompareTableExecutor)
-    pipeline_context.add_pipe(PostAnalysisPsCompareFigExecutor)
+    # pipeline_context.add_pipe(PSCompareTableExecutor)
+    # pipeline_context.add_pipe(PostAnalysisPsCompareFigExecutor)
 
     pipeline_context.prerun_pipeline()
 
