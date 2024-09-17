@@ -3,6 +3,7 @@ creation_logs/
 Logs/
 Data/
 outputs/
+multirun/
 
 # Ignore potentially large files
 *.fits
