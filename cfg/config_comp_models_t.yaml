@@ -28,7 +28,14 @@ models_comp:
   - pyilc:
     model_name        : HILC_BT001_BS10
     working_directory : PyILC_HILC_Test_bt0.001_bs10/
-    # No epochs for this model
+    epoch             : ""
+  - pyilc:
+    model_name        : HILC_BT999_BS200
+    working_directory : PyILC_HILC_Test_bt0.999_bs200/
+    epoch             : ""
+  - pyilc:
+    model_name        : HILC_BT999_BS10
+    working_directory : PyILC_HILC_Test_bt0.999_bs10/
     epoch             : ""
 ps_baseline           : theory
 
