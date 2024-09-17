@@ -20,7 +20,10 @@ hydra:
   sweeper:
     params:
       # Note that the parameters which are altered are used above in the working_dir and fig_model_name for clarity!
-      model/pyilc: hilc_bt001_bs200, hilc_bt001_bs10
+      model/pyilc: hilc_bt001_bs200, hilc_bt001_bs10, hilc_bt999_bs200, hilc_bt999_bs10
+      # Haven't quite figured out how to do it more simply as:
+      # model/pyilc.ILC_bias_tol: 0.001, 0.999
+      # model/pyilc.distinct.BinSize: 200, 10
   run:
     dir        : Logs/${now:%Y-%m-%d-%H-%M-%S}
   sweep:
