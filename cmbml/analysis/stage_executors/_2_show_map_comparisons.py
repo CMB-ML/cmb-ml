@@ -213,6 +213,7 @@ class ShowSimsPostExecutor(ShowSimsExecutor):
         stage_str = "show_cmb_post_masked"
         super().__init__(cfg, stage_str)
 
+        self.suptitle = "CMB Predictions"
         self.right_subplot_title = "Predicted"
 
         self.out_cmb_figure: Asset = self.assets_out["cmb_map_render"]
@@ -274,7 +275,7 @@ class ShowSimsPostExecutor(ShowSimsExecutor):
                 axs[3].set_title("Histogram of Difference")
                 for x in [-100, -50, 0, 50, 100]:
                     axs[3].axvline(x=x, color='black', linestyle='--', linewidth=0.5)
-                self.save_figure("CMB Predictions", split, sim_n, field_str, out_asset)
+                self.save_figure(self.suptitle, split, sim_n, field_str, out_asset)
 
 
 class CMBNNCSShowSimsPostExecutor(ShowSimsPostExecutor):
@@ -317,3 +318,4 @@ class CommonNILCShowSimsPostExecutor(CommonRealPostExecutor):
     def __init__(self, cfg: DictConfig) -> None:
         super().__init__(cfg)
         self.right_subplot_title = "NILC Predicted"
+        self.suptitle = cfg.fig_model_name
