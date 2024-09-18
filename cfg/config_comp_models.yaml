@@ -11,7 +11,8 @@ defaults:
 
 # dataset_name: CMML_Dataset
 # When creating multiple datasets, using interpolation like this may be easier:
-dataset_name       : ${scenario.map_fields}_${scenario.nside}_${splits.name}
+# dataset_name       : ${scenario.map_fields}_${scenario.nside}_${splits.name}
+dataset_name       : IQU_${scenario.nside}_${splits.name}
 working_dir          : null
 fig_model_name       : null
 hydra:
@@ -36,25 +37,10 @@ ps_baseline           : theory
 # These are not to be used directly in the python
 # They are picked up from here and MAY be used elsewhere in the yamls.
 # In the scenario yaml
-nside          : 128
+nside          : 512
 map_fields     : "I"
-
-# In the model yaml
-num_epochs       : 2
-
-# In the pipeline yamls
-# For prediction, postprocessing, power spectra generation:
-use_epochs       : [2]
-# For single simulation figures (maps & ps figures):
-use_epochs_imgs  : ${epochs}
-# For summary statistics:
-# use_epochs_map_stats : ["init", 1, 2, 6, 25, 40, 120]
-use_epochs_map_stats : ${epochs}
-# For summary statistics:
-use_epochs_ps_stats : ${epochs}
-# Limit the number of simulations for which to generate figures
-n_show_cap       : 1
 
 # Limit the number of simulations on which to do inference and postprocessing
 # In the splits yaml; null to run on all
+# Should not be needed here; remove the check for this wherever it occurs
 n_test_cap       : null
