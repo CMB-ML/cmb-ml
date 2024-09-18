@@ -66,4 +66,4 @@ bandpass_type: 'DeltaBandpasses'  # No further information
 ################# HILC UNIQUE #############################
 distinct:
   wavelet_type: 'TopHatHarmonic'                   # This "chooses" HILC method
-  BinSize: 200
+  BinSize: 50
