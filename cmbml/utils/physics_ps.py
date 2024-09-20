@@ -104,7 +104,7 @@ class PowerSpectrum(ABC):
         self._is_cl = False
 
     def dl_2_cl(self):
-        self._ps = dl_to_cl(cl=self._ps, ells=self.ells)
+        self._ps = dl_to_cl(dl=self._ps, ells=self.ells)
         self._is_cl = True
 
 
