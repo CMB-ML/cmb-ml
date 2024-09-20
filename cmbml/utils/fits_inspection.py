@@ -162,7 +162,7 @@ def get_fits_information(fits_fn):
                 continue
             maps_info[hdu_n] = dict(hdu.header)
             maps_info[hdu_n]["FIELDS"] = {}
-            print(hdu_n, hdu.data.shape, '\n', hdu.data)
+            # print(hdu_n, hdu.data.shape, '\n', hdu.data)
             for field_n in range(1, n_fields_per_hdu[hdu_n] + 1):
                 field_info = {}
                 # Construct the keys for type and unit
