@@ -94,6 +94,7 @@ Setting up the repository:
   - Alternatively, `poetry env info` will give you this virtual environment's python executable; this can be used with VS Code
 - Configure your local system
   - In the configuration files, enter the directories where you will keep datasets and science assets
+  - In pyilc_redir, edit the `__init__.py` file to point to the directory containing your local installation of pyilc (containing the pyilc `inputs.py` and `wavelets.py`)
   - See [Setting up your environment](.demonstrations/C_setting_up_local.ipynb) for more information
 - Download the science assets
   - These are available from the original sources and a mirror set up for this purpose
