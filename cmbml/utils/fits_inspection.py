@@ -77,7 +77,7 @@ def get_field_unit(fits_fn, hdu, field_idx):
     Args:
         fits_fn (str): The filename of the FITS file.
         hdu (int): The index of the HDU.
-        field_idx (int): THe index of the field.
+        field_idx (int): The index of the field.
 
     Returns:
         str: The unit of the field.
