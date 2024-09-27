@@ -92,6 +92,10 @@ Setting up the repository:
   - `poetry install` will get the libraries required, as listed in pyproject.toml
   - `poetry shell` will make it easier to run scripts from the command line
   - Alternatively, `poetry env info` will give you this virtual environment's python executable; this can be used with VS Code
+- Get [PyILC](https://github.com/jcolinhill/pyilc)
+  - Simply clone the repository
+  - No installation is needed, CMB-ML runs the code as its own
+  - This was run and tested with [the version from April 30, 2024](https://github.com/jcolinhill/pyilc/tree/7ced3ec392a520977b3c672a2a7af62064dcc296)
 - Configure your local system
   - In the configuration files, enter the directories where you will keep datasets and science assets
   - In pyilc_redir, edit the `__init__.py` file to point to the directory containing your local installation of pyilc (containing the pyilc `inputs.py` and `wavelets.py`)
