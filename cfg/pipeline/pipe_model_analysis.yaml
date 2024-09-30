@@ -235,6 +235,21 @@ make_pred_ps:
   epochs: ${use_epochs_ps_stats}
   dir_name: Analysis_K_Power_Spectra
 
+one_ps_fig:
+  assets_out:
+    ps_figure:
+      path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/cmb_ps_figure_{epoch}.png"
+      handler: EmptyHandler
+  assets_in:
+    theory_ps: {stage: convert_theory_ps}
+    auto_real: {stage: make_pred_ps}
+    auto_pred: {stage: make_pred_ps}
+  splits:
+    - test
+  epochs: ${use_epochs_ps_stats}
+  override_n_sims: ${n_show_cap}
+  dir_name: Analysis_11_One_PS_Fig
+
 ps_analysis:
   assets_out:
     report:
