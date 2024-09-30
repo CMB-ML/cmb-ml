@@ -16,6 +16,7 @@ from .stage_executors._5_ps_summary_table import PowerSpectrumSummaryExecutor
 from .stage_executors._6_ps_summary_figs import PowerSpectrumSummaryFigsExecutor
 from .stage_executors._7_post_ps_figs import PostAnalysisPsFigExecutor
 
+from .stage_executors._11_one_ps import ShowOnePSExecutor
 from .stage_executors._13_pixel_compare_table import PixelCompareTableExecutor
 from .stage_executors._14_post_ps_compare_fig import PostAnalysisPsCompareFigExecutor
 from .stage_executors._15_ps_compare_table import PSCompareTableExecutor
