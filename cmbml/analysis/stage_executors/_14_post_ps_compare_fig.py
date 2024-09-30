@@ -212,15 +212,30 @@ class PostAnalysisPsCompareFigExecutor(BaseStageExecutor):
     def bin_data(self, ells, deltas, bin_width):
         # Calculate the bin edges
         bin_edges = np.arange(min(ells), max(ells) + bin_width, bin_width)
+        
         # Digitize the ells data to find out which bin each value belongs to
         bin_indices = np.digitize(ells, bin_edges)
-        # Calculate the mean and standard deviation of deltas values within each bin
+        
+        # Calculate the mean and standard deviation of deltas values within each bin, applying weights
         binned_means = []
         binned_stds = []
+        
         for i in range(1, len(bin_edges)):
             bin_values = deltas[bin_indices == i]
-            binned_means.append(np.mean(bin_values))
-            binned_stds.append(np.std(bin_values))
+            bin_ells = ells[bin_indices == i]
+            
+            # Apply weights: (2 * ell + 1)
+            weights = 2 * bin_ells + 1
+            if len(bin_values) > 0:
+                weighted_mean = np.average(bin_values, weights=weights)
+                weighted_var = np.average((bin_values - weighted_mean)**2, weights=weights)
+                
+                binned_means.append(weighted_mean)
+                binned_stds.append(np.sqrt(weighted_var))
+            else:
+                binned_means.append(np.nan)
+                binned_stds.append(np.nan)
+        
         # Calculate the center of each bin for plotting purposes
         bin_centers = bin_edges[:-1] + np.diff(bin_edges) / 2
         return bin_centers, binned_means, binned_stds
