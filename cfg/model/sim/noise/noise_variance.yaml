@@ -1,3 +1,4 @@
+noise_type: variance
 src_files:
   30: "LFI_SkyMap_030-BPassCorrected_1024_R3.00_full.fits"
   44: "LFI_SkyMap_044-BPassCorrected_1024_R3.00_full.fits"
@@ -9,6 +10,8 @@ src_files:
   545: "HFI_SkyMap_545_2048_R3.01_full.fits"
   857: "HFI_SkyMap_857_2048_R3.01_full.fits"
 seed_string: noise
+do_cache: true
+save_noise: true
 
 hdu_n: 1      # Consistent for these map files
 field_idcs:

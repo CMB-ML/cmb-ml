@@ -11,7 +11,7 @@ from astropy.units import Quantity
 from cmbml.core import BaseStageExecutor, Asset
 from cmbml.utils.planck_instrument import make_instrument, Instrument
 from cmbml.utils.fits_inspection import get_num_fields_in_hdr
-from cmbml.sims.physics_instrument_noise import planck_result_to_sd_map
+from cmbml.sims.physics_instrument import get_noise_class
 
 from cmbml.core.asset_handlers.healpy_map_handler import HealpyMap
 from cmbml.core.asset_handlers.qtable_handler import QTableHandler
@@ -43,14 +43,34 @@ class NoiseCacheExecutor(BaseStageExecutor):
         # The following stage_str must match the pipeline yaml
         super().__init__(cfg, stage_str='make_noise_cache')
 
-        self.out_noise_cache: Asset = self.assets_out['noise_cache']
-        self.in_noise_src: Asset = self.assets_in['noise_src_maps']
-        in_det_table: Asset = self.assets_in['planck_deltabandpass']
+        NoiseClass = get_noise_class(cfg.model.sim.noise.noise_type)
+        # self.do_cache = cfg.model.sim.noise.do_cache
+        # raise NotImplementedError("Implement the above line.")
 
-        # For reference:
-        out_noise_cache_handler: HealpyMap
-        in_noise_src_handler: HealpyMap
-        in_det_table_handler: QTableHandler
+        self.do_cache = NoiseClass.do_cache
+
+        # For most kinds of noise, we need to cache some values which describe
+        # the noise properties. For a few, we do not. `do_cache` indicates this.
+        if self.do_cache is False:
+            self.out_noise_cache: Asset = None
+            self.in_noise_src: Asset = None
+            in_det_table: Asset = None
+        else:
+            self.out_noise_cache: Asset = self.assets_out['noise_cache']
+            self.in_noise_src: Asset = self.assets_in['noise_src_maps']
+            in_det_table: Asset = self.assets_in['planck_deltabandpass']
+            # For reference:
+            out_noise_cache_handler: HealpyMap
+            in_noise_src_handler: HealpyMap
+            in_det_table_handler: QTableHandler
+
+        self.noise_maker = NoiseClass(cfg=cfg, 
+                                      name_tracker=self.name_tracker,
+                                      asset_cache=self.out_noise_cache, 
+                                      asset_src=self.in_noise_src)
+
+        if self.do_cache is False:
+            return
 
         with self.name_tracker.set_context('src_root', cfg.local_system.assets_dir):
             det_info = in_det_table.read()
@@ -60,18 +80,24 @@ class NoiseCacheExecutor(BaseStageExecutor):
         """
         Executes the noise cache generation process.
         """
+        if self.do_cache is False:
+            logger.debug(f"No cache being written, because {self.noise_maker.__class__.__name__}.do_cache is False.")
+            return
         logger.debug(f"Running {self.__class__.__name__} execute() method.")
         hdu = self.cfg.model.sim.noise.hdu_n
-        nside = self.cfg.scenario.nside
         for freq, detector in self.instrument.dets.items():
             src_path = self.get_src_path(freq)
             for field_str in detector.fields:
                 field_idx = self.get_field_idx(src_path, field_str)
-                st_dev_skymap = planck_result_to_sd_map(fits_fn=src_path, 
-                                                        hdu=hdu, 
-                                                        field_idx=field_idx, 
-                                                        nside_out=nside, 
-                                                        cen_freq=detector.cen_freq)
+                st_dev_skymap = self.noise_maker.convert_noise_var_map(fits_fn=src_path,
+                                                                       hdu=hdu,
+                                                                       field_idx=field_idx,
+                                                                       cen_freq=detector.cen_freq)
+                # st_dev_skymap = planck_result_to_sd_map(fits_fn=src_path, 
+                #                                         hdu=hdu, 
+                #                                         field_idx=field_idx, 
+                #                                         nside_out=nside, 
+                #                                         cen_freq=detector.cen_freq)
                 with self.name_tracker.set_contexts(dict(freq=freq, field=field_str)):
                     self.write_wrapper(data=st_dev_skymap, field_str=field_str)
 

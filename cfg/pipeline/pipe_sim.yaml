@@ -65,6 +65,9 @@ make_sims:
     obs_maps:
       handler: HealpyMap
       path_template: "{root}/{dataset}/{stage}/{split}/{sim}/obs_{freq}_map.fits"
+    noise_maps:
+      handler: HealpyMap
+      path_template: "{root}/{dataset}/{stage}/{split}/{sim}/noise_{freq}_map.fits"
   assets_in:
     planck_deltabandpass: {stage: raw}
     noise_cache: {stage: make_noise_cache}

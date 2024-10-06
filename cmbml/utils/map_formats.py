@@ -31,6 +31,7 @@ def convert_pysm3_to_hp(data: List[Quantity]) -> Tuple[List[np.ndarray], List[st
     Returns:
         Tuple: The data in Healpy format.
     """
+    column_units = None
     # Handle Quantity objects first
     if isinstance(data, list):
         if isinstance(data[0], Quantity):

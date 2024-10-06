@@ -32,12 +32,20 @@ class CMBFactory:
         make_cmb(seed: int, cmb_ps_fid_path: str) -> CMBLensed:
             Returns a lensed CMB
     """
-    def __init__(self, nside_sky):
-        self.nside = nside_sky
+    def __init__(self, cfg):
+        self.nside = cfg.scenario.nside
         self.max_nside_pysm_component = None
         self.apply_delens = False
         self.delensing_ells = None
         self.map_dist = None
+        if cfg.model.sim.cmb.cmb_type == "lensed":
+            self.make_cmb = self.make_cmb_lensed
+        elif cfg.model.sim.cmb.cmb_type == "basic":  # Not currently used
+            self.make_cmb = self.make_basic_cmb
+        elif cfg.model.sim.cmb.cmb_type == "empty":
+            self.make_cmb = self.make_empty_cmb
+        else:
+            raise ConfigAttributeError("cmb_type", cfg.model.sim.cmb.cmb_type)
 
     def make_basic_cmb(self, seed, cmb_ps_fid_path) -> CMBMap:
         return BasicCMB(nside=self.nside,
@@ -46,7 +54,15 @@ class CMBFactory:
                         max_nside=self.max_nside_pysm_component,
                         map_dist=self.map_dist)
 
-    def make_cmb(self, seed, cmb_ps_fid_path) -> CMBLensed:
+    def make_empty_cmb(self, seed, cmb_ps_fid_path) -> CMBMap:
+        return EmptyCMB(nside=self.nside,
+                        cmb_spectra=cmb_ps_fid_path,
+                        cmb_seed=seed,
+                        max_nside=self.max_nside_pysm_component,
+                        map_dist=self.map_dist)
+
+
+    def make_cmb_lensed(self, seed, cmb_ps_fid_path) -> CMBLensed:
         return CMBLensed(nside=self.nside,
                          cmb_spectra=cmb_ps_fid_path,
                          cmb_seed=seed,
@@ -54,6 +70,32 @@ class CMBFactory:
                          apply_delens=self.apply_delens,
                          delensing_ells=self.delensing_ells,
                          map_dist=self.map_dist)
+
+
+class EmptyCMB(CMBMap):
+    def __init__(
+        self,
+        nside,
+        cmb_spectra,
+        max_nside=None,
+        cmb_seed=None,
+        map_dist=None
+        ):
+        try:
+            super().__init__(nside=nside, max_nside=max_nside, map_dist=map_dist)
+        except ValueError:
+            pass  # suppress exception about not providing any input map
+        self.cmb_spectra = np.zeros((1,1))
+        self.cmb_seed = cmb_seed
+        self.map = u.Quantity(self.make_cmb(), unit=u.uK_CMB, copy=False)
+
+    def make_cmb(self):
+        """Returns arrays of zeros for debugging.
+
+        :return: function -- "CMB" maps.
+        """
+        cmb = u.Quantity(np.zeros((3, hp.nside2npix(self.nside))), unit=u.uK_CMB, copy=False)
+        return cmb
 
 
 class BasicCMB(CMBMap):

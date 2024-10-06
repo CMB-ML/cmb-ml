@@ -1,4 +1,6 @@
-cmb_type           : lensed
+cmb_type           : empty
+
+# Remainder of parameters are unused. CMB_Empty is for debugging; an empty array of zeros will be generated.
 wmap_params        : ['H0', 'omegach2', 'omegabh2', 'ns002', 'tau']
 camb_params_equiv  : ['H0', 'omch2', 'ombh2', 'ns', 'tau']
 ell_max            : 8150  # Testing shows no change above ~3.5*nside
