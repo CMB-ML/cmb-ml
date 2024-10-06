@@ -60,9 +60,10 @@ class HydraConfigSimsCheckerExecutor(BaseStageExecutor):
         """
         Ensure all detectors' noise files are in the simulation.noise yaml.
         """
-        for freq in self.cfg.scenario.detector_freqs:
-            if freq not in self.cfg.model.sim.noise.src_files:
-                self.issues.append(f"Detector {freq} not in simulation.noise yaml.")
+        if self.cfg.model.sim.noise.do_cache is True:
+            for freq in self.cfg.scenario.detector_freqs:
+                if freq not in self.cfg.model.sim.noise.src_files:
+                    self.issues.append(f"Detector {freq} not in simulation.noise yaml.")
 
     def check_simulation_yaml(self) -> None:
         """
