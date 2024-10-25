@@ -3,7 +3,7 @@ raw:
     planck_deltabandpass:
       handler: QTable
       path_template: "{src_root}/Planck/planck_deltabandpass.tbl"
-    noise_src_maps:
+    noise_src_varmaps:
       handler: HealpyMap
       path_template: "{src_root}/Planck/{filename}"
     # wmap_chains:  # TODO
@@ -13,18 +13,18 @@ raw:
 raw_reference:
   assets_in:
     planck_deltabandpass: {stage: raw}
-    noise_src_maps: {stage: raw}
+    noise_src_varmaps: {stage: raw}
 
 check_hydra_configs:  # No information needed here
 
 make_noise_cache:
   assets_out:
-    noise_cache:
+    scale_cache:
       handler: HealpyMap
       path_template: "{root}/{dataset}/{working}{stage}/{freq}_{field}_noise_sd_map.fits"
   assets_in:
     planck_deltabandpass: {stage: raw}
-    noise_src_maps: {stage: raw}
+    noise_src_varmaps: {stage: raw}
   dir_name: Simulation_B_NoiseCache
 
 make_sim_configs:
@@ -70,7 +70,7 @@ make_sims:
       path_template: "{root}/{dataset}/{stage}/{split}/{sim}/noise_{freq}_map.fits"
   assets_in:
     planck_deltabandpass: {stage: raw}
-    noise_cache: {stage: make_noise_cache}
+    scale_cache: {stage: make_noise_cache}
     cmb_ps: {stage: make_theory_ps}
   splits: *all_splits
   dir_name: Simulation
