@@ -75,7 +75,7 @@ class SimCreatorExecutor(BaseStageExecutor):
         out_cmb_map_handler: HealpyMap
         out_obs_maps_handler: HealpyMap
 
-        self.in_noise_cache: Asset = self.assets_in['noise_cache']
+        self.in_noise_cache: Asset = self.assets_in['scale_cache']
         self.in_cmb_ps: AssetWithPathAlts = self.assets_in['cmb_ps']
         in_det_table: Asset = self.assets_in['planck_deltabandpass']
         in_noise_cache_handler: Union[HealpyMap, NumpyPowerSpectrum]

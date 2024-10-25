@@ -10,15 +10,15 @@ defaults:
   - override hydra/job_logging: custom_log
   - _self_
 
-dataset_name: "cmbnoise_${scenario.nside}/${scenario.map_fields}_${splits.name}_noise_${model.sim.noise.noise_type}_cmb_${model.sim.cmb.cmb_type}"
+dataset_name: "noise_check/${scenario.map_fields}_${scenario.nside}_${splits.name}"
 # dataset_name: "cmbnoise_${scenario.nside}/${scenario.map_fields}_${scenario.nside}_${splits.name}_noise_${model.sim.noise.noise_type}_cmb_${model.sim.cmb.cmb_type}"
 working_dir : "Simulation_Working/"
 hydra:
-  mode: MULTIRUN
-  sweeper:
-    params:
-      model/sim/cmb: cmb_empty, wmap9_mnu
-      model/sim/noise: noise_empty, noise_variance
+  # mode: MULTIRUN
+  # sweeper:
+  #   params:
+  #     model/sim/cmb: cmb_empty, wmap9_mnu
+  #     model/sim/noise: noise_empty, noise_variance
   run:
     dir: Logs/${now:%Y-%m-%d-%H-%M-%S}
   verbose: false
