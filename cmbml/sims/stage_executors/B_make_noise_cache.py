@@ -63,8 +63,7 @@ class NoiseCacheExecutor(BaseStageExecutor):
 
         self.noise_maker = NoiseClass(cfg=cfg, 
                                       name_tracker=self.name_tracker,
-                                      asset_cache=self.out_scale_cache, 
-                                      asset_src=self.in_varmap_src)
+                                      scale_cache=self.out_scale_cache)
 
         if self.do_cache is False:
             return
@@ -91,17 +90,3 @@ class NoiseCacheExecutor(BaseStageExecutor):
         hdu = self.cfg.model.sim.noise.hdu_n
         for freq, detector in self.instrument.dets.items():
             cache_maker.make_cache_for_freq(freq, detector, hdu)
-            # src_path = self.get_src_path(freq)
-            # for field_str in detector.fields:
-            #     field_idx = self.get_field_idx(src_path, field_str)
-            #     st_dev_skymap = self.noise_maker.convert_noise_var_map(fits_fn=src_path,
-            #                                                            hdu=hdu,
-            #                                                            field_idx=field_idx,
-            #                                                            cen_freq=detector.cen_freq)
-            #     # st_dev_skymap = planck_result_to_sd_map(fits_fn=src_path, 
-            #     #                                         hdu=hdu, 
-            #     #                                         field_idx=field_idx, 
-            #     #                                         nside_out=nside, 
-            #     #                                         cen_freq=detector.cen_freq)
-            #     with self.name_tracker.set_contexts(dict(freq=freq, field=field_str)):
-            #         self.write_wrapper(data=st_dev_skymap, field_str=field_str)

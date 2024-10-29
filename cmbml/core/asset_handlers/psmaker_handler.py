@@ -54,5 +54,15 @@ class NumpyPowerSpectrum(GenericHandler):
         np.save(path, arr=data)
 
 
+class TextPowerSpectrum(GenericHandler):
+    def read(self, path: Path) -> None:
+        return np.loadtxt(path)
+
+    def write(self, path: Path, data: np.ndarray) -> None:
+        make_directories(path)
+        np.savetxt(path, arr=data)
+
+
 register_handler("CambPowerSpectrum", CambPowerSpectrum)
 register_handler("NumpyPowerSpectrum", NumpyPowerSpectrum)
+register_handler("TextPowerSpectrum", TextPowerSpectrum)
