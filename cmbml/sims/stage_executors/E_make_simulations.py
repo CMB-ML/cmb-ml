@@ -146,7 +146,7 @@ class SimCreatorExecutor(BaseStageExecutor):
             split (Split): The split to process.
         """
         with tqdm(
-            total=split.num_sims(),
+            total=split.n_sims,
             desc=f"{split.name}: ",
             leave=False
             ) as pbar:
