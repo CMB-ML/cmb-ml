@@ -2,7 +2,8 @@ raw:
   assets_out:
     planck_deltabandpass:
       handler: QTable
-      path_template: "{src_root}/Planck/planck_deltabandpass.tbl"
+      # path_template: "{src_root}/Planck/planck_deltabandpass.tbl"
+      path_template: "{src_root}/CMB-mL/cmb-ml_deltabandpass.tbl"
     noise_src_varmaps:
       handler: HealpyMap
       path_template: "{src_root}/Planck/{filename}"

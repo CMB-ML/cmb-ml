@@ -7,10 +7,10 @@ from omegaconf import DictConfig
 
 import numpy as np
 from astropy.units import Quantity
-import camb
 import pysm3
 import pysm3.units as u
 from pysm3 import CMBLensed
+from tqdm import tqdm
 
 from cmbml.sims.cmb_factory import CMBFactory
 # from cmbml.sims.random_seed_manager import FieldLevelSeedFactory
@@ -108,8 +108,8 @@ class SimCreatorExecutor(BaseStageExecutor):
         self.nside_out = cfg.scenario.nside
         logger.info(f"Simulations will be output at nside_out = {self.nside_out}")
 
-        self.lmax_beam = int(cfg.model.sim.pysm_beam_lmax_ratio * self.nside_out)
-        logger.info(f"Simulation beam convolution will occur with lmax = {self.lmax_beam}")
+        # self.lmax_beam = int(cfg.model.sim.pysm_beam_lmax_ratio * self.nside_out)
+        # logger.info(f"Simulation beam convolution will occur with lmax = {self.lmax_beam}")
 
         self.units = cfg.scenario.units
         logger.info(f"Simulations will have units of {self.units}")
@@ -145,9 +145,16 @@ class SimCreatorExecutor(BaseStageExecutor):
         Args:
             split (Split): The split to process.
         """
-        for sim in split.iter_sims():
-            with self.name_tracker.set_context("sim_num", sim):
-                self.process_sim(split, sim_num=sim)
+        with tqdm(
+            total=split.num_sims(),
+            desc=f"{split.name}: ",
+            leave=False
+            ) as pbar:
+            for sim in split.iter_sims():
+                pbar.set_description(f"{split.name}: {sim:04d}")
+                with self.name_tracker.set_context("sim_num", sim):
+                    self.process_sim(split, sim_num=sim)
+                pbar.update(1)
 
     def process_sim(self, split: Split, sim_num: int) -> None:
         """
@@ -175,7 +182,9 @@ class SimCreatorExecutor(BaseStageExecutor):
                 # Use pysm3.apply_smoothing... to convolve the map with the planck detector beam
                 map_smoothed = pysm3.apply_smoothing_and_coord_transform(skymap,
                                                                          detector.fwhm,
-                                                                         lmax=self.lmax_beam,
+                                                                         # let PySM3 decide the lmax. This is appropriate 
+                                                                         #    as long as the Nside_sky >= 2*Nside_out 
+                                                                         #  lmax=self.lmax_beam,
                                                                          output_nside=self.nside_out)
                 noise_seed = self.noise_seed_factory.get_seed(split.name, sim_num, freq)
                 noise_map = self.noise_maker.get_noise_map(freq, noise_seed)
@@ -214,7 +223,9 @@ class SimCreatorExecutor(BaseStageExecutor):
 
         scaled_map = pysm3.apply_smoothing_and_coord_transform(cmb_realization,
                                                                fwhm=min_fwhm,
-                                                               lmax=self.lmax_beam,
+                                                               # let PySM3 decide the lmax. This is appropriate
+                                                               #    as long as the Nside_sky >= 2*Nside_out
+                                                               #  lmax=self.lmax_beam,
                                                                output_nside=self.nside_out)
         self.out_cmb_map.write(data=scaled_map)
 
