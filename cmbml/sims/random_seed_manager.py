@@ -156,7 +156,7 @@ class SimLevelSeedFactory(SeedMaker):
         return self._get_seed(split_str, sim_str, self.component)
 
 
-class FieldLevelSeedFactory(SeedMaker):
+class FreqLevelSeedFactory(SeedMaker):
     """
     Some components of the sky model need seeds for each field.
     This class generates seeds for these components.
@@ -177,7 +177,7 @@ class FieldLevelSeedFactory(SeedMaker):
                  split: str, 
                  sim: int, 
                  freq: int, 
-                 field_str: str):
+                 ):
         """
         Generate and retrieve the seed of the
         specified field.
@@ -194,4 +194,45 @@ class FieldLevelSeedFactory(SeedMaker):
         split_str = split
         sim_str = self.sim_num_str(sim)
         freq_str = str(freq)
-        return self._get_seed(split_str, sim_str, freq_str, field_str, self.component)
+        return self._get_seed(split_str, sim_str, freq_str, self.component)
+
+
+# class FieldLevelSeedFactory(SeedMaker):
+#     """
+#     Some components of the sky model need seeds for each field.
+#     This class generates seeds for these components.
+
+#     Attributes:
+#         cfg (DictConfig): The Hydra config to use.
+#         sky_component (str): The sky component to use.
+
+#     Methods:
+#         get_seed(split, sim): Generate and retrieve a seed.
+#     """
+#     def __init__(self, 
+#                  cfg: DictConfig, 
+#                  sky_component: str) -> None:
+#         super().__init__(cfg, sky_component)
+
+#     def get_seed(self, 
+#                  split: str, 
+#                  sim: int, 
+#                  freq: int, 
+#                  field_str: str):
+#         """
+#         Generate and retrieve the seed of the
+#         specified field.
+
+#         Args:
+#             split (Split): The specified split.
+#             sim (int): The specified simulation.
+#             freq (int): The specified frequency.
+#             field_str (str): The specified field string.
+
+#         Returns:
+#             int: The generated seed.
+#         """
+#         split_str = split
+#         sim_str = self.sim_num_str(sim)
+#         freq_str = str(freq)
+#         return self._get_seed(split_str, sim_str, freq_str, field_str, self.component)

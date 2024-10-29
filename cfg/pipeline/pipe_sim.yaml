@@ -6,6 +6,9 @@ raw:
     noise_src_varmaps:
       handler: HealpyMap
       path_template: "{src_root}/Planck/{filename}"
+    noise_src_cls:
+      handler: TextPowerSpectrum
+      path_template: "{src_root}/CMB-ML/{filename}"
     # wmap_chains:  # TODO
     #   handler: WMAPChains
     #   path_template: "{src_root}/{fn}"
@@ -14,6 +17,7 @@ raw_reference:
   assets_in:
     planck_deltabandpass: {stage: raw}
     noise_src_varmaps: {stage: raw}
+    noise_src_cls: {stage: raw}
 
 check_hydra_configs:  # No information needed here
 
@@ -21,10 +25,11 @@ make_noise_cache:
   assets_out:
     scale_cache:
       handler: HealpyMap
-      path_template: "{root}/{dataset}/{working}{stage}/{freq}_{field}_noise_sd_map.fits"
+      path_template: "{root}/{dataset}/{working}{stage}/{freq}_noise_sd_map.fits"
   assets_in:
     planck_deltabandpass: {stage: raw}
     noise_src_varmaps: {stage: raw}
+    noise_src_cls: {stage: raw}  # Needed for spatially correlated noise
   dir_name: Simulation_B_NoiseCache
 
 make_sim_configs:

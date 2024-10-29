@@ -1,4 +1,4 @@
 noise_type: empty
 seed_string: noise
 do_cache: false
-save_noise: true
+save_noise: false

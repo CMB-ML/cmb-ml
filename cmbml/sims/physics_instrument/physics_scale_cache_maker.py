@@ -86,7 +86,7 @@ class ScaleCacheMaker:
         Creates a standard deviation map from Planck's observation maps, which
         include covariance maps for the stokes parameters.
 
-        We use onle the variance maps, which are II, QQ, and UU.
+        We use only the variance maps, which are II, QQ, and UU.
         """
         logger.debug(f"physics_instrument_noise_variance.planck_result_to_sd_map start")
         # try:
@@ -116,7 +116,7 @@ class ScaleCacheMaker:
         logger.debug(f'Wrote NoiseCache map to path: {self.out_scale_cache.path}')
 
 
-def make_random_noise_map(sd_map, random_seed, center_frequency):
+def make_random_noise_map(sd_map, random_seed):
     """
     Make a random noise map. 
 

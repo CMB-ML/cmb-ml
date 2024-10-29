@@ -33,7 +33,7 @@ class CMBFactory:
             Returns a lensed CMB
     """
     def __init__(self, cfg):
-        self.nside = cfg.scenario.nside
+        self.nside = cfg.model.sim.nside_sky
         self.max_nside_pysm_component = None
         self.apply_delens = False
         self.delensing_ells = None

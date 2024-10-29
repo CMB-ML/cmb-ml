@@ -1,4 +1,4 @@
-noise_type: variance
+noise_type: spatial_corr
 src_files:
   30: "LFI_SkyMap_030-BPassCorrected_1024_R3.00_full.fits"
   44: "LFI_SkyMap_044-BPassCorrected_1024_R3.00_full.fits"
@@ -9,9 +9,21 @@ src_files:
   353: "HFI_SkyMap_353-psb_2048_R3.01_full.fits"
   545: "HFI_SkyMap_545_2048_R3.01_full.fits"
   857: "HFI_SkyMap_857_2048_R3.01_full.fits"
+src_ps:
+  30:  "LFI_SkyMap_030-BPassCorrected_1024_R3.00_full.fits"
+  44:  "LFI_SkyMap_044-BPassCorrected_1024_R3.00_full.fits"
+  70:  "LFI_SkyMap_070-BPassCorrected_1024_R3.00_full.fits"
+  100: "mean_cl_nside512_det100.txt"
+  143: "HFI_SkyMap_143_2048_R3.01_full.fits"
+  217: "HFI_SkyMap_217_2048_R3.01_full.fits"
+  353: "HFI_SkyMap_353-psb_2048_R3.01_full.fits"
+  545: "HFI_SkyMap_545_2048_R3.01_full.fits"
+  857: "HFI_SkyMap_857_2048_R3.01_full.fits"
 seed_string: noise
 do_cache: true
 save_noise: true
+boxcar_length: 2
+smooth_initial: 2
 
 hdu_n: 1      # Consistent for these map files
 field_idcs:
