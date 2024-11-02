@@ -70,10 +70,16 @@ class PipelineContext:
         """
         logger.info(f"Running stage: {stage.__name__}")
         executor: BaseStageExecutor = stage(self.cfg)
+        had_exception = False
         try:
             executor.execute()
+        except Exception as e:
+            had_exception = True
+            logger.exception(f"An exception occurred during stage: {stage.__name__}", exc_info=e)
+            raise e
         finally:
-            logger.info(f"Done running stage: {stage.__name__}")
+            if not had_exception:
+                logger.info(f"Done running stage: {stage.__name__}")
             if executor.make_stage_logs:
                 stage_str = executor.stage_str
                 top_level_working = executor.top_level_working
