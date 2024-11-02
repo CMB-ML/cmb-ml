@@ -64,13 +64,18 @@ def run_simulations(cfg):
 
     pipeline_context.prerun_pipeline()
 
+    had_exception = False
     try:
         pipeline_context.run_pipeline()
     except Exception as e:
+        had_exception = True
         logger.exception("An exception occurred during the pipeline.", exc_info=e)
         raise e
     finally:
-        logger.info("Pipeline completed.")
+        if had_exception:
+            logger.error("Pipeline failed.")
+        else:
+            logger.info("Pipeline completed.")
         log_maker.copy_hydra_run_to_dataset_log()
 
 if __name__ == "__main__":
