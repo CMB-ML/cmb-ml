@@ -43,7 +43,7 @@ class SimCreatorExecutor(BaseStageExecutor):
 
     Attributes:
         out_cmb_map (Asset): The output asset for the CMB map.
-        out_obs_maps (Asset): The output asset for the observed maps.
+        out_obs_maps (Asset): The output asset for the observation maps.
         in_noise_cache (Asset): The input asset for the noise cache.
         in_cmb_ps (AssetWithPathAlts): The input asset for the CMB power spectra.
         in_det_table (Asset): The input asset for the detector table.
@@ -84,49 +84,43 @@ class SimCreatorExecutor(BaseStageExecutor):
         in_cmb_ps_handler: CambPowerSpectrum
         in_det_table_handler: QTableHandler
 
-        # TODO: Check this. Remove other instances in other Executors.
-        # with self.name_tracker.set_context('src_root', cfg.local_system.assets_dir):
-        det_info = in_det_table.read()
+        # Initialize constants from configs
+        self.nside_sky = self.get_nside_sky()
+        logger.info(f"Simulations will generated at nside_sky = {self.nside_sky}.")
+        self.nside_out = cfg.scenario.nside
+        logger.info(f"Simulations will be output at nside_out = {self.nside_out}")
+        self.output_units = cfg.scenario.units
+        logger.info(f"Output units are {self.output_units}")
+        self.preset_strings = None if cfg.model.sim.preset_strings is None else list(cfg.model.sim.preset_strings)
+        logger.info(f"Preset strings are {self.preset_strings}")
 
         # The instrument object contains both
         #   - information about physical detector parameters
         #   - information about configurations, (such as fields to use)
+        det_info = in_det_table.read()
         self.instrument: Instrument = make_instrument(cfg=cfg, det_info=det_info)
 
-        # seed maker objects
-        self.cmb_seed_factory     = SimLevelSeedFactory(cfg, cfg.model.sim.cmb.seed_string)
-        # self.noise_seed_factory   = FieldLevelSeedFactory(cfg, cfg.model.sim.noise.seed_string)
-        self.noise_seed_factory   = FreqLevelSeedFactory(cfg, cfg.model.sim.noise.seed_string)
-
-        NoiseMaker                = get_noise_class(cfg.model.sim.noise.noise_type)
-        self.noise_maker = NoiseMaker(cfg, self.name_tracker, self.in_noise_cache)
-
-        # Initialize constants from configs
-        self.nside_sky = self.get_nside_sky()
-        logger.info(f"Simulations will generated at nside_sky = {self.nside_sky}.")
-
-        self.nside_out = cfg.scenario.nside
-        logger.info(f"Simulations will be output at nside_out = {self.nside_out}")
-
-        # self.lmax_beam = int(cfg.model.sim.pysm_beam_lmax_ratio * self.nside_out)
-        # logger.info(f"Simulation beam convolution will occur with lmax = {self.lmax_beam}")
-
-        self.units = cfg.scenario.units
-        logger.info(f"Simulations will have units of {self.units}")
-
-        self.preset_strings = None if cfg.model.sim.preset_strings is None else list(cfg.model.sim.preset_strings)
-        logger.info(f"Preset strings are {self.preset_strings}")
-        self.output_units = cfg.scenario.units
+        self.cmb_seed_factory       = SimLevelSeedFactory(cfg, cfg.model.sim.cmb.seed_string)
         self.cmb_factory = CMBFactory(cfg)
 
-        self.save_noise = cfg.model.sim.noise.save_noise
+        self.noise_seed_factory     = FreqLevelSeedFactory(cfg, cfg.model.sim.noise.seed_string)
+        NoiseMaker                  = get_noise_class(cfg.model.sim.noise.noise_type)
+        self.noise_maker            = NoiseMaker(cfg, self.name_tracker, self.in_noise_cache)
 
-        # Placeholder so we don't recreate the sky object over and over
+        # Saving noise is optional here; noise may be generated and added in another method
+        self.save_noise             = cfg.model.sim.noise.save_noise
+
+        # Do not create the Sky object here, it takes too long and will slow down initial checks
         self.sky = None
 
     def execute(self) -> None:
         """
         Creates simulations for all sims within all splits.
+
+        Sets up the Sky object just once
+           - Make placeholder object for CMB (others could be added here)
+           - Preset strings are passed here
+        Thus, components from preset strings are created here, once, for all simulations
         """
         logger.debug(f"Running {self.__class__.__name__} execute() method")
         placeholder = pysm3.Model(nside=self.nside_sky, max_nside=self.nside_sky)
@@ -141,15 +135,12 @@ class SimCreatorExecutor(BaseStageExecutor):
     def process_split(self, split: Split) -> None:
         """
         Processes all sims for a split, making simulations.
+        Hollow boilerplate.
 
         Args:
             split (Split): The split to process.
         """
-        with tqdm(
-            total=split.n_sims,
-            desc=f"{split.name}: ",
-            leave=False
-            ) as pbar:
+        with tqdm(total=split.n_sims, desc=f"{split.name}: ", leave=False) as pbar:
             for sim in split.iter_sims():
                 pbar.set_description(f"{split.name}: {sim:04d}")
                 with self.name_tracker.set_context("sim_num", sim):
@@ -164,46 +155,53 @@ class SimCreatorExecutor(BaseStageExecutor):
             split (Split): The split to process. Needed for some configuration information.
             sim_num (int): The simulation number.
         """
-        sim_name = self.name_tracker.sim_name()
+        sim_name = self.name_tracker.sim_name()  # for logging only
         logger.debug(f"Creating simulation {split.name}:{sim_name}")
+
+        # One CMB seed per simulation - constant for all frequencies
         cmb_seed = self.cmb_seed_factory.get_seed(split, sim_num)
         ps_path = self.in_cmb_ps.path_alt if split.ps_fidu_fixed else self.in_cmb_ps.path
         cmb = self.cmb_factory.make_cmb(cmb_seed, ps_path)
+
+        # Replace placeholder CMB (or previous simulation's CMB) with new CMB
         self.sky.components[0] = cmb
 
+        # Track minimum FWHM; this will be used for the CMB map
         min_fwhm = 0 * u.arcmin
+
         for freq, detector in self.instrument.dets.items():
             skymaps = self.sky.get_emission(detector.cen_freq)
 
-            obs_map = []
-            noise_maps = []
+            n_fields_sky = skymaps.shape[0]
+            n_fields_det = len(detector.fields)
+            if n_fields_sky == n_fields_det:
+                pass
+            elif n_fields_sky == 3 and n_fields_det == 1:
+                # PySM3 components always include T, Q, U; extract the temperature map
+                skymaps = skymaps[0]
+            # else:  # There may be other cases, but none come to mind.
+            #     pass
+
+            # One noise realization per frequency
+            noise_seed = self.noise_seed_factory.get_seed(split.name, sim_num, freq)
+            noise_map = self.noise_maker.get_noise_map(freq, noise_seed)
+
+            # Use pysm3.apply_smoothing... to convolve the map with the planck detector beam
+            map_smoothed = pysm3.apply_smoothing_and_coord_transform(skymaps,
+                                                                     detector.fwhm,
+                                                                     # let PySM3 decide the lmax. This is appropriate 
+                                                                     #    as long as the Nside_sky >= 2*Nside_out 
+                                                                     #  lmax=self.lmax_beam,
+                                                                     output_nside=self.nside_out)
+            final_map = map_smoothed + noise_map
+
             column_names = []
-            for skymap, field_str in zip(skymaps, detector.fields):
-                # Use pysm3.apply_smoothing... to convolve the map with the planck detector beam
-                map_smoothed = pysm3.apply_smoothing_and_coord_transform(skymap,
-                                                                         detector.fwhm,
-                                                                         # let PySM3 decide the lmax. This is appropriate 
-                                                                         #    as long as the Nside_sky >= 2*Nside_out 
-                                                                         #  lmax=self.lmax_beam,
-                                                                         output_nside=self.nside_out)
-                noise_seed = self.noise_seed_factory.get_seed(split.name, sim_num, freq)
-                noise_map = self.noise_maker.get_noise_map(freq, noise_seed)
-                final_map = map_smoothed + noise_map
-                obs_map.append(final_map)
-                noise_maps.append(noise_map)
+            for field_str in detector.fields:
                 column_names.append(field_str + "_STOKES")
-
-                # for comp in self.sky.components:
-                #     # TODO: Have name template in config (?)
-                #     fn = f"component_{comp.__class__.__name__}.fits"
-                #     data_to_write = convert_pysm3_to_hp(comp.map)[0][0]
-                #     logger.debug(f"writing to {fn}")
-                #     hp.write_map(fn, data_to_write, overwrite=True)
-
             with self.name_tracker.set_contexts(dict(freq=freq)):
-                self.out_obs_maps.write(data=obs_map, column_names=column_names)
+                self.out_obs_maps.write(data=final_map, column_names=column_names)
                 if self.save_noise:
-                    self.out_noise_maps.write(data=noise_maps, column_names=column_names)
+                    self.out_noise_maps.write(data=noise_map, column_names=column_names)
             logger.debug(f"For {split.name}:{sim_name}, {freq} GHz: done with channel")
 
         self.save_cmb_map_realization(cmb, min_fwhm)
