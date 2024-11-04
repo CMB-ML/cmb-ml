@@ -10,7 +10,7 @@ defaults:
   - override hydra/job_logging: custom_log
 
 dataset_name   : I_${scenario.nside}_1450
-working_dir    : "PyILC_CNILC_${model.pyilc.ellpeaks_lbl}/"
+working_dir    : "PyILC_CNILC_${model.pyilc.ellpeaks_lbl}_${ilc_at_beam}/"
 fig_model_name : "CNILC"
 hydra:
   mode: MULTIRUN
