@@ -70,12 +70,12 @@ def run_pyilc_analysis(cfg):
 
     pipeline_context.add_pipe(HydraConfigCheckerExecutor)
 
-    # pipeline_context.add_pipe(CommonRealPostExecutor)
-    # pipeline_context.add_pipe(CommonPyILCPredPostExecutor)
-    # pipeline_context.add_pipe(CommonNILCShowSimsPostExecutor)
+    pipeline_context.add_pipe(CommonRealPostExecutor)
+    pipeline_context.add_pipe(CommonPyILCPredPostExecutor)
+    pipeline_context.add_pipe(CommonNILCShowSimsPostExecutor)
 
-    # pipeline_context.add_pipe(PixelAnalysisExecutor)
-    # pipeline_context.add_pipe(PixelSummaryExecutor)
+    pipeline_context.add_pipe(PixelAnalysisExecutor)
+    pipeline_context.add_pipe(PixelSummaryExecutor)
     # pipeline_context.add_pipe(PixelSummaryFigsExecutor)
 
     # # Not needed in every analysis pipeline, but needed in one
@@ -86,7 +86,6 @@ def run_pyilc_analysis(cfg):
     # pipeline_context.add_pipe(MaskCreatorExecutor)
     pipeline_context.add_pipe(PyILCMakePSExecutor)
     pipeline_context.add_pipe(ShowOnePSExecutor)
-
 
     # pipeline_context.add_pipe(PowerSpectrumAnalysisExecutorSerial)
     # pipeline_context.add_pipe(PSAnalysisExecutor)
