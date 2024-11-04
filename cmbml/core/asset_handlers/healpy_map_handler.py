@@ -55,8 +55,22 @@ class HealpyMap(GenericHandler):
               nest: bool = None,
               column_names: List[str] = None,
               column_units: List[str] = None,
+              extra_header: List[str] = [],
               overwrite: bool = True
               ):
+        """
+        Writes a map to a file using healpy.write_map.
+
+        Parameters:
+        path (Union[Path, str]): The path to the file to write.
+        data (Union[List[Union[np.ndarray, Quantity]], np.ndarray]): The map data to write.
+        nest (bool): Whether to write the map in nested format.
+        column_names (List[str]): The names of the columns in the map.
+        column_units (List[str]): The units of the columns in the map.
+        extra_header (List[str]): Extra header information to write.
+                                  Format is [(<key>, <value>, <comment>), ...].
+        overwrite (bool): Whether to overwrite the file if it already exists.
+        """
         # Format data as either a single np.ndarray or lists of np.ndarray without singular dimensions
 
         # Handle Quantity objects first
@@ -88,6 +102,9 @@ class HealpyMap(GenericHandler):
         if column_units:
             column_units = [str(unit) for unit in column_units]
 
+        if extra_header is None:
+            extra_header = []
+
         path = Path(path)
         make_directories(path)
         hp.write_map(filename=path, 
@@ -95,7 +112,8 @@ class HealpyMap(GenericHandler):
                      nest=nest,
                      column_names=column_names,
                      column_units=column_units,
-                     dtype=data[0].dtype, 
+                     extra_header=extra_header,
+                     dtype=data[0].dtype,
                      overwrite=overwrite)
 
 
