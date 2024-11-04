@@ -19,10 +19,7 @@ class EmptyNoise:
     # It is used in the NoiseCacheExecutor and SimCreatorExecutor classes.
     # This class is glue code. The functions afterwards are relevant to Physics.
     def __init__(self, cfg, *args, **kwargs):
-        self.nside_out = cfg.scenario.nside
-        # self.name_tracker = name_tracker
-        # self.asset_noise_cache = asset_cache
-        # self.asset_noise_src = asset_src
+        pass
 
     def get_noise_map(self, *args, **kwargs):
         """
@@ -35,6 +32,5 @@ class EmptyNoise:
             noise_seed (int): The seed for the noise map.
             center_frequency (float): The center frequency of the detector.
         """
-        noise_map = np.zeros(hp.nside2npix(self.nside_out))
-        noise_map = u.Quantity(noise_map, u.K_CMB, copy=False)
+        noise_map = u.Quantity(np.array([0]), u.K_CMB, copy=False)
         return noise_map
