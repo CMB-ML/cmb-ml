@@ -72,46 +72,34 @@ class ScaleCacheMaker:
         None
         """
         src_path = self.get_src_path(freq)
-        for field_str in detector.fields:
-            field_idx = self.get_field_idx(src_path, field_str)
-            st_dev_skymap = self.convert_noise_var_map(fits_fn=src_path,
-                                                       hdu=hdu,
-                                                       field_idx=field_idx,
-                                                       cen_freq=detector.cen_freq)
-            with self.name_tracker.set_contexts(dict(freq=freq, field=field_str)):
-                self.write_wrapper(data=st_dev_skymap, field_str=field_str)
 
-    def convert_noise_var_map(self, fits_fn, hdu, field_idx, cen_freq):
-        """
-        Creates a standard deviation map from Planck's observation maps, which
-        include covariance maps for the stokes parameters.
+        field_idcs = [self.get_field_idx(src_path, field_str) for field_str in detector.fields]
+        st_dev_skymap = planck_result_to_sd_map(nside_out=self.nside_out,
+                                                fits_fn=src_path,
+                                                hdu=hdu,
+                                                field_idx=field_idcs,
+                                                cen_freq=detector.cen_freq)
 
-        We use only the variance maps, which are II, QQ, and UU.
-        """
-        logger.debug(f"physics_instrument_noise_variance.planck_result_to_sd_map start")
-        # try:
-        res = planck_result_to_sd_map(self.nside_out, fits_fn, hdu, field_idx, cen_freq)
-        # except <EXCEPTION_TYPE_HERE> as e:  # Exception expected when noise_src is None
-        # <do stuff here>
-        return res
+        with self.name_tracker.set_contexts(dict(freq=freq)):
+            self.write_wrapper(data=st_dev_skymap, fields=detector.fields)
 
-    def write_wrapper(self, data: Quantity, field_str):
+    def write_wrapper(self, data: Quantity, fields: str):
         """
         Wraps the write method for the noise cache asset to ensure proper column names and units.
 
         Parameters:
         data (Quantity): The standard deviation map to write to the noise cache.
-        field_str (str): The field string (One of T,Q,U).
+        field_str (str): The field string (either T or TQU).
         """
-        units = data.unit
-        data = data.value
-        
+        col_names = [field_ch + "_STOKES" for field_ch in fields]
+        units = [data.unit for _ in fields]
+
         # We want to give some indication that for I field, this is from the II covariance (or QQ, UU)
-        col_name = field_str + field_str
         logger.debug(f'Writing NoiseCache map to path: {self.out_scale_cache.path}')
-        self.out_scale_cache.write(data=data,
-                                   column_names=[col_name],
-                                   column_units=[units])
+        self.out_scale_cache.write(data=data.value,
+                                   column_names=col_names,
+                                   column_units=units,
+                                   extra_header=[("METHOD", "FROM_VAR", "Sqrt Planck obs, fields II_, QQ_, UU_COV")])
         # TODO: Test load this file; see if column names and units match expectation.
         logger.debug(f'Wrote NoiseCache map to path: {self.out_scale_cache.path}')
 
@@ -134,12 +122,12 @@ def make_random_noise_map(sd_map, random_seed):
 
 def planck_result_to_sd_map(nside_out, fits_fn, hdu, field_idx, cen_freq):
     """
-    Convert a Planck variance map to a standard deviation map.
+    Convert a Planck variance map to a standard deviation map, with units of K_CMB.
 
     In the observation maps provided by Planck, fields 0,1,2 are stokes 
     parameters for T, Q, and U (resp). The HITMAP is field 3. The remainder
     are variance maps: II, IQ, IU, QQ, QU, UU. We use variance maps to generate
-    noise maps, albeit with the huge simplification of ignoring covariance 
+    noise maps, albeit with the simplification of ignoring covariance 
     between the stokes parameters.
 
     Args:
@@ -155,14 +143,11 @@ def planck_result_to_sd_map(nside_out, fits_fn, hdu, field_idx, cen_freq):
 
     m = change_variance_map_resolution(source_skymap, nside_out)
     m = np.sqrt(m)
-    
-    src_unit = fits_inspect.get_field_unit(fits_fn, hdu, field_idx)
+
+    # Assume the same units for all fields
+    src_unit = fits_inspect.get_field_unit(fits_fn, hdu, field_idx[0])
     sqrt_unit = get_sqrt_unit(src_unit)
 
-    # Convert MJy/sr to K_CMB (I think, TODO: Verify)
-    # This is an oversimplification applied to the 545 and 857 GHz bands
-    # something about "very sensitive to band shape" for sub-mm bands (forgotten source)
-    # This may be a suitable first-order approximation
     if sqrt_unit == "MJy/sr":
         m = (m * u.MJy / u.sr).to(
             u.K, equivalencies=u.thermodynamic_temperature(cen_freq, Planck15.Tcmb0)
