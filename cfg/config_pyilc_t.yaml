@@ -4,18 +4,24 @@ defaults:
   - file_system               : common_fs
   - pipeline                  : assembly_pyilc
   - scenario                  : scenario_t
-  - splits                    : all
+  - splits                    : "1-3"
   - model/pyilc               : cnilc_512_t
   - model/analysis            : basic_analysis
   - override hydra/job_logging: custom_log
 
-dataset_name   : IQU_${scenario.nside}_${splits.name}
-working_dir    : "PyILC_CNILC"
+dataset_name   : I_${scenario.nside}_1450
+working_dir    : "PyILC_CNILC_${model.pyilc.ellpeaks_lbl}/"
 fig_model_name : "CNILC"
 hydra:
+  mode: MULTIRUN
+  sweeper:
+    params:
+      model/pyilc: cnilc_512_ellpeaks_high, cnilc_512_ellpeaks_low
+      ilc_at_beam: 5, 20.6
   run:
     dir        : Logs/${now:%Y-%m-%d-%H-%M-%S}
   verbose      : true
+ilc_at_beam    : 5  # Overwritten by the sweeper
 
 # Settings below this point are used for interpolation.
 # These are not to be used directly in python.
@@ -34,7 +40,7 @@ use_epochs_imgs      : *epochs
 use_epochs_map_stats : *epochs
 use_epochs_ps_stats  : *epochs
 # Limit the number of simulations for which to generate figures
-n_show_cap           : 1   # int: first n_sims; null: all sims; list: particular sims by index
+n_show_cap           : null   # int: first n_sims; null: all sims; list: particular sims by index
 
 # In the splits yaml; null to run on all
 n_test_cap           : null
