@@ -94,9 +94,9 @@ def _ensure_all_params_used(set_cosmo_args, init_power_args, cosmo_params) -> No
             logger.warning(f"Parameter {in_param} not found in {out_params}.")
 
 
-def _log_camb_args(set_cosmo_args, init_power_args) -> None:
-    logger.debug(f"CAMB cosmology args: {set_cosmo_args}")
-    logger.debug(f"CAMB init_power args: {init_power_args}")
+# def _log_camb_args(set_cosmo_args, init_power_args) -> None:
+#     logger.debug(f"CAMB cosmology args: {set_cosmo_args}")
+#     logger.debug(f"CAMB init_power args: {init_power_args}")
 
 
 # def alm_downgrade(map_in, nside_out, lmax_in, lmax_out):
