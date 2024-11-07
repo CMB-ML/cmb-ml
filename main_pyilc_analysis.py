@@ -74,7 +74,7 @@ def run_pyilc_analysis(cfg):
     pipeline_context.add_pipe(CommonPyILCPredPostExecutor)
     pipeline_context.add_pipe(CommonNILCShowSimsPostExecutor)
 
-    # pipeline_context.add_pipe(PixelAnalysisExecutor)
+    pipeline_context.add_pipe(PixelAnalysisExecutor)
     # pipeline_context.add_pipe(PixelSummaryExecutor)
     # pipeline_context.add_pipe(PixelSummaryFigsExecutor)
 
