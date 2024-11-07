@@ -10,7 +10,7 @@ defaults:
   - override hydra/job_logging: custom_log
   - _self_
 
-dataset_name: "IQU_${scenario.nside}_${splits.name}_VARIANCE_NOISE"
+dataset_name: "IQU_${scenario.nside}_${splits.name}_Separate_Noise"
 # dataset_name: "cmbnoise_${scenario.nside}/${scenario.map_fields}_${scenario.nside}_${splits.name}_noise_${model.sim.noise.noise_type}_cmb_${model.sim.cmb.cmb_type}"
 working_dir : "Simulation_Working/"
 hydra:
