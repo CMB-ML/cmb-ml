@@ -37,7 +37,7 @@ import healpy as hp
 logger = logging.getLogger(__name__)
 
 
-class SimCreatorExecutor(BaseStageExecutor):
+class ObsCreatorExecutor(BaseStageExecutor):
     """
     SimCreatorExecutor is responsible for generating the simulated maps for a given simulation scenario.
 
@@ -69,15 +69,15 @@ class SimCreatorExecutor(BaseStageExecutor):
     """
     def __init__(self, cfg: DictConfig) -> None:
         # The following stage_str must match the pipeline yaml
-        super().__init__(cfg, stage_str='make_sims')
+        super().__init__(cfg, stage_str='make_obs_no_noise')
 
         self.out_cmb_map: Asset = self.assets_out['cmb_map']
-        self.out_obs_maps: Asset = self.assets_out['obs_maps']
-        self.out_noise_maps: Asset = self.assets_out['noise_maps']
+        self.out_sky_maps: Asset = self.assets_out['sky_no_noise_maps']
+        # self.out_noise_maps: Asset = self.assets_out['noise_maps']
         out_cmb_map_handler: HealpyMap
         out_obs_maps_handler: HealpyMap
 
-        self.in_noise_cache: Asset = self.assets_in['scale_cache']
+        # self.in_noise_cache: Asset = self.assets_in['scale_cache']
         self.in_cmb_ps: AssetWithPathAlts = self.assets_in['cmb_ps']
         in_det_table: Asset = self.assets_in['planck_deltabandpass']
         in_noise_cache_handler: Union[HealpyMap, NumpyPowerSpectrum]
@@ -103,12 +103,12 @@ class SimCreatorExecutor(BaseStageExecutor):
         self.cmb_seed_factory       = SimLevelSeedFactory(cfg, cfg.model.sim.cmb.seed_string)
         self.cmb_factory = CMBFactory(cfg)
 
-        self.noise_seed_factory     = FreqLevelSeedFactory(cfg, cfg.model.sim.noise.seed_string)
-        NoiseMaker                  = get_noise_class(cfg.model.sim.noise.noise_type)
-        self.noise_maker            = NoiseMaker(cfg, self.name_tracker, self.in_noise_cache)
+        # self.noise_seed_factory     = FreqLevelSeedFactory(cfg, cfg.model.sim.noise.seed_string)
+        # NoiseMaker                  = get_noise_class(cfg.model.sim.noise.noise_type)
+        # self.noise_maker            = NoiseMaker(cfg, self.name_tracker, self.in_noise_cache)
 
         # Saving noise is optional here; noise may be generated and added in another method
-        self.save_noise             = cfg.model.sim.noise.save_noise
+        # self.save_noise             = cfg.model.sim.noise.save_noise
 
         # Do not create the Sky object here, it takes too long and will slow down initial checks
         self.sky = None
@@ -183,8 +183,8 @@ class SimCreatorExecutor(BaseStageExecutor):
             #     pass
 
             # One noise realization per frequency
-            noise_seed = self.noise_seed_factory.get_seed(split.name, sim_num, freq)
-            noise_map = self.noise_maker.get_noise_map(freq, noise_seed)
+            # noise_seed = self.noise_seed_factory.get_seed(split.name, sim_num, freq)
+            # noise_map = self.noise_maker.get_noise_map(freq, noise_seed)
 
             # Use pysm3.apply_smoothing... to convolve the map with the planck detector beam
             map_smoothed = pysm3.apply_smoothing_and_coord_transform(skymaps,
@@ -193,15 +193,15 @@ class SimCreatorExecutor(BaseStageExecutor):
                                                                      #    as long as the Nside_sky >= 2*Nside_out 
                                                                      #  lmax=self.lmax_beam,
                                                                      output_nside=self.nside_out)
-            final_map = map_smoothed + noise_map
+            final_map = map_smoothed  # + noise_map
 
             column_names = []
             for field_str in detector.fields:
                 column_names.append(field_str + "_STOKES")
             with self.name_tracker.set_contexts(dict(freq=freq)):
-                self.out_obs_maps.write(data=final_map, column_names=column_names)
-                if self.save_noise:
-                    self.out_noise_maps.write(data=noise_map, column_names=column_names)
+                self.out_sky_maps.write(data=final_map, column_names=column_names)
+                # if self.save_noise:
+                #     self.out_noise_maps.write(data=noise_map, column_names=column_names)
             logger.debug(f"For {split.name}:{sim_name}, {freq} GHz: done with channel")
 
         self.save_cmb_map_realization(cmb, min_fwhm)

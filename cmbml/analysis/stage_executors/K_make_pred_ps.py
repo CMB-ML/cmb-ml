@@ -67,7 +67,7 @@ class MakePredPowerSpectrumExecutor(BaseStageExecutor):
         mask = None
         with self.name_tracker.set_context("src_root", self.cfg.local_system.assets_dir):
             logger.info(f"Using mask from {self.in_mask.path}")
-            mask = self.in_mask.read(map_fields=self.in_mask.use_fields)[0]
+            mask = self.in_mask.read(map_field_strs=self.in_mask.use_fields)[0]
         self.mask_2048 = mask
         self.mask_512 = downgrade_mask(mask, self.nside_out, threshold=self.mask_threshold)
         return

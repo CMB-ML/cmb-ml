@@ -4,10 +4,10 @@ import numpy as np
 from astropy.units import Quantity, Unit
 import healpy as hp
 import pysm3.units as u
-from astropy.cosmology import Planck15
 
 import cmbml.utils.fits_inspection as fits_inspect
-from cmbml.utils.fits_inspection import get_num_fields_in_hdr
+from cmbml.utils.fits_inspection import get_num_all_fields_in_hdr
+from cmbml.utils.physics_units import convert_field_str_to_Unit
 
 
 logger = logging.getLogger(__name__)
@@ -55,7 +55,7 @@ class ScaleCacheMaker:
         hdu = self.cfg.model.sim.noise.hdu_n
         field_idcs_dict = dict(self.cfg.model.sim.noise.field_idcs)
         # Get number of fields in map
-        n_map_fields = get_num_fields_in_hdr(fits_fn=src_path, hdu=hdu)
+        n_map_fields = get_num_all_fields_in_hdr(fits_fn=src_path, hdu=hdu)
         # Lookup field index based on config file
         field_idx = field_idcs_dict[n_map_fields][field_str]
         return field_idx
@@ -139,21 +139,16 @@ def planck_result_to_sd_map(nside_out, fits_fn, hdu, field_idx, cen_freq):
     Returns:
         np.ndarray: The standard deviation map.
     """
+    src_unit = fits_inspect.get_field_unit_str(fits_fn, field_idx[0], hdu=hdu)
+    src_unit = convert_field_str_to_Unit(src_unit)
+
     source_skymap = hp.read_map(fits_fn, hdu=hdu, field=field_idx)
 
     m = change_variance_map_resolution(source_skymap, nside_out)
-    m = np.sqrt(m)
+    m = np.sqrt(m) * (src_unit ** 0.5)
 
-    # Assume the same units for all fields
-    src_unit = fits_inspect.get_field_unit(fits_fn, hdu, field_idx[0])
-    sqrt_unit = get_sqrt_unit(src_unit)
+    m = m.to(u.K_CMB, equivalencies=u.cmb_equivalencies(cen_freq))
 
-    if sqrt_unit == "MJy/sr":
-        m = (m * u.MJy / u.sr).to(
-            u.K, equivalencies=u.thermodynamic_temperature(cen_freq, Planck15.Tcmb0)
-        ).value
-
-    m = m * Unit(sqrt_unit)
     logger.debug(f"physics_instrument_noise.planck_result_to_sd_map end")
     return m
 

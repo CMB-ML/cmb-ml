@@ -3,6 +3,10 @@ from dataclasses import dataclass
 from pathlib import Path
 import logging
 
+from pysm3.units import Unit
+
+from cmbml.utils.physics_units import convert_field_str_to_Unit
+
 logger = logging.getLogger(__name__)
 
 
@@ -10,6 +14,7 @@ logger = logging.getLogger(__name__)
 class Detector:
     nom_freq: int
     fields: str
+    unit: Unit
     cen_freq: Optional[float] = None
     fwhm: Optional[float] = None
 
@@ -30,7 +35,9 @@ def make_detector(det_info, band, fields):
 
     center_frequency = det_info.loc[band_str]['center_frequency']
     fwhm = det_info.loc[band_str]['fwhm']
-    return Detector(nom_freq=band, cen_freq=center_frequency, fwhm=fwhm, fields=fields)
+    unit = "MJy/sr" if band in [545, 857] else "K_CMB"
+    unit = convert_field_str_to_Unit(unit)
+    return Detector(nom_freq=band, cen_freq=center_frequency, fwhm=fwhm, fields=fields, unit=unit)
 
 
 def make_instrument(cfg, det_info=None):

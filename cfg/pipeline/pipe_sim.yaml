@@ -63,23 +63,52 @@ make_theory_ps:
   dir_name: Simulation_CMB_Power_Spectra
   make_stage_log: True
 
-make_sims:
+make_obs_no_noise:
   assets_out:
     cmb_map:
       handler: HealpyMap
-      path_template: "{root}/{dataset}/{stage}/{split}/{sim}/cmb_map_fid.fits"
-    obs_maps:
+      path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/cmb_map_fid.fits"  # Changed for working dir while using separate noise
+    sky_no_noise_maps:
       handler: HealpyMap
-      path_template: "{root}/{dataset}/{stage}/{split}/{sim}/obs_{freq}_map.fits"
-    noise_maps:
+      path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/sky_{freq}_no_noise_map.fits"  # Changed for working dir while using separate noise
+    # noise_maps:  # Optional; see model.sim.noise.save_noise for flag to enable this
+    #   handler: HealpyMap
+    #   path_template: "{root}/{dataset}/{stage}/{split}/{sim}/noise_{freq}_map.fits"
+  assets_in:
+    planck_deltabandpass: {stage: raw}
+    # scale_cache: {stage: make_noise_cache}
+    cmb_ps: {stage: make_theory_ps}
+  splits: *all_splits
+  dir_name: Simulation_D_No_Noise
+  make_stage_log: True
+  # top_level_working: True
+
+make_noise:
+  assets_out:
+    noise_maps:  # Optional; see model.sim.noise.save_noise for flag to enable this
       handler: HealpyMap
-      path_template: "{root}/{dataset}/{stage}/{split}/{sim}/noise_{freq}_map.fits"
+      path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/noise_{freq}_map.fits"
   assets_in:
     planck_deltabandpass: {stage: raw}
     scale_cache: {stage: make_noise_cache}
-    cmb_ps: {stage: make_theory_ps}
+  dir_name: Simulation_E_Noise
   splits: *all_splits
+  make_stage_log: True
+
+make_sims:
+  assets_out:
+    obs_maps:
+      handler: HealpyMap
+      path_template: "{root}/{dataset}/{stage}/{split}/{sim}/obs_{freq}_map.fits"
+    cmb_map:  # Patch for now
+      handler: HealpyMap
+      path_template: "{root}/{dataset}/{stage}/{split}/{sim}/cmb_map_fid.fits" 
+  assets_in:
+    planck_deltabandpass: {stage: raw}
+    noise_maps: {stage: make_noise}
+    sky_no_noise_maps: {stage: make_obs_no_noise}
   dir_name: Simulation
+  splits: *all_splits
   make_stage_log: True
   top_level_working: True
 
