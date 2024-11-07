@@ -57,4 +57,8 @@ class MaskCreatorExecutor(BaseStageExecutor):
         with self.name_tracker.set_context("src_root", self.cfg.local_system.assets_dir):
             logger.info(f"Using mask from {self.in_mask.path}")
             mask = self.in_mask.read(map_fields=self.in_mask.use_fields)[0]
+            try:
+                mask = mask.value   # HealpyMap returns a Quantity
+            except AttributeError:  # Mask is not a Quantity (weird)
+                pass
             return mask

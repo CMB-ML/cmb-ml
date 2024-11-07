@@ -6,6 +6,14 @@ import healpy as hp
 logger = logging.getLogger(__name__)
 
 
+def convert_mask_from_Quantity(mask):
+    try:
+        mask = mask.value   # HealpyMap returns a Quantity
+    except AttributeError:  # Mask is not a Quantity
+        pass
+    return mask
+
+
 def downgrade_mask(mask_data, nside_out, threshold):
     """
     Downgrade the resolution of a mask to a specified resolution.
@@ -18,6 +26,7 @@ def downgrade_mask(mask_data, nside_out, threshold):
     Returns:
         np.ndarray: The downgraded mask with the applied threshold.
     """
+    mask_data = convert_mask_from_Quantity(mask_data)
     nside_in = hp.get_map_size(mask_data)
     if nside_in == nside_out:
         logger.info(f"Mask resolution matches map resolution. In: {nside_in}, Out: {nside_out}. No action taken.")

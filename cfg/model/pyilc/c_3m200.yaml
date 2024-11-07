@@ -25,7 +25,7 @@ output_suffix: ''                                # the suffix for all the files 
 save_as: 'fits'
 save_weights: 'no'                               # set to yes to save the weight maps
 ELLMAX: 1280                                     # Pull from the higher level config. Value set to maximum used in PyILC for this nside
-perform_ILC_at_beam: ${pIab}                     # Choose this based on ???
+perform_ILC_at_beam: 20.6                        # Choose this based on ???
 ILC_preserved_comp: 'CMB'
 ILC_bias_tol: 0.001
 N_deproj: 0                                      # The PyILC methods can extract components other than the CMB. 
@@ -57,9 +57,9 @@ distinct:
   # ellpeaks: [150, 250, 350, 500, 700, 900, 1100, 1300, 1535]
 
   N_scales: 4
-  ellpeaks: [150, 715, 1281]
+  ellpeaks: [200, 715, 1281]
   # N_scales: 8
   # ellpeaks: [150, 250, 350, 500, 700, 950, 1281]
 
 
-elp_name: '3m'
+elp_name: '3m200'

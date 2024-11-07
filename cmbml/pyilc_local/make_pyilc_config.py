@@ -63,38 +63,6 @@ class ILCConfigMaker:
 
         self.template = cfg_dict
 
-    # def compose_template(self):
-    #     ilc_cfg = self.ilc_cfg_hydra_yaml
-    #     cfg_dict = dict(
-    #         freqs_delta_ghz = self.detector_freqs,
-    #         N_freqs = len(self.detector_freqs),
-    #         N_side = self.cfg.scenario.nside,
-    #     )
-    #     ignore_keys = ["config_maker", "distinct"]
-    #     special_keys = self.special_keys()
-
-    #     for k in ilc_cfg:
-    #         if k in ignore_keys:
-    #             continue
-    #         elif k in special_keys.keys():
-    #             cfg_dict[k] = special_keys[k]()
-    #         else:
-    #             cfg_dict[k] = ilc_cfg[k]
-
-    #     distinct_cfg = dict(self.cfg.model.pyilc.distinct)
-    #     for k in distinct_cfg:
-    #         if isinstance(distinct_cfg[k], ListConfig):
-    #             val = list(distinct_cfg[k])
-    #         else:
-    #             val = distinct_cfg[k]
-    #         cfg_dict[k] = val
-
-    #     for k in cfg_dict:
-    #         if isinstance(cfg_dict[k], u.Quantity):
-    #             cfg_dict[k] = cfg_dict[k].value
-
-    #     self.template = cfg_dict
-
     def special_keys(self):
         return {
             "beam_files": self.get_beam_files,
