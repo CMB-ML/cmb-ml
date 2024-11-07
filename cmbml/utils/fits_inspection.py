@@ -51,7 +51,7 @@ def print_out_header(fits_fn):
             print("\n" + "-"*50 + "\n")
 
 
-def get_num_fields_in_hdr(fits_fn, hdu) -> int:
+def get_num_all_fields_in_hdr(fits_fn, hdu) -> int:
     """
     Get the number of fields in the header of the specified HDU
     (Header Data Unit) in a FITS file.
@@ -69,7 +69,28 @@ def get_num_fields_in_hdr(fits_fn, hdu) -> int:
     return n_fields
 
 
-def get_field_unit(fits_fn, hdu, field_idx):
+def get_num_field_types_in_hdr(fits_fn, hdu) -> int:
+    """
+    Get the number of fields in the header of the specified HDU
+    (Header Data Unit) in a FITS file which are names TTYPE#.
+
+    Args:
+        fits_fn (str): The filename of the FITS file.
+        hdu (int): The index of the HDU.
+
+    Returns:
+        The number of fields in the header.
+    """
+    with fits.open(fits_fn) as hdul:
+        # iterate through column names and count the number of TTYPE# fields
+        n_fields = 0
+        for card in hdul[hdu].header.cards:
+            if card.keyword.startswith("TTYPE"):
+                n_fields += 1
+    return n_fields
+
+
+def get_field_unit_str(fits_fn, field_idx, hdu=1):
     """
     Get the unit associated with a specific field from the header of the 
     specified HDU (Header Data Unit) in a FITS file.
@@ -89,6 +110,50 @@ def get_field_unit(fits_fn, hdu, field_idx):
         except KeyError:
             unit = ""
     return unit
+
+
+def get_field_type_from_fits(fits_fn, field_idx, hdu):
+    """
+    Get the name of a specific field from the header of the specified HDU
+    (Header Data Unit) in a FITS file.
+
+    Args:
+        fits_fn (str): The filename of the FITS file.
+        hdu (int): The index of the HDU.
+        field_idx (int): The index of the field.
+
+    Returns:
+        str: The name of the field.
+    """
+    with fits.open(fits_fn) as hdul:
+        try:
+            field_num = field_idx + 1
+            name = hdul[hdu].header[f"TTYPE{field_num}"]
+        except KeyError:
+            name = ""
+    return name
+
+
+def get_field_types_from_fits(fits_fn, fields_idcs=None, hdu=1):
+    """
+    Get the names of all fields from the header of the specified HDU
+    (Header Data Unit) in a FITS file.
+
+    Args:
+        fits_fn (str): The filename of the FITS file.
+        hdu (int): The index of the HDU.
+
+    Returns:
+        List[str]: The names of the fields.
+    """
+    if fields_idcs is None:
+        n_fields = get_num_field_types_in_hdr(fits_fn, hdu)
+        fields_idcs = range(n_fields)
+    names = []
+    for field_idx in fields_idcs:
+        name = get_field_type_from_fits(fits_fn, field_idx, hdu)
+        names.append(name)
+    return names
 
 
 def get_num_fields(fits_fn) -> Dict[int, int]:

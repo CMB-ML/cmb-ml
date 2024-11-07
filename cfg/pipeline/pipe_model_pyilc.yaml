@@ -18,4 +18,4 @@ predict: &final_inference
   dir_name: NILC_B_Predict
   make_stage_log: True
 
-final_infer: *final_inference
+final_infer: *final_inference  # Used so that analysis code can find a consistent name

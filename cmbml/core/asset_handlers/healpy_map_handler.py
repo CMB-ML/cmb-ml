@@ -8,16 +8,34 @@ from astropy.units import Quantity
 
 from cmbml.core.asset_handlers import GenericHandler, make_directories
 from .asset_handler_registration import register_handler
+from cmbml.utils.physics_units import get_fields_units_from_fits
 
 
 logger = logging.getLogger(__name__)
 
 
+def field_strs_to_ints(field_strs: Union[str, List[str]]) -> List[int]:
+    if isinstance(field_strs, List):
+        field_strs = "".join(field_strs)
+    field_ints = []
+    fields_lookup = {"I": 0, "Q": 1, "U": 2}
+    for c in field_strs:
+        field_ints.append(fields_lookup[c])
+    return field_ints
+
+
 class HealpyMap(GenericHandler):
-    def read(self, path: Union[Path, str], 
-             map_fields=None, 
+    def read(self, 
+             path: Union[Path, str], 
+             map_field_strs=None, 
              precision=None, 
              read_to_nest:bool=None):
+        if isinstance(map_field_strs[0], int):
+            raise ValueError("The map_field_strs argument should be a list of strings, not integers.")
+        if map_field_strs is None:
+            map_fields = 0
+        else:
+            map_fields = field_strs_to_ints(map_field_strs)
         path = Path(path)
         if read_to_nest is None:
             read_to_nest = False
@@ -25,14 +43,15 @@ class HealpyMap(GenericHandler):
             this_map: np.ndarray = hp.read_map(path, field=map_fields, nest=read_to_nest)
         except IndexError as e:
             # IndexError occurs if a map field does not exist for a given file - especially when trying to get polarization information from 545 or 857 GHz map
-            if isinstance(map_fields, int):
-                raise e
-            elif len(map_fields) > 1:
-                logger.warning("Defaulting to reading a single field from the file. The 857 and 545 maps have no polarization information. Consider suppressing this warning if running a large run.")
-                map_fields = tuple([0])
-                this_map = hp.read_map(path, field=map_fields, nest=read_to_nest)
-            else:
-                raise e
+            logger.error(f"Map fields requested were {map_field_strs}, parsed as {map_fields}. Map at {path} does not have these fields. Note that field numbers for Healpy are 1 less than in the fits file.")
+            raise e
+            # if isinstance(map_field_strs, int):
+            #     raise e
+            # elif len(map_field_strs) > 1:
+            #     logger.warning("Defaulting to reading a single field from the file. The 857 and 545 maps have no polarization information. Consider suppressing this warning if running a large run.")
+            #     map_field_strs = tuple([0])
+            #     this_map = hp.read_map(path, field=map_field_strs, nest=read_to_nest)
+            # else:
         except FileNotFoundError as e:
             raise FileNotFoundError(f"This map file cannot be found: {path}")
         # When healpy reads a single map that I've generated with simulations,
@@ -47,6 +66,12 @@ class HealpyMap(GenericHandler):
             this_map = this_map.reshape(1, -1)
         if precision == "float":
             this_map = this_map.astype(np.float32)
+        map_units = get_fields_units_from_fits(path, map_fields)
+        for map_unit in map_units:
+            if map_unit != map_units[0]:
+                raise ValueError("All fields in a map must have the same units.")
+        if map_units is not None:
+            this_map = this_map * map_units[0]
         return this_map
 
     def write(self, 
@@ -77,11 +102,15 @@ class HealpyMap(GenericHandler):
         if isinstance(data, list):
             if isinstance(data[0], Quantity):
                 if column_units is None:
-                    column_units = [datum.unit for datum in data]
+                    column_units = [datum.unit.to_string() for datum in data]
                 data = [datum.value for datum in data]
         if isinstance(data, Quantity):
             if column_units is None:
-                column_units = [data.unit]
+                logger.debug(f"Data is Quantity object with shape {data.shape}, no units are provided, setting units to array of {data.unit}, length {data.shape[0]}")
+                if len(data.shape) == 1:  # One map in a shape (Npix, ) array
+                    column_units = [data.unit]
+                else:  # Maps in a shape (Nmaps, Npix) array
+                    column_units = [data.unit]*data.shape[0]
             data = data.value
 
         # Convert np.ndarrays of higher dimension to a list of 1D np.ndarrays (we really should use hdf5 instead...)

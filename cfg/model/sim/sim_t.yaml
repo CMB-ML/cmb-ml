@@ -1,8 +1,8 @@
 defaults:
   # - cmb:   cmb_empty
   - cmb:   wmap9_mnu
-  - noise: noise_empty
-  # - noise: noise_variance
+  # - noise: noise_empty
+  - noise: noise_variance
   # - noise: noise_spatial_corr
 # PySM needs to run internal calculations at a resolution greater than the output nside (output nside set in experiment.yaml)
 
