@@ -26,16 +26,16 @@ def field_strs_to_ints(field_strs: Union[str, List[str]]) -> List[int]:
 
 class HealpyMap(GenericHandler):
     def read(self, 
-             path: Union[Path, str], 
+             path: Union[Path, str],
+             map_fields=None,
              map_field_strs=None, 
              precision=None, 
              read_to_nest:bool=None):
-        if isinstance(map_field_strs[0], int):
-            raise ValueError("The map_field_strs argument should be a list of strings, not integers.")
-        if map_field_strs is None:
-            map_fields = 0
-        else:
-            map_fields = field_strs_to_ints(map_field_strs)
+        if map_fields is None:
+            if map_field_strs is None:
+                map_fields = 0
+            else:
+                map_fields = field_strs_to_ints(map_field_strs)
         path = Path(path)
         if read_to_nest is None:
             read_to_nest = False

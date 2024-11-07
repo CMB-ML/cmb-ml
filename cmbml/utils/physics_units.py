@@ -15,6 +15,8 @@ def get_fields_units_from_fits(fits_fn, fields, hdu=1):
     """
 
     units = []
+    if not isinstance(fields, list):
+        fields = [fields]
     for field in fields:
         unit_str = get_field_unit_str(fits_fn, field, hdu=hdu)
         unit = convert_field_str_to_Unit(unit_str)
