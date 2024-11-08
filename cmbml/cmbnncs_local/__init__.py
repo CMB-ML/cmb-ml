@@ -1,7 +1,7 @@
 from .stage_executors.A_check_cmbnncs_hydra_configs import HydraConfigCMBNNCSCheckerExecutor
 from .stage_executors.B_scale_make import PreprocessMakeScaleExecutor
 from .stage_executors.C_check_transforms import CheckTransformsExecutor
-# from .stage_executors.C_preprocess_nonparallel import NonParallelPreprocessExecutor
+from .stage_executors.C_preprocess_nonparallel import NonParallelPreprocessExecutor
 from .stage_executors.C_preprocess import PreprocessExecutor
 from .stage_executors.D_train import TrainingExecutor
 from .stage_executors.E_predict import PredictionExecutor

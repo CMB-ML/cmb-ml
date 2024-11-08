@@ -1,0 +1,7 @@
+name: "140"
+Train:
+  n_sims: 100
+Valid:
+  n_sims: 20
+Test:
+  n_sims: 20

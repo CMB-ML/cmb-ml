@@ -5,8 +5,9 @@ import numpy as np
 
 from omegaconf import DictConfig
 from tqdm import tqdm
+from pysm3.units import Quantity
 
-from core import (
+from cmbml.core import (
     BaseStageExecutor, 
     Split,
     Asset
@@ -69,7 +70,7 @@ class NonParallelPreprocessExecutor(BaseStageExecutor):
                 self.out_obs_assets.write(data=scaled_map)
 
     def process_map(self, 
-                    map_data: np.ndarray, 
+                    map_data: Quantity, 
                     scale_factors: Dict[str, Dict[str, float]],
                     detector_fields: str
                     ) -> List[np.ndarray]:
@@ -79,12 +80,12 @@ class NonParallelPreprocessExecutor(BaseStageExecutor):
             field_idx = all_fields.find(field_char)
             field_scale = scale_factors[field_char]
             field_data = map_data[field_idx]
-            scaled_map = self.normalize(field_data, field_scale)
+            scaled_map = self.apply_scale(field_data, field_scale)
             mangled_map = sphere2piecePlane(scaled_map)
             processed_maps.append(mangled_map)
         return processed_maps
 
-    def normalize(self, in_map, scale_factors):
+    def apply_scale(self, in_map, scale_factors):
         scale = scale_factors['scale']
         out_map = in_map / scale
         return out_map
