@@ -30,10 +30,10 @@ def get_fields_unit_from_fits(fits_fn, field, hdu=1):
 
     Args:
         fits_fn (str): The filename of the FITS file.
-        fields (List[int]): The indices of the fields.
+        field (int): The index of the field.
 
     Returns:
-        List[Unit]: A list of the units of the fields.
+        Unit: The unit for the field.
     """
 
     unit_str = get_field_unit_str(fits_fn, field, hdu=hdu)
