@@ -1,0 +1,65 @@
+# Note that this config has placeholders commented out.
+# PYTHON section are variables set in the Python code, generally from other hydra configs
+# GLOBAL PYILC: nothing noteworthy
+# CHOICES, ALL METHODS: for beam_type and bandpass_type, an option must be chosen
+#                       some options mean that other parameters need to be set.
+# OPTIONAL, ALL METHODS: this is a small selection of parameters which can be set
+# UNIQUE: The choice of Harmonic / Gaussian Needlet / Cosine Needlet is set here
+#         with wavelet_type. Other parameters follow, which are particular to that method
+
+################# To make/set in python #################
+### OUTPUT
+# output_dir: '' # the directory where the covariances, needlet coefficients, and maps will be saved
+
+### INPUT
+# N_freqs: # number of freqs_delta_ghz and freq_map_files in the next two keys
+# freqs_delta_ghz: {detectors}
+# freq_map_files: {map_file_list}
+# N_side: {nside}
+beam_FWHM_arcmin: "{beam_fwhm_values}"
+
+################## GLOBAL PYILC #########################
+### OUTPUT ONLY
+output_prefix: 'CN_'                             # the prefix for all the files that will be saved
+output_suffix: ''                                # the suffix for all the files that will be saved
+save_as: 'fits'
+save_weights: 'no'                               # set to yes to save the weight maps
+ELLMAX: 1024                                     # Pull from the higher level config. Value set to maximum used in PyILC for this nside
+perform_ILC_at_beam: 20.6                        # Choose this based on ???
+ILC_preserved_comp: 'CMB'
+ILC_bias_tol: 0.001
+N_deproj: 0                                      # The PyILC methods can extract components other than the CMB. 
+                                                 #    This parameters is the number of those other components.
+taper_width: 0                                   # The scientific backing of this is unknown; default is 200
+
+# override_N_freqs_to_use: [8,8,8,8,8,8]  # ,4,4,3,3]
+
+################## CHOICES, ALL METHODS #################
+### INPUT ONLY
+
+# How beam function was defined for input maps
+beam_type: 'Gaussians'
+
+# For each detector, we must describe the bandpass shapes.
+#    This can be either the actual response waveform in a file,
+#    or an approximation of the bandpass shape. We choose approximations.
+bandpass_type: 'DeltaBandpasses'  # No further information
+
+################# OPTIONAL, ALL METHODS ##################
+ILC_deproj_comps: []
+override_ILCbiastol_threshold: 'False'
+
+################# CNILC UNIQUE #############################
+distinct:
+  wavelet_type: 'CosineNeedlets'                   # This "chooses" the CNILC method
+  ellmin: 0
+  # N_scales: 10
+  # ellpeaks: [150, 250, 350, 500, 700, 900, 1100, 1300, 1535]
+
+  N_scales: 3
+  ellpeaks: [200, 1025]
+  # N_scales: 8
+  # ellpeaks: [150, 250, 350, 500, 700, 950, 1281]
+
+
+elp_name: '2_200'
