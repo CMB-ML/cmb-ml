@@ -1,5 +1,6 @@
 import logging
 import time 
+import shutil
 
 from omegaconf import DictConfig
 from tqdm import tqdm
@@ -42,11 +43,13 @@ class SimCreatorExecutor(BaseStageExecutor):
         # The following stage_str must match the pipeline yaml
         super().__init__(cfg, stage_str='make_sims')
 
-        self.out_obs_maps: Asset = self.assets_out['obs_maps']
+        self.out_obs : Asset = self.assets_out['obs_maps']
+        self.out_cmb : Asset = self.assets_out['cmb_map']
         out_obs_maps_handler: HealpyMap
 
         self.in_noise: Asset = self.assets_in['noise_maps']
         self.in_sky  : Asset = self.assets_in['sky_no_noise_maps']
+        self.in_cmb  : Asset = self.assets_in['cmb_map']
         in_maps_handler: HealpyMap
 
         in_det_table: Asset  = self.assets_in['planck_deltabandpass']
@@ -101,5 +104,10 @@ class SimCreatorExecutor(BaseStageExecutor):
             obs_maps += sky_no_noise_maps.to(u.K_CMB, equivalencies=u.cmb_equivalencies(detector.cen_freq))
 
             with self.name_tracker.set_contexts(dict(freq=freq)):
-                self.out_obs_maps.write(data=obs_maps, column_names=column_names)
+                self.out_obs.write(data=obs_maps, column_names=column_names)
             logger.debug(f"For {split.name}:{sim_name}, {freq} GHz: done with channel")
+
+        # Copy CMB map from input asset path to output asset path
+        cmb_in_path  = self.in_cmb.path
+        cmb_out_path = self.out_cmb.path
+        shutil.copy(cmb_in_path, cmb_out_path)
