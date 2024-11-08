@@ -56,10 +56,10 @@ distinct:
   # N_scales: 10
   # ellpeaks: [150, 250, 350, 500, 700, 900, 1100, 1300, 1535]
 
-  N_scales: 4
-  ellpeaks: [150, 500, 1281]
+  N_scales: 7
+  ellpeaks: [400, 500, 650, 750, 1000, 1281]
   # N_scales: 8
   # ellpeaks: [150, 250, 350, 500, 700, 950, 1281]
 
 
-elp_name: '3l'
+elp_name: '6_400'
