@@ -53,6 +53,14 @@ class CommonPostExecutor(BaseStageExecutor):
         self.default_execute()
 
     def get_mask(self):
+        """
+        Load the mask from the input asset, and downgrade it to the output nside.
+
+        Note in the pipeline_model_analysis.yaml, the mask {stage: X} may have 
+            X be "mask" or "mask_in". If mask_in, it will be loaded from the 
+            source mask (currently a Planck asset from the NILC cleaning). If 
+            make_mask, it will use the mask created by the MaskCreatorExecutor.
+        """
         mask = None
         with self.name_tracker.set_context("src_root", self.cfg.local_system.assets_dir):
             logger.info(f"Using mask from {self.in_mask.path}")
@@ -111,6 +119,9 @@ class CommonPostExecutor(BaseStageExecutor):
 
 
 class CommonRealPostExecutor(CommonPostExecutor):
+    """
+    Applies mask, deconvolves beam, and removes monopole and dipole from CMB realization map (target).
+    """
     def __init__(self, cfg: DictConfig) -> None:
         super().__init__(cfg, stage_str="common_post_map_real")
         self.out_cmb_map: Asset = self.assets_out["cmb_map"]
@@ -125,6 +136,9 @@ class CommonRealPostExecutor(CommonPostExecutor):
 
 
 class CommonCMBNNCSPredPostExecutor(CommonPostExecutor):
+    """
+    Applies mask, deconvolves beam, and removes monopole and dipole from CMBNNCS prediction map.
+    """
     def __init__(self, cfg: DictConfig) -> None:
         super().__init__(cfg, stage_str="common_post_map_pred")
         self.out_cmb_map: Asset = self.assets_out["cmb_map"]
@@ -133,6 +147,9 @@ class CommonCMBNNCSPredPostExecutor(CommonPostExecutor):
 
 
 class CommonPyILCPredPostExecutor(CommonPostExecutor):
+    """
+    Applies mask, deconvolves beam, and removes monopole and dipole from PyILC prediction map.
+    """
     def __init__(self, cfg: DictConfig) -> None:
         super().__init__(cfg, stage_str="common_post_map_pred")
         self.out_cmb_map: Asset = self.assets_out["cmb_map"]
