@@ -2,7 +2,7 @@ from pathlib import Path
 
 
 datasets_root   = '/shared/data/Datasets/'
-dataset_name    = 'I_512_1450_Separate_Noise'
+dataset_name    = 'I_512_1450'
 working_dir_in  = 'Simulation_Working/Simulation_D_No_Noise'
 working_dir_out = 'Simulation'
 
