@@ -38,7 +38,7 @@ show_sims_prep_cmbnncs:
     - train
   override_n_sims: ${n_show_cap}
   plot_min_max: 500                  # value, v: plots from -v to +v; null: allow MPL to choose; list (size 2): min and max val
-  dir_name: Analysis_2_Show_Sims_Prep_CMBNNCS
+  dir_name: Analysis_2A_Show_Sims_Prep_CMBNNCS
   make_stage_log: False
 
 show_cmb_pred_cmbnncs:
@@ -56,7 +56,7 @@ show_cmb_pred_cmbnncs:
   override_n_sims: ${n_show_cap}
   plot_min_max: 500                  # value, v: plots from -v to +v; null: allow MPL to choose; list (size 2): min and max val
   make_stage_log: False
-  dir_name: Analysis_2_Show_CMB_Pred
+  dir_name: Analysis_2B_Show_CMB_Pred
   epochs: ${use_epochs_imgs}
 
 # show_cmb_post:
@@ -75,17 +75,17 @@ show_cmb_pred_cmbnncs:
 #   dir_name: Analysis_2_Show_CMB_Post
 #   epochs: ${use_epochs_imgs}
 
-# common_post_map_real:
-#   assets_out:
-#     cmb_map:
-#       handler: HealpyMap
-#       path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/cmb_real_post.fits"
-#   assets_in:
-#     cmb_map: {stage: make_sims}
-#     mask: {stage: mask_in}
-#   splits:
-#     - test
-#   dir_name: Analysis_D_Common_Post_Map_Real
+common_post_map_real:
+  assets_out:
+    cmb_map:
+      handler: HealpyMap
+      path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/cmb_real_post.fits"
+  assets_in:
+    cmb_map: {stage: make_sims}
+    mask: {stage: make_mask}
+  splits:
+    - test
+  dir_name: Analysis_D_Common_Post_Map_Real
 
 common_post_map_pred:
   assets_out:
@@ -94,36 +94,11 @@ common_post_map_pred:
       path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/cmb_pred_post.fits"
   assets_in:
     cmb_map: {stage: final_infer}
-    mask: {stage: mask_in}
+    mask: {stage: make_mask}
   splits:
     - test
   dir_name: Analysis_E_Common_Post_Map_Pred
   epochs: ${use_epochs_imgs}
-
-common_post_map_real: # For grid search over postprocessing options
-  assets_out:
-    cmb_map:
-      handler: HealpyMap
-      path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/cmb_real_post_{mask}_{deconv}_{remove_dipole}.fits"
-  assets_in:
-    cmb_map: {stage: make_sims}
-    mask: {stage: mask_in}
-  splits:
-    - test
-  dir_name: Analysis_D_Common_Post_Map_Real
-
-# common_post_map_pred:  # For grid search over postprocessing options
-#   assets_out:
-#     cmb_map:
-#       handler: HealpyMap
-#       path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/cmb_pred_post_{mask}_{deconv}_{remove_dipole}.fits"
-#   assets_in:
-#     cmb_map: {stage: final_infer}
-#     mask: {stage: mask_in}
-#   splits:
-#     - test
-#   dir_name: Analysis_E_Common_Post_Map_Pred
-#   epochs: ${use_epochs_imgs}
 
 show_cmb_post_masked:
   assets_out:
@@ -139,7 +114,7 @@ show_cmb_post_masked:
   override_n_sims: ${n_show_cap}    
   plot_min_max: 500                  # value, v: plots from -v to +v; null: allow MPL to choose; list (size 2): min and max val
   make_stage_log: False
-  dir_name: Analysis_2_Show_CMB_Post
+  dir_name: Analysis_2C_Show_CMB_Post
   epochs: ${use_epochs_imgs}
 
 # show_cmb_map_analysis:
@@ -222,7 +197,9 @@ make_pred_ps:
   assets_in:
     cmb_map_real: {stage: make_sims, orig_name: cmb_map}
     cmb_map_post: {stage: final_infer, orig_name: cmb_map}
-    mask: {stage: mask_in}  # Remove or set to null for no masking
+    mask: {stage: make_mask}  # Remove or set to null for no masking;
+                              #   set stage: to make_mask for the common mask
+                              #   set stage: to mask_in for the original mask (will be downgraded)
   splits:
     - test
   epochs: ${use_epochs_ps_stats}
