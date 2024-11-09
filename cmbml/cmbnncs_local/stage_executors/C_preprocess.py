@@ -1,11 +1,12 @@
-from typing import Dict, List, NamedTuple, Callable
+from typing import Dict, List, NamedTuple, Callable, Union
 from pathlib import Path
 from abc import ABC, abstractmethod
 import logging
+from multiprocessing import Pool
 
 import numpy as np
 
-from multiprocessing import Pool
+import pysm3.units as u
 
 from omegaconf import DictConfig
 from tqdm import tqdm
@@ -17,9 +18,10 @@ from cmbml.core import (
     Asset
     )
 from cmbnncs.spherical import sphere2piecePlane
-from cmbml.cmbnncs_local.handler_npymap import NumpyMap             # Import to register the AssetHandler
-from cmbml.core.asset_handlers.asset_handlers_base import Config # Import for typing hint
-from cmbml.core.asset_handlers.healpy_map_handler import HealpyMap # Import for typing hint
+from cmbml.core.asset_handlers.qtable_handler import QTableHandler  # Import to register handler
+from cmbml.cmbnncs_local.handler_npymap import NumpyMap             # Import to register handler
+from cmbml.core.asset_handlers.asset_handlers_base import Config    # Import for typing hint
+from cmbml.core.asset_handlers.healpy_map_handler import HealpyMap  # Import for typing hint
 from cmbml.utils import make_instrument, Instrument, Detector
 
 
@@ -37,14 +39,13 @@ class TaskTarget(NamedTuple):
     all_map_fields: str
     detector_fields: str
     norm_factors: float
+    detector_cen_freq: Union[float, str]
 
 
 class PreprocessExecutor(BaseStageExecutor):
     def __init__(self, cfg: DictConfig) -> None:
         # The following string must match the pipeline yaml
         super().__init__(cfg, stage_str="preprocess")
-
-        self.instrument: Instrument = make_instrument(cfg=cfg)
 
         self.out_cmb_asset: Asset = self.assets_out["cmb_map"]
         self.out_obs_assets: Asset = self.assets_out["obs_maps"]
@@ -54,9 +55,14 @@ class PreprocessExecutor(BaseStageExecutor):
         self.in_norm_file: Asset = self.assets_in["norm_file"]
         self.in_cmb_asset: Asset = self.assets_in["cmb_map"]
         self.in_obs_assets: Asset = self.assets_in["obs_maps"]
+        in_det_table: Asset  = self.assets_in['planck_deltabandpass']
         in_norm_file_handler: Config
         in_cmb_map_handler: HealpyMap
         in_obs_map_handler: HealpyMap
+        in_det_table_handler: QTableHandler
+
+        det_info = in_det_table.read()
+        self.instrument: Instrument = make_instrument(cfg=cfg, det_info=det_info)
 
         self.num_processes = self.cfg.model.cmbnncs.preprocess.num_processes
 
@@ -88,6 +94,7 @@ class PreprocessExecutor(BaseStageExecutor):
                         asset_out=cmb_asset_out,
                         all_map_fields=self.cfg.scenario.map_fields,
                         detector_fields=self.cfg.scenario.map_fields,
+                        detector_cen_freq='cmb',
                         norm_factors=scale_factors['cmb'],
                     )
                 tasks.append(x)
@@ -101,6 +108,7 @@ class PreprocessExecutor(BaseStageExecutor):
                             asset_out=f_asset_out,
                             all_map_fields=self.cfg.scenario.map_fields,
                             detector_fields=detector.fields,
+                            detector_cen_freq=detector.cen_freq,
                             norm_factors=scale_factors[freq],
                         )
                     tasks.append(x)
@@ -137,7 +145,8 @@ def parallel_preprocess(task_target: TaskTarget):
         all_map_fields=tt.all_map_fields,
         map_data=in_map,
         scale_factors=tt.norm_factors,
-        detector_fields=tt.detector_fields
+        detector_fields=tt.detector_fields,
+        detector_cen_freq=tt.detector_cen_freq
     )
 
     out_asset = tt.asset_out
@@ -145,10 +154,11 @@ def parallel_preprocess(task_target: TaskTarget):
 
 
 def preprocess_map(all_map_fields: str, 
-                map_data: np.ndarray, 
-                scale_factors: Dict[str, Dict[str, float]],
-                detector_fields: str
-                ) -> List[np.ndarray]:
+                   map_data: np.ndarray, 
+                   scale_factors: Dict[str, Dict[str, float]],
+                   detector_fields: str,
+                   detector_cen_freq: float
+                  ) -> List[np.ndarray]:
     processed_maps = []
     all_fields:str = all_map_fields  # Either I or IQU
     for field_char in detector_fields:
@@ -156,6 +166,10 @@ def preprocess_map(all_map_fields: str,
         field_scale = scale_factors[field_char]
         field_data = map_data[field_idx]
         scaled_map = normalize(field_data, field_scale)
+        if detector_cen_freq == 'cmb':
+            scaled_map = scaled_map.to_value(u.uK_CMB)
+        else:
+            scaled_map = scaled_map.to_value(u.uK_CMB, equivalencies=u.cmb_equivalencies(detector_cen_freq))
         mangled_map = sphere2piecePlane(scaled_map)
         processed_maps.append(mangled_map)
     return processed_maps

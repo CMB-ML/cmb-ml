@@ -20,6 +20,7 @@ preprocess:
     norm_file: {stage: make_normalization}
     cmb_map: {stage: make_sims}
     obs_maps: {stage: make_sims}
+    planck_deltabandpass: {stage: raw}
   splits: &all_splits
     - train
     - valid

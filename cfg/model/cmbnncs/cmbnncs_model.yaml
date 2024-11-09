@@ -1,5 +1,5 @@
 defaults:
-  - network: unet8
+  - network: unet5
   - _self_
 
 preprocess:
@@ -19,7 +19,7 @@ train:
   # n_epochs         : 120     # CMBNNCS method sees 120,000 maps (10,000 x (size 12) batches). 120 epochs * 1000 simulations = 120,000
   batch_size       : 12    # Matching CMBNNCS paper
   checkpoint_every : 5     # checkpoint every this number of epochs
-  extra_check      : [1, 2, 3, 4, 6, 7, 8, 9, 12]
+  extra_check      : [1, 2, 3, 6, 9]
   restart_epoch    : null       # Set to null to create a new model, or give a checkpoint number
   # restart_epoch    : 40
 predict:

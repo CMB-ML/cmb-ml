@@ -17,6 +17,7 @@ from cmbml.core import (
     Asset
     )
 from cmbnncs.spherical import piecePlanes2spheres
+
 from cmbml.cmbnncs_local.handler_npymap import NumpyMap             # Import to register the AssetHandler
 from cmbml.core.asset_handlers.asset_handlers_base import Config # Import for typing hint
 from cmbml.core.asset_handlers.healpy_map_handler import HealpyMap # Import for typing hint
@@ -123,13 +124,16 @@ def parallel_postprocess(task_target: TaskTarget):
     )
 
     out_asset = tt.asset_out
-    out_asset.handler.write(path=out_asset.path, data=prepped_map, column_units=["uK_CMB"])
+    out_asset.handler.write(path=out_asset.path, 
+                            data=prepped_map, 
+                            column_names=[f"STOKES_{f}" for f in tt.all_map_fields],
+                            column_units=["uK_CMB"] * len(tt.all_map_fields))
 
 
 def postprocess_map(all_map_fields: str, 
-                map_data: np.ndarray, 
-                scale_factors: Dict[str, Dict[str, float]],
-                ) -> List[np.ndarray]:
+                    map_data: np.ndarray, 
+                    scale_factors: Dict[str, Dict[str, float]],
+                    ) -> List[np.ndarray]:
     processed_maps = []
     for field_char in all_map_fields:
         field_idx = all_map_fields.find(field_char)
