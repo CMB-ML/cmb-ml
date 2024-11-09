@@ -2,7 +2,7 @@ defaults:
   - local_system   : ${oc.env:CMB_ML_LOCAL_SYSTEM}
   - file_system    : common_fs
   - pipeline       : assembly_cmbnncs
-  - scenario       : scenario_t
+  - scenario       : scenario
   - splits         : all
   - model/cmbnncs  : cmbnncs_model
   - model/analysis : basic_analysis
