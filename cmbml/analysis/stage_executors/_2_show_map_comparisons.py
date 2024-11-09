@@ -148,7 +148,12 @@ class ShowSimsExecutor(BaseStageExecutor):
         # map_unit = some_map.unit.to_string('latex_inline')
         # cb.set_label(f'Intensity ({map_unit})')
 
-    def make_mollview(self, some_map, ax, min_or=None, max_or=None, show_cbar=False, title="Raw Simulation"):
+    def make_mollview(self, some_map, ax, min_or=None, max_or=None, show_cbar=False, unit=None, title="Raw Simulation"):
+        if isinstance(some_map, u.Quantity):
+            unit = some_map.unit.to_string('latex_inline')
+            to_plot = some_map.value
+        else:
+            to_plot = some_map
         plt.axes(ax)
         vmin = self.min_max[0] if min_or is None else min_or
         vmax = self.min_max[1] if max_or is None else max_or
@@ -156,12 +161,12 @@ class ShowSimsExecutor(BaseStageExecutor):
             xsize=2400,
             min=vmin, 
             max=vmax,
-            unit=some_map.unit.to_string('latex_inline'),
+            unit=unit,
             cmap=planck_cmap.colombi1_cmap,
             hold=True,
             cbar=show_cbar
         )
-        hp.mollview(some_map.value, **plot_params)
+        hp.mollview(to_plot, **plot_params)
 
         plt.title(title)
 
@@ -297,7 +302,7 @@ class ShowSimsPostExecutor(ShowSimsExecutor):
                 diff = hp.ma(diff)
                 diff.mask = mask
 
-                plot_params = dict(show_cbar=True, unit='$\\mu \\text{K}_\\text{CMB}$')
+                plot_params = dict(show_cbar=True, unit=map_post.unit.to_string('latex_inline'))
 
                 self.make_mollview(map_sim[field_idx], axs[0], title="Realization", **plot_params)
                 self.make_mollview(map_post[field_idx], axs[1], title="Prediction", **plot_params)

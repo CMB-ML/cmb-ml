@@ -1,25 +1,41 @@
-show_sims:
+# show_sims:
+#   assets_out:
+#     cmb_map_render:
+#       handler: Mover
+#       path_template: "{root}/{dataset}/Sims_Analysis/{stage}/{split}/{sim}/{view}_cmb_{field}_log.png"
+#     cmb_map_render2:
+#       handler: Mover
+#       path_template: "{root}/{dataset}/Sims_Analysis/{stage}/{split}/{sim}/{view}_cmb_{field}.png"
+#     obs_map_render:
+#       handler: Mover
+#       path_template: "{root}/{dataset}/Sims_Analysis/{stage}/{split}/{sim}/{view}_obs_{field}_{freq}_log.png"
+#   assets_in:
+#     cmb_map: {stage: make_sims}
+#     obs_maps: {stage: make_sims}
+#   splits:
+#     - test
+#   override_n_sims: 1                 # int: first n_sims; null: all sims; list: particular sims by index
+#   plot_min_max: null                 # value, v: plots from -v to +v; null: allow MPL to choose; list (size 2): min and max val
+#   # plot_rot: [250, -50]             # Goodish direction for RG
+#   plot_rot: null                     # Useful for looking in specific directions; difficult to figure out the values needed
+#   plot_gnom_res: 12                  # Arcmins per pixel in the gnonomic view
+#   dir_name: Analysis_1_Render_Simulation_Maps
+#   make_stage_log: False
+
+working_dir_issue_theory_ps:  # Because this is run from the sims set of executors, it has a different working directory
+                              #    than the rest of the analysis pipeline. This is a workaround.  
   assets_out:
-    cmb_map_render:
-      handler: Mover
-      path_template: "{root}/{dataset}/Sims_Analysis/{stage}/{split}/{sim}/{view}_cmb_{field}_log.png"
-    cmb_map_render2:
-      handler: Mover
-      path_template: "{root}/{dataset}/Sims_Analysis/{stage}/{split}/{sim}/{view}_cmb_{field}.png"
-    obs_map_render:
-      handler: Mover
-      path_template: "{root}/{dataset}/Sims_Analysis/{stage}/{split}/{sim}/{view}_obs_{field}_{freq}_log.png"
+    cmb_ps:
+      handler: CambPowerSpectrum
+      path_template: "{root}/{dataset}/Simulation_Workiz/{stage}/{split}/{sim}/cmb_ps_fid.txt"
+      path_template_alt: "{root}/{dataset}/Simulation/{stage}/{split}/cmb_ps_fid.txt"
   assets_in:
-    cmb_map: {stage: make_sims}
-    obs_maps: {stage: make_sims}
-  splits:
+    wmap_config: {stage: make_sim_configs}
+  splits: &all_splits
+    - train
     - test
-  override_n_sims: 1                 # int: first n_sims; null: all sims; list: particular sims by index
-  plot_min_max: null                 # value, v: plots from -v to +v; null: allow MPL to choose; list (size 2): min and max val
-  # plot_rot: [250, -50]             # Goodish direction for RG
-  plot_rot: null                     # Useful for looking in specific directions; difficult to figure out the values needed
-  plot_gnom_res: 12                  # Arcmins per pixel in the gnonomic view
-  dir_name: Analysis_1_Render_Simulation_Maps
+    - valid
+  dir_name: Simulation_CMB_Power_Spectra
   make_stage_log: False
 
 convert_theory_ps:
@@ -31,7 +47,7 @@ convert_theory_ps:
       path_template: "{root}/{dataset}/Sims_Analysis/{stage}/{split}/{sim}/theory_ps.npy"
       handler: NumpyPowerSpectrum
   assets_in:
-    theory_ps: {stage: make_theory_ps, orig_name: "cmb_ps"}
+    theory_ps: {stage: working_dir_issue_theory_ps, orig_name: "cmb_ps"}
   splits:
     - train
     - test
