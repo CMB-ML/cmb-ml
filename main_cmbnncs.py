@@ -42,11 +42,12 @@ from cmbml.cmbnncs_local import (
                          HydraConfigCMBNNCSCheckerExecutor,
                          PreprocessMakeScaleExecutor,
                          PreprocessExecutor,
-                         NonParallelPreprocessExecutor,
+                        #  NonParallelPreprocessExecutor,
                          CheckTransformsExecutor,
                          TrainingExecutor,
                          PredictionExecutor,
-                         PostprocessExecutor
+                         PostprocessExecutor,
+                         NonParallelPostprocessExecutor
                          )
 
 from cmbml.analysis import (ShowSimsPrepExecutor, 
@@ -84,37 +85,40 @@ def run_cmbnncs(cfg):
     pipeline_context.add_pipe(HydraConfigCMBNNCSCheckerExecutor)
 
     pipeline_context.add_pipe(PreprocessMakeScaleExecutor)
-    pipeline_context.add_pipe(NonParallelPreprocessExecutor)
-    # pipeline_context.add_pipe(PreprocessExecutor)
+    # pipeline_context.add_pipe(NonParallelPreprocessExecutor)  # For demonstration only
+    pipeline_context.add_pipe(PreprocessExecutor)
     pipeline_context.add_pipe(ShowSimsPrepExecutor)
 
-    # pipeline_context.add_pipe(TrainingExecutor)
+    pipeline_context.add_pipe(TrainingExecutor)
 
-    # pipeline_context.add_pipe(PredictionExecutor)
-    # # pipeline_context.add_pipe(CMBNNCSShowSimsPredExecutor)
+    pipeline_context.add_pipe(PredictionExecutor)
+    pipeline_context.add_pipe(CMBNNCSShowSimsPredExecutor)
+    # pipeline_context.add_pipe(NonParallelPostprocessExecutor)
+    pipeline_context.add_pipe(PostprocessExecutor)
 
-    # pipeline_context.add_pipe(PostprocessExecutor)
-    # # pipeline_context.add_pipe(CMBNNCSShowSimsPostExecutor)
+    if 1 == 0:
+        # These executors have not been updated to use new features and will crash.
+        #    But training needs to begin!
+        pipeline_context.add_pipe(CMBNNCSShowSimsPostExecutor)
+        pipeline_context.add_pipe(CommonRealPostExecutor)
+        pipeline_context.add_pipe(CommonCMBNNCSPredPostExecutor)
+        pipeline_context.add_pipe(CommonCMBNNCSShowSimsPostExecutor)
 
-    # pipeline_context.add_pipe(CommonRealPostExecutor)
-    # pipeline_context.add_pipe(CommonCMBNNCSPredPostExecutor)
-    # pipeline_context.add_pipe(CommonCMBNNCSShowSimsPostExecutor)
+        pipeline_context.add_pipe(PixelAnalysisExecutor)
+        pipeline_context.add_pipe(PixelSummaryExecutor)
+        pipeline_context.add_pipe(PixelSummaryFigsExecutor)
 
-    # pipeline_context.add_pipe(PixelAnalysisExecutor)
-    # pipeline_context.add_pipe(PixelSummaryExecutor)
-    # pipeline_context.add_pipe(PixelSummaryFigsExecutor)
+        # Not needed in every analysis pipeline, but needed in one
+        pipeline_context.add_pipe(ConvertTheoryPowerSpectrumExecutor)  # Moved to main_convert_theory.py due to working_dir conflict.
+        pipeline_context.add_pipe(MakeTheoryPSStats)
 
-    # # # Not needed in every analysis pipeline, but needed in one
-    # # pipeline_context.add_pipe(ConvertTheoryPowerSpectrumExecutor)  # Moved to main_convert_theory.py due to working_dir conflict.
-    # pipeline_context.add_pipe(MakeTheoryPSStats)
-
-    # # CMBNNCS's Predictions as Power Spectra Anaylsis
-    # pipeline_context.add_pipe(MaskCreatorExecutor)
-    # pipeline_context.add_pipe(CMBNNCSMakePSExecutor)
-    # pipeline_context.add_pipe(PSAnalysisExecutor)
-    # pipeline_context.add_pipe(PowerSpectrumSummaryExecutor)
-    # pipeline_context.add_pipe(PowerSpectrumSummaryFigsExecutor)
-    # pipeline_context.add_pipe(PostAnalysisPsFigExecutor)
+        # # CMBNNCS's Predictions as Power Spectra Anaylsis
+        pipeline_context.add_pipe(MaskCreatorExecutor)
+        pipeline_context.add_pipe(CMBNNCSMakePSExecutor)
+        pipeline_context.add_pipe(PSAnalysisExecutor)
+        pipeline_context.add_pipe(PowerSpectrumSummaryExecutor)
+        pipeline_context.add_pipe(PowerSpectrumSummaryFigsExecutor)
+        pipeline_context.add_pipe(PostAnalysisPsFigExecutor)
 
     pipeline_context.prerun_pipeline()
 

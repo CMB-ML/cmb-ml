@@ -1,11 +1,11 @@
-from typing import List, Dict
+from typing import List, Dict, Union
 import logging
 
 import numpy as np
 
 from omegaconf import DictConfig
 from tqdm import tqdm
-from pysm3.units import Quantity
+import pysm3.units as u
 
 from cmbml.core import (
     BaseStageExecutor, 
@@ -13,9 +13,10 @@ from cmbml.core import (
     Asset
     )
 from cmbnncs.spherical import sphere2piecePlane
+from cmbml.core.asset_handlers.qtable_handler import QTableHandler  # Import to register handler
 from cmbml.cmbnncs_local.handler_npymap import NumpyMap             # Import to register the AssetHandler
-from cmbml.core.asset_handlers.asset_handlers_base import Config # Import for typing hint
-from cmbml.core.asset_handlers.healpy_map_handler import HealpyMap # Import for typing hint
+from cmbml.core.asset_handlers.asset_handlers_base import Config    # Import for typing hint
+from cmbml.core.asset_handlers.healpy_map_handler import HealpyMap  # Import for typing hint
 from cmbml.utils import make_instrument, Instrument, Detector
 
 
@@ -27,8 +28,6 @@ class NonParallelPreprocessExecutor(BaseStageExecutor):
         # The following string must match the pipeline yaml
         super().__init__(cfg, stage_str="preprocess")
 
-        self.instrument: Instrument = make_instrument(cfg=cfg)
-
         self.out_cmb_asset: Asset = self.assets_out["cmb_map"]
         self.out_obs_assets: Asset = self.assets_out["obs_maps"]
         out_cmb_map_handler: NumpyMap
@@ -37,9 +36,14 @@ class NonParallelPreprocessExecutor(BaseStageExecutor):
         self.in_norm_file: Asset = self.assets_in["norm_file"]
         self.in_cmb_asset: Asset = self.assets_in["cmb_map"]
         self.in_obs_assets: Asset = self.assets_in["obs_maps"]
+        in_det_table: Asset  = self.assets_in['planck_deltabandpass']
         in_norm_file_handler: Config
         in_cmb_map_handler: HealpyMap
         in_obs_map_handler: HealpyMap
+        in_det_table_handler: QTableHandler
+
+        det_info = in_det_table.read()
+        self.instrument: Instrument = make_instrument(cfg=cfg, det_info=det_info)
 
     def execute(self) -> None:
         logger.debug(f"Running {self.__class__.__name__} execute()")
@@ -58,7 +62,7 @@ class NonParallelPreprocessExecutor(BaseStageExecutor):
         in_cmb_map = self.in_cmb_asset.read()
         scaled_map = self.process_map(in_cmb_map, 
                                       scale_factors=scale_factors['cmb'], 
-                                      detector_fields=self.cfg.scenario.map_fields)
+                                      detector='cmb')
         self.out_cmb_asset.write(data=scaled_map)
 
         for freq, detector in self.instrument.dets.items():
@@ -66,21 +70,28 @@ class NonParallelPreprocessExecutor(BaseStageExecutor):
                 obs_map = self.in_obs_assets.read()
                 scaled_map = self.process_map(obs_map,
                                               scale_factors=scale_factors[freq],
-                                              detector_fields=detector.fields)
+                                              detector=detector)
                 self.out_obs_assets.write(data=scaled_map)
 
-    def process_map(self, 
-                    map_data: Quantity, 
+    def process_map(self,                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
+                    map_data: u.Quantity, 
                     scale_factors: Dict[str, Dict[str, float]],
-                    detector_fields: str
+                    detector: Union[Detector, str]
                     ) -> List[np.ndarray]:
+        if detector == 'cmb':
+            detector_fields = self.cfg.scenario.map_fields
+            equivalencies = None
+        else:
+            detector_fields = detector.fields
+            equivalencies = u.cmb_equivalencies(detector.cen_freq)
         processed_maps = []
         all_fields:str = self.cfg.scenario.map_fields  # Either I or IQU
         for field_char in detector_fields:
-            field_idx = all_fields.find(field_char)
+            field_idx = all_fields.find(field_char)  # We assume these files were created by this library
             field_scale = scale_factors[field_char]
             field_data = map_data[field_idx]
             scaled_map = self.apply_scale(field_data, field_scale)
+            scaled_map = scaled_map.to_value(u.uK_CMB, equivalencies=equivalencies)
             mangled_map = sphere2piecePlane(scaled_map)
             processed_maps.append(mangled_map)
         return processed_maps
