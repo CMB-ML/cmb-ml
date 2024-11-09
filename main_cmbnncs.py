@@ -84,32 +84,32 @@ def run_cmbnncs(cfg):
     pipeline_context.add_pipe(HydraConfigCheckerExecutor)
     pipeline_context.add_pipe(HydraConfigCMBNNCSCheckerExecutor)
 
-    # pipeline_context.add_pipe(PreprocessMakeScaleExecutor)
-    # # pipeline_context.add_pipe(NonParallelPreprocessExecutor)  # For demonstration only
-    # pipeline_context.add_pipe(PreprocessExecutor)
-    # pipeline_context.add_pipe(ShowSimsPrepExecutor)
+    pipeline_context.add_pipe(PreprocessMakeScaleExecutor)
+    # pipeline_context.add_pipe(NonParallelPreprocessExecutor)  # For demonstration only
+    pipeline_context.add_pipe(PreprocessExecutor)
+    pipeline_context.add_pipe(ShowSimsPrepExecutor)
 
-    # pipeline_context.add_pipe(TrainingExecutor)
+    pipeline_context.add_pipe(TrainingExecutor)
 
-    # pipeline_context.add_pipe(PredictionExecutor)
-    # pipeline_context.add_pipe(CMBNNCSShowSimsPredExecutor)
-    # pipeline_context.add_pipe(PostprocessExecutor)
-    # # pipeline_context.add_pipe(NonParallelPostprocessExecutor)  # For demonstration only
+    pipeline_context.add_pipe(PredictionExecutor)
+    pipeline_context.add_pipe(CMBNNCSShowSimsPredExecutor)
+    pipeline_context.add_pipe(PostprocessExecutor)
+    # pipeline_context.add_pipe(NonParallelPostprocessExecutor)  # For demonstration only
 
-    # pipeline_context.add_pipe(MaskCreatorExecutor)
+    pipeline_context.add_pipe(MaskCreatorExecutor)
 
-    # # In the following, "Common" means "Apply the same postprocessing to all models"; requires a mask
-    # # Apply to the target (CMB realization)
-    # pipeline_context.add_pipe(CommonRealPostExecutor)
-    # # Apply to CMBNNCS's predictions
-    # pipeline_context.add_pipe(CommonCMBNNCSPredPostExecutor)
+    # In the following, "Common" means "Apply the same postprocessing to all models"; requires a mask
+    # Apply to the target (CMB realization)
+    pipeline_context.add_pipe(CommonRealPostExecutor)
+    # Apply to CMBNNCS's predictions
+    pipeline_context.add_pipe(CommonCMBNNCSPredPostExecutor)
 
-    # # Show results of cleaning
-    # pipeline_context.add_pipe(CommonCMBNNCSShowSimsPostExecutor)
+    # Show results of cleaning
+    pipeline_context.add_pipe(CommonCMBNNCSShowSimsPostExecutor)
 
-    # pipeline_context.add_pipe(PixelAnalysisExecutor)
-    # pipeline_context.add_pipe(PixelSummaryExecutor)
-    # pipeline_context.add_pipe(PixelSummaryFigsExecutor)
+    pipeline_context.add_pipe(PixelAnalysisExecutor)
+    pipeline_context.add_pipe(PixelSummaryExecutor)
+    pipeline_context.add_pipe(PixelSummaryFigsExecutor)
 
     # These two do not need to run individually for all models
     pipeline_context.add_pipe(ConvertTheoryPowerSpectrumExecutor)
