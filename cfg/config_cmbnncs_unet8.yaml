@@ -3,7 +3,7 @@ defaults:
   - file_system    : common_fs
   - pipeline       : assembly_cmbnncs
   - scenario       : scenario_t
-  - splits         : all_t
+  - splits         : all
   - model/cmbnncs  : cmbnncs_model
   - model/analysis : basic_analysis
   - override hydra/job_logging: custom_log
