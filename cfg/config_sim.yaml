@@ -2,10 +2,10 @@ defaults:
   - local_system   : ${oc.env:CMB_ML_LOCAL_SYSTEM}
   - file_system    : common_fs
   - pipeline       : assembly_sim
-  - scenario       : scenario_t
-  - splits         : "3-140"
-  # simulation must listed be after scenario and splits to build the simulation seed
-  - model/sim      : sim_t
+  - scenario       : scenario
+  - splits         : all
+  # simulation must listed be after scenario and splits to build the simulation seed  # Is this true?
+  - model/sim      : sim
   - model/analysis : basic_analysis
   - override hydra/job_logging: custom_log
   - _self_
@@ -26,8 +26,8 @@ detectors      : [100, 143, 217, 353]
 map_fields     : "I"
 
 # In the simulation yaml (only relevant to the simulation portion of the pipeline)
-nside_sky      : 256
-preset_strings : ["d9"]  #, "s4", "f1", "a1", "co1", "cib1", "ksz1", "tsz1", "rg1"]
+nside_sky      : 2048
+preset_strings : ["d9", "s4", "f1", "a1", "co1", "cib1", "ksz1", "tsz1", "rg1"]
 
 
 # In the splits yaml
