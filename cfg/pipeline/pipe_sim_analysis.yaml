@@ -27,8 +27,8 @@ working_dir_issue_theory_ps:  # Because this is run from the sims set of executo
   assets_out:
     cmb_ps:
       handler: CambPowerSpectrum
-      path_template: "{root}/{dataset}/Simulation_Workiz/{stage}/{split}/{sim}/cmb_ps_fid.txt"
-      path_template_alt: "{root}/{dataset}/Simulation/{stage}/{split}/cmb_ps_fid.txt"
+      path_template: "{root}/{dataset}/Simulation_Working/{stage}/{split}/{sim}/cmb_ps_fid.txt"
+      path_template_alt: "{root}/{dataset}/Simulation_Working/{stage}/cmb_ps_fid.txt"
   assets_in:
     wmap_config: {stage: make_sim_configs}
   splits: &all_splits
