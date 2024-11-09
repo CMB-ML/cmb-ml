@@ -1,5 +1,5 @@
 defaults:
-  - network: unet5
+  - network: unet8
   - _self_
 
 preprocess:
@@ -15,8 +15,8 @@ train:
   learning_rate    : 1e-1
   learning_rate_min: 1e-6
   repeat_n         : 3
-  n_epochs         : ${num_epochs}     # CMBNNCS method sees 120,000 maps (10,000 x (size 12) batches). 120 epochs * 1000 simulations = 120,000
-  # n_epochs         : 120     # CMBNNCS method sees 120,000 maps (10,000 x (size 12) batches). 120 epochs * 1000 simulations = 120,000
+  # n_epochs         : ${num_epochs}     # CMBNNCS method sees 120,000 maps (10,000 x (size 12) batches). 120 epochs * 1000 simulations = 120,000
+  n_epochs         : 120     # CMBNNCS method sees 120,000 maps (10,000 x (size 12) batches). 120 epochs * 1000 simulations = 120,000
   batch_size       : 12    # Matching CMBNNCS paper
   checkpoint_every : 5     # checkpoint every this number of epochs
   extra_check      : [1, 2, 3, 6, 9]
