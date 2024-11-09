@@ -220,7 +220,7 @@ class ObsCreatorExecutor(BaseStageExecutor):
             cmb_realization = cmb_realization[0]
 
         scaled_map = pysm3.apply_smoothing_and_coord_transform(cmb_realization,
-                                                               fwhm=min_fwhm,
+                                                               fwhm=min_fwhm,  # Currently smoothing to 0 arcmin = no smoothing
                                                                # let PySM3 decide the lmax. This is appropriate
                                                                #    as long as the Nside_sky >= 2*Nside_out
                                                                #  lmax=self.lmax_beam,
