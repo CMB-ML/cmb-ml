@@ -2,8 +2,8 @@ defaults:
   - local_system   : ${oc.env:CMB_ML_LOCAL_SYSTEM}
   - file_system    : common_fs
   - pipeline       : assembly_cmbnncs
-  - scenario       : scenario_t
-  - splits         : "3-140"
+  - scenario       : scenario
+  - splits         : all
   - model/cmbnncs  : cmbnncs_model
   - model/analysis : basic_analysis
   - override hydra/job_logging: custom_log
@@ -30,11 +30,11 @@ detectors          : [100, 143, 217, 353]
 map_fields         : "I"
 
 # In the model yaml
-num_epochs       : 10
+num_epochs       : 120
 
 # In the pipeline yamls
 # For prediction, postprocessing, power spectra generation:
-use_epochs       : &epochs [10] #, 60, 80, 100, 120]
+use_epochs       : &epochs [10, 60, 80, 100, 120]
 # use_epochs       : &epochs ["init", 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 25, 40] #, 60, 80, 100, 120]
 # For single simulation figures (maps & ps figures):
 use_epochs_imgs  : ${use_epochs}
