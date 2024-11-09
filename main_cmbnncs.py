@@ -72,7 +72,7 @@ from cmbml.analysis import (ShowSimsPrepExecutor,
 logger = logging.getLogger(__name__)
 
 
-@hydra.main(version_base=None, config_path="cfg", config_name="config_cmbnncs_unet5")
+@hydra.main(version_base=None, config_path="cfg", config_name="config_cmbnncs_unet8")
 def run_cmbnncs(cfg):
     logger.debug(f"Running {__name__} in {__file__}")
 

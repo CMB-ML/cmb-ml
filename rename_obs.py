@@ -1,14 +1,15 @@
 from pathlib import Path
+import shutil
 
 
 datasets_root   = '/shared/data/Datasets/'
-dataset_name    = 'I_512_1450_Separate_Noise'
-working_dir_in  = 'Simulation_Working/Simulation_D_No_Noise'
-working_dir_out = 'Simulation'
+dataset_name    = 'I_512_1450'
+working_dir_in  = 'Simulation'
+working_dir_out  = 'Simulation_Working/Simulation_D_No_Noise'
 
-splits = {'Test':200, 
+splits = {'Test' :200, 
           'Train':1000, 
-          'Validation':250}
+          'Valid':250}
 
 # detectors = [30, 44, 70, 100, 143, 217, 353, 545, 857]
 
@@ -47,5 +48,5 @@ for split in splits:
         new_fp = out_dir / out_cmb_template
         new_fp.parent.mkdir(parents=True, exist_ok=True)
         print(f"Copying {old_fp} to {new_fp}")
-        old_fp.rename(new_fp)
+        shutil.copy(old_fp, new_fp)
 print("Done renaming files.")
