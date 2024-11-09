@@ -4,8 +4,8 @@ detector_freqs   : ${detectors}
 map_fields       : ${map_fields}
 
 
-precision        : float
-units            : K_CMB
+precision        : float  # Is this used?
+units            : K_CMB  # Is this used? I think everything has been converted to use PySM3 units
 
 full_instrument:
   30 : IQU
