@@ -325,22 +325,22 @@ class ShowSimsPostExecutor(ShowSimsExecutor):
                 self.save_figure(self.suptitle, split, sim_n, field_str, out_asset)
 
 
-class CMBNNCSShowSimsPostExecutor(ShowSimsPostExecutor):
-    def __init__(self, cfg: DictConfig) -> None:
-        super().__init__(cfg)
-        self.right_subplot_title = "CMBNNCS Predicted"
+# class CMBNNCSShowSimsPostExecutor(ShowSimsPostExecutor):
+#     def __init__(self, cfg: DictConfig) -> None:
+#         super().__init__(cfg)
+#         self.right_subplot_title = "CMBNNCS Predicted"
 
 
-class PetroffShowSimsPostExecutor(ShowSimsPostExecutor):
-    def __init__(self, cfg: DictConfig) -> None:
-        super().__init__(cfg)
-        self.right_subplot_title = "Petroff Predicted"
+# class PetroffShowSimsPostExecutor(ShowSimsPostExecutor):
+#     def __init__(self, cfg: DictConfig) -> None:
+#         super().__init__(cfg)
+#         self.right_subplot_title = "Petroff Predicted"
 
 
-class NILCShowSimsPostExecutor(ShowSimsPostExecutor):
-    def __init__(self, cfg: DictConfig) -> None:
-        super().__init__(cfg)
-        self.right_subplot_title = "NILC Predicted"
+# class NILCShowSimsPostExecutor(ShowSimsPostExecutor):
+#     def __init__(self, cfg: DictConfig) -> None:
+#         super().__init__(cfg)
+#         self.right_subplot_title = "NILC Predicted"
 
 
 class CommonRealPostExecutor(ShowSimsPostExecutor):
