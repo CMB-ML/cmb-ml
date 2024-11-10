@@ -19,46 +19,6 @@
 #   dir_name: Analysis_2_Show_CMB_Prep
 #   make_stage_log: False
 
-show_sims_prep_cmbnncs:
-  assets_out:
-    cmb_map_render:
-      handler: EmptyHandler
-      path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/cmb_{field}.png"
-    obs_map_render:
-      handler: EmptyHandler
-      path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/obs_{field}_{freq}.png"
-  assets_in:
-    norm_file: {stage: make_normalization}
-    cmb_map_sim: {stage: make_sims, orig_name: cmb_map}
-    cmb_map_prep: {stage: preprocess, orig_name: cmb_map}
-    obs_maps_sim: {stage: make_sims, orig_name: obs_maps}
-    obs_maps_prep: {stage: preprocess, orig_name: obs_maps}
-    planck_deltabandpass: {stage: raw}
-  splits:
-    - train
-  override_n_sims: ${n_show_cap}
-  plot_min_max: 500                  # value, v: plots from -v to +v; null: allow MPL to choose; list (size 2): min and max val
-  dir_name: Analysis_2A_Show_Sims_Prep_CMBNNCS
-  make_stage_log: False
-
-show_cmb_pred_cmbnncs:
-  assets_out:
-    cmb_map_render:
-      handler: EmptyHandler
-      path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/cmb_{epoch}_{field}.png"
-  assets_in:
-    norm_file: {stage: make_normalization}
-    cmb_map_pred: {stage: predict, orig_name: cmb_map}
-    cmb_map_sim: {stage: make_sims, orig_name: cmb_map}
-    planck_deltabandpass: {stage: raw}
-  splits:
-    - test
-  override_n_sims: ${n_show_cap}
-  plot_min_max: 500                  # value, v: plots from -v to +v; null: allow MPL to choose; list (size 2): min and max val
-  make_stage_log: False
-  dir_name: Analysis_2B_Show_CMB_Pred
-  epochs: ${use_epochs_imgs}
-
 # show_cmb_post:
 #   assets_out:
 #     cmb_map_render:
@@ -205,20 +165,20 @@ make_pred_ps:
   epochs: ${use_epochs_ps_stats}
   dir_name: Analysis_K_Power_Spectra
 
-# one_ps_fig:
-#   assets_out:
-#     ps_figure:
-#       path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/cmb_ps_figure_{epoch}.png"
-#       handler: EmptyHandler
-#   assets_in:
-#     theory_ps: {stage: convert_theory_ps}
-#     auto_real: {stage: make_pred_ps}
-#     auto_pred: {stage: make_pred_ps}
-#   splits:
-#     - test
-#   epochs: ${use_epochs_ps_stats}
-#   override_n_sims: ${n_show_cap}
-#   dir_name: Analysis_11_One_PS_Fig
+one_ps_fig:  # Produce a power spectrum without needing the rest of the spectra from the training set
+  assets_out:
+    ps_figure:
+      path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/cmb_ps_figure_{epoch}.png"
+      handler: EmptyHandler
+  assets_in:
+    theory_ps: {stage: convert_theory_ps}
+    auto_real: {stage: make_pred_ps}
+    auto_pred: {stage: make_pred_ps}
+  splits:
+    - test
+  epochs: ${use_epochs_ps_stats}
+  override_n_sims: ${n_show_cap}
+  dir_name: Analysis_11_One_PS_Fig
 
 ps_analysis:
   assets_out:
