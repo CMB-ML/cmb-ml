@@ -55,7 +55,7 @@ from cmbml.analysis import (ShowSimsPrepExecutor,
                             CommonCMBNNCSPredPostExecutor,
                             CommonCMBNNCSShowSimsPostExecutor,
                             CMBNNCSShowSimsPredExecutor, 
-                            CMBNNCSShowSimsPostExecutor,
+                            # CMBNNCSShowSimsPostExecutor,
                             PixelAnalysisExecutor,
                             PixelSummaryExecutor,
                             ConvertTheoryPowerSpectrumExecutor,
@@ -118,11 +118,11 @@ def run_cmbnncs(cfg):
 
     # # # CMBNNCS's Predictions as Power Spectra Anaylsis
     pipeline_context.add_pipe(CMBNNCSMakePSExecutor)
-    pipeline_context.add_pipe(ShowOnePSExecutor)
+    # pipeline_context.add_pipe(ShowOnePSExecutor)
     # pipeline_context.add_pipe(PSAnalysisExecutor)
     # pipeline_context.add_pipe(PowerSpectrumSummaryExecutor)
     # pipeline_context.add_pipe(PowerSpectrumSummaryFigsExecutor)
-    # pipeline_context.add_pipe(PostAnalysisPsFigExecutor)
+    pipeline_context.add_pipe(PostAnalysisPsFigExecutor)
 
     pipeline_context.prerun_pipeline()
 

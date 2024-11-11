@@ -3,14 +3,14 @@ defaults:
   - file_system    : common_fs
   - pipeline       : assembly_sim
   - scenario       : scenario
-  - splits         : all
+  - splits         : "1-1"
   # simulation must listed be after scenario and splits to build the simulation seed  # Is this true?
   - model/sim      : sim
   - model/analysis : basic_analysis
   - override hydra/job_logging: custom_log
   - _self_
 
-dataset_name: "${map_fields}_${scenario.nside}_${splits.name}"
+dataset_name: "${map_fields}_${scenario.nside}_${splits.name}_Planck_Tbl"
 working_dir : "Simulation_Working/"
 hydra:
   run:
@@ -21,8 +21,8 @@ hydra:
 # These are not to be used directly in the python
 # They are picked up from here and MAY be used elsewhere in the yamls.
 # In the scenario yaml
-nside          : 128
-detectors      : [100, 143, 217, 353]
+nside          : 512
+detectors      : [44, 70, 100, 143, 217, 353, 545, 857]
 map_fields     : "I"
 
 # In the simulation yaml (only relevant to the simulation portion of the pipeline)

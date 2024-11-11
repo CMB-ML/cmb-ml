@@ -76,6 +76,8 @@ class PredictionExecutor(BaseStageExecutor):
                                                     mask_path=mask_path)
         self.out_config.write(data=cfg_dict, verbose=False)
         # logger.debug("Running PyILC Code...")
+
+        # TODO: Put this in a try block; if it fails, we need to clean up the working directory
         with SuppressPrint():
             run_ilc(self.out_config.path)
         # logger.debug("Moving resulting map.")

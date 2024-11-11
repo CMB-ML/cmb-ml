@@ -20,7 +20,7 @@ from cmbml.utils.physics_ps import get_auto_ps_result, get_x_ps_result, PowerSpe
 from cmbml.utils.physics_beam import NoBeam, GaussianBeam
 from cmbml.utils.physics_mask import downgrade_mask
 
-# import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 
 logger = logging.getLogger(__name__)
 
@@ -128,20 +128,20 @@ class MakePredPowerSpectrumExecutor(BaseStageExecutor):
         self.out_auto_real.write(data=ps)
 
     def make_pred_ps(self, real_map) -> None:
-        pred_map = self.in_cmb_map_pred.read()
+        pred_map = self.in_cmb_map_pred.read()  # This is just the post-processed map, not the Common-Processed map
         auto_pred_ps = get_auto_ps_result(pred_map,
                                           mask=self.mask,
                                           lmax=self.lmax,
                                           beam=self.beam_pred,
-                                          is_convolved=self.is_convolved)
+                                          is_convolved=True)
         # ps1 = auto_pred_ps._ps
         ps = auto_pred_ps.deconv_dl
-        pix_win_512 = hp.pixwin(self.nside_out)
-        pix_win_2048 = hp.pixwin(2048)
-        # pix_win_scale = 1
-        # pix_win_scale = (1 / pix_win_512[:ps.size])**2
-        # pix_win_scale = pix_win_2048[:ps.size] ** 2
-        pix_win_scale = (pix_win_2048[:ps.size] / pix_win_512[:ps.size])**2
+        pix_win_scale = 1
+        # pix_win_512 = hp.pixwin(self.nside_out)
+        # pix_win_2048 = hp.pixwin(2048)
+        # pix_win_scale = (pix_win_512[:ps.size]) ** -2
+        # pix_win_scale = (1 / pix_win_2048[:ps.size]) ** -2
+        # pix_win_scale = (pix_win_512[:ps.size] / pix_win_2048[:ps.size]) ** -2
         ps = ps * pix_win_scale
         # print(max(ps-ps1))
         self.out_auto_pred.write(data=ps)
