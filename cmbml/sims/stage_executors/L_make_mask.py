@@ -57,7 +57,9 @@ class MaskCreatorExecutor(BaseStageExecutor):
         mask = downgrade_mask(mask, self.nside_out, threshold=self.mask_threshold)
         self.out_mask.write(data=mask)
 
-        mask_sm = nmt.mask_apodization(mask, self.mask_apo_size, apotype=self.mask_apo_type)
+        mask_apo_size_deg = self.mask_apo_size / 60  # Convert arcmin to degrees
+
+        mask_sm = nmt.mask_apodization(mask, mask_apo_size_deg, apotype=self.mask_apo_type)
         self.out_mask_sm.write(data=mask_sm)
 
     def get_masks(self):

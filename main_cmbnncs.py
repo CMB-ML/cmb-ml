@@ -55,7 +55,7 @@ from cmbml.analysis import (ShowSimsPrepExecutor,
                             CommonCMBNNCSPredPostExecutor,
                             CommonCMBNNCSShowSimsPostExecutor,
                             CMBNNCSShowSimsPredExecutor, 
-                            CMBNNCSShowSimsPostExecutor,
+                            # CMBNNCSShowSimsPostExecutor,
                             PixelAnalysisExecutor,
                             PixelSummaryExecutor,
                             ConvertTheoryPowerSpectrumExecutor,
@@ -63,7 +63,6 @@ from cmbml.analysis import (ShowSimsPrepExecutor,
                             CMBNNCSMakePSExecutor,
                             PixelSummaryFigsExecutor,
                             PSAnalysisExecutor,
-                            PowerSpectrumAnalysisExecutorSerial,
                             PowerSpectrumSummaryExecutor,
                             PowerSpectrumSummaryFigsExecutor,
                             PostAnalysisPsFigExecutor,
@@ -95,34 +94,34 @@ def run_cmbnncs(cfg):
     # pipeline_context.add_pipe(PredictionExecutor)
     # pipeline_context.add_pipe(CMBNNCSShowSimsPredExecutor)
     # pipeline_context.add_pipe(PostprocessExecutor)
-    # # pipeline_context.add_pipe(NonParallelPostprocessExecutor)  # For demonstration only
+    # pipeline_context.add_pipe(NonParallelPostprocessExecutor)  # For demonstration only
 
     # pipeline_context.add_pipe(MaskCreatorExecutor)
 
-    # # In the following, "Common" means "Apply the same postprocessing to all models"; requires a mask
-    # # Apply to the target (CMB realization)
-    # pipeline_context.add_pipe(CommonRealPostExecutor)
-    # # Apply to CMBNNCS's predictions
-    # pipeline_context.add_pipe(CommonCMBNNCSPredPostExecutor)
+    # In the following, "Common" means "Apply the same postprocessing to all models"; requires a mask
+    # Apply to the target (CMB realization)
+    pipeline_context.add_pipe(CommonRealPostExecutor)
+    # Apply to CMBNNCS's predictions
+    pipeline_context.add_pipe(CommonCMBNNCSPredPostExecutor)
 
-    # # Show results of cleaning
-    # pipeline_context.add_pipe(CommonCMBNNCSShowSimsPostExecutor)
+    # Show results of cleaning
+    pipeline_context.add_pipe(CommonCMBNNCSShowSimsPostExecutor)
 
-    # pipeline_context.add_pipe(PixelAnalysisExecutor)
-    # pipeline_context.add_pipe(PixelSummaryExecutor)
-    # pipeline_context.add_pipe(PixelSummaryFigsExecutor)
+    pipeline_context.add_pipe(PixelAnalysisExecutor)
+    pipeline_context.add_pipe(PixelSummaryExecutor)
+    pipeline_context.add_pipe(PixelSummaryFigsExecutor)
 
-    # # These two do not need to run individually for all models
-    # pipeline_context.add_pipe(ConvertTheoryPowerSpectrumExecutor)
-    # pipeline_context.add_pipe(MakeTheoryPSStats)
+    # These two do not need to run individually for all models (but they're fast, so it doesn't matter unless you're actively changing them)
+    pipeline_context.add_pipe(ConvertTheoryPowerSpectrumExecutor)
+    pipeline_context.add_pipe(MakeTheoryPSStats)
 
     # # # CMBNNCS's Predictions as Power Spectra Anaylsis
-    pipeline_context.add_pipe(CMBNNCSMakePSExecutor)
-    pipeline_context.add_pipe(ShowOnePSExecutor)
-    # pipeline_context.add_pipe(PSAnalysisExecutor)
-    # pipeline_context.add_pipe(PowerSpectrumSummaryExecutor)
-    # pipeline_context.add_pipe(PowerSpectrumSummaryFigsExecutor)
-    # pipeline_context.add_pipe(PostAnalysisPsFigExecutor)
+    # pipeline_context.add_pipe(CMBNNCSMakePSExecutor)
+    pipeline_context.add_pipe(PSAnalysisExecutor)
+    pipeline_context.add_pipe(PowerSpectrumSummaryExecutor)
+    pipeline_context.add_pipe(PowerSpectrumSummaryFigsExecutor)
+    pipeline_context.add_pipe(PostAnalysisPsFigExecutor)
+    # pipeline_context.add_pipe(ShowOnePSExecutor)  # Used for debugging; does not require full set of theory ps for simulations
 
     pipeline_context.prerun_pipeline()
 
