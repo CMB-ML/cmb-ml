@@ -4,6 +4,8 @@ import logging
 import numpy as np
 import healpy as hp
 
+import pysm3.units as u
+
 from cmbml.utils.physics_beam import Beam, NoBeam
 
 
@@ -15,9 +17,9 @@ def get_autopower(map_, mask, lmax):
 
 
 def get_xpower(map1, map2, mask, lmax, use_pixel_weights=False):
-    if mask is None:
+    if mask is None:  # If mask is None, we lose Quantity and get a numpy array object
         ps = hp.anafast(map1, map2, lmax=lmax, use_pixel_weights=use_pixel_weights)
-    else:
+    else:  # If mask is not None, we get a Quantity object
         mean1 = np.sum(map1*mask)/np.sum(mask)
         mean2 = np.sum(map2*mask)/np.sum(mask)
         fsky = np.sum(mask)/mask.shape[0]
@@ -161,10 +163,17 @@ class CrossSpectrum(PowerSpectrum):
 
 
 def get_auto_ps_result(map_, lmax, is_convolved=False, beam=None, mask=None, name=None) -> PowerSpectrum:
+    """
+    Returns an AutoSpectrum object with the power spectrum of the input map.
+    """
+    if isinstance(map_, u.Quantity):
+        unit = map_.unit
+        map_ = map_.to_value()
     if beam is None:
         beam = NoBeam(lmax)
     cl = get_autopower(map_, mask, lmax)
     ells = np.arange(lmax + 1)
+    cl = cl * (unit ** 2)
     return AutoSpectrum(name, cl, ells, beam, is_convolved)
 
 

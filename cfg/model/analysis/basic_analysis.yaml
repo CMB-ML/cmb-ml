@@ -47,7 +47,7 @@ post_map_remove_dipole: true          # Whether the post_map will have the dipol
 
 ps_use_smooth_mask: false              # Whether to use the smoothed mask for power spectrum calculations
 
-lmax_ratio: 2
+lmax_ratio: 3
 beam_real:
   _target_: cmbml.utils.physics_beam.NoBeam
   _partial_: true  # _partial_ is a flag for Hydra. In this case, 

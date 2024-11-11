@@ -86,12 +86,12 @@ def run_pyilc_analysis(cfg):
 
     # # PyILC's Predictions as Power Spectra Anaylsis
     # pipeline_context.add_pipe(PowerSpectrumAnalysisExecutorSerial)  # What is this? Uses ps_analysis2 stage in pipeline yaml. TODO: investigate
-    # pipeline_context.add_pipe(PyILCMakePSExecutor)
-    pipeline_context.add_pipe(ShowOnePSExecutor)
+    pipeline_context.add_pipe(PyILCMakePSExecutor)
     # pipeline_context.add_pipe(PSAnalysisExecutor)
     # pipeline_context.add_pipe(PowerSpectrumSummaryExecutor)
     # pipeline_context.add_pipe(PowerSpectrumSummaryFigsExecutor)
     pipeline_context.add_pipe(PostAnalysisPsFigExecutor)
+    # pipeline_context.add_pipe(ShowOnePSExecutor)
 
     pipeline_context.prerun_pipeline()
 
