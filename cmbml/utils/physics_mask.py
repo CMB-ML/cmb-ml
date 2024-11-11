@@ -27,7 +27,7 @@ def downgrade_mask(mask_data, nside_out, threshold):
         np.ndarray: The downgraded mask with the applied threshold.
     """
     mask_data = convert_mask_from_Quantity(mask_data)
-    nside_in = hp.get_map_size(mask_data)
+    nside_in = hp.get_nside(mask_data)
     if nside_in == nside_out:
         logger.info(f"Mask resolution matches map resolution. In: {nside_in}, Out: {nside_out}. No action taken.")
         return mask_data

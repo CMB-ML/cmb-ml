@@ -38,7 +38,7 @@ from cmbml.core.A_check_hydra_configs import HydraConfigCheckerExecutor
 from cmbml.sims import MaskCreatorExecutor
 
 from cmbml.analysis import   (
-                            NILCShowSimsPostExecutor,
+                            # NILCShowSimsPostExecutor,
                             CommonRealPostExecutor,
                             CommonPyILCPredPostExecutor,
                             CommonNILCShowSimsPostExecutor,
@@ -70,27 +70,27 @@ def run_pyilc_analysis(cfg):
 
     pipeline_context.add_pipe(HydraConfigCheckerExecutor)
 
+    # pipeline_context.add_pipe(MaskCreatorExecutor)
+
     pipeline_context.add_pipe(CommonRealPostExecutor)
     pipeline_context.add_pipe(CommonPyILCPredPostExecutor)
     pipeline_context.add_pipe(CommonNILCShowSimsPostExecutor)
 
-    pipeline_context.add_pipe(PixelAnalysisExecutor)
-    pipeline_context.add_pipe(PixelSummaryExecutor)
-    pipeline_context.add_pipe(PixelSummaryFigsExecutor)
+    # pipeline_context.add_pipe(PixelAnalysisExecutor)
+    # pipeline_context.add_pipe(PixelSummaryExecutor)
+    # pipeline_context.add_pipe(PixelSummaryFigsExecutor)
 
-    # Not needed in every analysis pipeline, but needed in one
-    pipeline_context.add_pipe(ConvertTheoryPowerSpectrumExecutor)
-    pipeline_context.add_pipe(MakeTheoryPSStats)
-    
-    # PyILC's Predictions as Power Spectra Anaylsis
-    pipeline_context.add_pipe(MaskCreatorExecutor)
+    # # Not needed in every analysis pipeline, but needed in one
+    # pipeline_context.add_pipe(ConvertTheoryPowerSpectrumExecutor)
+    # pipeline_context.add_pipe(MakeTheoryPSStats)
 
-    # pipeline_context.add_pipe(PowerSpectrumAnalysisExecutorSerial)  # Uses ps_analysis2 stage in pipeline yaml. TODO: investigate
+    # # PyILC's Predictions as Power Spectra Anaylsis
+    # pipeline_context.add_pipe(PowerSpectrumAnalysisExecutorSerial)  # What is this? Uses ps_analysis2 stage in pipeline yaml. TODO: investigate
     pipeline_context.add_pipe(PyILCMakePSExecutor)
     pipeline_context.add_pipe(ShowOnePSExecutor)
-    pipeline_context.add_pipe(PSAnalysisExecutor)
-    pipeline_context.add_pipe(PowerSpectrumSummaryExecutor)
-    pipeline_context.add_pipe(PowerSpectrumSummaryFigsExecutor)
+    # pipeline_context.add_pipe(PSAnalysisExecutor)
+    # pipeline_context.add_pipe(PowerSpectrumSummaryExecutor)
+    # pipeline_context.add_pipe(PowerSpectrumSummaryFigsExecutor)
     pipeline_context.add_pipe(PostAnalysisPsFigExecutor)
 
     pipeline_context.prerun_pipeline()

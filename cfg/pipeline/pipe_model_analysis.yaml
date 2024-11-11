@@ -160,6 +160,7 @@ make_pred_ps:
     mask: {stage: make_mask}  # Remove or set to null for no masking;
                               #   set stage: to make_mask for the common mask
                               #   set stage: to mask_in for the original mask (will be downgraded)
+    mask_sm: {stage: make_mask}  # Remove or set to null for no masking;
   splits:
     - test
   epochs: ${use_epochs_ps_stats}

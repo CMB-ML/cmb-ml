@@ -162,7 +162,7 @@ class PostAnalysisPsFigExecutor(BaseStageExecutor):
         ax.fill_between(ells, wmap1_lower, wmap1_upper, **wmap1_params)
         ax.fill_between(ells, wmap2_lower, wmap2_upper, **wmap2_params)
         ax.plot(ells, ps_theory, **thry_params)
-        # ax.scatter(ells,real_conved, s=marker_size, **real_params)
+        ax.scatter(ells,real_conved, s=marker_size, **real_params)
         ax.scatter(ells, pred_conved, s=marker_size, **pred_params)
         ax.set_ylabel('$D_{\ell}^\\text{TT} [\\mu \\text{K}^2]$')
         # ax1.set_ylabel(r'$\ell(\ell+1)C_\ell/(2\pi)$ $\;$ [$\mu K^2$]')
@@ -181,7 +181,7 @@ class PostAnalysisPsFigExecutor(BaseStageExecutor):
 
         # Lower panel
         ax.axhline(0, **horz_params)
-        # ax.errorbar(bin_centers1, binned_means1, yerr=binned_stds1, fmt='o', markersize=marker_size, **deltas1_params)
+        ax.errorbar(bin_centers1, binned_means1, yerr=binned_stds1, fmt='o', markersize=marker_size, **deltas1_params)
         ax.errorbar(bin_centers2, binned_means2, yerr=binned_stds2, fmt='o', markersize=marker_size, **deltas2_params)
         ax.set_xlabel('$\\ell$')
         ax.set_ylabel(ylabel)

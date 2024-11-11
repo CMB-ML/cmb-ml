@@ -20,6 +20,7 @@ from cmbml.utils.physics_ps import get_auto_ps_result, get_x_ps_result, PowerSpe
 from cmbml.utils.physics_beam import NoBeam, GaussianBeam
 from cmbml.utils.physics_mask import downgrade_mask
 
+# import matplotlib.pyplot as plt
 
 logger = logging.getLogger(__name__)
 
@@ -37,6 +38,7 @@ class MakePredPowerSpectrumExecutor(BaseStageExecutor):
         self.in_cmb_map_real: Asset = self.assets_in["cmb_map_real"]
         self.in_cmb_map_pred: Asset = self.assets_in["cmb_map_post"]
         self.in_mask: Asset = self.assets_in.get("mask", None)
+        self.in_mask_sm: Asset = self.assets_in.get("mask_sm", None)
         in_cmb_map_handler: HealpyMap
 
         # Basic parameters
@@ -45,8 +47,12 @@ class MakePredPowerSpectrumExecutor(BaseStageExecutor):
 
         # Prepare to load mask (in execute())
         self.mask_threshold = self.cfg.model.analysis.mask_threshold
-        self.mask_2048 = None
-        self.mask_512 = None
+        self.mask = None
+
+        # Only deconvolve beam if it hasn't already been done for the post-processed map
+        self.is_convolved = not self.cfg.model.analysis.post_map_do_deconv
+
+        self.use_sm_mask = self.cfg.model.analysis.ps_use_smooth_mask
 
         # Prepare to load beam (in execute())
         # beam_type is either "beam_pyilc" or "beam_other"
@@ -54,6 +60,9 @@ class MakePredPowerSpectrumExecutor(BaseStageExecutor):
         self.beam_pred = cfg.model.analysis.get(beam_type, None)
 
         self.use_pixel_weights = False
+
+        if self.cfg.map_fields != "I":
+            raise NotImplementedError("Only intensity maps are currently supported.")
 
     def execute(self) -> None:
         logger.debug(f"Running {self.__class__.__name__} execute().")
@@ -67,10 +76,17 @@ class MakePredPowerSpectrumExecutor(BaseStageExecutor):
         mask = None
         with self.name_tracker.set_context("src_root", self.cfg.local_system.assets_dir):
             logger.info(f"Using mask from {self.in_mask.path}")
-            mask = self.in_mask.read(map_fields=self.in_mask.use_fields)[0]
-        self.mask_2048 = mask
-        self.mask_512 = downgrade_mask(mask, self.nside_out, threshold=self.mask_threshold)
-        return
+            if self.use_sm_mask:
+                mask = self.in_mask_sm.read(map_fields=self.in_mask_sm.use_fields)[0]
+            else:
+                mask = self.in_mask.read(map_fields=self.in_mask.use_fields)[0]
+        if hp.npix2nside(mask.size) != self.nside_out:
+            mask = downgrade_mask(mask, self.nside_out, threshold=self.mask_threshold)
+        self.mask = mask
+
+        # hp.mollview(mask)
+        # plt.show()
+        return  # Nothing
 
     def get_pred_beam(self):
         # Partially instantiate the beam object, defined in the hydra configs
@@ -106,7 +122,7 @@ class MakePredPowerSpectrumExecutor(BaseStageExecutor):
                                           lmax=self.lmax,
                                           beam=self.beam_real,
                                           is_convolved=False)
-        ps1 = auto_real_ps._ps
+        # ps1 = auto_real_ps._ps
         ps = auto_real_ps.deconv_dl
         # print(max(ps-ps1))
         self.out_auto_real.write(data=ps)
@@ -114,12 +130,19 @@ class MakePredPowerSpectrumExecutor(BaseStageExecutor):
     def make_pred_ps(self, real_map) -> None:
         pred_map = self.in_cmb_map_pred.read()
         auto_pred_ps = get_auto_ps_result(pred_map,
-                                          mask=self.mask_512,
+                                          mask=self.mask,
                                           lmax=self.lmax,
                                           beam=self.beam_pred,
-                                          is_convolved=True)
-        ps1 = auto_pred_ps._ps
+                                          is_convolved=self.is_convolved)
+        # ps1 = auto_pred_ps._ps
         ps = auto_pred_ps.deconv_dl
+        pix_win_512 = hp.pixwin(self.nside_out)
+        pix_win_2048 = hp.pixwin(2048)
+        # pix_win_scale = 1
+        # pix_win_scale = (1 / pix_win_512[:ps.size])**2
+        # pix_win_scale = pix_win_2048[:ps.size] ** 2
+        pix_win_scale = (pix_win_2048[:ps.size] / pix_win_512[:ps.size])**2
+        ps = ps * pix_win_scale
         # print(max(ps-ps1))
         self.out_auto_pred.write(data=ps)
 

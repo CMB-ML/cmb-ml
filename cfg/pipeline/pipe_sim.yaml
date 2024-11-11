@@ -125,6 +125,9 @@ make_mask:
     mask:
       handler: HealpyMap
       path_template: "{root}/{dataset}/{stage}/mask.fits"
+    mask_sm:
+      handler: HealpyMap
+      path_template: "{root}/{dataset}/{stage}/mask_sm.fits"
   assets_in:
     mask: {stage: mask_in}
   dir_name: Simulation_Mask
