@@ -41,6 +41,10 @@ class CommonPostExecutor(BaseStageExecutor):
         self.mask_threshold = self.cfg.model.analysis.mask_threshold
 
         self.use_pixel_weights = False
+        self.mask_post_map_deconv        = self.cfg.model.analysis.post_map_mask_b4_deconv
+        self.do_deconv                   = self.cfg.model.analysis.post_map_do_deconv
+        self.mask_post_map_remove_dipole = self.cfg.model.analysis.post_map_mask_b4_remove_dipole
+        self.do_remove_dipole            = self.cfg.model.analysis.post_map_remove_dipole
 
         # Prepare to load beam and mask in execute()
         self.beam = None
@@ -92,23 +96,32 @@ class CommonPostExecutor(BaseStageExecutor):
         if cmb_map.shape[0] == 3 and self.map_fields == "I":
             cmb_map = cmb_map[0]
 
+        post_map = cmb_map.copy()
+
         # Apply the mask
-        post_map = hp.ma(cmb_map)
-        post_map.mask = np.logical_not(self.mask)
+        if self.mask_post_map_deconv:
+            post_map = hp.ma(post_map)
+            post_map.mask = np.logical_not(self.mask)
 
         # Deconvolve the beam
-        post_map = self.deconv(post_map)
-        post_map = hp.ma(post_map)
-        post_map.mask = np.logical_not(self.mask)
+        if self.do_deconv:
+            post_map = self.deconv(post_map)
+
+        # Reapply the mask
+        if self.mask_post_map_remove_dipole:
+            post_map = hp.ma(post_map)
+            post_map.mask = np.logical_not(self.mask)
 
         # Remove the dipole and monopole
-        post_map = hp.remove_dipole(post_map)
+        if self.do_remove_dipole:
+            post_map = hp.remove_dipole(post_map)
+
         self.out_cmb_map_real.write(data=post_map)
 
     def deconv(self, data) -> np.ndarray:
         # Convert to spherical harmonic space (a_lm)
         alm_in = hp.map2alm(data, lmax=self.lmax)
-        
+
         # Deconvolve the beam
         alm_deconv = hp.almxfl(alm_in, 1 / self.beam.beam[:self.lmax])
 

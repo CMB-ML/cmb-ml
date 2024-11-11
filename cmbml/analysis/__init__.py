@@ -3,9 +3,9 @@ from .stage_executors._1_show_map_simulations_log import ShowSimsLogExecutor
 from .stage_executors._2_show_map_comparisons import  (
     ShowSimsPrepExecutor, 
     CMBNNCSShowSimsPredExecutor, 
-    CMBNNCSShowSimsPostExecutor, 
-    PetroffShowSimsPostExecutor, 
-    NILCShowSimsPostExecutor,
+    # CMBNNCSShowSimsPostExecutor, 
+    # PetroffShowSimsPostExecutor, 
+    # NILCShowSimsPostExecutor,
     CommonCMBNNCSShowSimsPostExecutor,
     CommonPetroffShowSimsPostExecutor,
     CommonNILCShowSimsPostExecutor
@@ -24,7 +24,7 @@ from .stage_executors._15_ps_compare_table import PSCompareTableExecutor
 from .stage_executors.B_convert_ps_theory import ConvertTheoryPowerSpectrumExecutor
 from .stage_executors.C_make_ps_theory_stats import MakeTheoryPSStats
 
-from .stage_executors.D_common_map_post_real import (
+from .stage_executors.D_common_map_post import (
     CommonRealPostExecutor,
     CommonCMBNNCSPredPostExecutor,
     CommonPyILCPredPostExecutor
