@@ -54,10 +54,9 @@ beam_real:
                    #    lmax will come from python code
 
 beam_cmbnncs:
-  _target_: cmbml.utils.physics_beam.GaussianBeam
+  _target_: cmbml.utils.physics_beam.NoBeam
   _partial_: true  # _partial_ is a flag for Hydra. In this case, 
                    #    lmax will come from python code
-  beam_fwhm: 5_Change_Me_Maybe
 
 beam_pyilc:
   _target_: cmbml.utils.physics_beam.GaussianBeam

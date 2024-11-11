@@ -49,9 +49,6 @@ class MakePredPowerSpectrumExecutor(BaseStageExecutor):
         self.mask_threshold = self.cfg.model.analysis.mask_threshold
         self.mask = None
 
-        # Only deconvolve beam if it hasn't already been done for the post-processed map
-        self.is_convolved = not self.cfg.model.analysis.post_map_do_deconv
-
         self.use_sm_mask = self.cfg.model.analysis.ps_use_smooth_mask
 
         # Prepare to load beam (in execute())
@@ -82,11 +79,7 @@ class MakePredPowerSpectrumExecutor(BaseStageExecutor):
                 mask = self.in_mask.read(map_fields=self.in_mask.use_fields)[0]
         if hp.npix2nside(mask.size) != self.nside_out:
             mask = downgrade_mask(mask, self.nside_out, threshold=self.mask_threshold)
-        self.mask = mask
-
-        # hp.mollview(mask)
-        # plt.show()
-        return  # Nothing
+        return mask
 
     def get_pred_beam(self):
         # Partially instantiate the beam object, defined in the hydra configs
@@ -125,26 +118,33 @@ class MakePredPowerSpectrumExecutor(BaseStageExecutor):
         # ps1 = auto_real_ps._ps
         ps = auto_real_ps.deconv_dl
         # print(max(ps-ps1))
-        self.out_auto_real.write(data=ps)
+        # TODO: Pixel Window handling? Why is Realization PS slightly low? At what stage in the pipeline should it be implemented correctly?
+        # pix_win_512 = hp.pixwin(self.nside_out)
+        # pix_win_2048 = hp.pixwin(2048)
+        # pix_win_scale = (pix_win_512[:ps.size]) ** -2
+        # pix_win_scale = (1 / pix_win_2048[:ps.size]) ** -2
+        # pix_win_scale = (pix_win_512[:ps.size] / pix_win_2048[:ps.size]) ** -2
+        self.out_auto_real.write(data=ps.value)
 
     def make_pred_ps(self, real_map) -> None:
-        pred_map = self.in_cmb_map_pred.read()
+        pred_map = self.in_cmb_map_pred.read()  # This is just the post-processed map, not the Common-Processed map
         auto_pred_ps = get_auto_ps_result(pred_map,
                                           mask=self.mask,
                                           lmax=self.lmax,
                                           beam=self.beam_pred,
-                                          is_convolved=self.is_convolved)
+                                          is_convolved=True)
         # ps1 = auto_pred_ps._ps
         ps = auto_pred_ps.deconv_dl
-        pix_win_512 = hp.pixwin(self.nside_out)
-        pix_win_2048 = hp.pixwin(2048)
-        # pix_win_scale = 1
-        # pix_win_scale = (1 / pix_win_512[:ps.size])**2
-        # pix_win_scale = pix_win_2048[:ps.size] ** 2
-        pix_win_scale = (pix_win_2048[:ps.size] / pix_win_512[:ps.size])**2
+        pix_win_scale = 1
+        # TODO: Pixel Window handling? Why is Realization PS slightly low? At what stage in the pipeline should it be implemented correctly?
+        # pix_win_512 = hp.pixwin(self.nside_out)
+        # pix_win_2048 = hp.pixwin(2048)
+        # pix_win_scale = (pix_win_512[:ps.size]) ** -2
+        # pix_win_scale = (1 / pix_win_2048[:ps.size]) ** -2
+        # pix_win_scale = (pix_win_512[:ps.size] / pix_win_2048[:ps.size]) ** -2
         ps = ps * pix_win_scale
         # print(max(ps-ps1))
-        self.out_auto_pred.write(data=ps)
+        self.out_auto_pred.write(data=ps.value)
 
 
 class PyILCMakePSExecutor(MakePredPowerSpectrumExecutor):
