@@ -116,7 +116,7 @@ def run_cmbnncs(cfg):
     pipeline_context.add_pipe(MakeTheoryPSStats)
 
     # # # CMBNNCS's Predictions as Power Spectra Anaylsis
-    # pipeline_context.add_pipe(CMBNNCSMakePSExecutor)
+    pipeline_context.add_pipe(CMBNNCSMakePSExecutor)
     pipeline_context.add_pipe(PSAnalysisExecutor)
     pipeline_context.add_pipe(PowerSpectrumSummaryExecutor)
     pipeline_context.add_pipe(PowerSpectrumSummaryFigsExecutor)
