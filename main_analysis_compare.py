@@ -17,7 +17,7 @@ from cmbml.analysis import   (
 logger = logging.getLogger(__name__)
 
 
-@hydra.main(version_base=None, config_path="cfg", config_name="config_comp_models_t")
+@hydra.main(version_base=None, config_path="cfg", config_name="config_comp_models")
 def run_pyilc_analysis(cfg):
     logger.debug(f"Running {__name__} in {__file__}")
 

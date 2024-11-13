@@ -19,22 +19,6 @@
 #   dir_name: Analysis_2_Show_CMB_Prep
 #   make_stage_log: False
 
-# show_cmb_post:
-#   assets_out:
-#     cmb_map_render:
-#       handler: EmptyHandler
-#       path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/cmb_{epoch}_{field}.png"
-#   assets_in:
-#     cmb_map_post: {stage: final_infer, orig_name: cmb_map}
-#     cmb_map_sim: {stage: make_sims, orig_name: cmb_map}
-#   splits:
-#     - test
-#   override_n_sims: ${n_show_cap}    
-#   plot_min_max: 500                  # value, v: plots from -v to +v; null: allow MPL to choose; list (size 2): min and max val
-#   make_stage_log: False
-#   dir_name: Analysis_2_Show_CMB_Post
-#   epochs: ${use_epochs_imgs}
-
 common_post_map_real:
   assets_out:
     cmb_map:
@@ -74,24 +58,8 @@ show_cmb_post_masked:
   override_n_sims: ${n_show_cap}    
   plot_min_max: 500                  # value, v: plots from -v to +v; null: allow MPL to choose; list (size 2): min and max val
   make_stage_log: False
-  dir_name: Analysis_2C_Show_CMB_Post
+  dir_name: Analysis_2_Show_CMB_Post
   epochs: ${use_epochs_imgs}
-
-# show_cmb_map_analysis:
-#   assets_out:
-#     cmb_map_render:
-#       handler: EmptyHandler
-#       path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/cmb_{epoch}_{field}.png"
-#   assets_in:
-#     cmb_map_post: {stage: final_infer, orig_name: cmb_map}
-#     cmb_map_sim: {stage: make_sims, orig_name: cmb_map}
-#   splits:
-#     - test
-#   override_n_sims: ${n_show_cap}    
-#   plot_min_max: 500                  # value, v: plots from -v to +v; null: allow MPL to choose; list (size 2): min and max val
-#   make_stage_log: False
-#   dir_name: Analysis_2_Show_CMB_Post
-#   epochs: ${use_epochs_imgs}
 
 pixel_analysis:
   assets_out:
@@ -157,9 +125,9 @@ make_pred_ps:
   assets_in:
     cmb_map_real: {stage: make_sims, orig_name: cmb_map}
     cmb_map_post: {stage: final_infer, orig_name: cmb_map}
-    mask: {stage: make_mask}  # Remove or set to null for no masking;
-                              #   set stage: to make_mask for the common mask
-                              #   set stage: to mask_in for the original mask (will be downgraded)
+    mask:    {stage: make_mask}  # Remove or set to null for no masking;
+                                 #   set stage: to make_mask for the common mask
+                                 #   set stage: to mask_in for the original mask (will be downgraded)
     mask_sm: {stage: make_mask}  # Remove or set to null for no masking;
   splits:
     - test
@@ -197,32 +165,6 @@ ps_analysis:
   override_n_sims: ${n_test_cap}
   wmap_n_ps: 50
   dir_name: Analysis_L_PS_Report
-
-# ps_analysis2:
-#   assets_out:
-#     wmap_distribution:
-#       fn: ""
-#       path_template: "{root}/{dataset}/{working}{stage}/wmap_distribution.json"
-#       handler: EmptyHandler
-#     error_distribution:
-#       fn: ""
-#       path_template: "{root}/{dataset}/{working}{stage}/error_distribution.json"
-#       handler: EmptyHandler
-#     report:
-#       fn: ""
-#       path_template: "{root}/{dataset}/{working}{stage}/ps_report.csv"
-#       handler: EmptyHandler
-#   assets_in:
-#     theory_ps: {stage: convert_theory_ps}
-#     auto_real: {stage: make_pred_ps}
-#     auto_pred: {stage: make_pred_ps}
-#   splits:
-#     - train
-#     - test
-#   epochs: ${use_epochs_ps_stats}
-#   override_n_sims: ${n_test_cap}
-#   wmap_n_ps: 50
-#   dir_name: Analysis_L_PS_Report2
 
 ps_summary_tables:
   assets_out:
@@ -265,32 +207,28 @@ post_ps_fig:
     auto_pred: {stage: make_pred_ps}
     wmap_ave: {stage: ps_theory_stats}
     wmap_std: {stage: ps_theory_stats}
-    # wmap_distribution: {stage: ps_analysis2}
-    # error_distribution: {stage: ps_analysis2}
   splits:
     - test
   epochs: ${use_epochs_ps_stats}
   override_n_sims: ${n_show_cap}
   dir_name: Analysis_7_F_Post_PS_Solo_Figs
 
-# post_post_ps_fig:
-#   assets_out:
-#     ps_figure_theory:
-#       path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/cmb_ps_figure_theory.svg"
-#       handler: EmptyHandler
-#     ps_figure_real:
-#       path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/cmb_ps_figure_real.svg"
-#       handler: EmptyHandler
-#   assets_in:
-#     theory_ps: {stage: convert_theory_ps}
-#     auto_real: {stage: make_pred_ps}
-#     auto_pred: {stage: make_pred_ps}
-#     wmap_ave: {stage: ps_theory_stats}
-#     wmap_std: {stage: ps_theory_stats}
-#     # wmap_distribution: {stage: ps_analysis2}
-#     # error_distribution: {stage: ps_analysis2}
-#   splits:
-#     - test
-#   epochs: ${use_epochs_ps_stats}
-#   override_n_sims: ${n_show_cap}
-#   dir_name: Analysis_7_F_Post_PS_Solo_Figs
+post_post_ps_fig:
+  assets_out:
+    ps_figure_theory:
+      path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/cmb_ps_figure_theory.svg"
+      handler: EmptyHandler
+    ps_figure_real:
+      path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/cmb_ps_figure_real.svg"
+      handler: EmptyHandler
+  assets_in:
+    theory_ps: {stage: convert_theory_ps}
+    auto_real: {stage: make_pred_ps}
+    auto_pred: {stage: make_pred_ps}
+    wmap_ave: {stage: ps_theory_stats}
+    wmap_std: {stage: ps_theory_stats}
+  splits:
+    - test
+  epochs: ${use_epochs_ps_stats}
+  override_n_sims: ${n_show_cap}
+  dir_name: Analysis_7_F_Post_PS_Solo_Figs
