@@ -81,24 +81,21 @@ class TrainingExecutor(BaseCMBNNCSModelExecutor):
 
         template_split = self.splits[0]
         dataset = self.set_up_dataset(template_split)
-        # mp.set_start_method('spawn')
         dataloader = DataLoader(
             dataset, 
             batch_size=self.batch_size, 
             shuffle=True,
-            # num_workers=1
             )
-        # self.inspect_data(dataloader)
 
         model = self.make_model().to(self.device)
-        # self.try_model(model)
 
         lr_init = self.lr_init
         lr_final = self.lr_final
         loss_function = torch.nn.L1Loss(reduction='mean')
         optimizer = torch.optim.Adam(model.parameters(), lr=lr_init)
 
-        total_iterations = self.n_epochs * len(dataloader)  # Match CMBNNCS's updates per batch, (not the more standard per epoch)
+        # Match CMBNNCS's updates per batch, (not the more standard per epoch)
+        total_iterations = self.n_epochs * len(dataloader)
         scheduler = LambdaLR(optimizer, lr_lambda=lambda iteration: (lr_final / lr_init) ** (iteration / total_iterations))
 
         if self.restart_epoch is not None:
@@ -129,6 +126,9 @@ class TrainingExecutor(BaseCMBNNCSModelExecutor):
                     train_features = train_features.to(device=self.device, dtype=self.dtype)
                     train_label = train_label.to(device=self.device, dtype=self.dtype)
 
+                    # Repeating the training for each batch three times. 
+                    # This is strange, but it's what CMBNNCS does.
+                    # If implementing a new model, this is not recommended.
                     for _ in range(self.repeat_n):
                         optimizer.zero_grad()
                         output = model(train_features)
@@ -136,6 +136,7 @@ class TrainingExecutor(BaseCMBNNCSModelExecutor):
                         loss.backward()
                         optimizer.step()
                         batch_loss += loss.item()
+
                     scheduler.step()
                     pbar.set_postfix({'Loss': loss.item() / self.batch_size})
 
@@ -161,24 +162,6 @@ class TrainingExecutor(BaseCMBNNCSModelExecutor):
         cmb_path_template = self.make_fn_template(template_split, self.in_cmb_asset)
         obs_path_template = self.make_fn_template(template_split, self.in_obs_assets)
 
-        # scale_factors = self.in_norm.read()
-        # dtype_transform = TrainToTensor(self.dtype, device="cpu")
-        # scale_map_transform = self.scale_class(all_map_fields=self.map_fields,
-        #                                        scale_factors=scale_factors,
-        #                                        device="cpu",
-        #                                        dtype=self.dtype)
-        # device_transform = TrainToTensor(self.dtype, device=self.device)
-        # pt_transforms = [
-        #     dtype_transform,
-        #     scale_map_transform,
-        #     device_transform
-        # ]
-
-        # reorder_transform_in = sphere2rect
-        # np_transforms = [
-        #     reorder_transform_in
-        # ]
-
         dataset = TrainCMBMapDataset(
             n_sims = template_split.n_sims,
             freqs = self.instrument.dets.keys(),
@@ -186,9 +169,7 @@ class TrainingExecutor(BaseCMBNNCSModelExecutor):
             label_path_template=cmb_path_template, 
             label_handler=NumpyMap(),
             feature_path_template=obs_path_template,
-            feature_handler=NumpyMap(),
-            # pt_xforms=pt_transforms,
-            # hp_xforms=np_transforms
+            feature_handler=NumpyMap()
             )
         return dataset
 
