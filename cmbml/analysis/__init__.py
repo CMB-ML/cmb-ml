@@ -10,6 +10,10 @@ from .stage_executors._2_show_map_comparisons import  (
     CommonPetroffShowSimsPostExecutor,
     CommonNILCShowSimsPostExecutor
     )
+from .stage_executors._2_show_map_comparisons_ind import (
+    CommonCMBNNCSShowSimsPostIndivExecutor,
+    CommonNILCShowSimsPostIndivExecutor
+)
 from .stage_executors._3_pixel_summary_tables import PixelSummaryExecutor
 from .stage_executors._4_pixel_summary_figs import PixelSummaryFigsExecutor
 from .stage_executors._5_ps_summary_table import PowerSpectrumSummaryExecutor
