@@ -1,3 +1,8 @@
+"""
+Produce, for each specified simulation, the target CMB, the prediction, the difference, and a histogram of the difference.
+
+One figure is produced with all images. Due to difficulties with healpy and matplotlib, this figure may not be suitable for publication.
+"""
 from typing import List, Dict, Union
 import logging
 

@@ -119,7 +119,7 @@ class PostAnalysisPsCompareFigExecutor(BaseStageExecutor):
 
         wmap_band = [(wmap_ave - wmap_std, wmap_ave + wmap_std), (wmap_ave - 2*wmap_std, wmap_ave + 2*wmap_std)]
 
-        fig, axs = plt.subplots(2, 1, sharex=True, gridspec_kw={'height_ratios': [3, 1]}, figsize=(10, 6))
+        fig, axs = plt.subplots(2, 1, sharex=True, gridspec_kw={'height_ratios': [3, 1]}, figsize=(14, 7))
         ax1, ax2 = axs
 
         colors = [PURBLUE, RED, YELLOW, GREEN ]
@@ -183,7 +183,8 @@ class PostAnalysisPsCompareFigExecutor(BaseStageExecutor):
         self.out_ps_figure_theory.write()
         fn = self.out_ps_figure_theory.path
         print(f'writing to {fn}')
-        plt.savefig(fn)
+        plt.tight_layout()
+        plt.savefig(fn, format='pdf')
         plt.close()
 
     def add_ps_to_figures(self, axs, ells, ps_pred, ps_theory, pred_params, fillstyle):
