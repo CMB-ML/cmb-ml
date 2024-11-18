@@ -52,7 +52,7 @@ predict:
     model: {stage: train}
     obs_maps: {stage: preprocess}
   splits:
-    - test
+    - ${run_inference_on}
   epochs: ${use_epochs}
   dir_name: CMBNNCS_E_Predict
   make_stage_log: True
@@ -66,7 +66,7 @@ postprocess: &final_inference
     norm_file: {stage: make_normalization}
     cmb_map: {stage: predict}
   splits:
-    - test
+    - ${run_inference_on}
   epochs: ${use_epochs}
   dir_name: CMBNNCS_F_Postprocess
   make_stage_log: True
@@ -84,7 +84,7 @@ show_cmb_pred_cmbnncs:
     cmb_map_sim: {stage: make_sims, orig_name: cmb_map}
     planck_deltabandpass: {stage: raw}
   splits:
-    - test
+    - ${run_inference_on}
   override_n_sims: ${n_show_cap}
   plot_min_max: 500                  # value, v: plots from -v to +v; null: allow MPL to choose; list (size 2): min and max val
   make_stage_log: False

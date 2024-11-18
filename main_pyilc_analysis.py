@@ -42,6 +42,7 @@ from cmbml.analysis import   (
                             CommonRealPostExecutor,
                             CommonPyILCPredPostExecutor,
                             CommonNILCShowSimsPostExecutor,
+                            CommonNILCShowSimsPostIndivExecutor,
                             PixelAnalysisExecutor,
                             PixelSummaryExecutor,
                             ConvertTheoryPowerSpectrumExecutor,
@@ -69,11 +70,11 @@ def run_pyilc_analysis(cfg):
 
     pipeline_context.add_pipe(HydraConfigCheckerExecutor)
 
-    # pipeline_context.add_pipe(MaskCreatorExecutor)
+    pipeline_context.add_pipe(MaskCreatorExecutor)
 
     pipeline_context.add_pipe(CommonRealPostExecutor)
     pipeline_context.add_pipe(CommonPyILCPredPostExecutor)
-    pipeline_context.add_pipe(CommonNILCShowSimsPostExecutor)
+    pipeline_context.add_pipe(CommonNILCShowSimsPostIndivExecutor)
 
     pipeline_context.add_pipe(PixelAnalysisExecutor)
     pipeline_context.add_pipe(PixelSummaryExecutor)
@@ -89,7 +90,7 @@ def run_pyilc_analysis(cfg):
     pipeline_context.add_pipe(PowerSpectrumSummaryExecutor)
     pipeline_context.add_pipe(PowerSpectrumSummaryFigsExecutor)
     pipeline_context.add_pipe(PostAnalysisPsFigExecutor)
-    # pipeline_context.add_pipe(ShowOnePSExecutor)  # Used for debugging; does not require full set of theory ps for simulations
+    pipeline_context.add_pipe(ShowOnePSExecutor)  # Used for debugging; does not require full set of theory ps for simulations
 
     pipeline_context.prerun_pipeline()
 

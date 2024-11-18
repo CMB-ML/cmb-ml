@@ -10,7 +10,7 @@ defaults:
   - override hydra/job_logging: custom_log
 
 dataset_name   : ${scenario.map_fields}_${scenario.nside}
-working_dir    : "PyILC_CNILC/"
+working_dir    : "PyILC_CNILC_TEST/"
 fig_model_name : "CNILC"
 hydra:
   run:
@@ -20,6 +20,8 @@ hydra:
     subdir     : ${hydra.job.num}               # Subsequent jobs will include duplicate logs for all previous jobs. 
                                                 #   This is a minor bug, not worth fixing.
   verbose      : true
+
+run_inference_on   : valid  # Either "test" or "valid" ("train" should work, but is not recommended)
 
 # Settings below this point are used for interpolation.
 # These are not to be used directly in python.
@@ -36,7 +38,7 @@ use_epochs_imgs      : *epochs
 use_epochs_map_stats : *epochs
 use_epochs_ps_stats  : *epochs
 # Limit the number of simulations for which to generate figures
-n_show_cap           : 5   # int: first n_sims; null: all sims; list: particular sims by index
+n_show_cap           : 1   # int: first n_sims; null: all sims; list: particular sims by index
 
 # In the splits yaml; null to run on all
-n_test_cap           : null
+n_infer_cap          : 1

@@ -20,6 +20,8 @@ hydra:
     dir            : Logs/${now:%Y-%m-%d-%H-%M-%S}
   verbose          : true
 
+run_inference_on   : test
+
 # Settings below this point are used for interpolation.
 # These are not to be used directly in the python
 # They are picked up from here and MAY be used elsewhere in the yamls.
@@ -41,8 +43,8 @@ use_epochs_map_stats : ${use_epochs}
 # For summary statistics:
 use_epochs_ps_stats : ${use_epochs}
 # Limit the number of simulations for which to generate figures
-n_show_cap       : 5
+n_show_cap       : 10
 
 # Limit the number of simulations on which to do inference and postprocessing
 # In the splits yaml; null to run on all
-n_test_cap       : null
+n_infer_cap       : 10
