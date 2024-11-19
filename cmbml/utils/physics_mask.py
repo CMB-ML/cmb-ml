@@ -53,3 +53,10 @@ def apply_threshold(mask, thresh):
     #    When downscaling mask maps; threshold the downscaled map
     #    They use 0.9
     return np.where(mask<thresh, 0, 1)
+
+
+def simple_galactic_mask(nside, width=10, smoothing=1):
+    mask = np.ones(hp.nside2npix(nside))
+    mask[hp.query_strip(nside, np.radians(90 - width/2), np.radians(90 + width /2))] = 0
+    mask = hp.smoothing(mask, fwhm=np.radians(smoothing))
+    return mask

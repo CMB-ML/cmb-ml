@@ -13,18 +13,23 @@ logger = logging.getLogger(__name__)
 
 
 def get_autopower(map_, mask, lmax):
-    return get_xpower(map1=map_, map2=map_, mask=mask, lmax=lmax)
+    return get_xpower(map1=map_, map2=None, mask=mask, lmax=lmax)
 
 
 def get_xpower(map1, map2, mask, lmax, use_pixel_weights=False):
-    if mask is None:  # If mask is None, we lose Quantity and get a numpy array object
+    if mask is None:
         ps = hp.anafast(map1, map2, lmax=lmax, use_pixel_weights=use_pixel_weights)
-    else:  # If mask is not None, we get a Quantity object
+    else:
         mean1 = np.sum(map1*mask)/np.sum(mask)
-        mean2 = np.sum(map2*mask)/np.sum(mask)
+        input1 = mask*(map1-mean1)
+        if map2 is None:
+            input2 = None
+        else:
+            mean2 = np.sum(map2*mask)/np.sum(mask)
+            input2 = mask*(map2-mean2)
         fsky = np.sum(mask)/mask.shape[0]
-        ps = hp.anafast(mask*(map1-mean1),
-                        mask*(map2-mean2),
+        ps = hp.anafast(input1,
+                        input2,
                         lmax=lmax,
                         use_pixel_weights=use_pixel_weights)
         ps = ps / fsky

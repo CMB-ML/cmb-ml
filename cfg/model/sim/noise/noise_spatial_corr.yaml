@@ -22,10 +22,30 @@ src_ps:
 seed_string: noise
 do_cache: true
 save_noise: true
-boxcar_length: 2
-smooth_initial: 2
+lmax_ratio_out_noise : 2.9999
 
 hdu_n: 1      # Consistent for these map files
 field_idcs:
   3: {I: 2}   # If the hdu has 3 fields, the I map will be at index 2
   10: {I: 4, Q: 7, U: 9}
+
+src_nside_lookup:
+  30: 1024
+  44: 1024
+  70: 1024
+  100: 2048
+  143: 2048
+  217: 2048
+  353: 2048
+  545: 2048
+  857: 2048
+
+# Number of Planck Noise simulations to use (max 300, bear in mind the download time!)
+n_planck_noise_sims     : 5
+# This is not a bandwidth limited scenario!
+lmax_ratio_planck_noise : 2
+# Number of degrees total to mask around the galactic plane
+#    10, the default, will mask 5 degrees above and below the plane
+mask_galactic_size      : 10
+# Smoothing (degrees) of the simple galactic plane mask
+mask_galactic_smooth    : 1
