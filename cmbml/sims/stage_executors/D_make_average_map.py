@@ -39,6 +39,7 @@ class MakePlanckAverageNoiseExecutor(BaseStageExecutor):
             det_info = in_det_table.read()
         self.instrument: Instrument = make_instrument(cfg=cfg, det_info=det_info)
 
+        self.output_units = u.Unit(cfg.scenario.units)
         self.n_sims = cfg.model.sim.noise.n_planck_noise_sims
         self.nside_lookup = cfg.model.sim.noise.src_nside_lookup
 
@@ -57,7 +58,7 @@ class MakePlanckAverageNoiseExecutor(BaseStageExecutor):
         n_fields = len(det.fields)
 
         if n_fields == 1:
-            out_shape = hp.nside2npix(nside)
+            out_shape = (1, hp.nside2npix(nside))
         elif n_fields == 3:
             out_shape = (3, hp.nside2npix(nside))
         else:
@@ -75,13 +76,14 @@ class MakePlanckAverageNoiseExecutor(BaseStageExecutor):
                 with self.name_tracker.set_context('filename', fn):
                     noise_map = self.in_sims.read(map_field_strs=det.fields)
 
-                # Set units for the average map using units in the first map
+                noise_map = noise_map.to(self.output_units, equivalencies=u.cmb_equivalencies(det.cen_freq))
+
+                # Set units for the average map if the first map has units
                 if sim_num == 0:
                     try:
-                        avg_noise_map = u.Quantity(noise_map, unit=noise_map.unit)
+                        avg_noise_map = u.Quantity(avg_noise_map, unit=self.output_units)
                     except AttributeError:
                         logger.warning(f"No units found for {freq} map!")
-                        pass
 
                 # Update average
                 avg_noise_map += noise_map / self.n_sims

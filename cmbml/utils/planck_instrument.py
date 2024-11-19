@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 class Detector:
     nom_freq: int
     fields: str
-    unit: Unit
+    # unit: Unit
     cen_freq: Optional[float] = None
     fwhm: Optional[float] = None
 
@@ -35,15 +35,15 @@ def make_detector(det_info, band, fields):
 
     center_frequency = det_info.loc[band_str]['center_frequency']
     fwhm = det_info.loc[band_str]['fwhm']
-    unit = "MJy/sr" if band in [545, 857] else "K_CMB"
-    unit = convert_field_str_to_Unit(unit)
-    return Detector(nom_freq=band, cen_freq=center_frequency, fwhm=fwhm, fields=fields, unit=unit)
+    # unit = "MJy/sr" if band in [545, 857] else "K_CMB"
+    # unit = convert_field_str_to_Unit(unit)
+    return Detector(nom_freq=band, cen_freq=center_frequency, fwhm=fwhm, fields=fields)  #, unit=unit)
 
 
-def get_detector_unit(band):
-    unit = "MJy/sr" if band in [545, 857] else "K_CMB"
-    unit = convert_field_str_to_Unit(unit)
-    return unit
+# def get_detector_unit(band):
+#     unit = "MJy/sr" if band in [545, 857] else "K_CMB"
+#     unit = convert_field_str_to_Unit(unit)
+#     return unit
 
 
 def make_instrument(cfg, det_info=None):
@@ -63,6 +63,6 @@ def make_instrument(cfg, det_info=None):
         if det_info:
             det = make_detector(det_info, band=freq, fields=selected_fields)
         else:
-            det = Detector(nom_freq=freq, fields=selected_fields, unit=get_detector_unit(freq))
+            det = Detector(nom_freq=freq, fields=selected_fields)  #, unit=get_detector_unit(freq))
         instrument_dets[freq] = det
     return Instrument(dets=instrument_dets, map_fields=scen_fields)

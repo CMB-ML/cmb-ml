@@ -48,14 +48,6 @@ class HydraConfigSimsCheckerExecutor(BaseStageExecutor):
             raise ValueError("Conflicts found in hydra configs.")
         logger.debug("No conflict in Hydra Configs found.")
 
-    def check_units(self) -> None:
-        """
-        Check if the units are supported.
-        Currently only K_CMB is supported.
-        """
-        if self.cfg.scenario.units != "K_CMB":
-            self.issues.append("Currently, the only supported units are K_CMB. Hardcoding for this exists throughout, but will be removed in a future version.")
-
     def check_noise_yaml(self) -> None:
         """
         Ensure all detectors' noise files are in the simulation.noise yaml.

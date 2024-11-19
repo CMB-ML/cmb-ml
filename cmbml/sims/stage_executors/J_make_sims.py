@@ -55,6 +55,8 @@ class SimCreatorExecutor(BaseStageExecutor):
         in_det_table: Asset  = self.assets_in['planck_deltabandpass']
         in_det_table_handler: QTableHandler
 
+        self.output_units = u.Unit(cfg.scenario.units)
+
         det_info = in_det_table.read()
         self.instrument: Instrument = make_instrument(cfg=cfg, det_info=det_info)
 
@@ -99,9 +101,8 @@ class SimCreatorExecutor(BaseStageExecutor):
                 column_names = get_field_types_from_fits(self.in_noise.path)  # path requires being in freq context
 
             # Perform addition in-place 
-            #     Units should already be K_CMB; future versions may preserve source units
-            obs_maps = noise_maps.to(u.K_CMB, equivalencies=u.cmb_equivalencies(detector.cen_freq))
-            obs_maps += sky_no_noise_maps.to(u.K_CMB, equivalencies=u.cmb_equivalencies(detector.cen_freq))
+            obs_maps = noise_maps.to(self.output_units, equivalencies=u.cmb_equivalencies(detector.cen_freq))
+            obs_maps += sky_no_noise_maps.to(self.output_units, equivalencies=u.cmb_equivalencies(detector.cen_freq))
 
             with self.name_tracker.set_contexts(dict(freq=freq)):
                 self.out_obs.write(data=obs_maps, column_names=column_names)

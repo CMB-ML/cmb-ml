@@ -23,6 +23,7 @@ class ScaleCacheMaker:
         self.in_noise_src = in_varmap_source
         self.nside_out = cfg.scenario.nside
         self.out_scale_cache = out_scale_cache
+        self.output_units = u.Unit(cfg.scenario.units)
 
     def get_src_path(self, detector: int):
         """
@@ -77,8 +78,9 @@ class ScaleCacheMaker:
         st_dev_skymap = planck_result_to_sd_map(nside_out=self.nside_out,
                                                 fits_fn=src_path,
                                                 hdu=hdu,
-                                                field_idx=field_idcs,
-                                                cen_freq=detector.cen_freq)
+                                                field_idx=field_idcs)
+        st_dev_skymap = st_dev_skymap.to(self.output_units, 
+                                         equivalencies=u.cmb_equivalencies(detector.cen_freq))
 
         with self.name_tracker.set_contexts(dict(freq=freq)):
             self.write_wrapper(data=st_dev_skymap, fields=detector.fields)
@@ -116,13 +118,13 @@ def make_random_noise_map(sd_map, random_seed):
     #TODO: set units when redoing this function
     rng = np.random.default_rng(random_seed)
     noise_map = rng.normal(scale=sd_map)
-    noise_map = u.Quantity(noise_map, u.K_CMB, copy=False)
+    noise_map = u.Quantity(noise_map, sd_map.unit, copy=False)
     return noise_map
 
 
-def planck_result_to_sd_map(nside_out, fits_fn, hdu, field_idx, cen_freq):
+def planck_result_to_sd_map(nside_out, fits_fn, hdu, field_idx):
     """
-    Convert a Planck variance map to a standard deviation map, with units of K_CMB.
+    Convert a Planck variance map to a standard deviation map, with same units as source.
 
     In the observation maps provided by Planck, fields 0,1,2 are stokes 
     parameters for T, Q, and U (resp). The HITMAP is field 3. The remainder
@@ -137,7 +139,7 @@ def planck_result_to_sd_map(nside_out, fits_fn, hdu, field_idx, cen_freq):
         nside_out (int): The nside for the output map.
         cen_freq (float): The central frequency for the map.
     Returns:
-        np.ndarray: The standard deviation map.
+        np.ndarray: The standard deviation map in with same units as source map.
     """
     src_unit = fits_inspect.get_field_unit_str(fits_fn, field_idx[0], hdu=hdu)
     src_unit = convert_field_str_to_Unit(src_unit)
@@ -146,8 +148,6 @@ def planck_result_to_sd_map(nside_out, fits_fn, hdu, field_idx, cen_freq):
 
     m = change_variance_map_resolution(source_skymap, nside_out)
     m = np.sqrt(m) * (src_unit ** 0.5)
-
-    m = m.to(u.K_CMB, equivalencies=u.cmb_equivalencies(cen_freq))
 
     logger.debug(f"physics_instrument_noise.planck_result_to_sd_map end")
     return m
@@ -166,17 +166,3 @@ def change_variance_map_resolution(m, nside_out):
     m = m.astype(m_dtype, copy=False)
     # End of used portion
     return m
-
-def get_sqrt_unit(src_unit):
-    # Can't use PySM3's read_map() function because
-    #     astropy.units will not parse "(K_CMB)^2" (I think)
-    ok_units_k_cmb = ["(K_CMB)^2", "Kcmb^2"]
-    ok_units_mjysr = ["(Mjy/sr)^2"]
-    ok_units = [*ok_units_k_cmb, *ok_units_mjysr]
-    if src_unit not in ok_units:
-        raise ValueError(f"Wrong unit found in fits file. Found {src_unit}, expected one of {ok_units}.")
-    if src_unit in ok_units_k_cmb:
-        sqrt_unit = "K_CMB"
-    else:
-        sqrt_unit = "MJy/sr"
-    return sqrt_unit
