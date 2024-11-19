@@ -14,6 +14,7 @@ from cmbml.utils.get_planck_data import get_planck_noise_fn
 
 from cmbml.core.asset_handlers.healpy_map_handler import HealpyMap
 from cmbml.core.asset_handlers.qtable_handler import QTableHandler
+from cmbml.utils.physics_downgrade_by_alm import downgrade_by_alm
 
 
 logger = logging.getLogger(__name__)
@@ -40,8 +41,12 @@ class MakePlanckAverageNoiseExecutor(BaseStageExecutor):
         self.instrument: Instrument = make_instrument(cfg=cfg, det_info=det_info)
 
         self.output_units = u.Unit(cfg.scenario.units)
-        self.n_sims = cfg.model.sim.noise.n_planck_noise_sims
-        self.nside_lookup = cfg.model.sim.noise.src_nside_lookup
+
+        noise_cfg = cfg.model.sim.noise
+        self.n_sims = noise_cfg.n_planck_noise_sims
+        self.nside_lookup = noise_cfg.src_nside_lookup
+        # If the setting exists. Remove after review; prefer to save at full resolution.
+        self.save_512_avg_for_reviewers = noise_cfg.get('save_512_avg_for_reviewers', False)
 
     def execute(self) -> None:
         """
@@ -88,6 +93,10 @@ class MakePlanckAverageNoiseExecutor(BaseStageExecutor):
                 # Update average
                 avg_noise_map += noise_map / self.n_sims
                 outer_bar.update(1)
+
+        if self.save_512_avg_for_reviewers:
+            avg_noise_map = downgrade_by_alm(avg_noise_map, target_nside=512)
+            avg_noise_map = avg_noise_map * self.output_units
 
         # Prepare FITS header information & save maps
         column_names = [f"STOKES_{x}" for x in det.fields]
