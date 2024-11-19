@@ -96,7 +96,6 @@ class MakePlanckAverageNoiseExecutor(BaseStageExecutor):
 
         if self.save_512_avg_for_reviewers:
             avg_noise_map = downgrade_by_alm(avg_noise_map, target_nside=512)
-            avg_noise_map = avg_noise_map * self.output_units
 
         # Prepare FITS header information & save maps
         column_names = [f"STOKES_{x}" for x in det.fields]

@@ -152,10 +152,9 @@ class MakePlanckNoiseModelExecutor(BaseStageExecutor):
                 # TODO: Remove this section after review; prefer to save at full resolution.
                 #       Look into this first though. I thought it would be longer, ~45s per map to downgrade,
                 #       but it's only ~5s. This will make noise model generation take longer, but may be faster
-                #       when creating the simulations.
+                #       when creating the simulations. Downside: need to get autopower beyond bandwidth limit. HM. 
                 if self.save_512_avg_for_reviewers:
                     noise_map = downgrade_by_alm(noise_map, target_nside=512)
-                    noise_map = noise_map * self.output_units
 
                 # This is the slow part
                 noise_map = noise_map - avg_noise_map
