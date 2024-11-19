@@ -30,7 +30,6 @@ make_noise_cache:
   assets_in:
     planck_deltabandpass: {stage: raw}
     noise_src_varmaps: {stage: raw}
-    noise_src_cls: {stage: raw}  # Needed for spatially correlated noise
   dir_name: Simulation_B_NoiseCache
 
 make_sim_configs:
@@ -91,6 +90,8 @@ make_noise:
   assets_in:
     planck_deltabandpass: {stage: raw}
     scale_cache: {stage: make_noise_cache}
+    noise_model: {stage: make_noise_models}
+    noise_avg:   {stage: make_planck_noise_sims_avgs}
   dir_name: Simulation_E_Noise
   splits: *all_splits
   make_stage_log: True

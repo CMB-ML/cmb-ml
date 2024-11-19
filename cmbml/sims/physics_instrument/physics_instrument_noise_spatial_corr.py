@@ -5,7 +5,9 @@ import healpy as hp
 import pysm3.units as u
 from astropy.units import Quantity
 
+from cmbml.utils.planck_instrument import Detector
 from cmbml.sims.physics_instrument.physics_scale_cache_maker import ScaleCacheMaker, make_random_noise_map
+from cmbml.utils.physics_downgrade_by_alm import downgrade_by_alm
 from cmbml.core.config_helper import ConfigHelper
 
 
@@ -15,40 +17,37 @@ logger = logging.getLogger(__name__)
 class SpatialCorrNoise:
     do_cache = True
     cache_maker = ScaleCacheMaker
-    # This class is used to generate noise maps from Planck's observation maps.
-    # It is used in the NoiseCacheExecutor and SimCreatorExecutor classes.
-    # This class is glue code. The functions afterwards are relevant to Physics.
     def __init__(self, cfg, name_tracker, scale_cache):
         self.nside_out = cfg.scenario.nside
         self.name_tracker = name_tracker
         self.in_scale_cache = scale_cache
 
         # Use a ConfigHelper to get the assets in; we don't need them as arguments.
-        _ch = ConfigHelper(cfg, 'make_noise_cache')  # Applicable to both
-                                                     #   NoiseCache and SimCreator
+        _ch = ConfigHelper(cfg, 'make_noise')
         assets_in = _ch.get_assets_in(name_tracker=self.name_tracker)
-        self.in_ps_src     = assets_in["noise_src_cls"]
+        self.in_noise_model = assets_in["noise_model"]
+        self.in_noise_avg   = assets_in["noise_avg"]
 
-        self.lmax_out = int(cfg.model.sim.pysm_beam_lmax_ratio * self.nside_out)
-        self.boxcar_length = cfg.model.sim.noise.boxcar_length
-        self.smooth_initial = cfg.model.sim.noise.smooth_initial
+        self.map_fields = cfg.scenario.map_fields
+        if len(self.map_fields) != 1:
+            raise NotImplementedError("Only single field maps are supported for now.")
 
-        self.src_root = cfg.local_system.assets_dir
-        self.source_ps_fns = cfg.model.sim.noise.src_ps
+        lmax_ratio = cfg.model.sim.noise.lmax_ratio_out_noise
+        self.lmax_out = int(lmax_ratio * self.nside_out)
 
-    def check_target_cl_length(self, freq):
-        target_cl = self.get_target_cl(freq)
-        if len(target_cl) < self.lmax_out:
-            raise ValueError(f"Target Cls must at least length {self.lmax_out}.")
+        self.avg_maps = {}
+        self.n_planck_noise_sims = cfg.model.sim.noise.n_planck_noise_sims
 
-    def get_target_cl(self, freq):
-        fn       = self.source_ps_fns[freq]
-        contexts_dict = dict(src_root=self.src_root, filename=fn)
-        with self.name_tracker.set_contexts(contexts_dict):
-            ps = self.in_ps_src.read()
-        return ps[:self.lmax_out+1]
+    def load_avg_maps(self, freq):
+        if freq in self.avg_maps:
+            return
+        logger.info(f"Downgrading average map for frequency {freq}, this may take a moment (once per frequency).")
+        context = dict(fields=self.map_fields)
+        with self.name_tracker.set_contexts(context):
+            full_res_avg_map = self.in_noise_avg.read(map_field_strs=self.map_fields)
+        self.avg_maps[freq] = downgrade_by_alm(full_res_avg_map, self.nside_out)
 
-    def get_noise_map(self, freq, noise_seed):
+    def get_noise_map(self, detector: Detector, noise_seed):
         """
         Returns a noise map for the given frequency and field.
         Called externally in E_make_simulations.py
@@ -57,22 +56,67 @@ class SpatialCorrNoise:
             freq (int): The frequency of the map.
             noise_seed (int): The seed for the noise map.
         """
-        with self.name_tracker.set_context('freq', freq):
+        freq = detector.nom_freq
+        context = dict(freq=freq, n_sims=self.n_planck_noise_sims)
+        with self.name_tracker.set_contexts(context):
+            self.load_avg_maps(freq)
             sd_map = self.in_scale_cache.read()
+            target_cl, tgt_unit = self.get_noise_ps_and_unit(noise_seed)
+
             wht_noise_map = make_random_noise_map(sd_map, noise_seed)
-            
-            # Convert to uK_CMB to match loaded target cls
-            wht_noise_map = wht_noise_map.to(u.uK_CMB)
-            target_cl = self.get_target_cl(freq)
+
+            if str(tgt_unit) != str(wht_noise_map.unit):
+                raise ValueError(f"Target unit {tgt_unit} does not match noise map unit {wht_noise_map.unit}")
+
             noise_map = correlate_noise(wht_noise_map, target_cl, 
                                         nside=self.nside_out, 
-                                        lmax=self.lmax_out,
-                                        boxcar_length=self.boxcar_length, 
-                                        smooth_initial=self.smooth_initial)
+                                        lmax=self.lmax_out)
+            noise_map = remove_monopole(noise_map)
+            noise_map = add_average_map(noise_map, self.avg_maps[freq])
+
             return noise_map
 
+    def get_noise_ps_and_unit(self, noise_seed):
+        """
+        Get the target cls for the given frequency.
+        """
+        noise_model_fn  = self.in_noise_model.path
+        noise_model     = np.load(noise_model_fn)
+        src_mean_ps     = noise_model['mean_ps']
+        src_components  = noise_model['components']
+        src_variance    = noise_model['variance']
 
-def correlate_noise(white_map, target_cl, nside, lmax, boxcar_length, smooth_initial):
+        target_cl       = get_target_cls_from_pca_results(1, 
+                                                          src_mean_ps, 
+                                                          src_variance, 
+                                                          src_components,
+                                                          noise_seed)
+
+        src_map_unit    = noise_model['maps_unit']
+        return target_cl, src_map_unit
+
+
+def get_target_cls_from_pca_results(n_sims, src_mean_ps, src_variance, src_components, random_seed):
+    num_components = len(src_variance)
+
+    std_devs = np.sqrt(src_variance)
+
+    if n_sims == 1:
+        reduced_shape = (num_components,)
+    else:
+        reduced_shape = (n_sims, num_components)
+
+    rng = np.random.default_rng(random_seed)
+
+    reduced_samples = rng.normal(0, std_devs, reduced_shape)
+    # Reconstruct power spectra in log10 space
+    tgt_log_ps = reduced_samples @ src_components + src_mean_ps
+    # Convert out of log10 space
+    tgt_cls = 10**tgt_log_ps
+    return tgt_cls
+
+
+def correlate_noise(white_map, target_cl, nside, lmax):
     """
     Correlate the noise map with the target_cls.
 
@@ -86,30 +130,18 @@ def correlate_noise(white_map, target_cl, nside, lmax, boxcar_length, smooth_ini
     Returns:
         np.ndarray: The correlated noise map.
     """
-    map_unit = white_map.unit
-    white_alms = hp.map2alm(white_map, lmax=lmax)
-    white_cls = hp.alm2cl(white_alms)
-    this_filter = make_filter(boxcar_length, target_cl, white_cls, smooth_initial)
-    out_alms = hp.almxfl(white_alms, this_filter)
-    out_map = hp.alm2map(out_alms, nside=nside)
-    out_map = Quantity(out_map, unit=map_unit)
+    map_unit    = white_map.unit
+    white_alms  = hp.map2alm(white_map, lmax=lmax)
+    white_cl    = hp.alm2cl(white_alms)
+    this_filter = np.sqrt(target_cl[:lmax+1] / white_cl[:lmax+1])
+    out_alms    = hp.almxfl(white_alms, this_filter)
+    out_map     = hp.alm2map(out_alms, nside=nside)
+    out_map     = Quantity(out_map, unit=map_unit)
     return out_map
 
 
-def make_filter(boxcar_length, target_cl, source_cl, smooth_initial):
-    source_cl = source_cl.copy()
-    if boxcar_length == 1:
-        return np.sqrt(target_cl / source_cl)
-    for i in range(smooth_initial):
-        # Noise is white and should be ~constant.
-        #    Sometimes the white noise may have very low values in the first few ell bins.
-        #    This can cause the filter to be very large in those bins, causing spurious low-ell power.
-        #    I'm not sure if it would be better to average these (biased low) or add them (biased high); 
-        #    either way these are generally log-scale and we get more reasonable values.
-        # source_cl[i] = np.mean(source_cl[i], source_cl.mean())
-        source_cl[i] = source_cl[i] + source_cl.mean()
-    f = np.sqrt(target_cl / source_cl)
-    boxcar = np.ones(boxcar_length)
-    f = np.pad(f, (boxcar_length // 2, boxcar_length // 2), mode='edge')
-    f = np.convolve(f, boxcar, mode='same') / np.sum(boxcar)
-    return f
+def remove_monopole(noise_map):
+    return noise_map - np.mean(noise_map)
+
+def add_average_map(noise_map, avg_map):
+    return noise_map + avg_map
