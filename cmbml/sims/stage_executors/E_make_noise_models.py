@@ -14,6 +14,7 @@ from cmbml.utils.planck_instrument import make_instrument, Instrument
 from cmbml.utils.get_planck_data import get_planck_noise_fn
 from cmbml.utils.physics_mask import simple_galactic_mask
 from cmbml.utils.physics_ps import get_autopower
+from cmbml.utils.physics_downgrade_by_alm import downgrade_by_alm
 
 from cmbml.core.asset_handlers.healpy_map_handler import HealpyMap
 from cmbml.core.asset_handlers.qtable_handler import QTableHandler
@@ -50,12 +51,16 @@ class MakePlanckNoiseModelExecutor(BaseStageExecutor):
 
         self.output_units = u.Unit(cfg.scenario.units)
 
-        self.lmax_ratio = cfg.model.sim.noise.lmax_ratio_planck_noise
-        self.n_sims = cfg.model.sim.noise.n_planck_noise_sims
-        self.nside_lookup = cfg.model.sim.noise.src_nside_lookup
+        noise_cfg = cfg.model.sim.noise
 
-        self.mask_galactic_size = cfg.model.sim.noise.mask_galactic_size
-        self.mask_galactic_smooth = cfg.model.sim.noise.mask_galactic_smooth
+        self.lmax_ratio = noise_cfg.lmax_ratio_planck_noise
+        self.n_sims = noise_cfg.n_planck_noise_sims
+        self.nside_lookup = noise_cfg.src_nside_lookup
+
+        self.mask_galactic_size = noise_cfg.mask_galactic_size
+        self.mask_galactic_smooth = noise_cfg.mask_galactic_smooth
+        self.save_512_avg_for_reviewers = noise_cfg.get('save_512_avg_for_reviewers', False)
+
         # Created in execute to not bog down initial checks:
         self.masks = {}
 
@@ -79,12 +84,23 @@ class MakePlanckNoiseModelExecutor(BaseStageExecutor):
         creating the noise maps.
         """
         logger.info("Creating simple galactic plane masks for noise model.")
-        self.masks[1024] = simple_galactic_mask(nside=1024, 
-                                                width=self.mask_galactic_size, 
-                                                smoothing=self.mask_galactic_smooth)
-        self.masks[2048] = simple_galactic_mask(nside=2048, 
-                                                width=self.mask_galactic_size, 
-                                                smoothing=self.mask_galactic_smooth)
+        # Planck noise sims may be either 1024 or 2048 nside, depending on the detector.
+        freqs_1024 = set([30, 44, 70])
+        freqs_2048 = set([100, 143, 217, 353, 545, 857])
+        use_freqs  = set(self.instrument.dets.keys())
+        if self.save_512_avg_for_reviewers:
+            self.masks[512] = simple_galactic_mask(nside=512, 
+                                                   width=self.mask_galactic_size, 
+                                                   smoothing=self.mask_galactic_smooth)
+        else:
+            if use_freqs & freqs_1024:
+                self.masks[1024] = simple_galactic_mask(nside=1024, 
+                                                        width=self.mask_galactic_size, 
+                                                        smoothing=self.mask_galactic_smooth)
+            if use_freqs & freqs_2048:
+                self.masks[2048] = simple_galactic_mask(nside=2048, 
+                                                        width=self.mask_galactic_size, 
+                                                        smoothing=self.mask_galactic_smooth)
 
     def make_noise_model(self, freq, det):
         noise_ls, noise_ms, noise_map_unit = self.parse_sims(freq, det)
@@ -106,7 +122,10 @@ class MakePlanckNoiseModelExecutor(BaseStageExecutor):
         """
         For each of the Planck noise sims, get the power spectrum, the mean, and the units
         """
-        nside = self.nside_lookup[freq]
+        if self.save_512_avg_for_reviewers:
+            nside = 512
+        else:
+            nside = self.nside_lookup[freq]
         n_fields = len(det.fields)
         use_mask = self.masks[nside]
         lmax = int(self.lmax_ratio * nside)
@@ -129,6 +148,15 @@ class MakePlanckNoiseModelExecutor(BaseStageExecutor):
                     noise_map = self.in_sims.read(map_field_strs=det.fields)
 
                 noise_map = noise_map.to(self.output_units, equivalencies=u.cmb_equivalencies(det.cen_freq))
+
+                # TODO: Remove this section after review; prefer to save at full resolution.
+                #       Look into this first though. I thought it would be longer, ~45s per map to downgrade,
+                #       but it's only ~5s. This will make noise model generation take longer, but may be faster
+                #       when creating the simulations.
+                if self.save_512_avg_for_reviewers:
+                    noise_map = downgrade_by_alm(noise_map, target_nside=512)
+                    noise_map = noise_map * self.output_units
+
                 # This is the slow part
                 noise_map = noise_map - avg_noise_map
                 noise_l = get_autopower(noise_map, use_mask, lmax)
