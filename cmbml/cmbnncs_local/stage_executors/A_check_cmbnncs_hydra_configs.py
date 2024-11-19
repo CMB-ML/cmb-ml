@@ -27,10 +27,6 @@ class HydraConfigCMBNNCSCheckerExecutor(BaseStageExecutor):
             raise ValueError("Conflicts found in hydra configs.")
         logger.debug("No conflict in Hydra Configs found.")
 
-    def check_units(self) -> None:
-        if self.cfg.scenario.units != "K_CMB":
-            self.issues.append("Currently, the only supported units are K_CMB. Hardcoding for this exists throughout, but will be removed in a future version.")
-
     def check_scenario_yaml(self) -> None:
         if self.cfg.scenario.map_fields != "I":
             self.issues.append("Currently, the only mode supported for training CMBNNCS is Temperature. In the scenario yaml, change map_fields.")

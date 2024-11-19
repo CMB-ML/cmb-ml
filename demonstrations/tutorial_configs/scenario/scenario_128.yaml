@@ -1,4 +1,4 @@
 nside            : 128
 map_fields       : I
 precision        : float
-units            : K_CMB
+units            : uK_CMB

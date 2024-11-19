@@ -21,6 +21,7 @@ class EmptyNoise:
     # This class is glue code. The functions afterwards are relevant to Physics.
     def __init__(self, cfg, *args, **kwargs):
         nside = cfg.scenario.nside
+        self.output_unit = u.Unit(cfg.scenario.units)
         self.npix = hp.nside2npix(nside)
 
     def get_noise_map(self, detector: Detector, *args, **kwargs):
@@ -35,5 +36,5 @@ class EmptyNoise:
             center_frequency (float): The center frequency of the detector.
         """
         out_shape = (len(detector.fields), self.npix)
-        noise_map = u.Quantity(np.zeros(shape=out_shape), detector.unit, copy=False)
+        noise_map = u.Quantity(np.zeros(shape=out_shape), self.output_unit, copy=False)
         return noise_map

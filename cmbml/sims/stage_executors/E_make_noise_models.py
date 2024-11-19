@@ -48,6 +48,8 @@ class MakePlanckNoiseModelExecutor(BaseStageExecutor):
         if len(map_fields) != 1:
             raise NotImplementedError("Only single field maps are supported for now.")
 
+        self.output_units = u.Unit(cfg.scenario.units)
+
         self.lmax_ratio = cfg.model.sim.noise.lmax_ratio_planck_noise
         self.n_sims = cfg.model.sim.noise.n_planck_noise_sims
         self.nside_lookup = cfg.model.sim.noise.src_nside_lookup
@@ -101,6 +103,9 @@ class MakePlanckNoiseModelExecutor(BaseStageExecutor):
                  maps_unit=noise_map_unit.to_string().replace(' ', ''))
 
     def parse_sims(self, freq, det):
+        """
+        For each of the Planck noise sims, get the power spectrum, the mean, and the units
+        """
         nside = self.nside_lookup[freq]
         n_fields = len(det.fields)
         use_mask = self.masks[nside]
@@ -113,7 +118,7 @@ class MakePlanckNoiseModelExecutor(BaseStageExecutor):
         noise_ls = []
         noise_ms = []
         with tqdm(total=self.n_sims, 
-                    desc=f"Modelling for {freq} GHz Maps", 
+                    desc=f"Getting PS for {freq} GHz Maps", 
                     position=0,
                     dynamic_ncols=True
                     ) as outer_bar:
@@ -123,6 +128,7 @@ class MakePlanckNoiseModelExecutor(BaseStageExecutor):
                 with self.name_tracker.set_context('filename', fn):
                     noise_map = self.in_sims.read(map_field_strs=det.fields)
 
+                noise_map = noise_map.to(self.output_units, equivalencies=u.cmb_equivalencies(det.cen_freq))
                 # This is the slow part
                 noise_map = noise_map - avg_noise_map
                 noise_l = get_autopower(noise_map, use_mask, lmax)
