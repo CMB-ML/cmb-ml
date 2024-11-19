@@ -102,7 +102,7 @@ class HealpyMap(GenericHandler):
         if isinstance(data, list):
             if isinstance(data[0], Quantity):
                 if column_units is None:
-                    column_units = [datum.unit.to_string() for datum in data]
+                    column_units = [datum.unit.to_string().replace(' ', '') for datum in data]
                 data = [datum.value for datum in data]
         if isinstance(data, Quantity):
             if column_units is None:
