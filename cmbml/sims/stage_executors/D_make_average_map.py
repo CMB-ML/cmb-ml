@@ -91,7 +91,7 @@ class MakePlanckAverageNoiseExecutor(BaseStageExecutor):
         column_names = [f"STOKES_{x}" for x in det.fields]
         extra_header = [("METHOD", f"FROM_SIMS", f"Average of {self.n_sims} Planck 2018 noise simulations")]
         self.out_avg_sim.write(data=avg_noise_map, 
-                                column_names=column_names,
-                                extra_header=extra_header)
+                               column_names=column_names,
+                               extra_header=extra_header)
 
         logger.debug(f"Averaging complete for {freq}")
