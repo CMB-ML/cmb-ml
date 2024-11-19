@@ -1,8 +1,15 @@
+from omegaconf.errors import InterpolationKeyError
+
+
 class Split:
     def __init__(self, name, split_cfg):
         self.name = name
         # if a cap is specified, only get that many sims
-        self.n_sims = split_cfg.get("n_sims_cap", split_cfg.n_sims)
+        try:
+            self.n_sims = split_cfg.get("n_sims_cap", split_cfg.n_sims)
+        except InterpolationKeyError:
+            # We may not specify a cap, e.g. for simulations, because there's no inference
+            self.n_sims = split_cfg.n_sims
         if self.n_sims is None:
             # This happens when n_sims_cap is set to null
             self.n_sims = split_cfg.n_sims
