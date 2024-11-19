@@ -41,7 +41,7 @@ src_nside_lookup:
   857: 2048
 
 # Number of Planck Noise simulations to use (max 300, bear in mind the download time!)
-n_planck_noise_sims     : 5
+n_planck_noise_sims     : 100
 # This is not a bandwidth limited scenario!
 lmax_ratio_planck_noise : 2
 # Number of degrees total to mask around the galactic plane
