@@ -34,7 +34,8 @@ class Asset:
         self.path_template = asset_info.get('path_template', None)
         if self.path_template is None:
             logger.warning("No template found.")
-            raise Exception("No path template found! Jim is checking for good reasons for this dead end...")
+            # TODO: Remove? Think through this?
+            raise Exception("No path template found! No known good reasons for this dead end...")
 
         self.use_fields = asset_info.get("use_fields", None)
         # self.get_other_keys(asset_info)
