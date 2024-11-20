@@ -157,26 +157,20 @@ def get_planck_noise_data(detector, assets_directory, realization=0, progress=Fa
     return fn
 
 
-# def get_map_dtype(m: np.ndarray):
-#     """
-#     Get the data type of a map in a format compatible
-#     with numba and mpi4py.
+def get_planck_pred_data(detector, assets_directory, realization=0):
+    """
+    Get the filename for the Planck noise data, downloading it if necessary.
 
-#     Args:
-#         m (np.ndarray): Numpy array representing the map.
+    Parameters
+    ----------
+    realization : int
+        The realization number for the noise map. Default is 0. There are 300 available.
+    """
+    planck_noise_fn_template = "COM_CMB_IQU-nilc_2048_R3.00_full.fits"
+    url_template_sims = "http://pla.esac.esa.int/pla/aio/product-action?MAP.MAP_ID={fn}"
 
-#     Returns:
-#         np.dtype: The data type of the map.
-#     """
-#     # From PySM3 template.py's read_map function, with minimal alteration:
-#     dtype = m.dtype
-#     # numba only supports little endian
-#     if dtype.byteorder == ">":
-#         dtype = dtype.newbyteorder()
-#     # mpi4py has issues if the dtype is a string like ">f4"
-#     if dtype == np.dtype(np.float32):
-#         dtype = np.dtype(np.float32)
-#     elif dtype == np.dtype(np.float64):
-#         dtype = np.dtype(np.float64)
-#     # End of used portion
-#     return dtype
+    fn = planck_noise_fn_template.format(frequency=format_freq(detector), 
+                                         realization=format_real(realization))
+    fn = Path(assets_directory) / fn
+    acquire_map_data(fn, url_template_sims)
+    return fn
