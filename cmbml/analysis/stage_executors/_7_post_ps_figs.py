@@ -1,3 +1,4 @@
+# TODO: Compare this to analysis/stage_executors/_14_post_ps_compare_fig.py... how can I unify these?
 from typing import Union
 import logging
 
@@ -29,6 +30,7 @@ RED = "#ED1C24"
 PURBLUE = "#524FA1"
 GREEN = "#00A651"
 YELLOW = "#FDB913"
+LIGHTBLUE = "#3B9BF5"
 
 
 class PostAnalysisPsFigExecutor(BaseStageExecutor):
@@ -102,24 +104,31 @@ class PostAnalysisPsFigExecutor(BaseStageExecutor):
         self.make_ps_figure(ps_real, ps_pred, ps_theory, wmap_band, baseline="theory")
         title = self.make_title(epoch, split, sim_num)
         plt.suptitle(title)
-        self.out_ps_figure_theory.write()
-        fn = self.out_ps_figure_theory.path
+        with self.name_tracker.set_context("model", self.fig_model_name):
+            self.out_ps_figure_theory.write()  # Just makes the directory. TODO: Make this more clear - for all assets, add method
+            fn = self.out_ps_figure_theory.path
         print(f'writing to {fn}')
-        plt.savefig(fn)
+        plt.tight_layout()
+        plt.savefig(fn, format='pdf')
         plt.close()
 
     def make_ps_figure(self, ps_real, ps_pred, ps_theory, wmap_band, baseline="theory"):
+        # TODO: Parameterize this!
+        if self.fig_model_name == "CNILC":
+            use_color = RED
+        elif self.fig_model_name == "CMBNNCS":
+            use_color = PURBLUE
         n_ells = ps_real.shape[0] - 2
         ells = np.arange(1, n_ells+1)
 
         pred_conved = ps_pred
         real_conved = ps_real
 
-        fig, (ax1, ax2) = plt.subplots(2, 1, sharex=True, gridspec_kw={'height_ratios': [3, 1]}, figsize=(10, 6))
+        fig, (ax1, ax2) = plt.subplots(2, 1, sharex=True, gridspec_kw={'height_ratios': [2.9, 1.1]}, figsize=(6.875, 3.9375))
 
         thry_params = dict(color=BLACK, label='Theory')
-        real_params = dict(color=RED, label='Realization')
-        pred_params = dict(color=PURBLUE, label='Prediction')
+        real_params = dict(color=LIGHTBLUE, label='Realization')
+        pred_params = dict(color=use_color, label='Prediction')
         wmap1_params = dict(color=GREEN, alpha=0.25, label='1$\\sigma$ WMAP')
         wmap2_params = dict(color=GREEN, alpha=0.50, label='2$\\sigma$ WMAP')
 
@@ -128,7 +137,7 @@ class PostAnalysisPsFigExecutor(BaseStageExecutor):
         wmap1_upper = wmap_band[0][1][2:n_ells]
         wmap2_lower = wmap_band[1][0][2:n_ells]
         wmap2_upper = wmap_band[1][1][2:n_ells]
-        ps_theory = ps_theory[2:n_ells]
+        ps_theory   = ps_theory[2:n_ells]
         real_conved = real_conved[2:n_ells]
         pred_conved = pred_conved[2:n_ells]
         self.abs_panel(ax1, ells, real_conved, pred_conved, ps_theory, 
@@ -158,7 +167,7 @@ class PostAnalysisPsFigExecutor(BaseStageExecutor):
                   thry_params, real_params, pred_params, wmap1_params, wmap2_params):
         # TODO: refactor
         # Upper panel
-        marker_size = 5
+        marker_size = 1
         ax.fill_between(ells, wmap1_lower, wmap1_upper, **wmap1_params)
         ax.fill_between(ells, wmap2_lower, wmap2_upper, **wmap2_params)
         ax.plot(ells, ps_theory, **thry_params)
@@ -173,7 +182,7 @@ class PostAnalysisPsFigExecutor(BaseStageExecutor):
                   deltas1_params, deltas2_params, horz_params):
         # TODO: refactor
         # Lower panel
-        marker_size = 5
+        marker_size = 1
         bin_width = 30
 
         bin_centers1, binned_means1, binned_stds1 = self.bin_data(ells, deltas1, bin_width)
@@ -181,8 +190,8 @@ class PostAnalysisPsFigExecutor(BaseStageExecutor):
 
         # Lower panel
         ax.axhline(0, **horz_params)
-        ax.errorbar(bin_centers1, binned_means1, yerr=binned_stds1, fmt='o', markersize=marker_size, **deltas1_params)
-        ax.errorbar(bin_centers2, binned_means2, yerr=binned_stds2, fmt='o', markersize=marker_size, **deltas2_params)
+        ax.errorbar(bin_centers1, binned_means1, yerr=binned_stds1, fmt='o', markersize=marker_size, elinewidth=marker_size, **deltas1_params)
+        ax.errorbar(bin_centers2, binned_means2, yerr=binned_stds2, fmt='o', markersize=marker_size, elinewidth=marker_size, **deltas2_params)
         ax.set_xlabel('$\\ell$')
         ax.set_ylabel(ylabel)
         ax.set_ylim(-50, 50)
@@ -220,7 +229,7 @@ class PostAnalysisPsFigExecutor(BaseStageExecutor):
 
     def make_title(self, epoch, split, sim_num):
         if epoch != "":
-            e_phrase = f" After Training for {epoch} Epochs"
+            e_phrase = f" (trained {epoch} epochs)"
         else:
             e_phrase = ""
-        return f"{self.fig_model_name} Predictions{e_phrase}, {split}:{sim_num}"
+        return f"{self.fig_model_name} Predictions{e_phrase}, {split}:{sim_num:04d}"
