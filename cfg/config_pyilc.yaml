@@ -4,13 +4,13 @@ defaults:
   - file_system               : common_fs
   - pipeline                  : assembly_pyilc
   - scenario                  : scenario
-  - splits                    : all
+  - splits                    : "1-1"  # Ensure that 
   - model/pyilc               : cnilc_512
   - model/analysis            : basic_analysis
   - override hydra/job_logging: custom_log
 
-dataset_name   : ${scenario.map_fields}_${scenario.nside}
-working_dir    : "PyILC_CNILC_TEST/"
+dataset_name   : ${scenario.map_fields}_${scenario.nside}_${split.name}
+working_dir    : "PyILC_CNILC/"
 fig_model_name : "CNILC"
 hydra:
   run:
@@ -21,7 +21,7 @@ hydra:
                                                 #   This is a minor bug, not worth fixing.
   verbose      : true
 
-run_inference_on   : valid  # Either "test" or "valid" ("train" should work, but is not recommended)
+run_inference_on   : test  # Either "test" or "valid" ("train" should work, but is not recommended)
 
 # Settings below this point are used for interpolation.
 # These are not to be used directly in python.
@@ -37,8 +37,8 @@ use_epochs           : &epochs [""]
 use_epochs_imgs      : *epochs
 use_epochs_map_stats : *epochs
 use_epochs_ps_stats  : *epochs
-# Limit the number of simulations for which to generate figures
-n_show_cap           : 1   # int: first n_sims; null: all sims; list: particular sims by index
 
-# In the splits yaml; null to run on all
-n_infer_cap          : 1
+# Limit the number of simulations for which to generate figures
+n_show_cap           : 1   # int: first n_sims; null: all sims (not recommended); list: particular sims by index
+# Limit the number of simulations for which inference is run. In the splits yaml; null to run on all
+n_infer_cap          : null
