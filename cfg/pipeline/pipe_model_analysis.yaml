@@ -28,7 +28,7 @@ common_post_map_real:
     cmb_map: {stage: make_sims}
     mask: {stage: make_mask}
   splits:
-    - ${run_inference_on}
+    - ${splits.run_inference_on}
   dir_name: Analysis_D_Common_Post_Map_Real
 
 common_post_map_pred:
@@ -40,7 +40,7 @@ common_post_map_pred:
     cmb_map: {stage: final_infer}
     mask: {stage: make_mask}
   splits:
-    - ${run_inference_on}
+    - ${splits.run_inference_on}
   dir_name: Analysis_E_Common_Post_Map_Pred
   epochs: ${use_epochs_imgs}
 
@@ -54,7 +54,7 @@ show_cmb_post_masked:
     cmb_map_sim: {stage: common_post_map_real, orig_name: cmb_map}
     planck_deltabandpass: {stage: raw}
   splits:
-    - ${run_inference_on}
+    - ${splits.run_inference_on}
   override_n_sims: ${n_show_cap}    
   plot_min_max: 500                  # value, v: plots from -v to +v; null: allow MPL to choose; list (size 2): min and max val
   make_stage_log: False
@@ -86,7 +86,7 @@ show_cmb_post_masked_ind:
     cmb_map_sim: {stage: common_post_map_real, orig_name: cmb_map}
     planck_deltabandpass: {stage: raw}
   splits:
-    - ${run_inference_on}
+    - ${splits.run_inference_on}
   override_n_sims: ${n_show_cap}    
   plot_min_max: 500                  # value, v: plots from -v to +v; null: allow MPL to choose; list (size 2): min and max val
   make_stage_log: False
@@ -102,7 +102,7 @@ pixel_analysis:
     cmb_map_post: {stage: common_post_map_pred, orig_name: cmb_map}
     cmb_map_sim: {stage: common_post_map_real, orig_name: cmb_map}
   splits:
-    - ${run_inference_on}
+    - ${splits.run_inference_on}
   epochs: ${use_epochs_map_stats}
   dir_name: Analysis_F_Pixel_Report
 
@@ -117,7 +117,7 @@ pixel_summary_tables:
   assets_in:
     report: {stage: pixel_analysis}
   splits:
-    - ${run_inference_on}
+    - ${splits.run_inference_on}
   epochs: ${use_epochs_map_stats}
   dir_name: Analysis_3_Pixel_Summary_Tables
 
@@ -132,7 +132,7 @@ pixel_summary_figs:
   assets_in:
     report: {stage: pixel_analysis}
   splits:
-    - ${run_inference_on}
+    - ${splits.run_inference_on}
   epochs: ${use_epochs_map_stats}
   dir_name: Analysis_4_Pixel_Summary_Figs
 
@@ -162,21 +162,21 @@ make_pred_ps:
                                  #   set stage: to mask_in for the original mask (will be downgraded)
     mask_sm: {stage: make_mask}  # Remove or set to null for no masking;
   splits:
-    - ${run_inference_on}
+    - ${splits.run_inference_on}
   epochs: ${use_epochs_ps_stats}
   dir_name: Analysis_K_Power_Spectra
 
 one_ps_fig:  # Produce a power spectrum without needing the rest of the spectra from the training set
   assets_out:
     ps_figure:
-      path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/cmb_ps_figure_{epoch}.png"
+      path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/cmb_ps_figure_{epoch}.pdf"
       handler: EmptyHandler
   assets_in:
     theory_ps: {stage: convert_theory_ps}
     auto_real: {stage: make_pred_ps}
     auto_pred: {stage: make_pred_ps}
   splits:
-    - ${run_inference_on}
+    - ${splits.run_inference_on}
   epochs: ${use_epochs_ps_stats}
   override_n_sims: ${n_show_cap}
   dir_name: Analysis_11_One_PS_Fig
@@ -192,7 +192,7 @@ ps_analysis:
     auto_real: {stage: make_pred_ps}
     auto_pred: {stage: make_pred_ps}
   splits:
-    - ${run_inference_on}
+    - ${splits.run_inference_on}
   epochs: ${use_epochs_ps_stats}
   override_n_sims: ${n_test_cap}
   wmap_n_ps: 50
@@ -209,7 +209,7 @@ ps_analysis:
 #     auto_real: {stage: make_pred_ps}
 #     auto_pred: {stage: make_pred_ps}
 #   splits:
-#     - ${run_inference_on}
+#     - ${splits.run_inference_on}
 #   epochs: ${use_epochs_ps_stats}
 #   override_n_sims: ${n_test_cap}
 #   wmap_n_ps: 50
@@ -223,7 +223,7 @@ ps_summary_tables:
   assets_in:
     report: {stage: ps_analysis}
   splits:
-    - ${run_inference_on}
+    - ${splits.run_inference_on}
   epochs: ${use_epochs_ps_stats}
   dir_name: Analysis_5_PS_Summary_Tables
 
@@ -238,17 +238,17 @@ ps_summary_figs:
   assets_in:
     report: {stage: ps_analysis}
   splits:
-    - ${run_inference_on}
+    - ${splits.run_inference_on}
   epochs: ${use_epochs_ps_stats}
   dir_name: Analysis_6_PS_Summary_Figs
 
 post_ps_fig:
   assets_out:
     ps_figure_theory:
-      path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/cmb_ps_figure_theory_{epoch}.png"
+      path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/cmb_ps_figure_theory_{epoch}_{sim}_{model}.pdf"
       handler: EmptyHandler
     ps_figure_real:
-      path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/cmb_ps_figure_real_{epoch}.png"
+      path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/cmb_ps_figure_real_{epoch}_{sim}_{model}.pdf"
       handler: EmptyHandler
   assets_in:
     theory_ps: {stage: convert_theory_ps}
@@ -257,7 +257,7 @@ post_ps_fig:
     wmap_ave: {stage: ps_theory_stats}
     wmap_std: {stage: ps_theory_stats}
   splits:
-    - ${run_inference_on}
+    - ${splits.run_inference_on}
   epochs: ${use_epochs_ps_stats}
   override_n_sims: ${n_show_cap}
   dir_name: Analysis_7_F_Post_PS_Solo_Figs
@@ -277,7 +277,7 @@ post_post_ps_fig:
     wmap_ave: {stage: ps_theory_stats}
     wmap_std: {stage: ps_theory_stats}
   splits:
-    - ${run_inference_on}
+    - ${splits.run_inference_on}
   epochs: ${use_epochs_ps_stats}
   override_n_sims: ${n_show_cap}
   dir_name: Analysis_7_F_Post_PS_Solo_Figs

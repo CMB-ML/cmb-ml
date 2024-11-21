@@ -3,3 +3,5 @@ Train:
   n_sims: 2
 Test:
   n_sims: 2
+  n_sims_cap: ${n_infer_cap}
+run_inference_on: test

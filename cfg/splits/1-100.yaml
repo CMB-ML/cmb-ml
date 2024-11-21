@@ -1,3 +1,5 @@
 name: "1-100"
 Train:
   n_sims: 100
+  n_sims_cap: ${n_infer_cap}
+run_inference_on: test

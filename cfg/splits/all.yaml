@@ -7,3 +7,4 @@ Valid:
 Test:
   n_sims: 200
   n_sims_cap: ${n_infer_cap}
+run_inference_on: ${run_inference_on}

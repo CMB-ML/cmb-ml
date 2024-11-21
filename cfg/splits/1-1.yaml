@@ -1,3 +1,5 @@
 name: "1-1"
 Test:
   n_sims: 1
+  n_sims_cap: ${n_infer_cap}
+run_inference_on: test
