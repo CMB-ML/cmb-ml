@@ -41,7 +41,7 @@ src_nside_lookup:
   857: 2048
 
 # Number of Planck Noise simulations to use (max 300, bear in mind the download time!)
-n_planck_noise_sims     : 100
+n_planck_noise_sims     : 3
 # This is not a bandwidth limited scenario!
 # TODO: CHANGE THIS BACK TO 2! Needed to be higher for use with lower source average maps
 lmax_ratio_planck_noise : 2.99999
