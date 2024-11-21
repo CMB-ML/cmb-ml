@@ -3,7 +3,7 @@ defaults:
   - file_system    : common_fs
   - pipeline       : assembly_cmbnncs
   - scenario       : scenario
-  - splits         : all
+  - splits         : "1-1"  # If you aren't getting as many results as expected, check n_infer_cap as well
   - model/cmbnncs  : cmbnncs_model
   - model/analysis : basic_analysis
   - override hydra/job_logging: custom_log
@@ -11,8 +11,7 @@ defaults:
 
 # dataset_name: CMML_Dataset
 # When creating multiple datasets, using interpolation like this may be easier:
-dataset_name       : ${scenario.map_fields}_${scenario.nside}
-# dataset_name       : ${scenario.map_fields}_${scenario.nside}_${splits.name}
+dataset_name       : ${scenario.map_fields}_${scenario.nside}_${splits.name}
 working_dir        : "CMBNNCS_UNet8/"
 fig_model_name     : CMBNNCS
 hydra:
@@ -20,7 +19,6 @@ hydra:
     dir            : Logs/${now:%Y-%m-%d-%H-%M-%S}
   verbose          : true
 
-run_inference_on   : test
 
 # Settings below this point are used for interpolation.
 # These are not to be used directly in the python
@@ -31,7 +29,7 @@ detectors          : [100, 143, 217, 353]
 map_fields         : "I"
 
 # In the model yaml
-num_epochs       : 120
+num_epochs         : 120
 
 # In the pipeline yamls
 # For prediction, postprocessing, power spectra generation:
@@ -41,10 +39,11 @@ use_epochs_imgs      : ${use_epochs}
 # For summary statistics:
 use_epochs_map_stats : ${use_epochs}
 # For summary statistics:
-use_epochs_ps_stats : ${use_epochs}
+use_epochs_ps_stats  : ${use_epochs}
 # Limit the number of simulations for which to generate figures
-n_show_cap       : 10
+n_show_cap           : 1
 
 # Limit the number of simulations on which to do inference and postprocessing
 # In the splits yaml; null to run on all
-n_infer_cap       : 10
+n_infer_cap           : 1
+run_inference_on      : test  # Either "test" or "valid" ("train" should work, but is not recommended)
