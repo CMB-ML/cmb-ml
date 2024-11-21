@@ -9,19 +9,9 @@ src_files:
   353: "HFI_SkyMap_353-psb_2048_R3.01_full.fits"
   545: "HFI_SkyMap_545_2048_R3.01_full.fits"
   857: "HFI_SkyMap_857_2048_R3.01_full.fits"
-src_ps:
-  30:  "LFI_SkyMap_030-BPassCorrected_1024_R3.00_full.fits"
-  44:  "LFI_SkyMap_044-BPassCorrected_1024_R3.00_full.fits"
-  70:  "LFI_SkyMap_070-BPassCorrected_1024_R3.00_full.fits"
-  100: "mean_cl_nside512_det100.txt"
-  143: "HFI_SkyMap_143_2048_R3.01_full.fits"
-  217: "HFI_SkyMap_217_2048_R3.01_full.fits"
-  353: "HFI_SkyMap_353-psb_2048_R3.01_full.fits"
-  545: "HFI_SkyMap_545_2048_R3.01_full.fits"
-  857: "HFI_SkyMap_857_2048_R3.01_full.fits"
 seed_string: noise
-do_cache: true
-save_noise: true
+do_cache: true  # Needed for this method. TODO: Consider moving this to the python
+save_noise: true  # Save noise if generating it in a separate executor as is done for the current implementation
 lmax_ratio_out_noise : 2.9999
 
 hdu_n: 1      # Consistent for these map files
@@ -29,6 +19,7 @@ field_idcs:
   3: {I: 2}   # If the hdu has 3 fields, the I map will be at index 2
   10: {I: 4, Q: 7, U: 9}
 
+# Resolution of map files as released by Planck
 src_nside_lookup:
   30: 1024
   44: 1024
@@ -41,9 +32,9 @@ src_nside_lookup:
   857: 2048
 
 # Number of Planck Noise simulations to use (max 300, bear in mind the download time!)
-n_planck_noise_sims     : 3
+n_planck_noise_sims     : 100
 # This is not a bandwidth limited scenario!
-# TODO: CHANGE THIS BACK TO 2! Needed to be higher for use with lower source average maps
+# TODO: CHANGE THIS BACK TO 2 (after review period)! Needed to be higher for use with lower source average maps
 lmax_ratio_planck_noise : 2.99999
 # Number of degrees total to mask around the galactic plane
 #    10, the default, will mask 5 degrees above and below the plane
@@ -51,4 +42,5 @@ mask_galactic_size      : 10
 # Smoothing (degrees) of the simple galactic plane mask
 mask_galactic_smooth    : 1
 
+# After review period, remove this setting. It is only because maps with resolution greater than 512 cannot be included in the repository.
 save_512_avg_for_reviewers: true
