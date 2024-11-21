@@ -14,7 +14,7 @@ predict: &final_inference
     planck_deltabandpass: {stage: raw}
     mask: {stage: make_mask}  # Remove or set to null for no masking
   splits:
-    - ${run_inference_on}
+    - ${splits.run_inference_on}
   dir_name: NILC_B_Predict
   make_stage_log: True
 
