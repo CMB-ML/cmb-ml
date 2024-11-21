@@ -68,11 +68,11 @@ def run_simulations(cfg):
     pipeline_context.add_pipe(MakePlanckNoiseModelExecutor)
 
     # Needed for all:
-    # pipeline_context.add_pipe(ConfigExecutor)
-    # pipeline_context.add_pipe(TheoryPSExecutor)
-    # pipeline_context.add_pipe(ObsCreatorExecutor)
+    pipeline_context.add_pipe(ConfigExecutor)
+    pipeline_context.add_pipe(TheoryPSExecutor)
+    pipeline_context.add_pipe(ObsCreatorExecutor)
     pipeline_context.add_pipe(NoiseMapCreatorExecutor)
-    # pipeline_context.add_pipe(SimCreatorExecutor)
+    pipeline_context.add_pipe(SimCreatorExecutor)
 
     # # TODO: Put this back in the pipeline yaml; fix/make executor
     # # pipeline_context.add_pipe(ShowSimsExecutor)  # Out of date, do not use.
