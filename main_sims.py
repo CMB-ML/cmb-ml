@@ -63,9 +63,9 @@ def run_simulations(cfg):
     pipeline_context.add_pipe(NoiseCacheExecutor)
 
     # Only needed if using spatially correlated noise
-    pipeline_context.add_pipe(GetPlanckNoiseSimsExecutor)
-    pipeline_context.add_pipe(MakePlanckAverageNoiseExecutor)
-    pipeline_context.add_pipe(MakePlanckNoiseModelExecutor)
+    # pipeline_context.add_pipe(GetPlanckNoiseSimsExecutor)
+    # pipeline_context.add_pipe(MakePlanckAverageNoiseExecutor)
+    # pipeline_context.add_pipe(MakePlanckNoiseModelExecutor)
 
     # Needed for all:
     pipeline_context.add_pipe(ConfigExecutor)
