@@ -70,8 +70,12 @@ def run_pyilc_analysis(cfg):
 
     pipeline_context.add_pipe(HydraConfigCheckerExecutor)
 
+    # In the following, "Common" means "Apply the same postprocessing to all models"; requires a mask
+    # Apply to the target (CMB realization)
     pipeline_context.add_pipe(CommonRealPostExecutor)
     pipeline_context.add_pipe(CommonPyILCPredPostExecutor)
+
+    # Show results of cleaning
     pipeline_context.add_pipe(CommonNILCShowSimsPostExecutor)
     pipeline_context.add_pipe(CommonNILCShowSimsPostIndivExecutor)
 
