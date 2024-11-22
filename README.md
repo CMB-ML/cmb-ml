@@ -217,7 +217,10 @@ We provide links to the various data used. Alternatives to get this data are in 
         - [WMAP9 Chains, direct download](https://lambda.gsfc.nasa.gov/data/map/dr5/dcp/chains/wmap_lcdm_mnu_wmap9_chains_v5.tar.gz)
       - Planck delta bandpass table:
         - [Planck delta bandpass table, from Simons Observatory](https://github.com/galsci/mapsims/raw/main/mapsims/data/planck_deltabandpass/planck_deltabandpass.tbl)
-      - [Downloading script](./get_data/get_orig_science_assets.py)
+      - CMB-ML delta bandpass table:
+        - [CMB-ML delta bandpass table, from Simons Observatory](assets/delta_bandpasses/CMB-ML/cmb-ml_deltabandpass.tbl)
+        - Simply move the CMB-ML directory contained in assets/delta_bandpasses to your assets folder (as defined in e.g., [your local_system config](cfg/local_system/generic_lab.yaml))
+      - [Downloading script](./get_data/get_assets.py)
   <!-- - On Box: 
     - [All Science Assets](https://utdallas.box.com/v/cmb-ml-science-assets)
     - [Downloading script](./get_data/get_box_science_assets.py) -->
