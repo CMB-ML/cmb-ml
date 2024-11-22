@@ -56,4 +56,4 @@ class GetAssetsExecutor(BaseStageExecutor):
         noise_src_dir = dummy_fp.parent
         noise_src_dir.mkdir(parents=True, exist_ok=True)
         for det in tqdm(self.detectors):
-            get_planck_obs_data(detector=det, assets_directory=noise_src_dir, progress=True)
+            get_planck_obs_data(detector=det, assets_directory=noise_src_dir, progress=True)  # This will download the data if it doesn't exist
