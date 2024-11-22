@@ -95,17 +95,31 @@ Setting up the repository:
   - If you are not creating simulations, you only need one science asset: "COM_CMB_IQU-nilc_2048_R3.00_full.fits" (for the mask)
   - Scripts are available in the `get_data` folder, which will download all files.
     - [Download from original sources](./get_data/get_assets.py)
+  - Transfer the CMB-ML bandpass table to your assets directory manually.
+    - Move the CMB-ML folder (including the file within), to the assets directory (`assets_dir`) defined in local_system yaml.
+- Next, set up to run.
+  - You will need to either generate simulations or download them. 
+  - We provide a tiny demonstration dataset in this repository. 
+    - It is suitable for running PyILC's CNILC prediction method, and for confirming that data appears as it should when running simulations
+    - Unfortunately, the CMBNNCS model is too large, so it cannot be transferred by GitHub
 
+## For CMB_ML_512_1-1
 
-## For IQU_512_1450 (Simulations must be generated)
+This is a demonstration dataset. It is suitable for comparing simulation output and running PyILC demonstration only.
+- Transfer the contents of the `assets/demo_simulation` folder to your `dataset_root` folder, as set up above
+- Run `main_pyilc_predict_demo.py` to perform CMB cleaning
+- Run `main_pyilc_analysis_demo.py` to get analysis results
+  - Note that the output figure for the power spectrum will be slightly different, as you do not have the bank of theory spectra.
+  - The figure presented above can be recreated only after generating the full CMB_ML_512_1450 dataset.
+- Run `main_sims_demo.py` to generate a new simulation; results should be comparable to the included demo (slight differences may occur in the CMB map, as this may have a different seed)
 
-- Download IQU_512_1450
-  - [Script for downloading IQU-512-1450](./get_data/get_box_IQU_512_1450.py)
-  - `python ./get_data/get_box_I_128_1450.py`
-  - Files are visible at this (disabled) [Box link for IQU-512-1450](https://somewhere.box.com/v/cmb-ml-IQU-512-1450)
+## For CMB_ML_512_1450 (Simulations must be generated)
+
+- Download CMB_ML_512_1450
+  - [Script for downloading CMB_ML_512_1450](./get_data/get_box_CMB_ML_512_1450.py)
+  - `python ./get_data/get_box_I_512_1450.py`
+  - Files are visible at this (disabled) [Box link for CMB_ML_512_1450](https://somewhere.box.com/v/cmb-ml-I-512-1450)
   - Alternatively, to generate simulations, use `python main_sims.py`
-- Convert theory power spectra to the form expected in analysis
-  - `python main_convert_theory.py`
 - To train, predict, and run analysis using CMBNNCS
   - `python main_cmbnncs.py`
 - To predict using PyILC (this must be performed separately from analysis due to import issues)
@@ -115,24 +129,20 @@ Setting up the repository:
 - To compare results between CMBNNCS and PyILC
   - `python main_analysis_compare.py`
 
-## For I_128_1450 (Simulations must be generated)
+## For CMB_ML_128_1450 (Simulations must be generated)
 
 This will run more quickly than the higher resolution.
 
-- Download I_128_1450:
-  - [Script for downloading I-128-1450](./get_data/get_box_I_128_1450.py)
-  - `python ./get_data/get_box_I_128_1450.py`
+- Download CMB_ML_128_1450:
+  - [Script for downloading I-128-1450](./get_data/get_box_CMB_ML_128_1450.py)
+  - `python ./get_data/get_box_CMB_ML_128_1450.py`
   - Files are visible at this (disabled) [Box link for I-128-1450](https://somewhere.box.com/v/cmb-ml-I-128-1450)
-  - Alternatively, to generate simulations, use `python main_sims.py dataset_name=I_128_1450 nside=128`
-- Rename the CMB_Theory directory (be sure to change the paths!):
-    - `mv /path/to/Simulation_Working/Simulation_D_CMB_Power_Spectra /path/to/Simulation_Working/Simulation_CMB_Power_Spectra`
-- Change format for Theory Power Spectra  
-    - `python main_convert_theory.py dataset_name=I_128_1450 nside=128`
-- Run CMBNNCS on I_128_1450 (the smaller UNet5 must be used):
-    - `python main_cmbnncs.py dataset_name=I_128_1450 working_dir=CMBNNCS_UNet5/ nside=128 num_epochs=2 use_epochs=[2] model/cmbnncs/network=unet5`
-- Run PyILC on I_128_1450:
-    - `python main_pyilc_predict.py dataset_name=I_128_1450 nside=128 ELLMAX=382 model.pyilc.distinct.N_scales=5 model.pyilc.distinct.ellpeaks=[100,200,300,383]`
-    - `python main_pyilc_analysis.py dataset_name=I_128_1450 nside=128 ELLMAX=382 model.pyilc.distinct.N_scales=5 model.pyilc.distinct.ellpeaks=[100,200,300,383]`
+  - Alternatively, to generate simulations, use `python main_sims.py dataset_name=CMB_ML_128_1450 nside=128`
+- Run CMBNNCS on CMB_ML_128_1450 (the smaller UNet5 must be used):
+    - `python main_cmbnncs.py dataset_name=CMB_ML_128_1450 working_dir=CMBNNCS_UNet5/ nside=128 num_epochs=2 use_epochs=[2] model/cmbnncs/network=unet5`
+- Run PyILC on CMB_ML_128_1450:
+    - `python main_pyilc_predict.py dataset_name=CMB_ML_128_1450 nside=128 ELLMAX=382 model.pyilc.distinct.N_scales=5 model.pyilc.distinct.ellpeaks=[100,200,300,383]`
+    - `python main_pyilc_analysis.py dataset_name=CMB_ML_128_1450 nside=128 ELLMAX=382 model.pyilc.distinct.N_scales=5 model.pyilc.distinct.ellpeaks=[100,200,300,383]`
     - An even faster method is available, using PyILC's HILC method.
 - Run Comparison:
     - `python main_analysis_compare.py --config-name config_comp_models_t_128`

@@ -3,7 +3,7 @@ defaults:
   - file_system    : common_fs
   - pipeline       : assembly_sim
   - scenario       : scenario
-  - splits         : all
+  - splits         : "1-1"
   - model/sim      : sim
   - model/analysis : basic_analysis
   - override hydra/job_logging: custom_log

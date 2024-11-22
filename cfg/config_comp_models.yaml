@@ -4,16 +4,13 @@ defaults:
   - pipeline       : assembly_model_comp
   - scenario       : scenario
   - splits         : all
-  # - model/cmbnncs  : cmbnncs_model
   - model/analysis : basic_analysis
   - override hydra/job_logging: custom_log
   - _self_
 
 # dataset_name: CMML_Dataset
 # When creating multiple datasets, using interpolation like this may be easier:
-dataset_name       : ${scenario.map_fields}_${scenario.nside}
-# dataset_name       : ${scenario.map_fields}_${scenario.nside}_${splits.name}
-# dataset_name       : IQU_${scenario.nside}_${splits.name}
+dataset_name         : ${scenario.map_fields}_${scenario.nside}_${splits.name}
 working_dir          : ""  # Otherwise None will be prepended to the directory name.
 fig_model_name       : null
 hydra:
@@ -44,5 +41,5 @@ map_fields     : "I"
 # Limit the number of simulations on which to do inference and postprocessing
 # In the splits yaml; null to run on all
 # Should not be needed here; remove the check for this wherever it occurs
-n_test_cap       : 5
+n_test_cap       : null
 n_show_cap       : 5

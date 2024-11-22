@@ -6,7 +6,7 @@ outputs/
 multirun/
 
 # Ignore potentially large files
-*.fits
+# *.fits
 *.tar.gz
 
 # Ignore local system files
