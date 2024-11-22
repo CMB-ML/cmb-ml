@@ -1,5 +1,5 @@
 """
-This module contains downloading utilities for conventional links and for Box links, both in custom formats.
+This module contains downloading utilities for conventional links and for CMBML data repository links, both in custom formats.
 """
 import hashlib
 import logging
@@ -144,7 +144,7 @@ def find_remote_size(url) -> Union[int, FileNotFound, FileSizeNotFound]:
     if size is not None and size != '0':
         return int(size)
     else:
-        # This is expected from some servers, e.g. GitHub, Box
+        # This is expected from some servers, e.g. GitHub, CMBML Repository
         logging.debug(f"Remote file size not found.")
         return FileSizeNotFound
 

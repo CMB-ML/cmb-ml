@@ -31,9 +31,9 @@ def load_planck_data_general(fn, detector):
 
 
 def load_planck_obs_data(detector, assets_directory):
-    fn = get_planck_obs_data(detector, assets_directory)
+    fn = get_planck_obs_data(detector, assets_directory)  # This will download the data if it doesn't exist
     return load_planck_data_general(fn, detector)
 
 def load_planck_pred_data(detector, assets_directory):
-    fn = get_planck_pred_data(detector, assets_directory)
+    fn = get_planck_pred_data(detector, assets_directory)  # This will download the data if it doesn't exist
     return load_planck_data_general(fn, detector)

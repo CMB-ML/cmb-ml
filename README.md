@@ -1,6 +1,6 @@
 # CMB-ML: A Cosmic Microwave Background Radiation Dataset for Machine Learning
 
-[![DOI](https://zenodo.org/badge/733740847.svg)](https://zenodo.org/badge/latestdoi/733740847)
+ZENODO (DOI) BADGE HERE
 
 <p align="center">
   (This page is under continuous construction.)
@@ -24,7 +24,7 @@ Contents:
 To get started:
 - Get this repository
 - Set up your Python environment
-- Create or download datasets, see [Data File Links](#data-file-links)
+- Create datasets (Downloading is usually an option; contact the authors of the repository if needed)
 - Train models
 - Run inference
 - Compare results
@@ -47,29 +47,33 @@ Several tools enable this work. [Hydra](https://hydra.cc/) is used to manage man
 ![CMB Radiation Example](assets/readme_imgs/observations_and_cmb_small.png)
 
 The real CMB signal is observed at several microwave wavelengths. To mimic this, we make a ground truth CMB map and several contaminant foregrounds. We "observe" these at the different wavelengths, where each foreground has different levels. Then we apply instrumentation effects to get a set of observed maps.
-<!-- 
-## Baseline Models
 
-Several methods have been used to clean the signal, but comparison is difficult. On the astrophysics side, the methods are generally considered "parametric" or "non-parametric." Algorithms of the first class model each foreground component, while the latter simply considers them all a common nuissance without differentiating them. Those typically operate on just a single map. There are also machine learning methods, which generally use UNets and consider the task a regression task, relying on many instances to train a model to make the differentiation. -->
+## Cleaning
 
-<!-- 
-### PyILC
+Two models are included as baselines in this repository. One is a classic astrophysics algorithm, a flavor of **i**nternal **l**inear **c**ombination methods, which employs **c**osine **n**eedlets (CNILC). The other is a machine learning method (a UNet) implemented and published in the astrophysics domain, CMBNNCS. 
 
-PyILC implements three different Internal Linear Combination methods. We use one based on Cosine Needlets. A good explanation of needlets would need to start with Fourier and spherical harmonic transforms, then explain how wavelets are a hybrid that provide localization in the harmonic space. The CNILC method applies a needlet transform on each of the observation maps, then finds the linear combination of those transforms which minimizes covariance across the different observation frequencies.
+The CNILC method was implemented by [PyILC](https://github.com/jcolinhill/pyilc), and is described in [this paper](https://arxiv.org/abs/2307.01043).
 
-### CMBNNCS
+The CMBNNCS method was implemented by [cmbNNCS](https://github.com/Guo-Jian-Wang/cmbnncs), and is described in [this paper](https://iopscience.iop.org/article/10.3847/1538-4365/ac5f4a).
 
-CMBNNCS implements  -->
+## Analysis
 
+We can compare the CMB predictions to the ground truths in order to determine how well the model works. However, because the models operate in fundamentally different ways, care is needed to ensure that they are compared in a consistent way. We first mask each prediction where the signal is often to bright to get meaningful predictions. We then remove effects of instrumentation from the predictions. The pipeline set up to run each method is then used in a slightly different way, to pull results from each method and produce output which directly compares them. The following figures were produced automatically by the pipeline, for quick review.
 
-## Metrics
+![Map Cleaning Example](assets/readme_imgs/CNILC_px_comp_sim_0005_I.png)
+![Power Spectrum Example](assets/readme_imgs/CNILC_ps_comp_sim_0005_I.png)
 
-We can compare the CMB predictions to the ground truths in order to determine how well the model works. However, because the models operate in fundamentally different ways, care is needed to ensure that they are compared in a consistent way. We first mask each prediction where the signal is often to bright to get meaningful predictions. We then remove effects of instrumentation from the predictions. The pipeline set up to run each method is then used in a slightly different way, to pull results from each method and produce output which directly compares them.
+Other figures are produced of summary statistics, but these are far more boring (for now!).
 
+# New Methods
+
+If implementing a new machine learning method, we encourage you to first familiarize yourself with Hydra and the content of the tutorial notebooks. After that, look through the [top-level script](main_cmbnncs.py) and executors for CMBNNCS (in `cmbml/cmbnncs_local/stage_executors`). In particular, note how training and prediction follow common PyTorch design patterns ([train](cmbml/cmbnncs_local/stage_executors/D_train.py) and [predict](cmbml/cmbnncs_local/stage_executors/E_predict.py)). The [dataset.py](cmbml/cmbnncs_local/dataset.py) file includes two subclasses of a PyTorch [Dataset](https://pytorch.org/tutorials/beginner/basics/data_tutorial.html) and can also be adapted.
+
+If implementing a new method following astrophysics conventions (which tend to use configuration files and clean single maps), the PyILC method portion of the pipeline may be a better reference.
 
 # Installation
 
-Installation of CMB-ML requires setting up the repository, then getting the data assets for the portion you want to run. Demonstrations are available with many practical examples. The early ones cover how to set up CMB-ML to run on your system. The latter give examples of how to use the software, for those curious or hoping to extend it.
+Installation of CMB-ML requires setting up the repository, then getting the data assets for the portion you want to run. Demonstrations are available with practical examples. The early ones cover how to set up CMB-ML to run on your system. The latter give examples of how to use the software, for those curious or hoping to extend it.
 
 Setting up the repository:
 - Clone this repository
@@ -78,24 +82,6 @@ Setting up the repository:
     - `conda env create -f env.yaml`
   - Activate the environment
     - `conda activate cmb-ml`
-  <!-- We hope to get Poetry working again, there is currently an issue with the pymaster library blocking this. -->
-  <!-- - General installation instructions are at: [Downloading Python](https://wiki.python.org/moin/BeginnersGuide/Download)
-  - Be sure to get Python 3.9
-    - One of the models, CMBNNCS, does not work with Python 3.10 at this time
-  - Create a conda environment with 3.9 will suffice
-    - If you choose to do this:
-    - Create the environment: `conda create -n <env_name> python=3.9` 
-    - Activate the environment: `conda activate <env_name>`
-    - Get the location of the python executable: `which python`
-    - Exit the environment: `conda deactivate`
-    - Do not use the environment for other things -->
-<!-- - Get [Poetry](https://python-poetry.org/)
-- Create a virtual environment:
-  - Exit any virtual environments, otherwise Poetry will manage the currently active one instead
-  - `poetry env use <your python location here>` will direct Poetry to use the appropriate Python installation, if it is not your default.
-  - `poetry install` will get the libraries required, as listed in pyproject.toml
-  - `poetry shell` will make it easier to run scripts from the command line
-  - Alternatively, `poetry env info` will give you this virtual environment's python executable; this can be used with VS Code -->
 - Get [PyILC](https://github.com/jcolinhill/pyilc)
   - Simply clone the repository
   - No installation is needed, CMB-ML runs the code as its own
@@ -108,19 +94,15 @@ Setting up the repository:
   - These are available from the original sources and a mirror set up for this purpose
   - If you are not creating simulations, you only need one science asset: "COM_CMB_IQU-nilc_2048_R3.00_full.fits" (for the mask)
   - Scripts are available in the `get_data` folder, which will download all files.
-    - [Download from original sources](./get_data/get_orig_science_assets.py)
-<!-- 
-    - [Download from Box](./get_data/get_box_science_assets.py) (Recommended)
-  - Files can be downloaded manually from [Science Assets on Box](https://utdallas.box.com/v/cmb-ml-science-assets)
--->
+    - [Download from original sources](./get_data/get_assets.py)
 
 
-## For IQU_512_1450
+## For IQU_512_1450 (Simulations must be generated)
 
 - Download IQU_512_1450
   - [Script for downloading IQU-512-1450](./get_data/get_box_IQU_512_1450.py)
   - `python ./get_data/get_box_I_128_1450.py`
-  - Files are visible at this [Box link for IQU-512-1450](https://utdallas.box.com/v/cmb-ml-IQU-512-1450)
+  - Files are visible at this (disabled) [Box link for IQU-512-1450](https://somewhere.box.com/v/cmb-ml-IQU-512-1450)
   - Alternatively, to generate simulations, use `python main_sims.py`
 - Convert theory power spectra to the form expected in analysis
   - `python main_convert_theory.py`
@@ -133,14 +115,14 @@ Setting up the repository:
 - To compare results between CMBNNCS and PyILC
   - `python main_analysis_compare.py`
 
-<!-- ## For I_128_1450
+## For I_128_1450 (Simulations must be generated)
 
 This will run more quickly than the higher resolution.
 
 - Download I_128_1450:
   - [Script for downloading I-128-1450](./get_data/get_box_I_128_1450.py)
   - `python ./get_data/get_box_I_128_1450.py`
-  - Files are visible at this [Box link for I-128-1450](https://utdallas.box.com/v/cmb-ml-I-128-1450)
+  - Files are visible at this (disabled) [Box link for I-128-1450](https://somewhere.box.com/v/cmb-ml-I-128-1450)
   - Alternatively, to generate simulations, use `python main_sims.py dataset_name=I_128_1450 nside=128`
 - Rename the CMB_Theory directory (be sure to change the paths!):
     - `mv /path/to/Simulation_Working/Simulation_D_CMB_Power_Spectra /path/to/Simulation_Working/Simulation_CMB_Power_Spectra`
@@ -153,8 +135,7 @@ This will run more quickly than the higher resolution.
     - `python main_pyilc_analysis.py dataset_name=I_128_1450 nside=128 ELLMAX=382 model.pyilc.distinct.N_scales=5 model.pyilc.distinct.ellpeaks=[100,200,300,383]`
     - An even faster method is available, using PyILC's HILC method.
 - Run Comparison:
-    - `python main_analysis_compare.py --config-name config_comp_models_t_128` -->
-
+    - `python main_analysis_compare.py --config-name config_comp_models_t_128`
 
 # Demonstrations
 
@@ -163,6 +144,14 @@ Demonstrations exist for both installation and introduction to core concepts. Mo
 - [Hydra in scripts](./demonstrations/B_hydra_script_tutorial.ipynb) (*.py files)
 - [Setting up your environment](./demonstrations/C_setting_up_local.ipynb)
 - [Getting and looking at simulation instances](./demonstrations/D_getting_dataset_instances.ipynb)
+
+More demonstrations are available that use the data generated while running the CMB-ML pipeline. Note that (1) they require the pipeline has been run and (2) they were not developed as tutorials, unlike previous notebooks.
+- [paper_figure_planck_obs_and_target.ipynb](../paper_figures/paper_figure_planck_obs_and_target.ipynb): Creates figures of Planck's observation maps and predicted CMB
+- [dataset_results.ipynb](../paper_figures/dataset_results.ipynb): Plots maps after cleaning, to be assembled externally (e.g., in LaTeX)
+- [make_component_maps.ipynb](../paper_figures/make_component_maps.ipynb): Creates single-component maps, for use in other analysis (next line)
+- [paper_components.ipynb](../paper_figures/paper_components.ipynb): Creates figures showing single components (requires previous line having been run)
+- [paper_figure_planck_variance.ipynb](../paper_figures/paper_figure_planck_variance.ipynb): Creates the figure of Planck's variance map at 100 GHz
+- [planck_fwhm_detail.ipynb](../paper_figures/planck_fwhm_detail.ipynb): Creates figures with the detail view of Plancks's maps, such that the effect of different FWHMs is visible
 
 # Comparing Results
 
@@ -184,11 +173,9 @@ We list below the datasets and model's aggregated (across the Test split) perfor
 
 CMB-ML was built in the hopes that researchers can compare on this as a standard. In the future, we hope to add more datasets. If you would like your model or dataset listed, please contact us.
 
-
 ## Works using datasets from this repository
 
 None so far!
-
 
 ## Errata
 
@@ -221,15 +208,15 @@ We provide links to the various data used. Alternatives to get this data are in 
         - [CMB-ML delta bandpass table, from Simons Observatory](assets/delta_bandpasses/CMB-ML/cmb-ml_deltabandpass.tbl)
         - Simply move the CMB-ML directory contained in assets/delta_bandpasses to your assets folder (as defined in e.g., [your local_system config](cfg/local_system/generic_lab.yaml))
       - [Downloading script](./get_data/get_assets.py)
-  <!-- - On Box: 
-    - [All Science Assets](https://utdallas.box.com/v/cmb-ml-science-assets)
-    - [Downloading script](./get_data/get_box_science_assets.py) -->
+  - On Box: 
+    - [All Science Assets](https://somewhere.box.com/v/cmb-ml-science-assets)
+    - [Downloading script](./get_data/get_box_science_assets.py)
 
 - Datasets
-  - We are unable to provide links here to the dataset. If needed, please contact us through this GitHub repository. One set of example observations 
+  - We are unable to provide links here to the dataset. If needed, please contact us through this GitHub repository. One set of example observations is included in the repository.
 
-  <!-- - IQU-512-1450
-    - Bulk data: [Box link, IQU-512-1450, monolithic](https://utdallas.box.com/v/cmb-ml-IQU-512-1450-lump), Note that this is ~1 TB
+  - IQU-512-1450
+    - Bulk data: (disabled) [Box link, IQU-512-1450, monolithic](https://somewhere.box.com/v/cmb-ml-IQU-512-1450-lump), Note that this is ~1 TB
       - Download files individually. Downloading the directory will result in a single zip folder, which must then be extracted.
       - After downloading files individally, use something like the following to reassemble them:
           ```
@@ -237,7 +224,7 @@ We provide links to the various data used. Alternatives to get this data are in 
           total_size=$(du -cb $part_files | grep total$ | awk '{print $1}')
           cat $part_files | pv -s $total_size > "${data_dir}/${reconstructed_tar}"
           ``` 
-    - Individual files: [Box Link, IQU-512-1450, individual](https://utdallas.box.com/v/cmb-ml-IQU-512-1450)
+    - Individual files: (disabled) [Box Link, IQU-512-1450, individual](https://somewhere.box.com/v/cmb-ml-IQU-512-1450)
       - Each simulation instance is in its own tar file and will need to be extracted before use
       - The power spectra and cosmological parameters are in Simulation_Working.tar.gz
       - Log files, including the exact code used to generate simulations, are in Logs.tar.gz. No changes of substance have been made to the code in this archive.
@@ -245,11 +232,11 @@ We provide links to the various data used. Alternatives to get this data are in 
   - I-128-1450
     - Lower resolution simulations ($\text{N}_\text{side}=128$), for use when testing code and models
     - Instructions and examples on the way (Estimated June 24)
-    - Bulk files: [Box link, I-128-1450, monolithic](https://utdallas.box.com/v/cmb-ml-I-128-1450-lump)
+    - Bulk files: (disabled) [Box link, I-128-1450, monolithic](https://somewhere.box.com/v/cmb-ml-I-128-1450-lump)
       - Files must be assembled with `cat`, as described above, then extracted
-    - Individual instance files: [Box Link, I-128-1450, individual](https://utdallas.box.com/v/cmb-ml-I-128-1450)
+    - Individual instance files: (disabled) [Box Link, I-128-1450, individual](https://somewhere.box.com/v/cmb-ml-I-128-1450)
     - A script for these download is available [here](./get_data/get_box_IQU_512_1450.py)
-  - Files are expected to be in the following folder structure, any other structure requires changes to the pipeline yaml's:-->
+  - Files are expected to be in the following folder structure, any other structure requires changes to the pipeline yaml's:
 ```
 └─ Datasets
    ├─ Simulations
@@ -270,7 +257,7 @@ We provide links to the various data used. Alternatives to get this data are in 
        ├─ Simulation_C_Configs            (containing cosmological parameters)
        └─ Simulation_CMB_Power_Spectra
 ```
-<!--
+
 - Trained models
   - CMBNNCS
-    - [UNet8 trained on IQU_512_1450, at various epochs](https://utdallas.box.com/v/ml-cmb-UNet8-IQU-512-1450-bl) -->
+    - [UNet8 trained on IQU_512_1450, at various epochs](https://somewhere.box.com/v/ml-cmb-UNet8-IQU-512-1450-bl)
