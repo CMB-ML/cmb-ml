@@ -9,7 +9,7 @@ Functions:
     format_sci: Format a number in scientific notation.
     format_mean_std: Format mean and standard deviation to the same precision.
 
-Author: James Amato (with GPT assistance)
+Author:  (with GPT assistance)
 Date: June 11, 2024
 Version: 0.1.0
 

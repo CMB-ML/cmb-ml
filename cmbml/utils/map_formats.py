@@ -7,7 +7,7 @@ so that they can be used with Healpy. I do not recall which Healpy function requ
 Functions:
     convert_pysm3_to_hp: Convert PySM3 data to Healpy data.
 
-Author: James Amato
+Author:
 Date: June 11, 2024
 Version: 0.1.0
 
