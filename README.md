@@ -108,6 +108,9 @@ This is a demonstration dataset. It is suitable for comparing simulation output 
   - Note that the output figure for the power spectrum will be slightly different, as you do not have the bank of theory spectra.
   - The figure presented above can be recreated only after generating the full CMB_ML_512_1450 dataset.
 - Run `main_sims_demo.py` to generate a new simulation; results should be comparable to the included demo (slight differences may occur in the CMB map, as this may have a different seed)
+  - This will take quite a while the first time. Astropy will download component templates in the background.
+  - Download errors may result; simply restart the process a few times.
+  - This is only for the first time. Subsequent runs will proceed more quickly. If time is of the essence, remove `preset_strings` from the [sim config](cfg/config_sim_demo.yaml).
 
 ## For CMB_ML_512_1450 (Simulations must be generated)
 
