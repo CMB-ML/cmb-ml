@@ -1,0 +1,1 @@
+The CMB-ML directory in this folder should be moved, as-is, to the assets directory as defined in local_system yaml.
