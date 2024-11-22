@@ -10,7 +10,7 @@ import healpy as hp
 
 from cmbml.core import BaseStageExecutor, Asset
 from cmbml.utils.planck_instrument import make_instrument, Instrument
-from cmbml.utils.get_planck_data import get_planck_noise_fn
+from get_data.utils.get_planck_data import get_planck_noise_fn
 
 from cmbml.core.asset_handlers.healpy_map_handler import HealpyMap
 from cmbml.core.asset_handlers.qtable_handler import QTableHandler
