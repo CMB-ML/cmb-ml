@@ -2,10 +2,6 @@
 
 ZENODO (DOI) BADGE HERE
 
-<p align="center">
-  (This page is under continuous construction.)
-</p>
-
 Contents:
 - [Quick Start](#quick-start)
 - [Introduction](#introduction)
@@ -117,8 +113,8 @@ This is a demonstration dataset. It is suitable for comparing simulation output 
 
 - Download CMB_ML_512_1450
   - [Script for downloading CMB_ML_512_1450](./get_data/get_box_CMB_ML_512_1450.py)
-  - `python ./get_data/get_box_I_512_1450.py`
-  - Files are visible at this (disabled) [Box link for CMB_ML_512_1450](https://somewhere.box.com/v/cmb-ml-I-512-1450)
+  - `python ./get_data/get_box_CMB_ML_512_1450.py`
+  - Files are visible at this (disabled) [Box link for CMB_ML_512_1450](https://somewhere.box.com/v/cmb-ml-512-1450)
   - Alternatively, to generate simulations, use `python main_sims.py`
 - To train, predict, and run analysis using CMBNNCS
   - `python main_cmbnncs.py`
@@ -134,9 +130,9 @@ This is a demonstration dataset. It is suitable for comparing simulation output 
 This will run more quickly than the higher resolution.
 
 - Download CMB_ML_128_1450:
-  - [Script for downloading I-128-1450](./get_data/get_box_CMB_ML_128_1450.py)
+  - [Script for downloading CMB_ML-128-1450](./get_data/get_box_CMB_ML_128_1450.py)
   - `python ./get_data/get_box_CMB_ML_128_1450.py`
-  - Files are visible at this (disabled) [Box link for I-128-1450](https://somewhere.box.com/v/cmb-ml-I-128-1450)
+  - Files are visible at this (disabled) [Box link for CMB_ML_128_1450](https://somewhere.box.com/v/cmb-ml-128-1450)
   - Alternatively, to generate simulations, use `python main_sims.py dataset_name=CMB_ML_128_1450 nside=128`
 - Run CMBNNCS on CMB_ML_128_1450 (the smaller UNet5 must be used):
     - `python main_cmbnncs.py dataset_name=CMB_ML_128_1450 working_dir=CMBNNCS_UNet5/ nside=128 num_epochs=2 use_epochs=[2] model/cmbnncs/network=unet5`
@@ -225,8 +221,8 @@ We provide links to the various data used. Alternatives to get this data are in 
 - Datasets
   - We are unable to provide links here to the dataset. If needed, please contact us through this GitHub repository. One set of example observations is included in the repository.
 
-  - IQU-512-1450
-    - Bulk data: (disabled) [Box link, IQU-512-1450, monolithic](https://somewhere.box.com/v/cmb-ml-IQU-512-1450-lump), Note that this is ~1 TB
+  - CMB_ML_512_1450
+    - Bulk data: (disabled) [Box link, CMB_ML_512_1450, monolithic](https://somewhere.box.com/v/cmb-ml-512-1450-lump), Note that this is ~1 TB
       - Download files individually. Downloading the directory will result in a single zip folder, which must then be extracted.
       - After downloading files individally, use something like the following to reassemble them:
           ```
@@ -234,18 +230,17 @@ We provide links to the various data used. Alternatives to get this data are in 
           total_size=$(du -cb $part_files | grep total$ | awk '{print $1}')
           cat $part_files | pv -s $total_size > "${data_dir}/${reconstructed_tar}"
           ``` 
-    - Individual files: (disabled) [Box Link, IQU-512-1450, individual](https://somewhere.box.com/v/cmb-ml-IQU-512-1450)
+    - Individual files: (disabled) [Box Link, CMB_ML_512_1450, individual](https://somewhere.box.com/v/cmb-ml-512-1450)
       - Each simulation instance is in its own tar file and will need to be extracted before use
       - The power spectra and cosmological parameters are in Simulation_Working.tar.gz
       - Log files, including the exact code used to generate simulations, are in Logs.tar.gz. No changes of substance have been made to the code in this archive.
-      - A script for these download is available [here](./get_data/get_box_IQU_512_1450.py)
-  - I-128-1450
+      - A script for these download is available [here](./get_data/get_box_CMB_ML_512_1450.py)
+  - CMB_ML_128_1450
     - Lower resolution simulations ($\text{N}_\text{side}=128$), for use when testing code and models
-    - Instructions and examples on the way (Estimated June 24)
-    - Bulk files: (disabled) [Box link, I-128-1450, monolithic](https://somewhere.box.com/v/cmb-ml-I-128-1450-lump)
+    - Bulk files: (disabled) [Box link, CMB_ML_128_1450, monolithic](https://somewhere.box.com/v/cmb-ml-128-1450-lump)
       - Files must be assembled with `cat`, as described above, then extracted
-    - Individual instance files: (disabled) [Box Link, I-128-1450, individual](https://somewhere.box.com/v/cmb-ml-I-128-1450)
-    - A script for these download is available [here](./get_data/get_box_IQU_512_1450.py)
+    - Individual instance files: (disabled) [Box Link, CMB_ML_128_1450, individual](https://somewhere.box.com/v/cmb-ml-128-1450)
+    - A script for these download is available [here](./get_data/get_box_CMB_ML_128_1450.py)
   - Files are expected to be in the following folder structure, any other structure requires changes to the pipeline yaml's:
 ```
 └─ Datasets
@@ -270,4 +265,4 @@ We provide links to the various data used. Alternatives to get this data are in 
 
 - Trained models
   - CMBNNCS
-    - [UNet8 trained on IQU_512_1450, at various epochs](https://somewhere.box.com/v/ml-cmb-UNet8-IQU-512-1450-bl)
+    - [UNet8 trained on CMB_ML_512_1450, at various epochs](https://somewhere.box.com/v/cmb-ml-UNet8-512-1450-bl)
