@@ -1,7 +1,7 @@
 import pysm3.units as u
 import healpy as hp
 
-from .get_planck_data import get_planck_obs_data, get_planck_pred_data
+from ...get_data.utils.get_planck_data import get_planck_obs_data, get_planck_pred_data
 
 
 CENTER_FREQS = {
