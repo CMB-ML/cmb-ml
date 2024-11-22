@@ -170,14 +170,14 @@ def extract_file(file_path: Path) -> None:
         if file_path.suffix == '.zip':
             with zipfile.ZipFile(file_path, 'r') as zip_ref:
                 total_files = len(zip_ref.namelist())
-                with tqdm(total=total_files, desc="Extracting ZIP", unit='files') as pbar:
+                with tqdm(total=total_files, desc="Extracting", unit='files') as pbar:
                     for file in zip_ref.infolist():
                         zip_ref.extract(file, path=out_dir)
                         pbar.update(1)
         elif file_path.suffixes[-1] == '.gz' and file_path.suffixes[-2] == '.tar':
             with tarfile.open(file_path, 'r:gz') as tar_ref:
                 total_files = len(tar_ref.getmembers())
-                with tqdm(total=total_files, desc="Extracting TAR.GZ", unit='files') as pbar:
+                with tqdm(total=total_files, desc="Extracting", unit='files') as pbar:
                     for member in tar_ref:
                         tar_ref.extract(member, path=out_dir)
                         pbar.update(1)
