@@ -2,8 +2,10 @@
 name = "cmbml"
 version = "0.0.0"
 description = ""
-authors = ["JamesAmato <116766236+JamesAmato@users.noreply.github.com>"]
+authors = ["  USERNAME GOES HERE   "]
 readme = "README.md"
+
+remember to fill in the user name.
 
 [tool.poetry.dependencies]
 python = "^3.9"

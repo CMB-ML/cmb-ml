@@ -15,7 +15,7 @@ Functions:
     show_one_map: Display a specific map from a FITS file.
     get_map_dtype: Get the data type of a map in a format compatible with numba and mpi4py.
 
-Author: James Amato
+Author: 
 Date: June 11, 2024
 Version: 0.1.0
 
