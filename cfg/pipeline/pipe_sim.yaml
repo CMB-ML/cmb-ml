@@ -7,18 +7,15 @@ raw:
     noise_src_varmaps:
       handler: HealpyMap
       path_template: "{src_root}/Planck/{filename}"
-    noise_src_cls:
-      handler: TextPowerSpectrum
-      path_template: "{src_root}/CMB-ML/{filename}"
-    # wmap_chains:  # TODO
-    #   handler: WMAPChains
-    #   path_template: "{src_root}/{fn}"
+    wmap_chains:  # TODO: 
+      handler: Mover
+      path_template: "{src_root}/WMAP/{filename}"
 
 raw_reference:
   assets_in:
     planck_deltabandpass: {stage: raw}
     noise_src_varmaps: {stage: raw}
-    noise_src_cls: {stage: raw}
+    wmap_chains: {stage: raw}
 
 check_hydra_configs:  # No information needed here
 
