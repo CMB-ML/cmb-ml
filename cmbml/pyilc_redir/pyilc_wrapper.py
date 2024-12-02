@@ -6,15 +6,6 @@ def run_ilc(cfg_path):
     use_ilc_info(ilc_info)
 
 
-# def get_ILC_info(cfg_path):
-#     ilc_instance = ILCInfo(input_file=cfg_path)
-    # with tempfile.NamedTemporaryFile(mode='w', delete=True) as temp:
-    #     json.dump(cfg_dict, temp)
-    #     temp.flush()
-    #     ilc_instance = ILCInfo(input_file=temp.name)
-    # return ilc_instance
-
-
 def use_ilc_info(info):
     # Copied from main.py in the pyilc library
     ##########################

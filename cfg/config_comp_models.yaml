@@ -10,7 +10,8 @@ defaults:
 
 # dataset_name: CMML_Dataset
 # When creating multiple datasets, using interpolation like this may be easier:
-dataset_name         : ${scenario.map_fields}_${scenario.nside}_${splits.name}
+# dataset_name         : ${scenario.map_fields}_${scenario.nside}_${splits.name}
+dataset_name         : I_512_Compare_Ellpeaks
 working_dir          : ""  # Otherwise None will be prepended to the directory name.
 fig_model_name       : null
 hydra:
@@ -19,15 +20,51 @@ hydra:
   verbose: false
 
 models_comp:
-  - cmbnncs:
-    model_name        : CMBNNCS
-    working_directory : CMBNNCS_UNet8/
-    epoch             : 120
-  - pyilc:
-    model_name        : CNILC
-    working_directory : PyILC_CNILC/
-    # No epochs for this model
+  - cnilc_150_900:
+    model_name        : PyILC_CNILC_150_900
+    working_directory : PyILC_CNILC_two_lp_150_900/
     epoch             : ""
+  - cnilc_150_1025:
+    model_name        : PyILC_CNILC_150_1025
+    working_directory : PyILC_CNILC_two_lp_150_1025/
+    epoch             : ""
+  - cnilc_150_1150:
+    model_name        : PyILC_CNILC_150_1150
+    working_directory : PyILC_CNILC_two_lp_150_1150/
+    epoch             : ""
+  - cnilc_200_900:
+    model_name        : PyILC_CNILC_200_900
+    working_directory : PyILC_CNILC_two_lp_200_900/
+    epoch             : ""
+  - cnilc_200_1025:
+    model_name        : PyILC_CNILC_200_1025
+    working_directory : PyILC_CNILC_two_lp_200_1025/
+    epoch             : ""
+  - cnilc_200_1150:
+    model_name        : PyILC_CNILC_200_1150
+    working_directory : PyILC_CNILC_two_lp_200_1150/
+    epoch             : ""
+  - cnilc_250_900:
+    model_name        : PyILC_CNILC_250_900
+    working_directory : PyILC_CNILC_two_lp_250_900/
+    epoch             : ""
+  - cnilc_250_1025:
+    model_name        : PyILC_CNILC_250_1025
+    working_directory : PyILC_CNILC_two_lp_250_1025/
+    epoch             : ""
+  - cnilc_250_1150:
+    model_name        : PyILC_CNILC_250_1150
+    working_directory : PyILC_CNILC_two_lp_250_1150/
+    epoch             : ""
+  # - cmbnncs:
+  #   model_name        : CMBNNCS
+  #   working_directory : CMBNNCS_UNet8/
+  #   epoch             : 120
+  # - pyilc:
+  #   model_name        : CNILC
+  #   working_directory : PyILC_CNILC/
+  #   # No epochs for this model
+  #   epoch             : ""
 ps_baseline           : theory
 
 

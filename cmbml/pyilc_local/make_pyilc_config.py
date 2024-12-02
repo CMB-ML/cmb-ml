@@ -11,14 +11,31 @@ class ILCConfigMaker:
         self.cfg = cfg
         self.planck_deltabandpass = planck_deltabandpass
         self.use_dets = use_dets
+        self.ilc_cfg_hydra_yaml = self.cfg.model.pyilc
+        
+        # Placeholders
         self.detector_freqs: List[int] = None
         self.bandwidths: List[float] = None
-        self.set_ordered_detectors()
-        self.ilc_cfg_hydra_yaml = self.cfg.model.pyilc
         self.template = {}
+        self.ilc_type = None
+        self.set_ilc_type(cfg.model.pyilc.wavelet_type)
+        self.set_ordered_detectors()
         self.compose_template()
 
+    def set_ilc_type(self, ILC_type: str) -> None:
+        if ILC_type == "CosineNeedlets":
+            self.ilc_type = "CNILC"
+        elif ILC_type == "TopHatHarmonic":
+            self.ilc_type = "HILC"
+        elif ILC_type == "GaussianNeedlets":
+            self.ilc_type = "GNILC"
+        else:
+            raise ValueError(f"Unknown ILC type: {ILC_type}")
+
     def set_ordered_detectors(self) -> None:
+        """
+        PyILC requires detectors to be ordered by decreasing bandwidth.
+        """
         if self.use_dets is None:
             detector_freqs = self.cfg.scenario.detector_freqs
         else:
@@ -33,30 +50,54 @@ class ILCConfigMaker:
         self.bandwidths = [bandwidth.value for det, bandwidth in sorted_det_bandwidths]
 
     def compose_template(self):
-        # Convert OmegaConf to dictionary for later use with yaml library write()
-        ilc_cfg = self.ilc_cfg_hydra_yaml
-        ilc_cfg = OmegaConf.to_container(ilc_cfg, resolve=True)
-        distinct_cfg = OmegaConf.to_container(self.cfg.model.pyilc.distinct, resolve=True)
+        """
+        We handle a few different kinds of keys in the template:
+        (1) Some are used for Hydra, and we ignore them
+        (2) Some appear in the model.pyilc yaml exactly
+        (3) Some need special handling
 
-        # Get items set in the common configurations
+        If they don't require special handling, we just include or exclude 
+        them in the template.
+
+        For the special handling ones:
+        (A) Some are common to all ways PyILC is run
+        (B) Some are distinct to the type of PyILC run (e.g., CNILC or HILC)
+        (C) Some are optional and independent of the method
+            - Include the name of the key with a null value in the model.pyilc yaml
+        """
+        # The dictionary we'll use
+        cfg_dict = {}
+
+        # Get the keys to ignore (1)
+        ignore_keys = self.ilc_cfg_hydra_yaml.ignore_keys
+
+        # Get all keys in our model.pyilc yaml
+        cfg_hydra = self.ilc_cfg_hydra_yaml
+        # Convert OmegaConf to dictionary for later use with yaml library write()
+        cfg_hydra = OmegaConf.to_container(cfg_hydra, resolve=True)
+
+        # Put special common keys (3A) in the dictionary (initialize)
         cfg_dict = dict(
             freqs_delta_ghz = self.detector_freqs,
             N_freqs = len(self.detector_freqs),
             N_side = self.cfg.scenario.nside,
         )
 
-        ignore_keys = ["config_maker", "distinct"]
+        # Add special distinct keys (3B)
+        if self.ilc_type == "CNILC":
+            cfg_dict["N_scales"] = len(cfg_hydra["ellpeaks"]) + 1
+            cfg_dict["ELLMAX"] = cfg_hydra["ellpeaks"][-1] - 1 # Last ellpeak is ellmax + 1
+
+        # Prepare keys that require special handling (3C)
         special_keys = self.special_keys()
 
-        # Merge the two dictionaries, but only include the keys that are not in ignore_keys
-        for k, v in ilc_cfg.items():
+        # Add all the (2) and (3C) keys from the model.pyilc yaml to the dictionary
+        for k, v in cfg_hydra.items():
             if k not in ignore_keys:
+                #             (3C)                                       (2)
                 cfg_dict[k] = special_keys[k]() if k in special_keys else v
 
-        # Add the distinct keys to the dictionary
-        cfg_dict.update(distinct_cfg)
-
-        # Convert all astropy quantities to their values
+        # Convert any astropy quantities to values
         for k in list(cfg_dict.keys()):
             if isinstance(cfg_dict[k], u.Quantity):
                 cfg_dict[k] = cfg_dict[k].value
@@ -100,33 +141,3 @@ class ILCConfigMaker:
             det_str = f"{detector}"
             paths.append(str(input_template).format(det=det_str))
         return paths
-    
-
-
-# class HarmonicILC(ILCConfigMaker):
-#     def compose_template(self):
-#         super().compose_template()
-
-
-# class CosineNeedletILC(ILCConfigMaker):
-#     def compose_template(self):
-#         super().compose_template()
-#         distinct_cfg = dict(self.cfg.model.distinct)
-#         for k in distinct_cfg:
-#             if isinstance(distinct_cfg[k], ListConfig):
-#                 val = list(distinct_cfg[k])
-#             else:
-#                 val = distinct_cfg[k]
-#             self.template[k] = val
-
-
-# class GaussianNeedletILC(ILCConfigMaker):
-#     def compose_template(self):
-#         super().compose_template()
-#         distinct_cfg = dict(self.cfg.model.distinct)
-#         for k in distinct_cfg:
-#             if isinstance(distinct_cfg[k], ListConfig):
-#                 val = list(distinct_cfg[k])
-#             else:
-#                 val = distinct_cfg[k]
-#             self.template[k] = val
