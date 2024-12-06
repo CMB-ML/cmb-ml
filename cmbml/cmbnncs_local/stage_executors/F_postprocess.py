@@ -18,7 +18,7 @@ from cmbml.core import (
     )
 from cmbnncs.spherical import piecePlanes2spheres
 
-from cmbml.cmbnncs_local.handler_npymap import NumpyMap             # Import to register the AssetHandler
+from cmbml.core.asset_handlers.handler_npymap import NumpyMap             # Import to register the AssetHandler
 from cmbml.core.asset_handlers.asset_handlers_base import Config # Import for typing hint
 from cmbml.core.asset_handlers.healpy_map_handler import HealpyMap # Import for typing hint
 from cmbml.utils import make_instrument, Instrument, Detector
