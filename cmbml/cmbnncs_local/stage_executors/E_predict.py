@@ -11,7 +11,7 @@ from cmbml.core import Split, Asset
 from cmbml.cmbnncs_local.dataset import TestCMBMapDataset
 from cmbml.core.asset_handlers.pytorch_model_handler import PyTorchModel  # Import for typing hint
 from .pytorch_model_base_executor import BaseCMBNNCSModelExecutor
-from cmbml.cmbnncs_local.handler_npymap import NumpyMap             # Import for typing hint
+from cmbml.core.asset_handlers.handler_npymap import NumpyMap             # Import for typing hint
 
 
 logger = logging.getLogger(__name__)

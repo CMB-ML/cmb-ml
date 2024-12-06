@@ -23,7 +23,7 @@ from cmbml.core.asset_handlers.asset_handlers_base import EmptyHandler, Config
 from cmbml.core.asset_handlers.healpy_map_handler import HealpyMap
 from cmbml.core.asset_handlers.qtable_handler import QTableHandler  # Import to register handler
 
-from cmbml.cmbnncs_local.handler_npymap import NumpyMap
+from cmbml.core.asset_handlers.handler_npymap import NumpyMap
 from cmbml.utils.planck_instrument import make_instrument, Instrument
 from cmbml.utils import planck_cmap
 
