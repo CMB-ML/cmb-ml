@@ -23,7 +23,7 @@ from cmbml.core.pytorch_dataset import TrainCMBMapDataset
 from cmbml.cmbnncs_local.preprocessing.scale_methods_factory import get_scale_class
 from cmbml.cmbnncs_local.preprocessing.transform_pixel_rearrange import (sphere2rect, rect2sphere)
 
-from cmbml.core.pytorch_transform import TrainToTensor
+from cmbml.core.pytorch_transform_OLD_DELME import TrainToTensor
 from .pytorch_model_base_executor import BaseCMBNNCSModelExecutor
 # from cmbnncs.spherical import sphere2piecePlane, piecePlanes2spheres
 
