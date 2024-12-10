@@ -43,7 +43,6 @@ from cmbml.cmbnncs_local import (
                          PreprocessMakeScaleExecutor,
                          PreprocessExecutor,
                          NonParallelPreprocessExecutor,
-                         CheckTransformsExecutor,
                          TrainingExecutor,
                          PredictionExecutor,
                          PostprocessExecutor,
