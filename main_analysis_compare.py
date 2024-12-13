@@ -45,5 +45,5 @@ def run_pyilc_analysis(cfg):
 
 
 if __name__ == "__main__":
-    validate_environment_variable("CMB_SIMS_LOCAL_SYSTEM")
+    validate_environment_variable("CMB_ML_LOCAL_SYSTEM")
     run_pyilc_analysis()
