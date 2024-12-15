@@ -6,7 +6,7 @@ from tqdm import tqdm
 
 from cmbml.core import BaseStageExecutor, Asset
 from cmbml.utils.planck_instrument import make_instrument, Instrument
-from get_data.utils.get_planck_data import get_planck_noise_data
+from get_data.utils.get_planck_data_ext import get_planck_noise_data_ext
 
 from cmbml.core.asset_handlers.healpy_map_handler import HealpyMap
 from cmbml.core.asset_handlers.qtable_handler import QTableHandler
@@ -52,7 +52,7 @@ class GetPlanckNoiseSimsExecutor(BaseStageExecutor):
                   ) as outer_bar:
             for det, sim_num in combos:
                 # fn = get_planck_noise_fn(det, sim_num)
-                get_planck_noise_data(detector=det, 
+                get_planck_noise_data_ext(detector=det, 
                                       assets_directory=noise_sims_dir, 
                                       realization=sim_num, 
                                       progress=True)

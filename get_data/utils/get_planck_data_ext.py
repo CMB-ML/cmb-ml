@@ -19,7 +19,7 @@ def format_real(real):
     return "{:.0f}".format(real).zfill(5)
 
 
-def get_planck_obs_data(detector, assets_directory, progress=False):
+def get_planck_obs_data_ext(detector, assets_directory, progress=False):
     planck_obs_fn = "{instrument}_SkyMap_{frequency}_{obs_nside}_{rev}_full.fits"
     url_template_maps = "http://pla.esac.esa.int/pla/aio/product-action?MAP.MAP_ID={fn}"
     # Setup to get maps... this is all naming convention stuff
@@ -53,7 +53,7 @@ def get_planck_obs_data(detector, assets_directory, progress=False):
     return dest_path
 
 
-def get_planck_hm_data(detector, assets_directory, progress=False):
+def get_planck_hm_data_ext(detector, assets_directory, progress=False):
     hm_map_fn_template = "{instrument}_SkyMap_{freq}_2048_R3.01_halfmission-{hm}.fits"
     url_template_maps = "http://pla.esac.esa.int/pla/aio/product-action?MAP.MAP_ID={fn}"
 
@@ -92,7 +92,7 @@ def get_planck_noise_fn(detector, realization):
     return fn
 
 
-def get_planck_noise_data(detector, assets_directory, realization=0, progress=False):
+def get_planck_noise_data_ext(detector, assets_directory, realization=0, progress=False):
     """
     Get the filename for the Planck noise data, downloading it if necessary.
 
@@ -118,7 +118,7 @@ def get_planck_noise_data(detector, assets_directory, realization=0, progress=Fa
     return fn
 
 
-def get_planck_pred_data(detector, assets_directory, realization=0):
+def get_planck_pred_data_ext(detector, assets_directory, realization=0):
     """
     Get the filename for the Planck noise data, downloading it if necessary.
 

@@ -11,7 +11,7 @@ from get_data.utils.download import extract_file
 logger = logging.getLogger(__name__)
 
 
-def get_wmap_chains(assets_directory, mnu=True, progress=False):
+def get_wmap_chains_ext(assets_directory, mnu=True, progress=False):
     url_template_maps = "https://lambda.gsfc.nasa.gov/data/map/dr5/dcp/chains/{fn}"
     if mnu:
         fn = "wmap_lcdm_mnu_wmap9_chains_v5.tar.gz"

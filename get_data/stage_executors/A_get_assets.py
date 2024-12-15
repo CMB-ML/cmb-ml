@@ -9,8 +9,8 @@ from cmbml.utils.planck_instrument import make_instrument, Instrument
 from cmbml.core.asset_handlers.healpy_map_handler import HealpyMap
 from cmbml.core.asset_handlers.qtable_handler import QTableHandler
 
-from get_data.utils.get_planck_data import get_planck_obs_data
-from get_data.utils.get_wmap_data import get_wmap_chains
+from get_data.utils.get_planck_data_ext import get_planck_obs_data_ext
+from get_data.utils.get_wmap_data_ext import get_wmap_chains_ext
 
 
 logger = logging.getLogger(__name__)
@@ -48,7 +48,7 @@ class GetAssetsExecutor(BaseStageExecutor):
             dummy_fp = self.wmap_chains.path
         wmap_dir = dummy_fp.parent
         wmap_dir.mkdir(parents=True, exist_ok=True)
-        get_wmap_chains(assets_directory=wmap_dir, mnu=True, progress=True)
+        get_wmap_chains_ext(assets_directory=wmap_dir, mnu=True, progress=True)
 
     def get_noise_src_varmaps(self):
         with self.name_tracker.set_context('filename', 'dummy_fn'):
@@ -56,4 +56,4 @@ class GetAssetsExecutor(BaseStageExecutor):
         noise_src_dir = dummy_fp.parent
         noise_src_dir.mkdir(parents=True, exist_ok=True)
         for det in tqdm(self.detectors):
-            get_planck_obs_data(detector=det, assets_directory=noise_src_dir, progress=True)  # This will download the data if it doesn't exist
+            get_planck_obs_data_ext(detector=det, assets_directory=noise_src_dir, progress=True)  # This will download the data if it doesn't exist
