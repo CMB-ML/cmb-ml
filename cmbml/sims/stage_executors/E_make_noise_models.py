@@ -11,7 +11,7 @@ import healpy as hp
 
 from cmbml.core import BaseStageExecutor, Asset
 from cmbml.utils.planck_instrument import make_instrument, Instrument
-from get_data.utils.get_planck_data import get_planck_noise_fn
+from get_data.utils.get_planck_data_ext import get_planck_noise_fn
 from cmbml.utils.physics_mask import simple_galactic_mask
 from cmbml.utils.physics_ps import get_autopower
 from cmbml.utils.physics_downgrade_by_alm import downgrade_by_alm
