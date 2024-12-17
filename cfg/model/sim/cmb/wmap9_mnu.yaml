@@ -9,7 +9,7 @@ derived_ps_nsmax_x : 3.00  # TODO: Figure out the right ratio for this
                            #       Ell scale of a map
                            #       is pi / hp.pixelfunc.nsidetoresol(nside)
                            #       Algebra shows this 3.07 falling out for all nside
-seed_string        : cmb
+seed_template      : "{split}_{sim}_cmb"
 make_ps_if_absent  : true
 wmap_indcs_seed    : 8675309  # Random number
 wmap_chain_length  : 603936   # Length of cahins files; change if using different list of cosmo parameters

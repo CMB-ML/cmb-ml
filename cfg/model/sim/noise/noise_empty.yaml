@@ -1,4 +1,4 @@
 noise_type: empty
-seed_string: noise
+seed_template      : "{split}_{sim}_{freq}_noise"
 do_cache: false  # Need to not produce a noise cache for this method TODO: should this be in yaml or python? I think python...
 save_noise: false  # No need to save noise for this method
