@@ -18,4 +18,5 @@ preset_strings   : ${preset_strings}
 component_objects:
   - cmb
   - noise
-seed_base_string: '${scenario.map_fields}-${scenario.nside}-${splits.name}'
+seed_base_string: cmb_ml
+# seed_base_string: ${dataset_name}

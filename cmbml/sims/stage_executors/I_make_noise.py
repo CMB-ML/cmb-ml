@@ -11,7 +11,7 @@ from cmbml.core.asset_handlers.qtable_handler import QTableHandler # Import to r
 from cmbml.core.asset_handlers.psmaker_handler import NumpyPowerSpectrum # Import for typing hint
 from cmbml.core.asset_handlers.healpy_map_handler import HealpyMap # Import for VS Code hints
 
-from cmbml.sims.random_seed_manager import FreqLevelSeedFactory
+from cmbml.sims.random_seed_manager import SeedFactory
 from cmbml.utils.planck_instrument import make_instrument, Instrument
 from cmbml.sims.physics_instrument import get_noise_class
 
@@ -71,8 +71,7 @@ class NoiseMapCreatorExecutor(BaseStageExecutor):
         det_info = in_det_table.read()
         self.instrument: Instrument = make_instrument(cfg=cfg, det_info=det_info)
 
-        # seed maker objects
-        self.noise_seed_factory   = FreqLevelSeedFactory(cfg, cfg.model.sim.noise.seed_string)
+        self.noise_seed_factory   = SeedFactory(cfg, cfg.model.sim.noise.seed_template)
         NoiseMaker                = get_noise_class(cfg.model.sim.noise.noise_type)
         self.noise_maker          = NoiseMaker(cfg, self.name_tracker, self.in_noise_cache)
 
@@ -108,10 +107,12 @@ class NoiseMapCreatorExecutor(BaseStageExecutor):
             split (Split): The split to process. Needed for some configuration information.
             sim_num (int): The simulation number.
         """
-        sim_name = self.name_tracker.sim_name()
+        sim_name = self.name_tracker.sim_name()  # For logging and seed generation
         logger.debug(f"Creating simulation {split.name}:{sim_name}")
         for freq, detector in self.instrument.dets.items():
-            noise_seed   = self.noise_seed_factory.get_seed(split.name, sim_num, freq)
+            noise_seed   = self.noise_seed_factory.get_seed(split=split.name, 
+                                                            sim=sim_name, 
+                                                            freq=freq)
             noise_map    = self.noise_maker.get_noise_map(detector, noise_seed)
             column_names = [f"{stokes}_STOKES" for stokes in detector.fields]
 

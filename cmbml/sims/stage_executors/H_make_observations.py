@@ -13,9 +13,7 @@ from pysm3 import CMBLensed
 from tqdm import tqdm
 
 from cmbml.sims.cmb_factory import CMBFactory
-# from cmbml.sims.random_seed_manager import FieldLevelSeedFactory
-from cmbml.sims.random_seed_manager import FreqLevelSeedFactory
-from cmbml.sims.random_seed_manager import SimLevelSeedFactory
+from cmbml.sims.random_seed_manager import SeedFactory
 from cmbml.utils.planck_instrument import make_instrument, Instrument
 
 from cmbml.core import (
@@ -100,10 +98,11 @@ class ObsCreatorExecutor(BaseStageExecutor):
         det_info = in_det_table.read()
         self.instrument: Instrument = make_instrument(cfg=cfg, det_info=det_info)
 
-        self.cmb_seed_factory       = SimLevelSeedFactory(cfg, cfg.model.sim.cmb.seed_string)
+        self.cmb_seed_factory = SeedFactory(cfg, cfg.model.sim.cmb.seed_template)
         self.cmb_factory = CMBFactory(cfg)
 
-        # self.noise_seed_factory     = FreqLevelSeedFactory(cfg, cfg.model.sim.noise.seed_string)
+        # self.noise_seed_factory     = FreqLevelSeedFactory(cfg, 'noise')
+        # # self.noise_seed_factory     = FreqLevelSeedFactory(cfg, cfg.model.sim.noise.seed_string)
         # NoiseMaker                  = get_noise_class(cfg.model.sim.noise.noise_type)
         # self.noise_maker            = NoiseMaker(cfg, self.name_tracker, self.in_noise_cache)
 
@@ -155,11 +154,12 @@ class ObsCreatorExecutor(BaseStageExecutor):
             split (Split): The split to process. Needed for some configuration information.
             sim_num (int): The simulation number.
         """
-        sim_name = self.name_tracker.sim_name()  # for logging only
+        sim_name = self.name_tracker.sim_name()  # For logging and seed generation
         logger.debug(f"Creating simulation {split.name}:{sim_name}")
 
         # One CMB seed per simulation - constant for all frequencies
-        cmb_seed = self.cmb_seed_factory.get_seed(split, sim_num)
+        cmb_seed = self.cmb_seed_factory.get_seed(split=split,
+                                                  sim=sim_name)
         ps_path = self.in_cmb_ps.path_alt if split.ps_fidu_fixed else self.in_cmb_ps.path
         cmb = self.cmb_factory.make_cmb(cmb_seed, ps_path)
 
