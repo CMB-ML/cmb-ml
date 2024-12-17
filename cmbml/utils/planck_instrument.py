@@ -48,6 +48,10 @@ def make_detector(det_info, band, fields):
 
 def make_instrument(cfg, det_info=None):
     """
+    Args:
+        cfg: the hydra config object
+        det_info: the planck_bandpasstable
+
     returns a frozen dataclass containing
             detector_freqs x map_fields
             which are a subset of the full_instrument
