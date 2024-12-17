@@ -43,3 +43,4 @@ map_fields     : "I"
 # Should not be needed here; remove the check for this wherever it occurs
 n_test_cap       : null
 n_show_cap       : 5
+run_inference_on      : test  # Either "test" or "valid" ("train" should work, but is not recommended)
