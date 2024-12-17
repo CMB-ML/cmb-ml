@@ -32,8 +32,12 @@ class EmptyHandler(GenericHandler):
 class Config(GenericHandler):
     def read(self, path: Path) -> Dict:
         # logger.debug(f"Reading config from '{path}'")
-        with open(path, 'r') as infile:
-            data = yaml.safe_load(infile)
+        try:
+            with open(path, 'r') as infile:
+                data = yaml.safe_load(infile)
+        except Exception as e:
+            logger.error(f"Failed to read file at '{path}': {e}")
+            raise
         return data
 
     def write(self, path, data, verbose=True) -> None:
@@ -47,9 +51,46 @@ class Config(GenericHandler):
         yaml_string = yaml.dump(unnumpy_data, default_flow_style=False)
         if "\[" in yaml_string and "\]" in yaml_string:
             yaml_string = yaml_string.replace("\[", "[").replace("\]", "]")
-        with open(path, 'w') as outfile:
-            outfile.write(yaml_string)
+        try:
+            with open(path, 'w') as outfile:
+                outfile.write(yaml_string)
+        except Exception as e:
+            logger.error(f"Failed to write file at '{path}': {e}")
+            raise
 
+class PlainText(GenericHandler):
+    def read(self, path: Path, astype=str) -> str:
+        # logger.debug(f"Reading config from '{path}'")
+        try:
+            with open(path, 'r', encoding='utf-8') as infile:
+                data = infile.read()
+        except Exception as e:
+            logger.error(f"Failed to read file at '{path}': {e}")
+            raise
+
+        if len(data) == 0:
+            logger.warning(f"Empty file at '{path}'")
+
+        try:
+            data = astype(data)
+        except Exception as e:
+            if len(data) > 17:
+                data = data[:17] + "..."
+            logger.error(f"Failed to convert data ({data}) to {astype}: {e}")
+            raise
+
+        return data
+
+    def write(self, path, data) -> None:
+        logger.debug(f"Writing config to '{path}'")
+        data = str(data)
+        make_directories(path)
+        try:
+            with open(path, 'w', encoding='utf-8') as outfile:
+                outfile.write(data)
+        except Exception as e:
+            logger.error(f"Failed to read file at '{path}': {e}")
+            raise
 
 class Mover(GenericHandler):
     def read(self, path: Path) -> None:
@@ -93,3 +134,4 @@ def make_directories(path: Union[Path, str]) -> None:
 register_handler("EmptyHandler", EmptyHandler)
 register_handler("Config", Config)
 register_handler("Mover", Mover)
+register_handler("PlainText", PlainText)
