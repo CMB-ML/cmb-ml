@@ -62,11 +62,13 @@ class BasePyTorchModelExecutor(BaseStageExecutor):
             this_path_pattern = str(asset.path)
         return this_path_pattern
 
+    # TODO: Remove this? It's replaced in children classes
     def make_model(self):
-        logger.debug(f"Using {self.device} device")
-        model = self.make_model(self.cfg)
-        # logger.info(model)
-        return model
+        raise NotImplementedError("This method must be implemented in a child class.")
+    #     logger.debug(f"Using {self.device} device")
+    #     model = self.make_model(self.cfg)
+    #     # logger.info(model)
+    #     return model
 
     def match_data_precision(self, tensor):
         # TODO: Revisit
