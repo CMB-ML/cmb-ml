@@ -1,0 +1,4 @@
+name           : healpatch
+seed_template  : "{split}_patch"
+nside_patch    : 128
+mask_threshold : 1.0  # 100% of pixels in the patch must be unmasked to be valid
