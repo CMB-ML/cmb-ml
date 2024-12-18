@@ -1,7 +1,7 @@
 import pysm3.units as u
 import healpy as hp
 
-from ...get_data.utils.get_planck_data import get_planck_obs_data, get_planck_pred_data
+from ...get_data.utils.get_planck_data_ext import get_planck_obs_data_ext, get_planck_pred_data_ext
 
 
 CENTER_FREQS = {
@@ -31,9 +31,9 @@ def load_planck_data_general(fn, detector):
 
 
 def load_planck_obs_data(detector, assets_directory):
-    fn = get_planck_obs_data(detector, assets_directory)  # This will download the data if it doesn't exist
+    fn = get_planck_obs_data_ext(detector, assets_directory)  # This will download the data if it doesn't exist
     return load_planck_data_general(fn, detector)
 
 def load_planck_pred_data(detector, assets_directory):
-    fn = get_planck_pred_data(detector, assets_directory)  # This will download the data if it doesn't exist
+    fn = get_planck_pred_data_ext(detector, assets_directory)  # This will download the data if it doesn't exist
     return load_planck_data_general(fn, detector)

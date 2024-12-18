@@ -28,10 +28,8 @@ class GetAssetsExecutor(BaseStageExecutor):
         self.wmap_chains: Asset = self.assets_out['wmap_chains']
         # For reference:
         in_noise_sim: HealpyMap
-        in_det_table_handler: QTableHandler
 
         self.detectors = list(cfg.scenario.full_instrument.keys())
-        print(self.detectors)
 
     def execute(self) -> None:
         """
