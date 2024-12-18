@@ -9,7 +9,8 @@ defaults:
   - model/analysis            : basic_analysis
   - override hydra/job_logging: custom_log
 
-dataset_name   : ${scenario.map_fields}_${scenario.nside}_${splits.name}
+# dataset_name   : ${scenario.map_fields}_${scenario.nside}_${splits.name}
+dataset_name   : I_512_1450_new_noise
 working_dir    : "PyILC_CNILC/"
 fig_model_name : "CNILC"
 hydra:
@@ -38,7 +39,7 @@ use_epochs_map_stats : *epochs
 use_epochs_ps_stats  : *epochs
 
 # Limit the number of simulations for which to generate figures
-n_show_cap           : 5   # int: first n_sims; null: all sims (not recommended); list: particular sims by index
+n_show_cap           : 1   # int: first n_sims; null: all sims (not recommended); list: particular sims by index
 # Limit the number of simulations for which inference is run. In the splits yaml; null to run on all
-n_infer_cap          : null
-run_inference_on     : test  # Either "test" or "valid" ("train" should work, but is not recommended)
+n_infer_cap          : 1
+run_inference_on     : valid  # Either "test" or "valid" ("train" should work, but is not recommended)

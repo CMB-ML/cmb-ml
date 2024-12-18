@@ -1,7 +1,7 @@
 import logging
 import hydra
 from cmbml.core import PipelineContext, LogMaker
-from get_data.stage_executors.A_get_assets import GetAssetsExecutor
+from get_data.stage_executors.B_get_cmbml_data import GetDatasetExecutor
 
 
 logger = logging.getLogger(__name__)
@@ -10,10 +10,12 @@ logger = logging.getLogger(__name__)
 @hydra.main(version_base=None, config_path="../cfg", config_name="config_sim")
 def main(cfg):
     """
-    Gets assets.
+    Gets dataset.
 
     Args:
         cfg: The hydra configuration object. Provided by the @hydra.main decorator.
+             Critical to note: the splits yaml determines which sims are downloaded!
+             Change this file if you do not want to download the full dataset.
 
     Raises:
         Exception: If an exception occurs during the pipeline execution.
@@ -25,7 +27,7 @@ def main(cfg):
 
     pipeline_context = PipelineContext(cfg, log_maker)
 
-    pipeline_context.add_pipe(GetAssetsExecutor)
+    pipeline_context.add_pipe(GetDatasetExecutor)
 
     pipeline_context.prerun_pipeline()
 

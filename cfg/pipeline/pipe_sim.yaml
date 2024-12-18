@@ -111,6 +111,28 @@ make_sims:
   make_stage_log: True
   top_level_working: True
 
+download_sims_reference:
+  assets_out:
+    shared_links:
+      handler: Config
+      path_template: "{src_root}/CMB-ML/upload_records_abbr.json"
+
+download_sims:
+  assets_out:
+    temp_tar_dir:
+      handler: EmptyHandler
+      path_template: "{root}/{dataset}/{working}{stage}"
+    dataset_dir:
+      handler: EmptyHandler
+      path_template: "{root}/{dataset}/"
+  assets_in:
+    planck_deltabandpass: {stage: raw}
+    shared_links: {stage: download_sims_reference}
+  dir_name: Download_Sims_Working
+  splits: *all_splits
+  make_stage_log: True
+  top_level_working: True
+
 mask_in:
   assets_out:
     mask: 
