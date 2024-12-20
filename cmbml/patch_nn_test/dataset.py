@@ -58,7 +58,10 @@ class TrainCMBPatchDataset(Dataset):
                                r_ids=r_ids)
         features_tensor = tuple([torch.as_tensor(f) for f in features])
         features_tensor = torch.stack(features_tensor, dim=0)
-        return features_tensor, label, sim_idx, patch_id  # For debugging
+
+        label_tensor = torch.as_tensor(label)
+        label_tensor = label_tensor.unsqueeze(0)
+        return features_tensor, label_tensor, sim_idx, patch_id  # For debugging
         # return features_tensor, label  # For regular use
 
 
@@ -129,5 +132,7 @@ def _get_label_idx(path_template, handler, n_map_fields, sim_idx, r_ids):
     label = label[0]  # TODO: Implement multiple fields
     label = label[r_ids]
     label = label.value
+
+    
 
     return label

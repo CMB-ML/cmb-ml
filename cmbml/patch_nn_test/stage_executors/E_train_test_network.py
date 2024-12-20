@@ -114,26 +114,28 @@ class TrainingExecutor(BasePyTorchModelExecutor):
 
         model = self.make_model().to(self.device)
 
-        template_split = self.splits[0]
+        print(model)
 
-        # TODO: Include normalization (high priority, requires an executor to scan files. See Petroff method)
-        # TODO: Preprocess dataset (cut into patches, normalize, save, etc.) (??? priority - this seems slow currently)
-        # TODO: Dataset for validation (lower priority)
+        input_ex = torch.randn(4, 9, 128, 128).to(self.device)
+        output = model(input_ex)
+        print(output.size())
+
+        exit()
+
+        template_split = self.splits[0]
         dataset = self.set_up_dataset(template_split)
         dataloader = DataLoader(
             dataset, 
             batch_size=self.batch_size, 
-            shuffle=True,
+            shuffle=False,  # TODO: Change to True (when using the full dataset)
             )
 
         loss_function = torch.nn.L1Loss(reduction='mean')
         optimizer = torch.optim.Adam(model.parameters(), lr=self.learning_rate)
-
-        # TODO: Add mechanics for resuming training (code present in CMBNNCS)
-        start_epoch = 0
+        start_epoch = 0  # Temporary TODO: Remove, replace with epoch restart stuff from CMBNNCS
 
         for epoch in range(start_epoch, self.n_epochs):
-            # batch_n = 0
+            batch_n = 0
             with tqdm(dataloader, postfix={'Loss': 0}) as pbar:
                 for train_features, train_label, sim_idx, p_idx in pbar:
                     train_features = train_features.to(device=self.device, dtype=self.dtype)
@@ -146,14 +148,17 @@ class TrainingExecutor(BasePyTorchModelExecutor):
                     optimizer.step()
                     pbar.set_postfix({'Loss': loss.item()})
 
-                # TODO: Save model at intervals (code present in CMBNNCS) (medium priority)
 
-                # TODO: Add validation loss (lower priority)
-                # TODO: Add TensorBoard logging (lowest priority)
-
-        # TODO: Check that this works!!! (highest priority)
-        self.out_model.write(model)
-
+                    # logger.debug(f"train label shape: {train_label.shape}")
+                    # logger.debug(f"train features shape: {train_features.shape}")
+                    # for i in range(self.batch_size):
+                    #     show_patch(train_label[i, :], train_features[i, :], 
+                    #                f"Batch {batch_n}, Sample {i}, Train{sim_idx[i]:04d}, Patch {p_idx[i]}")
+                    # if sim_idx[-1] >= 10 - self.batch_size:
+                    #     # I have 10 sims, so this will show the last full batch (and crash after)
+                    #     break
+                    batch_n += 1
+            break
 
     def set_up_dataset(self, template_split: Split) -> None:
         cmb_path_template = self.make_fn_template(template_split, self.in_cmb_asset)
