@@ -199,9 +199,7 @@ class TrainingExecutor(BasePyTorchModelExecutor):
 
     def make_model(self):
         model = SimpleUNetModel(
-                           detectors=self.instrument.dets.keys(),
-                           map_fields='I',
-                           im_size=self.nside_patch,
-                           note="I don't really know what I'm doing."
+                           n_in_channels=len(self.instrument.dets),
+                           note="Test case network"
                            )
         return model
