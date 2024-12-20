@@ -18,7 +18,7 @@ fig_model_name     : PatchNN
 hydra:
   run:
     dir            : Logs/${now:%Y-%m-%d-%H-%M-%S}
-  verbose          : true
+  verbose          : false
 
 
 # Settings below this point are used for interpolation.

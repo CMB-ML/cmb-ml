@@ -28,6 +28,16 @@
 #   dir_name: CMBNNCS_C_Preprocess
 #   make_stage_log: True
 
+make_lut:
+  assets_out:
+    lut: 
+      handler: NumpyMap
+      path_template: "{root}/{dataset}/{working}{stage}/lut.npy"
+  assets_in:
+    cmb_map: {stage: make_sims}
+    obs_maps: {stage: make_sims}
+  dir_name: PatchNN_0_LUT
+
 snip_patches_cfg:
   assets_out:
     all_ids:
@@ -74,6 +84,7 @@ train:
       path_template: "{root}/{dataset}/{working}{stage}/model_{epoch}.pth"
   assets_in:
     # norm_file: {stage: make_normalization}
+    lut: {stage: make_lut}
     model: {stage: train}
     cmb_map: {stage: make_sims}
     obs_maps: {stage: make_sims}
