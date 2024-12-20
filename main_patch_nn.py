@@ -33,38 +33,9 @@ from cmbml.patch_nn_test import (
     SnipConfigExecutor,
     ShowPatchTestExecutor,
     ShowPatchDistTestExecutor,
+    MakeLutExecutor,
     TrainingExecutor
     )
-
-# from cmbml.cmbnncs_local import (
-#                          HydraConfigCMBNNCSCheckerExecutor,
-#                          PreprocessMakeScaleExecutor,
-#                          PreprocessExecutor,
-#                          NonParallelPreprocessExecutor,
-#                          TrainingExecutor,
-#                          PredictionExecutor,
-#                          PostprocessExecutor,
-#                          NonParallelPostprocessExecutor
-#                          )
-
-# from cmbml.analysis import (ShowSimsPrepExecutor, 
-#                             CommonRealPostExecutor,
-#                             CommonCMBNNCSPredPostExecutor,
-#                             CommonCMBNNCSShowSimsPostExecutor,
-#                             CommonCMBNNCSShowSimsPostIndivExecutor,
-#                             CMBNNCSShowSimsPredExecutor, 
-#                             # CMBNNCSShowSimsPostExecutor,
-#                             PixelAnalysisExecutor,
-#                             PixelSummaryExecutor,
-#                             ConvertTheoryPowerSpectrumExecutor,
-#                             MakeTheoryPSStats,
-#                             CMBNNCSMakePSExecutor,
-#                             PixelSummaryFigsExecutor,
-#                             PSAnalysisExecutor,
-#                             PowerSpectrumSummaryExecutor,
-#                             PowerSpectrumSummaryFigsExecutor,
-#                             PostAnalysisPsFigExecutor,
-#                             ShowOnePSExecutor)
 
 
 logger = logging.getLogger(__name__)
@@ -84,12 +55,14 @@ def run_cmbnncs(cfg):
     # pipeline_context.add_pipe(MaskCreatorExecutor)
     # pipeline_context.add_pipe(SnipConfigExecutor)
     # pipeline_context.add_pipe(ShowPatchDistTestExecutor)
-    pipeline_context.add_pipe(ShowPatchTestExecutor)
+    # pipeline_context.add_pipe(ShowPatchTestExecutor)
 
     # pipeline_context.add_pipe(PreprocessMakeScaleExecutor)
     # # # pipeline_context.add_pipe(NonParallelPreprocessExecutor)  # For demonstration only
     # pipeline_context.add_pipe(PreprocessExecutor)
     # pipeline_context.add_pipe(ShowSimsPrepExecutor)
+
+    # pipeline_context.add_pipe(MakeLutExecutor)
 
     pipeline_context.add_pipe(TrainingExecutor)
 

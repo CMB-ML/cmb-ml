@@ -2,3 +2,4 @@ train:
   batch_size: 4
   device    : null  # Goes to None in python
   n_epochs  : 10
+  dtype     : float

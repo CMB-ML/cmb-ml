@@ -23,6 +23,7 @@ from cmbml.patch_nn_test.dataset import TrainCMBPatchDataset
 # from cmbml.cmbnncs_local.preprocessing.transform_pixel_rearrange import sphere2rect
 from cmbml.utils.planck_instrument import make_instrument, Instrument
 from cmbml.patch_nn_test.utils.display_help import show_patch
+from cmbml.patch_nn_test.dummy_model import SimpleUNetModel
 
 
 logger = logging.getLogger(__name__)
@@ -92,10 +93,12 @@ class TrainingExecutor(BasePyTorchModelExecutor):
         self.in_cmb_asset: Asset = self.assets_in["cmb_map"]
         self.in_obs_assets: Asset = self.assets_in["obs_maps"]
         self.in_all_p_ids_asset: Asset = self.assets_in["patch_dict"]
+        self.in_lut_asset: Asset = self.assets_in["lut"]
         # self.in_norm: Asset = self.assets_in["norm_file"]  # We may need this later
         in_model_handler: PyTorchModel
         in_cmb_map_handler: HealpyMap
         in_obs_map_handler: HealpyMap
+        in_lut_handler: NumpyMap
         # in_norm_handler: Config
 
         self.nside_patch = cfg.model.patches.nside_patch
@@ -103,9 +106,21 @@ class TrainingExecutor(BasePyTorchModelExecutor):
         self.choose_device(cfg.model.patch_nn.train.device)
         self.n_epochs   = cfg.model.patch_nn.train.n_epochs
         self.batch_size = cfg.model.patch_nn.train.batch_size
+        self.learning_rate = 0.0002
+        self.dtype = self.dtype_mapping[cfg.model.patch_nn.train.dtype]
 
     def execute(self) -> None:
         logger.debug(f"Running {self.__class__.__name__} execute()")
+
+        model = self.make_model().to(self.device)
+
+        print(model)
+
+        input_ex = torch.randn(4, 9, 128, 128).to(self.device)
+        output = model(input_ex)
+        print(output.size())
+
+        exit()
 
         template_split = self.splits[0]
         dataset = self.set_up_dataset(template_split)
@@ -115,23 +130,33 @@ class TrainingExecutor(BasePyTorchModelExecutor):
             shuffle=False,  # TODO: Change to True (when using the full dataset)
             )
 
-        # model = self.make_model().to(self.device)
-        # loss_function = torch.nn.L1Loss(reduction='mean')
-        # optimizer = torch.optim.Adam(model.parameters(), lr=lr_init)
+        loss_function = torch.nn.L1Loss(reduction='mean')
+        optimizer = torch.optim.Adam(model.parameters(), lr=self.learning_rate)
         start_epoch = 0  # Temporary TODO: Remove, replace with epoch restart stuff from CMBNNCS
 
         for epoch in range(start_epoch, self.n_epochs):
             batch_n = 0
             with tqdm(dataloader, postfix={'Loss': 0}) as pbar:
                 for train_features, train_label, sim_idx, p_idx in pbar:
-                    logger.debug(f"train label shape: {train_label.shape}")
-                    logger.debug(f"train features shape: {train_features.shape}")
-                    for i in range(self.batch_size):
-                        show_patch(train_label[i, :], train_features[i, :], 
-                                   f"Batch {batch_n}, Sample {i}, Train{sim_idx[i]:04d}, Patch {p_idx[i]}")
-                    if sim_idx[-1] >= 10 - self.batch_size:
-                        # I have 10 sims, so this will show the last full batch (and crash after)
-                        break
+                    train_features = train_features.to(device=self.device, dtype=self.dtype)
+                    train_label = train_label.to(device=self.device, dtype=self.dtype)
+
+                    optimizer.zero_grad()
+                    output = model(train_features)
+                    loss = loss_function(output, train_label)
+                    loss.backward()
+                    optimizer.step()
+                    pbar.set_postfix({'Loss': loss.item()})
+
+
+                    # logger.debug(f"train label shape: {train_label.shape}")
+                    # logger.debug(f"train features shape: {train_features.shape}")
+                    # for i in range(self.batch_size):
+                    #     show_patch(train_label[i, :], train_features[i, :], 
+                    #                f"Batch {batch_n}, Sample {i}, Train{sim_idx[i]:04d}, Patch {p_idx[i]}")
+                    # if sim_idx[-1] >= 10 - self.batch_size:
+                    #     # I have 10 sims, so this will show the last full batch (and crash after)
+                    #     break
                     batch_n += 1
             break
 
@@ -153,7 +178,8 @@ class TrainingExecutor(BasePyTorchModelExecutor):
             feature_handler=self.in_obs_assets.handler,
             which_patch_dict=which_patch_dict,
             nside_obs=self.nside,
-            nside_patches=self.nside_patch
+            nside_patches=self.nside_patch,
+            lut=self.in_lut_asset.read(),
             # feature_handler=HealpyMap()
             )
         return dataset
@@ -170,3 +196,12 @@ class TrainingExecutor(BasePyTorchModelExecutor):
         npix_data = train_features.size()[-1] * train_features.size()[-2]
         npix_cfg  = hp.nside2npix(self.nside)
         assert npix_cfg == npix_data, "Npix for loaded map does not match configuration yamls."
+
+    def make_model(self):
+        model = SimpleUNetModel(
+                           detectors=self.instrument.dets.keys(),
+                           map_fields='I',
+                           im_size=self.nside_patch,
+                           note="I don't really know what I'm doing."
+                           )
+        return model

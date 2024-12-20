@@ -22,6 +22,7 @@ class TrainCMBPatchDataset(Dataset):
                  which_patch_dict: dict,
                  nside_obs,
                  nside_patches,
+                 lut
                  ):
         # TODO: Adopt similar method as in parallel operations to allow 
         #       this to use num_workers and transforms
@@ -34,7 +35,7 @@ class TrainCMBPatchDataset(Dataset):
         self.n_map_fields:int = len(map_fields)
         self.which_patch_dict = which_patch_dict
         logger.debug("Building patch LUT...")
-        self.patch_lut = make_pixel_index_lut(nside_obs=nside_obs, nside_patches=nside_patches)
+        self.patch_lut = lut
         logger.debug(f"Patch LUT built. Shape: {self.patch_lut.shape}")
 
     def __len__(self):
