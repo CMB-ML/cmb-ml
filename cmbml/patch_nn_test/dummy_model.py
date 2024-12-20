@@ -11,12 +11,14 @@ import torch.nn.functional as F
 
 
 class DoubleConv(nn.Module):
-    def __init__(self, in_features, out_channels, kernel_size=3, padding=1):
+    def __init__(self, in_features, out_channels):
         super().__init__()
         self.double_conv = nn.Sequential(
-            nn.Conv2d(in_features, out_channels, kernel_size=kernel_size, padding=padding, bias=False),
+            nn.Conv2d(in_features, out_channels, 
+                      kernel_size=3, padding=1, bias=False),
             nn.ReLU(inplace=True),
-            nn.Conv2d(out_channels, out_channels, kernel_size=kernel_size, padding=padding, bias=False),
+            nn.Conv2d(out_channels, out_channels, 
+                      kernel_size=3, padding=1, bias=False),
             nn.ReLU(inplace=True)
         )
 
@@ -25,12 +27,12 @@ class DoubleConv(nn.Module):
 
 
 class Down(nn.Module):
-    def __init__(self, in_channels, kernel_size=3, padding=1):
+    def __init__(self, in_channels):
         super().__init__()
         out_channels = in_channels * 2
         self.down_conv = nn.Sequential(
             nn.MaxPool2d(kernel_size=2),
-            DoubleConv(in_channels, out_channels, kernel_size, padding)
+            DoubleConv(in_channels, out_channels)
         )
 
     def forward(self, x):
@@ -39,27 +41,20 @@ class Down(nn.Module):
 
 
 class Up(nn.Module):
-    def __init__(self, in_channels, kernel_size=3, padding=1):
+    def __init__(self, in_channels):
         super().__init__()
         out_channels = in_channels // 2
         self.up = nn.ConvTranspose2d(in_channels,
                                      out_channels,
                                      kernel_size=2,
                                      stride=2)
-        self.conv = DoubleConv(in_channels,  # between up and conv, we will cat
-                               out_channels,
-                               kernel_size,
-                               padding)
+        # between up and conv, we will concatenate feature maps,
+        #   doubling the size. So we use in_channels here:
+        self.conv = DoubleConv(in_channels,
+                               out_channels)
 
     def forward(self, x1, x2):
         x1 = self.up(x1)
-
-        diffY = x2.size()[2] - x1.size()[2]
-        diffX = x2.size()[3] - x1.size()[3]
-
-        x1 = F.pad(x1, [diffX // 2, diffX - diffX // 2,
-                        diffY // 2, diffY - diffY // 2])
-
         x = torch.cat([x2, x1], dim=1)
         x = self.conv(x)
         return x
@@ -78,9 +73,7 @@ class OutConv(nn.Module):
 class SimpleUNetModel(nn.Module):
     def __init__(
                  self,
-                 detectors,
-                 map_fields,
-                 im_size=128,
+                 n_in_channels,  # Should be the number of detectors
                  n_init_features=32,
                  n_dns=3,
                  note='',
@@ -88,41 +81,38 @@ class SimpleUNetModel(nn.Module):
         super().__init__()
         self.note = note
 
-        if map_fields != 'I':
-            raise NotImplementedError("This model only supports I maps.")
+        self.in_c = DoubleConv(in_features=n_in_channels,
+                               out_channels=n_init_features)
 
-        self.n_dets = len(detectors)
-        self.im_size = im_size                      # 128 Patch N_side (outside this model)
+        downs = []
+        curr_features = n_init_features
+        for _ in range(n_dns):
+            downs.append(Down(curr_features))
+            curr_features *= 2
+        self.dns = nn.ModuleList(downs)
 
-        i_init_feat = int(np.log2(n_init_features)) # 32 -> 5
-        i_cent_feat  = i_init_feat + n_dns          # 5 + 3 = 8
-
-        # Define chunks of layers
-        self.in_c = DoubleConv(in_features=self.n_dets,
-                               out_channels=n_init_features,
-                               kernel_size=(3, 3),
-                               padding=(1, 1)
-                               )
-
-        self.dns = nn.ModuleList(
-            [Down(in_channels=2**i,
-                  ) for i in range(i_init_feat, i_cent_feat)]
-        )
-
-        self.ups = nn.ModuleList(
-            [Up(in_channels=2**i,
-                ) for i in range(i_cent_feat, i_init_feat, -1)]
-        )
+        ups = []
+        for _ in range(n_dns):
+            ups.append(Up(curr_features))
+            curr_features //= 2
+        self.ups = nn.ModuleList(ups)
 
         self.out = OutConv(in_channels=n_init_features, out_channels=1)
 
     def forward(self, x):
+        skips = []
         x = self.in_c(x)
-        downs = [x]
-        for i, down in enumerate(self.dns):
+        # Top of the UNet
+        skips.append(x)
+
+        for down in self.dns:
             x = down(x)
-            downs.append(x)
+            skips.append(x)
+
         for i, up in enumerate(self.ups):
-            x = up(x, downs[-(i+2)])
+            # Pair skip layers. [-(i+2)] is the i-th layer from the end.
+            #   It's worth drawing this out by hand to verify...
+            x = up(x, skips[-(i+2)])
+
         x = self.out(x)
         return x
