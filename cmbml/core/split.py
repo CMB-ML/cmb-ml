@@ -30,7 +30,7 @@ class SplIterator:
     def __iter__(self):
         return self
 
-    def __next__(self):
+    def __next__(self) -> int:
         if self.current_sim < self.split.n_sims:
             result = self.current_sim
             self.current_sim += 1
@@ -38,5 +38,5 @@ class SplIterator:
         else:
             raise StopIteration
 
-    def __len__(self):
+    def __len__(self) -> int:
         return self.split.n_sims
