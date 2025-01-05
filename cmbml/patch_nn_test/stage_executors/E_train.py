@@ -108,6 +108,8 @@ class TrainingExecutor(BasePyTorchModelExecutor):
         self.batch_size = cfg.model.patch_nn.train.batch_size
         self.learning_rate = 0.0002
         self.dtype = self.dtype_mapping[cfg.model.patch_nn.train.dtype]
+        self.extra_check = cfg.model.patch_nn.train.extra_check
+        self.checkpoint = cfg.model.patch_nn.train.checkpoint_every
 
     def execute(self) -> None:
         logger.debug(f"Running {self.__class__.__name__} execute()")
@@ -146,14 +148,20 @@ class TrainingExecutor(BasePyTorchModelExecutor):
                     optimizer.step()
                     pbar.set_postfix({'Loss': loss.item()})
 
-                # TODO: Save model at intervals (code present in CMBNNCS) (medium priority)
-
                 # TODO: Add validation loss (lower priority)
                 # TODO: Add TensorBoard logging (lowest priority)
 
-        # TODO: Check that this works!!! (highest priority)
-        self.out_model.write(model)
+            # Checkpoint every so many epochs
+            if (epoch + 1) in self.extra_check or (epoch + 1) % self.checkpoint == 0:
+                with self.name_tracker.set_context("epoch", epoch + 1):
+                    self.out_model.write(model=model,
+                                         optimizer=optimizer,
+                                        #  scheduler=scheduler,
+                                         epoch=epoch + 1)
+                                        #  loss=epoch_loss)
 
+        with self.name_tracker.set_context("epoch", "final"):
+            self.out_model.write(model=model, epoch="final")
 
     def set_up_dataset(self, template_split: Split) -> None:
         cmb_path_template = self.make_fn_template(template_split, self.in_cmb_asset)
