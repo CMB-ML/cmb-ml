@@ -67,6 +67,9 @@ class Asset:
             raise e
 
     def write(self, **kwargs):
+        # If you're here debugging a "TypeError: write() takes 1 positional argument but 2 were given" error, 
+        #   it's because you're calling .write() with positional arguments. 
+        # It must be called with keyword arguments only.
         try:
             if self.can_write:
                 return self.handler.write(self.path, **kwargs)
