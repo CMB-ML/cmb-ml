@@ -127,7 +127,7 @@ class TrainingExecutor(BasePyTorchModelExecutor):
                     logger.debug(f"train label shape: {train_label.shape}", flush=True)
                     logger.debug(f"train features shape: {train_features.shape}", flush=True)
                     for i in range(self.batch_size):
-                        show_patch(train_label[i, :], train_features[i, :], 
+                        show_patch(train_label[i, 0, :], train_features[i, :], 
                                    f"Batch {batch_n}, Sample {i}, Train{sim_idx[i]:04d}, Patch {p_idx[i]}")
                     if sim_idx[-1] >= 10 - self.batch_size:
                         # I have 10 sims, so this will show the last full batch (and crash after)
