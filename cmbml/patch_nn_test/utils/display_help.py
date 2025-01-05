@@ -36,8 +36,9 @@ def show_patch(cmb_map, obs_maps, title) -> None:
     Draws a 3x4 grid of maps; the first is the CMB, the rest are the observed maps.
 
     Args:
-        cmb_map: The CMB map
+        cmb_map: The CMB map (shape patch_side x patch_side)
         obs_maps: A list of observed maps (expects a list of 2D numpy arrays)
+                  or a 3D PyTorch tensor (shape n_dets x patch_side x patch_side)
         title: The title of the plot
 
     Returns:
@@ -48,12 +49,15 @@ def show_patch(cmb_map, obs_maps, title) -> None:
     
     # Plot the first map
     ax0 = fig.add_subplot(gs[0, 0])
-    im = ax0.imshow(cmb_map, origin='lower', cmap='viridis')
-    ax0.set_title("CMB Map")
-    ax0.set_xticks([])
-    ax0.set_yticks([])
-    plt.colorbar(im, ax=ax0, fraction=0.046, pad=0.04)
-    
+    if cmb_map is not None:
+        im = ax0.imshow(cmb_map, origin='lower', cmap='viridis')
+        ax0.set_title("CMB Map")
+        ax0.set_xticks([])
+        ax0.set_yticks([])
+        plt.colorbar(im, ax=ax0, fraction=0.046, pad=0.04)
+    else:
+        ax0.axis('off')
+
     # Plot the remaining 9 maps
     for freq_id, obs_map in enumerate(obs_maps):
         row = (freq_id + 1) // 4  # Row index (skip the first slot)
