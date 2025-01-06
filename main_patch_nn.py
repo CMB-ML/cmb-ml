@@ -34,7 +34,8 @@ from cmbml.patch_nn_test import (
     ShowPatchTestExecutor,
     ShowPatchDistTestExecutor,
     MakeLutExecutor,
-    TrainingExecutor
+    TrainingExecutor,
+    PredictExectutor
     )
 
 
@@ -61,10 +62,11 @@ def run_cmbnncs(cfg):
     # pipeline_context.add_pipe(PreprocessMakeScaleExecutor)
     # # # pipeline_context.add_pipe(NonParallelPreprocessExecutor)  # For demonstration only
     # pipeline_context.add_pipe(PreprocessExecutor)
-
+# 
     pipeline_context.add_pipe(MakeLutExecutor)
 
     pipeline_context.add_pipe(TrainingExecutor)
+    # pipeline_context.add_pipe(PredictExectutor)
 
     # TODO: Figure out stitching
     # pipeline_context.add_pipe(PredictionExecutor)
