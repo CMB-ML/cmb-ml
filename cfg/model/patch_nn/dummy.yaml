@@ -1,7 +1,7 @@
 train:
   batch_size: 4
   device    : null  # Goes to None in python
-  n_epochs  : 2
+  n_epochs  : 100
   dtype     : float
   checkpoint_every : 5     # checkpoint every this number of epochs
   extra_check      : [1, 2, 3, 6, 9]

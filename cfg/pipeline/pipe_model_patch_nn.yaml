@@ -91,22 +91,23 @@ train:
     patch_dict: {stage: snip_patches_cfg, orig_name: all_ids}
   splits:
     - train
-  dir_name: Patch_NN_E_Model
+  dir_name: PatchNN_E_Model
   make_stage_log: True
 
-# predict:
-#   assets_out:
-#     cmb_map: 
-#       handler: NumpyMap
-#       path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/cmb_map_pred_{epoch}.npy"
-#   assets_in:
-#     model: {stage: train}
-#     obs_maps: {stage: preprocess}
-#   splits:
-#     - ${splits.run_inference_on}
-#   epochs: ${use_epochs}
-#   dir_name: CMBNNCS_E_Predict
-#   make_stage_log: True
+predict:
+  assets_out:
+    cmb_map: 
+      handler: NumpyMap
+      path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/cmb_map_pred_{epoch}.npy"
+  assets_in:
+    lut: {stage: make_lut}
+    model: {stage: train}
+    obs_maps: {stage: make_sims}
+  splits:
+    - ${splits.run_inference_on}
+  epochs: ${use_epochs}
+  dir_name: PatchNN_E_Predict
+  make_stage_log: True
 
 # postprocess: &final_inference
 #   assets_out:
