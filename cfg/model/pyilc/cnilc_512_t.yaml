@@ -25,7 +25,7 @@ output_suffix: ''                                # the suffix for all the files 
 save_as: 'fits'
 save_weights: 'no'                               # set to yes to save the weight maps
 ELLMAX: ${ELLMAX}                                # Pull from the higher level config. Value set to maximum used in PyILC for this nside
-perform_ILC_at_beam: 5                           # Choose this based on ???
+perform_ILC_at_beam: 20.6 #165 #for 64 #20.6  for 512                         # Choose this based on ???
 ILC_preserved_comp: 'CMB'
 ILC_bias_tol: 0.001
 N_deproj: 0                                      # The PyILC methods can extract components other than the CMB. 
@@ -46,10 +46,16 @@ bandpass_type: 'DeltaBandpasses'  # No further information
 ################# OPTIONAL, ALL METHODS ##################
 ILC_deproj_comps: []
 override_ILCbiastol_threshold: 'False'
-
+#override_N_freqs_to_use:  [5,5,5,5,5,5,5,5,5,5]
+#wavelet_beam_criterion: 1e-9
 ################# CNILC UNIQUE #############################
 distinct:
   wavelet_type: 'CosineNeedlets'                   # This "chooses" the CNILC method
-  N_scales: 10
+  N_scales: 4
   ellmin: 0
-  ellpeaks: [100, 200, 300, 400, 600, 800, 1000, 1200, 1535]
+  ellpeaks:  [200,715,1025] #[150, 250, 350, 500, 700, 900, 1100, 1300, 1535] #[50, 100, 150, 200, 300, 400, 700, 1100, 1535] #[10,15,20,25,30,40,60,80,110,191] #[20,30,40,60,80,100,120,140,160,191] #[40,80,120,150,180,220,260,310,360,383] #[20,30,40,60,80,100,120,140,160,191] #[20,30,40,60,80,100,120,140,160,191]  #[100, 200, 300, 400, 600, 800, 1000, 1200, 1535]
+  #[60,70,80,90,100,110,120,140,160,191]
+  #[10,15,20,25,30,40,60,80,110,191] 
+  #[20,40,60,80,100,125,150,191] 1-10 splitA
+  #[60,70,80,90,100,110,120,140,160,191] 1-10 splitB
+  BinSize: 50

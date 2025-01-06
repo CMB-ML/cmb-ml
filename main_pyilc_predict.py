@@ -36,7 +36,7 @@ from cmbml.pyilc_local.B_predict_executor import PredictionExecutor
 logger = logging.getLogger(__name__)
 
 
-@hydra.main(version_base=None, config_path="cfg", config_name="config_pyilc_t")
+@hydra.main(version_base=None, config_path="cfg", config_name="config_pyilc_demo_multirun")
 def run_pyilc_predictions(cfg):
     logger.debug(f"Running {__name__} in {__file__}")
 
@@ -46,7 +46,7 @@ def run_pyilc_predictions(cfg):
     pipeline_context = PipelineContext(cfg, log_maker)
 
     pipeline_context.add_pipe(HydraConfigCheckerExecutor)
-    pipeline_context.add_pipe(MaskCreatorExecutor)
+    #pipeline_context.add_pipe(MaskCreatorExecutor)
     pipeline_context.add_pipe(PredictionExecutor)
 
     pipeline_context.prerun_pipeline()
