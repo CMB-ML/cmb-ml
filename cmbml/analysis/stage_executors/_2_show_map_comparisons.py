@@ -360,6 +360,12 @@ class CommonCMBNNCSShowSimsPostExecutor(CommonRealPostExecutor):
         self.right_subplot_title = "CMBNNCS Predicted"
 
 
+class CommonNNShowSimsPostExecutor(CommonRealPostExecutor):
+    def __init__(self, cfg: DictConfig) -> None:
+        super().__init__(cfg)
+        self.right_subplot_title = "NN Predicted"
+
+
 class CommonPetroffShowSimsPostExecutor(CommonRealPostExecutor):
     def __init__(self, cfg: DictConfig) -> None:
         super().__init__(cfg)

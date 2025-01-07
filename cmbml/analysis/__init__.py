@@ -7,6 +7,7 @@ from .stage_executors._2_show_map_comparisons import  (
     # PetroffShowSimsPostExecutor, 
     # NILCShowSimsPostExecutor,
     CommonCMBNNCSShowSimsPostExecutor,
+    CommonNNShowSimsPostExecutor,
     CommonPetroffShowSimsPostExecutor,
     CommonNILCShowSimsPostExecutor
     )
@@ -31,14 +32,16 @@ from .stage_executors.C_make_ps_theory_stats import MakeTheoryPSStats
 from .stage_executors.D_common_map_post import (
     CommonRealPostExecutor,
     CommonCMBNNCSPredPostExecutor,
-    CommonPyILCPredPostExecutor
+    CommonPyILCPredPostExecutor,
+    CommonNNPredPostExecutor
 )
 
 from .stage_executors.F_pixel_analysis import PixelAnalysisExecutor
 
 from .stage_executors.K_make_pred_ps import (
     PyILCMakePSExecutor, 
-    CMBNNCSMakePSExecutor
+    CMBNNCSMakePSExecutor,
+    NNMakePSExecutor,
 )
 from .stage_executors.L_ps_analysis import PSAnalysisExecutor
 # from .stage_executors.L_ps_analysis_serial import PowerSpectrumAnalysisExecutorSerial

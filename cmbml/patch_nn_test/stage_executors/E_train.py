@@ -55,7 +55,7 @@ class TrainingExecutor(BasePyTorchModelExecutor):
         self.n_epochs   = cfg.model.patch_nn.train.n_epochs
         self.batch_size = cfg.model.patch_nn.train.batch_size
         self.learning_rate = 0.0002
-        self.dtype = self.dtype_mapping[cfg.model.patch_nn.train.dtype]
+        self.dtype = self.dtype_mapping[cfg.model.patch_nn.dtype]
         self.extra_check = cfg.model.patch_nn.train.extra_check
         self.checkpoint = cfg.model.patch_nn.train.checkpoint_every
 
@@ -79,6 +79,7 @@ class TrainingExecutor(BasePyTorchModelExecutor):
             dataset, 
             batch_size=self.batch_size, 
             shuffle=True,
+            num_workers=2
             )
 
         loss_function = torch.nn.L1Loss(reduction='mean')

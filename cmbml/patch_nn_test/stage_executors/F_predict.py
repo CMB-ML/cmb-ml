@@ -12,7 +12,6 @@ from omegaconf import DictConfig
 import healpy as hp
 
 from cmbml.core import Split, Asset
-from cmbml.core.executor_base import BaseStageExecutor
 from cmbml.core.asset_handlers.asset_handlers_base import Config
 from cmbml.core.asset_handlers.pytorch_model_handler import PyTorchModel # Import for typing hint
 from cmbml.core.asset_handlers.healpy_map_handler import HealpyMap
@@ -22,9 +21,8 @@ from cmbml.patch_nn_test.dataset import TestCMBPatchDataset
 # from cmbml.core.pytorch_transform import TrainToTensor
 # from cmbml.cmbnncs_local.preprocessing.scale_methods_factory import get_scale_class
 # from cmbml.cmbnncs_local.preprocessing.transform_pixel_rearrange import sphere2rect
-from cmbml.utils.planck_instrument import make_instrument, Instrument
-from cmbml.patch_nn_test.utils.display_help import show_patch
 from cmbml.patch_nn_test.stage_executors._pytorch_executor_base import BasePyTorchModelExecutor
+from cmbml.patch_nn_test.dummy_model import SimpleUNetModel
 
 
 logger = logging.getLogger(__name__)
@@ -40,7 +38,7 @@ class PredictExectutor(BasePyTorchModelExecutor):
         super().__init__(cfg, stage_str="predict")
 
         self.out_cmb_asset: Asset = self.assets_out["cmb_map"]
-        out_cmb_handler: NumpyMap
+        out_cmb_handler: HealpyMap
 
         self.in_model_asset: Asset = self.assets_in["model"]
         self.in_obs_assets: Asset = self.assets_in["obs_maps"]
@@ -53,55 +51,58 @@ class PredictExectutor(BasePyTorchModelExecutor):
 
         self.nside_patch = cfg.model.patches.nside_patch
 
-        # self.choose_device(cfg.model.patch_nn.test.device)
+        self.choose_device(cfg.model.patch_nn.test.device)
         # self.n_epochs   = cfg.model.patch_nn.test.n_epochs
         self.batch_size = cfg.model.patch_nn.test.batch_size
         self.lut = self.in_lut_asset.read()
+        self.dtype = self.dtype_mapping[cfg.model.patch_nn.dtype]
+
+        self.model = None  # Placeholder for model
 
     def execute(self) -> None:
         logger.debug(f"Running {self.__class__.__name__} execute()")
 
-        for split in self.splits:
-            with self.name_tracker.set_contexts(contexts_dict={"split": split.name}):
-                self.process_split(split)
+        # It would likely be safer to have this within the loop, right before read()
+        #    But this should work and be faster (especially with larger models)
+        self.model = SimpleUNetModel(
+                           n_in_channels=len(self.instrument.dets),
+                           note="Test case network")
+        self.model.eval().to(self.device)
+
+        with torch.no_grad():  # We don't need gradients for prediction
+            for model_epoch in self.model_epochs:
+                for split in self.splits:
+                    context_dict = dict(split=split.name, epoch=model_epoch)
+                    with self.name_tracker.set_contexts(context_dict):
+                        self.in_model_asset.read(model=self.model, epoch=model_epoch)
+                        self.process_split(split)
 
     def process_split(self, split):
         dataset = self.set_up_dataset(split)
         dataloader = DataLoader(
             dataset, 
             batch_size=self.batch_size, 
-            shuffle=False
+            shuffle=False,
             )
         for sim_num in tqdm(split.iter_sims()):
             dataset.sim_idx = sim_num
             with self.name_tracker.set_context("sim_num", sim_num):
                 self.process_sim(sim_num, dataloader, dataset)
-            # Do just the first simulation for this test
-            break
 
     def process_sim(self, sim_idx, dataloader, dataset):
         """
-        In this test executor, the goal is to reconstruct just one of the input feature maps.
+        Process the simulation using the trained model on each patch.
         """
-        logger.info("Starting map")
-
-        use_detector = 0  # Use 30 GHz (first frequency) for now
-
         this_map_results = []
-        for test_features, verif_sim_idx, p_idx in dataloader:
-            logger.info(f"train features shape: {test_features.shape}, input_sim_idx:{sim_idx}, verified sim_idx: {verif_sim_idx}, p_idx: {p_idx}")
-            this_map_results.append(test_features[:, use_detector, ...])
-
-        reassembled_map = self.reassemble_map(this_map_results)
-
-        # get target map from the dataset (which internally loads the full map; to be used for debugging but not in production)
-        target_map = dataset._current_map_data[use_detector]
-
-        assert np.all(reassembled_map == target_map), "Reassembled map does not match target map."
-        logger.info("Success! Reassembled map matches target map!")
+        for test_features, _, _ in dataloader:
+            test_features = test_features.to(device=self.device, dtype=self.dtype)
+            predictions = self.model(test_features)
+            this_map_results.append(predictions)
+        pred_cmb = self.reassemble_map(this_map_results)
+        self.out_cmb_asset.write(data=pred_cmb)
 
     def reassemble_map(self, sim_results_list):
-        sim_results = [sr.numpy() for sr in sim_results_list]
+        sim_results = [sr.cpu().numpy() for sr in sim_results_list]
         # this_map_results now contains all patches for one frequency for one simulation
         #   as a list length n_p_id / batch_size of arrays with 
         #   shape (batch_size, patch_side, patch_side)
