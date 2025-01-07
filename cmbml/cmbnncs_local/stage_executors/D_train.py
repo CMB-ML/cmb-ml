@@ -19,8 +19,8 @@ from cmbml.core.asset_handlers.handler_npymap import NumpyMap
 # from core.pytorch_dataset import TrainCMBMapDataset
 from cmbml.cmbnncs_local.dataset import TrainCMBMapDataset
 # from cmbml.core.pytorch_transform import TrainToTensor
-from cmbml.cmbnncs_local.preprocessing.scale_methods_factory import get_scale_class
-from cmbml.cmbnncs_local.preprocessing.transform_pixel_rearrange import sphere2rect
+# from cmbml.cmbnncs_local.preprocessing.scale_methods_factory import get_scale_class
+# from cmbml.cmbnncs_local.preprocessing.transform_pixel_rearrange import sphere2rect
 
 
 logger = logging.getLogger(__name__)
@@ -55,16 +55,16 @@ class TrainingExecutor(BaseCMBNNCSModelExecutor):
         self.batch_size = cfg.model.cmbnncs.train.batch_size
         self.checkpoint = cfg.model.cmbnncs.train.checkpoint_every
         self.extra_check = cfg.model.cmbnncs.train.extra_check
-        self.scale_class = None
-        self.set_scale_class(cfg)
+        # self.scale_class = None
+        # self.set_scale_class(cfg)
 
         self.restart_epoch = cfg.model.cmbnncs.train.restart_epoch
 
-    def set_scale_class(self, cfg):
-        scale_method = cfg.model.cmbnncs.preprocess.scaling
-        self.scale_class = get_scale_class(method=scale_method, 
-                                           dataset="train", 
-                                           scale="scale")
+    # def set_scale_class(self, cfg):
+    #     scale_method = cfg.model.cmbnncs.preprocess.scaling
+    #     self.scale_class = get_scale_class(method=scale_method, 
+    #                                        dataset="train", 
+    #                                        scale="scale")
 
     def execute(self) -> None:
         logger.debug(f"Running {self.__class__.__name__} execute()")
