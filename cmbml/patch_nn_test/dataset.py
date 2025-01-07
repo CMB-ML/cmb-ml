@@ -110,7 +110,7 @@ class TestCMBPatchDataset(Dataset):
                 feature_data = feature_data[0].value  # TODO: Implement multiple fields
                 features.append(feature_data)
             self._current_map_data = features
-            print(f"Loaded map data for simulation index {value}")
+            logger.debug(f"Loaded map data for simulation index {value}")
 
     @property
     def current_map_data(self):

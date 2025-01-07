@@ -159,6 +159,17 @@ class CommonCMBNNCSPredPostExecutor(CommonPostExecutor):
         self.beam_cfg = cfg.model.analysis.beam_cmbnncs
 
 
+class CommonNNPredPostExecutor(CommonPostExecutor):
+    """
+    Applies mask, deconvolves beam, and removes monopole and dipole from generic NN prediction map.
+    """
+    def __init__(self, cfg: DictConfig) -> None:
+        super().__init__(cfg, stage_str="common_post_map_pred")
+        self.out_cmb_map: Asset = self.assets_out["cmb_map"]
+        self.in_cmb_map: Asset = self.assets_in["cmb_map"]
+        self.beam_cfg = cfg.model.analysis.beam_nn
+
+
 class CommonPyILCPredPostExecutor(CommonPostExecutor):
     """
     Applies mask, deconvolves beam, and removes monopole and dipole from PyILC prediction map.

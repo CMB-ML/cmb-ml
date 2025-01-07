@@ -35,7 +35,7 @@ common_post_map_pred:
   assets_out:
     cmb_map:
       handler: HealpyMap
-      path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/cmb_pred_post.fits"
+      path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/cmb_pred_post_{epoch}.fits"
   assets_in:
     cmb_map: {stage: final_infer}
     mask: {stage: make_mask}

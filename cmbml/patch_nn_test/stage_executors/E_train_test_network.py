@@ -55,7 +55,7 @@ class TrainingExecutor(BasePyTorchModelExecutor):
         self.n_epochs   = cfg.model.patch_nn.train.n_epochs
         self.batch_size = cfg.model.patch_nn.train.batch_size
         self.learning_rate = 0.0002
-        self.dtype = self.dtype_mapping[cfg.model.patch_nn.train.dtype]
+        self.dtype = self.dtype_mapping[cfg.model.patch_nn.dtype]
 
     def execute(self) -> None:
         logger.debug(f"Running {self.__class__.__name__} execute()")

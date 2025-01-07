@@ -31,6 +31,7 @@ PURBLUE = "#524FA1"
 GREEN = "#00A651"
 YELLOW = "#FDB913"
 LIGHTBLUE = "#3B9BF5"
+OTHER = "#A7A9AC"
 
 
 class PostAnalysisPsFigExecutor(BaseStageExecutor):
@@ -77,7 +78,7 @@ class PostAnalysisPsFigExecutor(BaseStageExecutor):
             ps_theory = None
         
         for sim in sim_iter:
-            print(f"Processing split {split.name}, sim {sim}")
+            logger.info(f"Processing split {split.name}, sim {sim}")
             with self.name_tracker.set_context("sim_num", sim):
                 self.process_sim(ps_theory)
 
@@ -107,7 +108,7 @@ class PostAnalysisPsFigExecutor(BaseStageExecutor):
         with self.name_tracker.set_context("model", self.fig_model_name):
             self.out_ps_figure_theory.write()  # Just makes the directory. TODO: Make this more clear - for all assets, add method
             fn = self.out_ps_figure_theory.path
-        print(f'writing to {fn}')
+        logger.info(f'Writing figure to {fn}')
         plt.tight_layout()
         plt.savefig(fn, format='pdf')
         plt.close()
@@ -118,6 +119,8 @@ class PostAnalysisPsFigExecutor(BaseStageExecutor):
             use_color = RED
         elif self.fig_model_name == "CMBNNCS":
             use_color = PURBLUE
+        else:
+            use_color = OTHER
         n_ells = ps_real.shape[0] - 2
         ells = np.arange(1, n_ells+1)
 

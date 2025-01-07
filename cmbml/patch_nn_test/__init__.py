@@ -3,4 +3,6 @@ from .stage_executors.C_test_patch_dist import ShowPatchDistTestExecutor
 from .stage_executors.D_make_lut import MakeLutExecutor
 from .stage_executors.B_test_patch import ShowPatchTestExecutor
 from .stage_executors.E_train import TrainingExecutor
-from .stage_executors.F_predict_test_model_load import PredictExectutor
+# from .stage_executors.F_predict_test_dataloader import PredictExectutor
+# from .stage_executors.F_predict_test_model_load import PredictExectutor
+from .stage_executors.F_predict import PredictExectutor
