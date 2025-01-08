@@ -1,3 +1,5 @@
+from .stage_executors.__find_extremes_serial import SerialPreprocessMakeExtremaExecutor
+from .stage_executors.__find_extremes_parallel import PreprocessMakeExtremaExecutor
 from .stage_executors.M_snip_or_cfg_patches import SnipConfigExecutor, SnipExecutor
 from .stage_executors.C_test_patch_dist import ShowPatchDistTestExecutor
 from .stage_executors.D_make_lut import MakeLutExecutor

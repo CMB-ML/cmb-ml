@@ -1,5 +1,7 @@
 dtype     : float
 
+preprocess:
+  n_workers : 4
 train:
   batch_size: 4
   device    : null  # Goes to None in python

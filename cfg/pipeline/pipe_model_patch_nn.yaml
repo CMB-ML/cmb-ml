@@ -1,12 +1,14 @@
-# make_normalization:
-#   assets_out:
-#     norm_file: 
-#       handler: Config
-#       path_template: "{root}/{dataset}/{working}{stage}/normalization.yaml"
-#   assets_in:
-#     cmb_map: {stage: make_sims}
-#     obs_maps: {stage: make_sims}
-#   dir_name: CMBNNCS_B_Extrema
+make_normalization:
+  assets_out:
+    norm_file: 
+      handler: Config
+      path_template: "{root}/{dataset}/{working}{stage}/normalization.yaml"
+  assets_in:
+    cmb_map: {stage: make_sims}
+    obs_maps: {stage: make_sims}
+  splits: 
+    - train
+  dir_name: PatchNN_B_Extrema
 
 # preprocess:
 #   assets_out:
