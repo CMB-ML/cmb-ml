@@ -4,7 +4,7 @@ import torch
 from omegaconf import DictConfig
 
 from cmbml.core.executor_base import BaseStageExecutor
-from cmbml.core.asset_handlers.asset_handlers_base import Config
+from cmbml.core.asset_handlers import Config
 from cmbml.utils.planck_instrument import make_instrument, Instrument
 from cmbml.core import Split, Asset
 

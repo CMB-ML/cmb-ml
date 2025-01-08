@@ -19,7 +19,8 @@ from cmbml.core import (
     Split,
     Asset
     )
-from cmbml.core.asset_handlers.asset_handlers_base import EmptyHandler, Config
+from cmbml.core.asset_handlers import Config
+from cmbml.core.asset_handlers.asset_handlers_base import EmptyHandler
 from cmbml.core.asset_handlers.healpy_map_handler import HealpyMap
 from cmbml.core.asset_handlers.qtable_handler import QTableHandler  # Import to register handler
 

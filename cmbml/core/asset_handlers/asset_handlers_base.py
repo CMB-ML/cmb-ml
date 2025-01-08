@@ -29,35 +29,6 @@ class EmptyHandler(GenericHandler):
         make_directories(path)
 
 
-class Config(GenericHandler):
-    def read(self, path: Path) -> Dict:
-        # logger.debug(f"Reading config from '{path}'")
-        try:
-            with open(path, 'r') as infile:
-                data = yaml.safe_load(infile)
-        except Exception as e:
-            logger.error(f"Failed to read file at '{path}': {e}")
-            raise
-        return data
-
-    def write(self, path, data, verbose=True) -> None:
-        if verbose:
-            logger.debug(f"Writing config to '{path}'")
-        make_directories(path)
-        unnumpy_data = _convert_numpy(data)
-
-        # Patch to handle the yaml library not liking square brackets in entries
-        #    addressing the config for input to the PyILC code
-        yaml_string = yaml.dump(unnumpy_data, default_flow_style=False)
-        if "\[" in yaml_string and "\]" in yaml_string:
-            yaml_string = yaml_string.replace("\[", "[").replace("\]", "]")
-        try:
-            with open(path, 'w') as outfile:
-                outfile.write(yaml_string)
-        except Exception as e:
-            logger.error(f"Failed to write file at '{path}': {e}")
-            raise
-
 class PlainText(GenericHandler):
     def read(self, path: Path, astype=str) -> str:
         # logger.debug(f"Reading config from '{path}'")
@@ -111,20 +82,6 @@ class Mover(GenericHandler):
         source_path.unlink()
 
 
-def _convert_numpy(obj: Union[Dict[str, Any], List[Any], np.generic]) -> Any:
-    # Recursive function
-    # The `Any`s in the above signature should be the same as the signature itself
-    # GPT4, minimal modification
-    if isinstance(obj, np.generic):
-        return obj.item()
-    elif isinstance(obj, dict):
-        return {key: _convert_numpy(value) for key, value in obj.items()}
-    elif isinstance(obj, list):
-        return [_convert_numpy(item) for item in obj]
-    else:
-        return obj
-
-
 def make_directories(path: Union[Path, str]) -> None:
     path = Path(path)
     folders = path.parent
@@ -132,6 +89,5 @@ def make_directories(path: Union[Path, str]) -> None:
 
 
 register_handler("EmptyHandler", EmptyHandler)
-register_handler("Config", Config)
 register_handler("Mover", Mover)
 register_handler("PlainText", PlainText)

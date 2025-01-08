@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 from omegaconf import DictConfig
 
 from cmbml.core import BaseStageExecutor, Asset
-from cmbml.core.asset_handlers.asset_handlers_base import Config      # Import for typing hint
+from cmbml.core.asset_handlers import Config
 from cmbml.core.asset_handlers.pd_csv_handler import PandasCsvHandler # Import for typing hint
 
 logger = logging.getLogger(__name__)

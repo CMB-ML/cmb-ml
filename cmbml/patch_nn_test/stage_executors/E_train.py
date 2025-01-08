@@ -12,7 +12,7 @@ import healpy as hp
 
 from cmbml.core import Split, Asset
 from cmbml.core.executor_base import BaseStageExecutor
-from cmbml.core.asset_handlers.asset_handlers_base import Config
+from cmbml.core.asset_handlers import Config
 from cmbml.core.asset_handlers.pytorch_model_handler import PyTorchModel # Import for typing hint
 from cmbml.core.asset_handlers.healpy_map_handler import HealpyMap
 from cmbml.core.asset_handlers.handler_npymap import NumpyMap
