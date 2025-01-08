@@ -17,7 +17,8 @@ from cmbml.core import (
     )
 from tqdm import tqdm
 
-from cmbml.core.asset_handlers.asset_handlers_base import EmptyHandler, Config # Import for typing hint
+from cmbml.core.asset_handlers import Config
+from cmbml.core.asset_handlers.asset_handlers_base import EmptyHandler
 from cmbml.core.asset_handlers.psmaker_handler import NumpyPowerSpectrum
 
 

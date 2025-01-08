@@ -6,7 +6,7 @@ from omegaconf import DictConfig, OmegaConf
 
 from cmbml.sims.get_wmap_params import get_wmap_indices, pull_params_from_file
 
-from cmbml.core.asset_handlers.asset_handlers_base import Config
+from cmbml.core.asset_handlers import Config
 from cmbml.core import (
     BaseStageExecutor,
     Split,

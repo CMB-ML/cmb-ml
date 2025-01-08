@@ -12,7 +12,7 @@ from cmbml.core import (
 from cmbml.sims.physics_cmb import make_camb_ps
 
 from cmbml.core.asset_handlers.psmaker_handler import CambPowerSpectrum # Import to register handler
-from cmbml.core.asset_handlers.asset_handlers_base import Config
+from cmbml.core.asset_handlers import Config
 
 
 logger = logging.getLogger(__name__)

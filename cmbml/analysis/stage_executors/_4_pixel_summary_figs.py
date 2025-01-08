@@ -12,8 +12,8 @@ from cmbml.core import (
     Asset,
     GenericHandler,
     )
-from cmbml.core.asset_handlers.asset_handlers_base import EmptyHandler # Import for typing hint
-from cmbml.core.asset_handlers.asset_handlers_base import Config # Import for typing hint
+from cmbml.core.asset_handlers import Config
+from cmbml.core.asset_handlers.asset_handlers_base import EmptyHandler
 
 logger = logging.getLogger(__name__)
 
