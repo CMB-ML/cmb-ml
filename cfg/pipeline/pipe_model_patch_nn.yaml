@@ -56,7 +56,26 @@ snip_patches_cfg:
     - train
     - valid
 
-test_patch_dist:
+prep_patches:
+  assets_out:
+    cmb_map:
+      handler: NumpyMap
+      path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/cmb_patch.npy"
+    obs_maps:
+      handler: NumpyMap
+      path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/obs_patch_{freq}.npy"
+  assets_in:
+    cmb_map: {stage: make_sims}
+    obs_maps: {stage: make_sims}
+    norm_file: {stage: make_normalization}
+    lut: {stage: make_lut}
+    patch_id: {stage: snip_patches_cfg}
+  dir_name: PatchNN_00_Patches
+  splits:
+    - train
+    - valid
+
+test_patch_dist:  # Demonstration of which patches are extracted (test = confirmation, not data split)
   assets_in:
     patch_id: {stage: snip_patches_cfg}
     # cmb_map: {stage: make_sims}
@@ -67,7 +86,7 @@ test_patch_dist:
   dir_name: PatchNN_0_Test_Patch
   make_stage_log: False
 
-test_patch:
+test_patch:  # Demonstration of how a patch is extracted (confirmation that it works)
   assets_in:
     patch_id: {stage: snip_patches_cfg}
     cmb_map: {stage: make_sims}
@@ -80,6 +99,21 @@ test_patch:
   override_n_sims: ${n_show_cap}
 
 train:
+  assets_out:
+    model: 
+      handler: PyTorchModel
+      path_template: "{root}/{dataset}/{working}{stage}/model_{epoch}.pth"
+  assets_in:
+    model: {stage: train}
+    cmb_map: {stage: prep_patches}
+    obs_maps: {stage: prep_patches}
+  splits:
+    - train
+    - valid
+  dir_name: PatchNN_E_Model
+  make_stage_log: True
+
+train_full_map:
   assets_out:
     model: 
       handler: PyTorchModel

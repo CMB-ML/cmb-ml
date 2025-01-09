@@ -10,7 +10,7 @@ from cmbml.utils.patch_healpix import make_pixel_index_lut
 logger = logging.getLogger(__name__)
 
 
-class TrainCMBPatchDataset(Dataset):
+class TrainCMBMap2PatchDataset(Dataset):
     def __init__(self, 
                  n_sims,
                  freqs,
@@ -62,6 +62,51 @@ class TrainCMBPatchDataset(Dataset):
         label_tensor = label_tensor.unsqueeze(0)
         return features_tensor, label_tensor, sim_idx, patch_id  # For debugging
         # return features_tensor, label  # For regular use
+
+
+class TrainCMBPrePatchDataset(Dataset):
+    """
+    For use with pre-processed patches, already scaled.
+    """
+    def __init__(self, 
+                 n_sims,
+                 freqs,
+                 map_fields: str,
+                 label_path_template,
+                 label_handler,
+                 feature_path_template,
+                 feature_handler,
+                 ):
+        self.n_sims = n_sims
+        self.freqs = freqs
+        self.label_path_template = label_path_template
+        self.label_handler = label_handler
+        self.feature_path_template = feature_path_template
+        self.feature_handler = feature_handler
+        self.n_map_fields:int = len(map_fields)
+
+    def __len__(self):
+        return self.n_sims
+
+    def __getitem__(self, sim_idx):
+        features = _get_patch_features_idx(freqs=self.freqs,
+                                     path_template=self.feature_path_template,
+                                     handler=self.feature_handler,
+                                     n_map_fields=self.n_map_fields,
+                                     sim_idx=sim_idx)
+
+        label = _get_patch_label_idx(path_template=self.label_path_template,
+                               handler=self.label_handler,
+                               n_map_fields=self.n_map_fields,
+                               sim_idx=sim_idx)
+        features_tensor = tuple([torch.as_tensor(f) for f in features])
+        features_tensor = torch.stack(features_tensor, dim=0)
+
+        label_tensor = torch.as_tensor(label)
+        label_tensor = label_tensor.unsqueeze(0)
+        # return features_tensor, label_tensor, sim_idx  # For debugging
+        return features_tensor, label  # For regular use
+
 
 class TestCMBPatchDataset(Dataset):
     """
@@ -153,7 +198,29 @@ def _get_label_idx(path_template, handler, n_map_fields, sim_idx, r_ids):
     label = label[0]  # TODO: Implement multiple fields
     label = label[r_ids]
     label = label.value
+    return label
 
-    
 
+def _get_patch_features_idx(freqs, path_template, handler, n_map_fields, sim_idx):
+    # TODO: Implement multiple fields
+    if n_map_fields > 1:
+        raise ValueError("This function only supports one map field at a time.")
+
+    features = []
+    for freq in freqs:
+        feature_path = path_template.format(sim_idx=sim_idx, freq=freq)
+        feature_data = handler.read(feature_path)
+        feature_data = feature_data[0]  # TODO: Implement multiple fields
+        features.append(feature_data)
+    return features
+
+
+def _get_patch_label_idx(path_template, handler, n_map_fields, sim_idx):
+    # TODO: Implement multiple fields
+    if n_map_fields > 1:
+        raise ValueError("This function only supports one map field at a time.")
+
+    label_path = path_template.format(sim_idx=sim_idx)
+    label = handler.read(label_path)
+    label = label[0]  # TODO: Implement multiple fields
     return label

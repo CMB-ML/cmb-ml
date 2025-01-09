@@ -17,7 +17,7 @@ from cmbml.core.asset_handlers.pytorch_model_handler import PyTorchModel # Impor
 from cmbml.core.asset_handlers.healpy_map_handler import HealpyMap
 from cmbml.core.asset_handlers.handler_npymap import NumpyMap
 # from core.pytorch_dataset import TrainCMBMapDataset
-from cmbml.patch_nn_test.dataset import TrainCMBPatchDataset
+from cmbml.patch_nn_test.dataset import TrainCMBMap2PatchDataset
 # from cmbml.core.pytorch_transform import TrainToTensor
 # from cmbml.cmbnncs_local.preprocessing.scale_methods_factory import get_scale_class
 # from cmbml.cmbnncs_local.preprocessing.transform_pixel_rearrange import sphere2rect
@@ -115,7 +115,7 @@ class TrainingExecutor(BasePyTorchModelExecutor):
         with self.name_tracker.set_context("split", template_split.name):
             which_patch_dict = self.get_patch_dict()
 
-        dataset = TrainCMBPatchDataset(
+        dataset = TrainCMBMap2PatchDataset(
             n_sims = template_split.n_sims,
             freqs = self.instrument.dets.keys(),
             map_fields=self.map_fields,

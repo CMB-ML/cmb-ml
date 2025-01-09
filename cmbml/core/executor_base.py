@@ -76,3 +76,7 @@ class BaseStageExecutor(ABC):
 
     def get_stage_element(self, stage_element):
         return self._config_help.get_stage_element(stage_element, stage_str=self.stage_str)
+
+    def ensure_splits(self):
+        if len(self.splits) == 0:
+            raise ValueError("No splits found in the pipeline configuration for this Executor.")
