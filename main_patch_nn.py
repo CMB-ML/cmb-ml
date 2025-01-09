@@ -32,6 +32,7 @@ from cmbml.sims import MaskCreatorExecutor
 from cmbml.patch_nn_test import (
     SerialPreprocessMakeExtremaExecutor,
     PreprocessMakeExtremaExecutor,
+    SerialSnipPatchesExecutor,
     SnipConfigExecutor,
     ShowPatchTestExecutor,
     ShowPatchDistTestExecutor,
@@ -73,10 +74,11 @@ def run_cmbnncs(cfg):
     pipeline_context.add_pipe(HydraConfigCheckerExecutor)
 
     # pipeline_context.add_pipe(SerialPreprocessMakeExtremaExecutor)
-    pipeline_context.add_pipe(PreprocessMakeExtremaExecutor)
+    # pipeline_context.add_pipe(PreprocessMakeExtremaExecutor)
 
     # pipeline_context.add_pipe(MaskCreatorExecutor)
     # pipeline_context.add_pipe(SnipConfigExecutor)
+    # pipeline_context.add_pipe(SerialSnipPatchesExecutor)
     # pipeline_context.add_pipe(ShowPatchDistTestExecutor)
     # pipeline_context.add_pipe(ShowPatchTestExecutor)
 
@@ -87,7 +89,7 @@ def run_cmbnncs(cfg):
 # 
     # pipeline_context.add_pipe(MakeLutExecutor)
 
-    # # pipeline_context.add_pipe(TrainingExecutor)
+    pipeline_context.add_pipe(TrainingExecutor)
     # pipeline_context.add_pipe(PredictExectutor)
 
     # # Apply to the target (CMB realization)

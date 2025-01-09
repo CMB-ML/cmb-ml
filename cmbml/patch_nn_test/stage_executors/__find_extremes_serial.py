@@ -34,8 +34,7 @@ class SerialPreprocessMakeExtremaExecutor(BaseStageExecutor):
 
     def execute(self) -> None:
         logger.debug(f"Running {self.__class__.__name__} execute()")
-        if len(self.splits) == 0:
-            raise ValueError("No splits found in the pipeline configuration for make_normalization.")
+        self.ensure_splits()
         # Defining extrema at the scope of the stage: we want extrema of all maps across splits
         #    Note that some channels won't use all fields (e.g. 545, 857 only have intensity)
         extrema = {detector: {} for detector in self.channels}
@@ -43,7 +42,6 @@ class SerialPreprocessMakeExtremaExecutor(BaseStageExecutor):
             logger.info(f"{self.__class__.__name__} scanning split {split.name}.")
             with self.name_tracker.set_context("split", split.name):
                 self.search_split_contents(split, extrema)
-        pass
         self.out_norm_file.write(data=extrema)
 
     def search_split_contents(self, 

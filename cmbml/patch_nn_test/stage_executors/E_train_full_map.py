@@ -17,7 +17,7 @@ from cmbml.core.asset_handlers.pytorch_model_handler import PyTorchModel # Impor
 from cmbml.core.asset_handlers.healpy_map_handler import HealpyMap
 from cmbml.core.asset_handlers.handler_npymap import NumpyMap
 # from core.pytorch_dataset import TrainCMBMapDataset
-from cmbml.patch_nn_test.dataset import TrainCMBPrePatchDataset
+from cmbml.patch_nn_test.dataset import TrainCMBMap2PatchDataset
 # from cmbml.core.pytorch_transform import TrainToTensor
 # from cmbml.cmbnncs_local.preprocessing.scale_methods_factory import get_scale_class
 # from cmbml.cmbnncs_local.preprocessing.transform_pixel_rearrange import sphere2rect
@@ -32,7 +32,7 @@ logger = logging.getLogger(__name__)
 
 class TrainingExecutor(BasePyTorchModelExecutor):
     def __init__(self, cfg: DictConfig) -> None:
-        super().__init__(cfg, stage_str="train")
+        super().__init__(cfg, stage_str="train_full_map")
 
         self.out_model: Asset = self.assets_out["model"]
         out_model_handler: PyTorchModel
@@ -40,13 +40,16 @@ class TrainingExecutor(BasePyTorchModelExecutor):
         self.in_model: Asset = self.assets_in["model"]
         self.in_cmb_asset: Asset = self.assets_in["cmb_map"]
         self.in_obs_assets: Asset = self.assets_in["obs_maps"]
+        self.in_all_p_ids_asset: Asset = self.assets_in["patch_dict"]
+        self.in_lut_asset: Asset = self.assets_in["lut"]
         # self.in_norm: Asset = self.assets_in["norm_file"]  # We may need this later
         in_model_handler: PyTorchModel
-        in_cmb_map_handler: NumpyMap
-        in_obs_map_handler: NumpyMap
+        in_cmb_map_handler: HealpyMap
+        in_obs_map_handler: HealpyMap
+        in_lut_handler: NumpyMap
         # in_norm_handler: Config
 
-        # self.nside_patch = cfg.model.patches.nside_patch
+        self.nside_patch = cfg.model.patches.nside_patch
 
         self.choose_device(cfg.model.patch_nn.train.device)
         self.n_epochs   = cfg.model.patch_nn.train.n_epochs
@@ -68,13 +71,15 @@ class TrainingExecutor(BasePyTorchModelExecutor):
 
         template_split = self.splits[0]
 
+        # TODO: Include normalization (high priority, requires an executor to scan files. See Petroff method)
+        # TODO: Preprocess dataset (cut into patches, normalize, save, etc.) (??? priority - this seems slow currently)
         # TODO: Dataset for validation (lower priority)
-        train_dataset = self.set_up_dataset(template_split)
-        train_dataloader = DataLoader(
-            train_dataset, 
+        dataset = self.set_up_dataset(template_split)
+        dataloader = DataLoader(
+            dataset, 
             batch_size=self.batch_size, 
             shuffle=True,
-            num_workers=5
+            num_workers=2
             )
 
         loss_function = torch.nn.L1Loss(reduction='mean')
@@ -85,8 +90,8 @@ class TrainingExecutor(BasePyTorchModelExecutor):
 
         for epoch in range(start_epoch, self.n_epochs):
             # batch_n = 0
-            with tqdm(train_dataloader, postfix={'Loss': 0}) as pbar:
-                for train_features, train_label in pbar:
+            with tqdm(dataloader, postfix={'Loss': 0}) as pbar:
+                for train_features, train_label, sim_idx, p_idx in pbar:
                     train_features = train_features.to(device=self.device, dtype=self.dtype)
                     train_label = train_label.to(device=self.device, dtype=self.dtype)
 
@@ -112,18 +117,27 @@ class TrainingExecutor(BasePyTorchModelExecutor):
         with self.name_tracker.set_context("epoch", "final"):
             self.out_model.write(model=model, epoch="final")
 
-    def set_up_dataset(self, split: Split) -> None:
-        cmb_path_template = self.make_fn_template(split, self.in_cmb_asset)
-        obs_path_template = self.make_fn_template(split, self.in_obs_assets)
+    def set_up_dataset(self, template_split: Split) -> None:
+        cmb_path_template = self.make_fn_template(template_split, self.in_cmb_asset)
+        obs_path_template = self.make_fn_template(template_split, self.in_obs_assets)
 
-        dataset = TrainCMBPrePatchDataset(
-            n_sims = split.n_sims,
+        with self.name_tracker.set_context("split", template_split.name):
+            which_patch_dict = self.get_patch_dict()
+
+        dataset = TrainCMBMap2PatchDataset(
+            n_sims = template_split.n_sims,
             freqs = self.instrument.dets.keys(),
             map_fields=self.map_fields,
             label_path_template=cmb_path_template,
             label_handler=self.in_cmb_asset.handler,
+            # label_handler=HealpyMap(),
             feature_path_template=obs_path_template,
             feature_handler=self.in_obs_assets.handler,
+            which_patch_dict=which_patch_dict,
+            nside_obs=self.nside,
+            nside_patches=self.nside_patch,
+            lut=self.in_lut_asset.read(),
+            # feature_handler=HealpyMap()
             )
         return dataset
 
