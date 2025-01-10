@@ -81,8 +81,8 @@ class SimpleUNetModel(nn.Module):
         super().__init__()
         self.note = note
 
-        self.in_c = DoubleConv(in_features=n_in_channels,
-                               out_channels=n_init_features)
+        self.input_layer = DoubleConv(in_features=n_in_channels,
+                                      out_channels=n_init_features)
 
         downs = []
         curr_features = n_init_features
@@ -101,7 +101,7 @@ class SimpleUNetModel(nn.Module):
 
     def forward(self, x):
         skips = []
-        x = self.in_c(x)
+        x = self.input_layer(x)
         # Top of the UNet
         skips.append(x)
 
