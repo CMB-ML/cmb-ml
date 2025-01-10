@@ -103,9 +103,10 @@ class TrainCMBPrePatchDataset(Dataset):
         features_tensor = torch.stack(features_tensor, dim=0)
 
         label_tensor = torch.as_tensor(label)
+        # Double unsqueeze to match the shape of the other label tensors
         label_tensor = label_tensor.unsqueeze(0)
         # return features_tensor, label_tensor, sim_idx  # For debugging
-        return features_tensor, label  # For regular use
+        return features_tensor, label_tensor  # For regular use
 
 
 class TestCMBPatchDataset(Dataset):
@@ -175,7 +176,7 @@ class TestCMBPatchDataset(Dataset):
 def _get_features_idx(freqs, path_template, handler, n_map_fields, sim_idx, r_ids):
     # TODO: Implement multiple fields
     if n_map_fields > 1:
-        raise ValueError("This function only supports one map field at a time.")
+        raise NotImplementedError("This function only supports one map field at a time.")
 
     features = []
     for freq in freqs:
@@ -191,7 +192,7 @@ def _get_features_idx(freqs, path_template, handler, n_map_fields, sim_idx, r_id
 def _get_label_idx(path_template, handler, n_map_fields, sim_idx, r_ids):
     # TODO: Implement multiple fields
     if n_map_fields > 1:
-        raise ValueError("This function only supports one map field at a time.")
+        raise NotImplementedError("This function only supports one map field at a time.")
 
     label_path = path_template.format(sim_idx=sim_idx)
     label = handler.read(label_path)
@@ -204,7 +205,7 @@ def _get_label_idx(path_template, handler, n_map_fields, sim_idx, r_ids):
 def _get_patch_features_idx(freqs, path_template, handler, n_map_fields, sim_idx):
     # TODO: Implement multiple fields
     if n_map_fields > 1:
-        raise ValueError("This function only supports one map field at a time.")
+        raise NotImplementedError("This function only supports one map field at a time.")
 
     features = []
     for freq in freqs:
@@ -218,7 +219,7 @@ def _get_patch_features_idx(freqs, path_template, handler, n_map_fields, sim_idx
 def _get_patch_label_idx(path_template, handler, n_map_fields, sim_idx):
     # TODO: Implement multiple fields
     if n_map_fields > 1:
-        raise ValueError("This function only supports one map field at a time.")
+        raise NotImplementedError("This function only supports one map field at a time.")
 
     label_path = path_template.format(sim_idx=sim_idx)
     label = handler.read(label_path)

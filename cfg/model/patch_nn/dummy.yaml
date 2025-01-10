@@ -3,12 +3,14 @@ dtype     : float
 preprocess:
   n_workers : 20
 train:
-  batch_size: 4
-  device    : null  # Goes to None in python
-  n_epochs  : 100
-  checkpoint_every : 5     # checkpoint every this number of epochs
-  extra_check      : [1, 2, 3, 6, 9]
-  restart_epoch    : null       # Set to null to create a new model, or give a checkpoint number
+  batch_size        : 100
+  device            : null  # Goes to None in python
+  n_epochs          : 100
+  checkpoint_every  : 5     # checkpoint every this number of epochs
+  extra_check       : [1, 2, 3, 6, 9]
+  restart_epoch     : null       # Set to null to create a new model, or give a checkpoint number
+  learning_rate     : 0.0002
+  num_loader_workers: 10
 test:
   batch_size: 4
   device    : null  # Goes to None in python

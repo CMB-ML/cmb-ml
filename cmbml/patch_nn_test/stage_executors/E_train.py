@@ -1,6 +1,7 @@
 import logging
 
 from tqdm import tqdm
+import csv
 
 # import multiprocessing as mp
 import torch
@@ -51,13 +52,20 @@ class TrainingExecutor(BasePyTorchModelExecutor):
         self.choose_device(cfg.model.patch_nn.train.device)
         self.n_epochs   = cfg.model.patch_nn.train.n_epochs
         self.batch_size = cfg.model.patch_nn.train.batch_size
-        self.learning_rate = 0.0002
+        self.learning_rate = cfg.model.patch_nn.train.learning_rate
         self.dtype = self.dtype_mapping[cfg.model.patch_nn.dtype]
         self.extra_check = cfg.model.patch_nn.train.extra_check
         self.checkpoint = cfg.model.patch_nn.train.checkpoint_every
 
+        self.num_workers = cfg.model.patch_nn.train.num_loader_workers
+
     def execute(self) -> None:
         logger.debug(f"Running {self.__class__.__name__} execute()")
+
+        # TODO: TEMPORARY! REPLACE!
+        with open('loss_records.csv', 'w', newline='') as f:
+            writer = csv.writer(f)
+            writer.writerow(['Epoch', 'Training Loss', 'Validation Loss'])
 
         model = SimpleUNetModel(
                            n_in_channels=len(self.instrument.dets),
@@ -66,15 +74,27 @@ class TrainingExecutor(BasePyTorchModelExecutor):
 
         model = model.to(self.device)
 
-        template_split = self.splits[0]
+        # TODO: Potentially confusing... the order is determined 
+        #       by the order in the pipeline yaml. In other contexts 
+        #       this makes more sense.
+        train_split = self.splits[0]
+        valid_split = self.splits[1]
 
         # TODO: Dataset for validation (lower priority)
-        train_dataset = self.set_up_dataset(template_split)
+        train_dataset = self.set_up_dataset(train_split)
         train_dataloader = DataLoader(
             train_dataset, 
             batch_size=self.batch_size, 
             shuffle=True,
-            num_workers=5
+            num_workers=self.num_workers
+            )
+
+        valid_dataset = self.set_up_dataset(valid_split)
+        valid_dataloader = DataLoader(
+            valid_dataset, 
+            batch_size=self.batch_size, 
+            shuffle=False,
+            num_workers=self.num_workers
             )
 
         loss_function = torch.nn.L1Loss(reduction='mean')
@@ -82,23 +102,47 @@ class TrainingExecutor(BasePyTorchModelExecutor):
 
         # TODO: Add mechanics for resuming training (code present in CMBNNCS)
         start_epoch = 0
+        n_epoch_digits = len(str(self.n_epochs))
+
+        all_train_loss = []
+        all_valid_loss = []
 
         for epoch in range(start_epoch, self.n_epochs):
-            # batch_n = 0
-            with tqdm(train_dataloader, postfix={'Loss': 0}) as pbar:
+            # Training
+            with tqdm(train_dataloader, desc=f"Ep {epoch + 1:<{n_epoch_digits}}", postfix={'Loss': 0}) as pbar:
+                model.train()
+                train_loss = 0
                 for train_features, train_label in pbar:
                     train_features = train_features.to(device=self.device, dtype=self.dtype)
                     train_label = train_label.to(device=self.device, dtype=self.dtype)
 
                     optimizer.zero_grad()
                     output = model(train_features)
-                    loss = loss_function(output, train_label)
-                    loss.backward()
+                    batch_train_loss = loss_function(output, train_label)
+                    batch_train_loss.backward()
                     optimizer.step()
-                    pbar.set_postfix({'Loss': loss.item()})
+                    pbar.set_postfix({'Loss': batch_train_loss.item()})
+                    train_loss += batch_train_loss.item()
+                train_loss /= len(train_dataloader)
+                all_train_loss.append(train_loss)
+            logger.info(f"Epoch {epoch:<{n_epoch_digits}} Training loss: {train_loss:.02e}")
 
-                # TODO: Add validation loss (lower priority)
-                # TODO: Add TensorBoard logging (lowest priority)
+            # Validation
+            model.eval()
+            valid_loss = 0
+            with torch.no_grad():
+                for valid_features, valid_label in valid_dataloader:
+                    valid_features = valid_features.to(device=self.device, dtype=self.dtype)
+                    valid_label = valid_label.to(device=self.device, dtype=self.dtype)
+                    output = model(valid_features)
+                    valid_loss += loss_function(output, valid_label).item()
+                valid_loss /= len(valid_dataloader)
+                all_valid_loss.append(valid_loss)
+            logger.info(f"Epoch {epoch:<{n_epoch_digits}} Validation loss: {valid_loss:.02e}")
+
+            with open('loss_records.csv', 'a', newline='') as f:
+                writer = csv.writer(f)
+                writer.writerow([epoch + 1, train_loss, valid_loss])
 
             # Checkpoint every so many epochs
             if (epoch + 1) in self.extra_check or (epoch + 1) % self.checkpoint == 0:

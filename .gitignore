@@ -21,3 +21,4 @@ junk*.py
 junk.ipynb
 junk*.ipynb
 
+loss_records.csv
