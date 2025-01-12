@@ -77,6 +77,22 @@ class Asset:
             logger.exception("The calling .write() method must be given keyword arguments only.", exc_info=e)
             raise e
 
+    def append(self, *args, **kwargs):
+        """
+        Assumes .write(some_path) has been called and the file is set up by the asset handler.
+        """
+        if self.handler.append is None:
+            raise AttributeError("The handler for this asset does not have an append method.")
+        if self.can_write:
+            if args and kwargs:
+                return self.handler.append(*args, **kwargs)
+            elif args:
+                return self.handler.append(*args)
+            elif kwargs:
+                return self.handler.append(**kwargs)
+            else:
+                return self.handler.append()
+
 class AssetWithPathAlts(Asset):
     def __init__(self, cfg, source_stage, asset_name, name_tracker, in_or_out):
         super().__init__(cfg, source_stage, asset_name, name_tracker, in_or_out)
