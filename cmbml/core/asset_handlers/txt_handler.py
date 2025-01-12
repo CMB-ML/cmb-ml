@@ -13,6 +13,7 @@ logger = logging.getLogger(__name__)
 
 
 class TextHandler(GenericHandler):
+    # TODO Find uses of this class and compare with PlainText
     def read(self, path: Union[Path, str]):
         path = Path(path)
         with open(path, 'r') as f:

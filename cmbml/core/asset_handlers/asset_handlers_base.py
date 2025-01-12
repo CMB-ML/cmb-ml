@@ -30,6 +30,7 @@ class EmptyHandler(GenericHandler):
 
 
 class PlainText(GenericHandler):
+    # TODO Find uses of this class and compare with TextHandler
     def read(self, path: Path, astype=str) -> str:
         # logger.debug(f"Reading config from '{path}'")
         try:
