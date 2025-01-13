@@ -125,7 +125,6 @@ class PredictExectutor(BasePyTorchModelExecutor):
             map_fields=self.map_fields,
             feature_path_template=obs_path_template,
             feature_handler=self.in_obs_assets.handler,
-            sim_idx=0,
             lut=self.lut,
             )
         return dataset

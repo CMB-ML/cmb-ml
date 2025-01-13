@@ -64,9 +64,6 @@ class TrainingExecutor(BasePyTorchModelExecutor):
 
         loss_record_headers = ['Epoch', 'Training Loss', 'Validation Loss']
         self.out_loss_record.write(data=loss_record_headers)
-        # with open('loss_records.csv', 'w', newline='') as f:
-        #     writer = csv.writer(f)
-        #     writer.writerow()
 
         model = SimpleUNetModel(
                            n_in_channels=len(self.instrument.dets),
@@ -142,10 +139,6 @@ class TrainingExecutor(BasePyTorchModelExecutor):
             logger.info(f"Epoch {epoch:<{n_epoch_digits}} Validation loss: {valid_loss:.02e}")
 
             self.out_loss_record.append([epoch + 1, train_loss, valid_loss])
-
-            # with open('loss_records.csv', 'a', newline='') as f:
-            #     writer = csv.writer(f)
-            #     writer.writerow([epoch + 1, train_loss, valid_loss])
 
             # Checkpoint every so many epochs
             if (epoch + 1) in self.extra_check or (epoch + 1) % self.checkpoint == 0:

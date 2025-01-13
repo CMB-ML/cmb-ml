@@ -42,7 +42,7 @@ class SnipConfigExecutor(BaseStageExecutor):
     """
     def __init__(self, cfg: DictConfig) -> None:
         # The following stage_str must match the pipeline yaml
-        super().__init__(cfg, stage_str='snip_patches_cfg')
+        super().__init__(cfg, stage_str='patches_cfg')
 
         self.out_all_patch_ids : Asset = self.assets_out['all_ids']
         self.out_patch_id : Asset = self.assets_out['patch_id']

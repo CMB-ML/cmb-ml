@@ -22,7 +22,7 @@ class ShowPatchDistTestExecutor(BaseStageExecutor):
     info here
     """
     def __init__(self, cfg):
-        super().__init__(cfg, stage_str='test_patch_dist')
+        super().__init__(cfg, stage_str='try_patch_dist')
 
         self.in_patch_id: Asset = self.assets_in['patch_id']
         in_patch_id_handler: PlainText

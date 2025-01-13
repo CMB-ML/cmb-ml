@@ -1,6 +1,7 @@
 import os
 import logging
 
+import numpy as np
 from torch.utils.data import Dataset
 import torch
 
@@ -20,9 +21,8 @@ class TrainCMBMap2PatchDataset(Dataset):
                  feature_path_template,
                  feature_handler,
                  which_patch_dict: dict,
-                 nside_obs,
-                 nside_patches,
-                 lut
+                 lut, 
+                 transform=None
                  ):
         # TODO: Adopt similar method as in parallel operations to allow 
         #       this to use num_workers and transforms
@@ -34,6 +34,9 @@ class TrainCMBMap2PatchDataset(Dataset):
         self.feature_handler = feature_handler
         self.n_map_fields:int = len(map_fields)
         self.which_patch_dict = which_patch_dict
+
+        self.transform = transform
+
         self.patch_lut = lut
         logger.debug(f"Patch LUT shape: {self.patch_lut.shape}")
 
@@ -99,6 +102,11 @@ class TrainCMBPrePatchDataset(Dataset):
                                handler=self.label_handler,
                                n_map_fields=self.n_map_fields,
                                sim_idx=sim_idx)
+
+        if self.transform:
+            features = self.transform(np.array(features))
+            label = self.transform(np.array(label))
+
         features_tensor = tuple([torch.as_tensor(f) for f in features])
         features_tensor = torch.stack(features_tensor, dim=0)
 
@@ -119,8 +127,8 @@ class TestCMBPatchDataset(Dataset):
                  map_fields: str,
                  feature_path_template,
                  feature_handler,
-                 sim_idx,
-                 lut
+                 lut,
+                 transform=None
                  ):
         # TODO: Adopt similar method as in parallel operations to allow 
         #       this to use num_workers and transforms
@@ -134,6 +142,8 @@ class TestCMBPatchDataset(Dataset):
 
         self._sim_idx = None
         self._current_map_data = None
+
+        self.transform = transform
 
     def __len__(self):
         # We use the number of patches defined as the length of the dataset
@@ -165,6 +175,9 @@ class TestCMBPatchDataset(Dataset):
     def __getitem__(self, patch_id):
         r_ids = self.patch_lut[patch_id]
         features = [m[r_ids] for m in self.current_map_data]
+
+        if self.transform:
+            features = self.transform(np.array(features))
 
         features_tensor = tuple([torch.as_tensor(f) for f in features])
         features_tensor = torch.stack(features_tensor, dim=0)
