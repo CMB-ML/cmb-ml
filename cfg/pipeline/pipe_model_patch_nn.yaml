@@ -103,6 +103,9 @@ train:
     model: 
       handler: PyTorchModel
       path_template: "{root}/{dataset}/{working}{stage}/model_{epoch}.pth"
+    loss_record:
+      handler: AppendingCsvHandler
+      path_template: "{root}/{dataset}/{working}{stage}/loss_record.csv"
   assets_in:
     model: {stage: train}
     cmb_map: {stage: prep_patches}
