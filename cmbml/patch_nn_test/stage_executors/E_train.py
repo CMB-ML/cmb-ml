@@ -38,16 +38,12 @@ class TrainingExecutor(BasePyTorchModelExecutor):
         out_model_handler: PyTorchModel
         out_loss_record: AppendingCsvHandler
 
-        self.in_model: Asset = self.assets_in["model"]
         self.in_cmb_asset: Asset = self.assets_in["cmb_map"]
         self.in_obs_assets: Asset = self.assets_in["obs_maps"]
-        # self.in_norm: Asset = self.assets_in["norm_file"]  # We may need this later
-        in_model_handler: PyTorchModel
+        self.in_model: Asset = self.assets_in["model"]
         in_cmb_map_handler: NumpyMap
         in_obs_map_handler: NumpyMap
-        # in_norm_handler: Config
-
-        # self.nside_patch = cfg.model.patches.nside_patch
+        in_model_handler: PyTorchModel
 
         self.choose_device(cfg.model.patch_nn.train.device)
         self.n_epochs   = cfg.model.patch_nn.train.n_epochs
@@ -72,13 +68,11 @@ class TrainingExecutor(BasePyTorchModelExecutor):
 
         model = model.to(self.device)
 
-        # TODO: Potentially confusing... the order is determined 
-        #       by the order in the pipeline yaml. In other contexts 
-        #       this makes more sense.
+        # Potentially confusing... the order is determined by the order of
+        #   splits for this stage in the pipeline yaml.
         train_split = self.splits[0]
         valid_split = self.splits[1]
 
-        # TODO: Dataset for validation (lower priority)
         train_dataset = self.set_up_dataset(train_split)
         train_dataloader = DataLoader(
             train_dataset, 
@@ -163,7 +157,8 @@ class TrainingExecutor(BasePyTorchModelExecutor):
             label_path_template=cmb_path_template,
             label_handler=self.in_cmb_asset.handler,
             feature_path_template=obs_path_template,
-            feature_handler=self.in_obs_assets.handler,
+            feature_handler=self.in_obs_assets.handler
+            # Transform already happened in preprocessing
             )
         return dataset
 

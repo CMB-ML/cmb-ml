@@ -30,17 +30,18 @@ class TrainingNoPreprocessExecutor(BasePyTorchModelExecutor):
         out_model_handler: PyTorchModel
 
         self.in_cmb_asset: Asset = self.assets_in["cmb_map"]
-        self.in_norm_file: Asset = self.assets_in["norm_file"]
         self.in_obs_assets: Asset = self.assets_in["obs_maps"]
+        self.in_lut_asset: Asset = self.assets_in["lut"]
+        self.in_norm_file: Asset = self.assets_in["norm_file"]
         self.in_all_p_ids_asset: Asset = self.assets_in["patch_dict"]
         self.in_model: Asset = self.assets_in["model"]
-        self.in_lut_asset: Asset = self.assets_in["lut"]
-        # self.in_norm: Asset = self.assets_in["norm_file"]  # We may need this later
-        in_model_handler: PyTorchModel
+
         in_cmb_map_handler: HealpyMap
         in_obs_map_handler: HealpyMap
         in_norm_handler: Config
         in_lut_handler: NumpyMap
+        in_all_p_ids_handler: Config
+        in_model_handler: PyTorchModel
 
         self.nside_patch = cfg.model.patches.nside_patch
 

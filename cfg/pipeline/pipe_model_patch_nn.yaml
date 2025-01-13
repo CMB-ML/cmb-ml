@@ -8,38 +8,6 @@ make_lut:
     obs_maps: {stage: make_sims}
   dir_name: PatchNN_B_LUT
 
-try_show_patch:  # Demonstration of how a patch is extracted (confirmation that it works)
-  assets_in:
-    patch_id: {stage: snip_patches_cfg}
-    cmb_map: {stage: make_sims}
-    obs_maps: {stage: make_sims}
-    planck_deltabandpass: {stage: raw}
-  splits:
-    - train
-  dir_name: PatchNN_0_Test_Patch  # Not used
-  make_stage_log: False
-  override_n_sims: ${n_show_cap}
-
-try_show_patch_dist:  # Demonstration of which patches are extracted (test = confirmation, not data split)
-  assets_in:
-    patch_id: {stage: snip_patches_cfg}
-  splits:
-    - train
-  dir_name: PatchNN_1_Test_Patch  # Not used
-  make_stage_log: False
-
-find_extrema:
-  assets_out:
-    norm_file: 
-      handler: Config
-      path_template: "{root}/{dataset}/{working}{stage}/normalization.yaml"
-  assets_in:
-    cmb_map: {stage: make_sims}
-    obs_maps: {stage: make_sims}
-  splits: 
-    - train
-  dir_name: PatchNN_C_PreprocessingPrep
-
 choose_patches:
   assets_out:
     all_ids:
@@ -56,6 +24,38 @@ choose_patches:
     - train
     - valid
 
+try_show_patch:  # Demonstration of how a patch is extracted (confirmation that it works)
+  assets_in:
+    patch_id: {stage: choose_patches}
+    cmb_map: {stage: make_sims}
+    obs_maps: {stage: make_sims}
+    planck_deltabandpass: {stage: raw}
+  splits:
+    - train
+  dir_name: PatchNN_0_Test_Patch  # Not used
+  make_stage_log: False
+  override_n_sims: ${n_show_cap}
+
+try_show_patch_dist:  # Demonstration of which patches are extracted (test = confirmation, not data split)
+  assets_in:
+    patch_id: {stage: choose_patches}
+  splits:
+    - train
+  dir_name: PatchNN_1_Test_Patch  # Not used
+  make_stage_log: False
+
+get_dataset_stats:
+  assets_out:
+    norm_file: 
+      handler: Config
+      path_template: "{root}/{dataset}/{working}{stage}/feature_stats.yaml"
+  assets_in:
+    cmb_map: {stage: make_sims}
+    obs_maps: {stage: make_sims}
+  splits: 
+    - train
+  dir_name: PatchNN_C_PreprocessingPrep
+
 prep_patches:
   assets_out:
     cmb_map:
@@ -67,9 +67,9 @@ prep_patches:
   assets_in:
     cmb_map: {stage: make_sims}
     obs_maps: {stage: make_sims}
-    norm_file: {stage: make_normalization}
     lut: {stage: make_lut}
-    patch_id: {stage: snip_patches_cfg}
+    norm_file: {stage: get_dataset_stats}
+    patch_id: {stage: choose_patches}
   dir_name: PatchNN_D_Preprocessing
   splits:
     - train
@@ -86,7 +86,7 @@ train:
   assets_in:
     cmb_map: {stage: prep_patches}
     obs_maps: {stage: prep_patches}
-    norm_file: {stage: make_normalization}
+    norm_file: {stage: get_dataset_stats}
     model: {stage: train}
   splits:
     - train
@@ -102,10 +102,10 @@ train_no_preprocess:
   assets_in:
     cmb_map: {stage: make_sims}
     obs_maps: {stage: make_sims}
-    norm_file: {stage: make_normalization}
-    model: {stage: train}
     lut: {stage: make_lut}
-    patch_dict: {stage: snip_patches_cfg, orig_name: all_ids}
+    norm_file: {stage: get_dataset_stats}
+    model: {stage: train}
+    patch_dict: {stage: choose_patches, orig_name: all_ids}
   splits:
     - train
   dir_name: PatchNN_E_Model
@@ -119,10 +119,10 @@ predict: &final_inference
       handler: HealpyMap
       path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/cmb_map_pred_{epoch}.fits"
   assets_in:
-    lut: {stage: make_lut}
-    model: {stage: train}
     obs_maps: {stage: make_sims}
-    norm_file: {stage: make_normalization}
+    lut: {stage: make_lut}
+    norm_file: {stage: get_dataset_stats}
+    model: {stage: train}
   splits:
     - ${splits.run_inference_on}
   epochs: ${use_epochs}
