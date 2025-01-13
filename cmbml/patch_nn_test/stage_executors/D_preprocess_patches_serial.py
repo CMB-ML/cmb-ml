@@ -27,8 +27,8 @@ class PreprocessPatchesExecutor(BaseStageExecutor):
 
         self.instrument: Instrument = make_instrument(cfg=cfg)
 
-        self.out_cmb_patch: Asset = self.assets_out["cmb_patch"]
-        self.out_obs_patch: Asset = self.assets_out["obs_patch"]
+        self.out_cmb_patch: Asset = self.assets_out["cmb_map"]
+        self.out_obs_patch: Asset = self.assets_out["obs_maps"]
         out_patches_handler: NumpyMap
 
         self.in_cmb_map: Asset = self.assets_in["cmb_map"]
@@ -53,17 +53,17 @@ class PreprocessPatchesExecutor(BaseStageExecutor):
     def execute(self) -> None:
         logger.debug(f"Running {self.__class__.__name__} execute()")
         self.ensure_splits()
-        self.get_lut()
-        self.get_extrema()
+        self.load_lut()
+        self.load_extrema()
         for split in self.splits:
             logger.info(f"{self.__class__.__name__} preprocessing {split.name}.")
             with self.name_tracker.set_context("split", split.name):
                 self.process_split(split)
 
-    def get_lut(self) -> None:
+    def load_lut(self) -> None:
         self.lut = self.in_lut.read()
 
-    def get_extrema(self) -> None:
+    def load_extrema(self) -> None:
         # TODO: Use a class to better handle scaling/normalization
         if self.scaling == "minmax":
             self.extrema = self.in_norm_file.read()

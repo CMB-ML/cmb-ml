@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 class FindExtremaSerialExecutor(BaseStageExecutor):
     def __init__(self, cfg: DictConfig) -> None:
         # The following string must match the pipeline yaml
-        super().__init__(cfg, stage_str="find_extrema")
+        super().__init__(cfg, stage_str="get_dataset_stats")
 
         instrument: Instrument = make_instrument(cfg=cfg)
         self.channels = ["cmb", *instrument.dets.keys()]
