@@ -12,10 +12,7 @@ from omegaconf import DictConfig
 import healpy as hp
 
 from cmbml.core import Split, Asset
-from cmbml.core.asset_handlers.asset_handlers_base import Config
-from cmbml.core.asset_handlers.pytorch_model_handler import PyTorchModel # Import for typing hint
-from cmbml.core.asset_handlers.healpy_map_handler import HealpyMap
-from cmbml.core.asset_handlers.handler_npymap import NumpyMap
+from cmbml.core.asset_handlers import Config, PyTorchModel, HealpyMap, NumpyMap
 # from core.pytorch_dataset import TrainCMBMapDataset
 from cmbml.patch_nn_test.dataset import TestCMBPatchDataset
 # from cmbml.core.pytorch_transform import TrainToTensor
