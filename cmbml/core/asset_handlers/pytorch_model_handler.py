@@ -4,9 +4,10 @@ from pathlib import Path
 
 import torch
 
-from cmbml.core.asset_handlers import GenericHandler
-from cmbml.core.asset_handlers import make_directories
-from cmbml.core.asset import register_handler
+from .asset_handlers_base import (
+    GenericHandler, 
+    register_handler, 
+    make_directories)
 
 
 logger = logging.getLogger(__name__)

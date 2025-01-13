@@ -5,7 +5,7 @@ from omegaconf import DictConfig
 from omegaconf import errors as OmegaErrors
 
 from .namers import Namer
-from .asset_handlers import *
+from .asset_handlers.asset_handlers_base import GenericHandler
 from .asset_handlers.asset_handler_registration import get_handler
 
 

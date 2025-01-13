@@ -5,9 +5,12 @@ from tqdm import tqdm
 from omegaconf import DictConfig
 
 from cmbml.core import BaseStageExecutor, Split, Asset
-from cmbml.core.asset_handlers.asset_handlers_base import Config, EmptyHandler # Import for typing hint
-from cmbml.core.asset_handlers.healpy_map_handler import HealpyMap             # Import for typing hint
-from cmbml.core.asset_handlers.qtable_handler import QTableHandler                                # Import needed to register QTableHandler
+from cmbml.core.asset_handlers import (
+    Config, 
+    EmptyHandler,
+    HealpyMap,
+    QTableHandler 
+    )
 from cmbml.utils import make_instrument, Instrument
 from .make_pyilc_config import ILCConfigMaker
 from cmbml.pyilc_redir.pyilc_wrapper import run_ilc
