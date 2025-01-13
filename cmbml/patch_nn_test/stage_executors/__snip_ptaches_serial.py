@@ -14,12 +14,13 @@ from cmbml.core.asset_handlers import Config    # Import for typing hint
 from cmbml.core.asset_handlers.healpy_map_handler import HealpyMap  # Import for typing hint
 from cmbml.core.asset_handlers.handler_npymap import NumpyMap
 from cmbml.utils.map_fields_helper import map_field_str2int
+from cmbml.patch_nn_test.utils.minmax_scale import minmax_scale
 
 
 logger = logging.getLogger(__name__)
 
 
-class SerialSnipPatchesExecutor(BaseStageExecutor):
+class PreprocessPatchesExecutor(BaseStageExecutor):
     def __init__(self, cfg: DictConfig) -> None:
         # The following string must match the pipeline yaml
         super().__init__(cfg, stage_str="prep_patches")
@@ -41,6 +42,11 @@ class SerialSnipPatchesExecutor(BaseStageExecutor):
         in_lut_handler: NumpyMap
         in_patch_id_handler: Config
 
+        self.scaling = cfg.model.patch_nn.get("scaling", None)
+        if self.scaling and self.scaling != "minmax":
+            msg = f"Only minmax scaling is supported, not {self.scaling}."
+            raise NotImplementedError(msg)
+
         self.lut = None
         self.extrema = None
 
@@ -58,7 +64,9 @@ class SerialSnipPatchesExecutor(BaseStageExecutor):
         self.lut = self.in_lut.read()
 
     def get_extrema(self) -> None:
-        self.extrema = self.in_norm_file.read()
+        # TODO: Use a class to better handle scaling/normalization
+        if self.scaling == "minmax":
+            self.extrema = self.in_norm_file.read()
 
     def process_split(self, 
                       split: Split) -> None:
@@ -73,18 +81,29 @@ class SerialSnipPatchesExecutor(BaseStageExecutor):
         r_ids = self.lut[patch_id]
 
         cmb_map = self.in_cmb_map.read()
-        extrema = self.extrema["cmb"]
         self.save_patch_from_map(
                                  cmb_map, 
                                  r_ids,
-                                 extrema,
+                                 self.get_extrema("cmb"),
                                  self.out_cmb_patch
                                  )
 
         for freq in self.instrument.dets.keys():
             with self.name_tracker.set_context("freq", freq):
                 obs_map = self.in_obs_maps.read()
-                self.save_patch_from_map(obs_map, r_ids, self.extrema[freq], self.out_obs_patch)
+                self.save_patch_from_map(obs_map, 
+                                         r_ids, 
+                                         self.get_extrema(freq), 
+                                         self.out_obs_patch)
+
+    def get_extrema(self, freq):
+        extrema = None
+        try:
+            extrema = self.extrema[freq]
+        except TypeError:
+            # self.extrema is None
+            pass
+        return extrema
 
     def save_patch_from_map(self,
                             map_data: np.ndarray,  # Or Astropy Quantity
@@ -99,13 +118,10 @@ class SerialSnipPatchesExecutor(BaseStageExecutor):
         for field_str in self.map_fields:
             field_int = map_field_str2int(field_str)
             patch = map_data[field_int][r_ids]
-            patch = minmax_scale(patch, 
-                                 extrema[field_str]["vmin"], 
-                                 extrema[field_str]["vmax"])
+            if self.scaling == "minmax":
+                patch = minmax_scale(patch, 
+                                     extrema[field_str]["vmin"], 
+                                     extrema[field_str]["vmax"])
             map_patches.append(patch.value)
         map_patches = np.array(map_patches)
         out_asset.write(data=map_patches)
-
-
-def minmax_scale(data, vmin, vmax):
-    return (data - vmin) / (vmax - vmin)

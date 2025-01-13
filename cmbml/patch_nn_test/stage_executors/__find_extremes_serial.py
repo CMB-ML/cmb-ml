@@ -32,8 +32,17 @@ class SerialPreprocessMakeExtremaExecutor(BaseStageExecutor):
         in_cmb_map_handler: HealpyMap
         in_obs_map_handler: HealpyMap
 
+        scaling = cfg.model.patch_nn.get("scaling", None)
+        if scaling and scaling != "minmax":
+            msg = f"Only minmax scaling is supported, not {scaling}."
+            raise NotImplementedError(msg)
+        self.get_extrema = scaling == "minmax"
+
     def execute(self) -> None:
         logger.debug(f"Running {self.__class__.__name__} execute()")
+        if not self.get_extrema:
+            logger.warning("Model yaml does not request extrema file. Skipping.")
+            return
         self.ensure_splits()
         # Defining extrema at the scope of the stage: we want extrema of all maps across splits
         #    Note that some channels won't use all fields (e.g. 545, 857 only have intensity)

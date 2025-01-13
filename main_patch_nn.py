@@ -32,7 +32,7 @@ from cmbml.sims import MaskCreatorExecutor
 from cmbml.patch_nn_test import (
     SerialPreprocessMakeExtremaExecutor,
     PreprocessMakeExtremaExecutor,
-    SerialSnipPatchesExecutor,
+    PreprocessPatchesExecutor,
     SnipConfigExecutor,
     ShowPatchTestExecutor,
     ShowPatchDistTestExecutor,
@@ -89,17 +89,17 @@ def run_cmbnncs(cfg):
 # 
     # pipeline_context.add_pipe(MakeLutExecutor)
 
-    pipeline_context.add_pipe(TrainingExecutor)
-    # pipeline_context.add_pipe(PredictExectutor)
+    # pipeline_context.add_pipe(TrainingExecutor)
+    pipeline_context.add_pipe(PredictExectutor)
 
-    # # Apply to the target (CMB realization)
-    # pipeline_context.add_pipe(CommonRealPostExecutor)
+    # Apply to the target (CMB realization)
+    pipeline_context.add_pipe(CommonRealPostExecutor)
 
-    # # Apply to CMBNNCS's predictions
-    # pipeline_context.add_pipe(CommonNNPredPostExecutor)
+    # Apply to CMBNNCS's predictions
+    pipeline_context.add_pipe(CommonNNPredPostExecutor)
 
-    # # Show results of cleaning
-    # pipeline_context.add_pipe(CommonNNShowSimsPostExecutor)
+    # Show results of cleaning
+    pipeline_context.add_pipe(CommonNNShowSimsPostExecutor)
     # # pipeline_context.add_pipe(CommonCMBNNCSShowSimsPostIndivExecutor)
 
     # pipeline_context.add_pipe(PixelAnalysisExecutor)

@@ -51,6 +51,12 @@ class PreprocessMakeExtremaExecutor(BaseStageExecutor):
         in_cmb_map_handler: HealpyMap
         in_obs_map_handler: HealpyMap
 
+        scaling = cfg.model.patch_nn.get("scaling", None)
+        if scaling and scaling != "minmax":
+            msg = f"Only minmax scaling is supported, not {scaling}."
+            raise NotImplementedError(msg)
+        self.get_extrema = scaling == "minmax"
+
         self.scale_scan_method = None
         self.scale_sift_method = None
         self.set_scale_find_methods()
@@ -70,6 +76,10 @@ class PreprocessMakeExtremaExecutor(BaseStageExecutor):
                                          map_fields=self.map_fields)
 
     def execute(self) -> None:
+        if not self.get_extrema:
+            logger.warning("Model yaml does not request extrema file. Skipping.")
+            return
+
         logger.debug(f"Running {self.__class__.__name__} execute().")
         # Tasks are items on a to-do list
         #   For each simulation, we compare the prediction and target

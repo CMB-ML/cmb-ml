@@ -1,4 +1,5 @@
 dtype     : float
+scaling   : null
 
 preprocess:
   n_workers : 20

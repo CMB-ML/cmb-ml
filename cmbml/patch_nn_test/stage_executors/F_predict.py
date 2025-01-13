@@ -23,6 +23,7 @@ from cmbml.patch_nn_test.dataset import TestCMBPatchDataset
 # from cmbml.cmbnncs_local.preprocessing.transform_pixel_rearrange import sphere2rect
 from cmbml.patch_nn_test.stage_executors._pytorch_executor_base import BasePyTorchModelExecutor
 from cmbml.patch_nn_test.dummy_model import SimpleUNetModel
+from cmbml.patch_nn_test.utils.minmax_scale import minmax_unscale, MinMaxScaler
 
 
 logger = logging.getLogger(__name__)
@@ -42,12 +43,18 @@ class PredictExectutor(BasePyTorchModelExecutor):
 
         self.in_model_asset: Asset = self.assets_in["model"]
         self.in_obs_assets: Asset = self.assets_in["obs_maps"]
+        self.in_norm_file: Asset = self.assets_in["norm_file"]
         self.in_lut_asset: Asset = self.assets_in["lut"]
         # self.in_norm: Asset = self.assets_in["norm_file"]  # We may need this later
         in_model_handler: PyTorchModel
         in_obs_map_handler: HealpyMap
+        in_norm_file_handler: Config
         in_lut_handler: NumpyMap
-        # in_norm_handler: Config
+
+        self.scaling = cfg.model.patch_nn.get("scaling", None)
+        if self.scaling and self.scaling != "minmax":
+            msg = f"Only minmax scaling is supported, not {self.scaling}."
+            raise NotImplementedError(msg)
 
         self.nside_patch = cfg.model.patches.nside_patch
 
@@ -58,9 +65,16 @@ class PredictExectutor(BasePyTorchModelExecutor):
         self.dtype = self.dtype_mapping[cfg.model.patch_nn.dtype]
 
         self.model = None  # Placeholder for model
+        self.extrema = None  # Placeholder for extrema (min/max values for normalization)
+
+    def get_extrema(self) -> None:
+        # TODO: Use a class to better handle scaling/normalization
+        if self.scaling == "minmax":
+            self.extrema = self.in_norm_file.read()
 
     def execute(self) -> None:
         logger.debug(f"Running {self.__class__.__name__} execute()")
+        self.get_extrema()
 
         # It would likely be safer to have this within the loop, right before read()
         #    But this should work and be faster (especially with larger models)
@@ -77,7 +91,7 @@ class PredictExectutor(BasePyTorchModelExecutor):
                         self.in_model_asset.read(model=self.model, epoch=model_epoch)
                         self.process_split(split)
 
-    def process_split(self, split):
+    def process_split(self, split) -> None:
         dataset = self.set_up_dataset(split)
         dataloader = DataLoader(
             dataset, 
@@ -99,7 +113,20 @@ class PredictExectutor(BasePyTorchModelExecutor):
             predictions = self.model(test_features)
             this_map_results.append(predictions)
         pred_cmb = self.reassemble_map(this_map_results)
+        if self.scaling == "minmax":
+            pred_cmb = self.unscale(pred_cmb, self.extrema['cmb'])
         self.out_cmb_asset.write(data=pred_cmb)
+
+    def unscale(self, map_array, extrema):
+        """
+        Unscale the map_array using the extrema.
+        """
+        new_map_array = np.zeros_like(map_array)
+        # TODO: Implement multiple fields
+        vmin = extrema['I']['vmin']
+        vmax = extrema['I']['vmax']
+        new_map_array = minmax_unscale(map_array, vmin, vmax)
+        return new_map_array
 
     def reassemble_map(self, sim_results_list):
         sim_results = [sr.cpu().numpy() for sr in sim_results_list]
@@ -119,14 +146,20 @@ class PredictExectutor(BasePyTorchModelExecutor):
     def set_up_dataset(self, template_split: Split) -> TestCMBPatchDataset:
         obs_path_template = self.make_fn_template(template_split, self.in_obs_assets)
 
+        transform = None
+        if self.scaling == "minmax":
+            vmins = np.array([self.extrema[f]["I"]["vmin"].value for f in self.instrument.dets.keys()])
+            vmaxs = np.array([self.extrema[f]["I"]["vmax"].value for f in self.instrument.dets.keys()])
+            transform = MinMaxScaler(vmins=vmins, vmaxs=vmaxs)
+
         dataset = TestCMBPatchDataset(
             n_sims = template_split.n_sims,
             freqs = self.instrument.dets.keys(),
             map_fields=self.map_fields,
             feature_path_template=obs_path_template,
             feature_handler=self.in_obs_assets.handler,
-            sim_idx=0,
             lut=self.lut,
+            transform=transform
             )
         return dataset
 

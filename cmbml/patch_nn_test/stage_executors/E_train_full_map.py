@@ -3,6 +3,7 @@ import logging
 from tqdm import tqdm
 
 # import multiprocessing as mp
+import numpy as np
 import torch
 from torch.utils.data import DataLoader
 # from torch.optim.lr_scheduler import LambdaLR
@@ -11,20 +12,11 @@ from omegaconf import DictConfig
 import healpy as hp
 
 from cmbml.core import Split, Asset
-from cmbml.core.executor_base import BaseStageExecutor
-from cmbml.core.asset_handlers import Config
-from cmbml.core.asset_handlers.pytorch_model_handler import PyTorchModel # Import for typing hint
-from cmbml.core.asset_handlers.healpy_map_handler import HealpyMap
-from cmbml.core.asset_handlers.handler_npymap import NumpyMap
-# from core.pytorch_dataset import TrainCMBMapDataset
+from cmbml.core.asset_handlers import Config, PyTorchModel, HealpyMap, NumpyMap
 from cmbml.patch_nn_test.dataset import TrainCMBMap2PatchDataset
-# from cmbml.core.pytorch_transform import TrainToTensor
-# from cmbml.cmbnncs_local.preprocessing.scale_methods_factory import get_scale_class
-# from cmbml.cmbnncs_local.preprocessing.transform_pixel_rearrange import sphere2rect
-from cmbml.utils.planck_instrument import make_instrument, Instrument
-from cmbml.patch_nn_test.utils.display_help import show_patch
 from cmbml.patch_nn_test.dummy_model import SimpleUNetModel
 from cmbml.patch_nn_test.stage_executors._pytorch_executor_base import BasePyTorchModelExecutor
+from cmbml.patch_nn_test.utils.minmax_scale import MinMaxScaler
 
 
 logger = logging.getLogger(__name__)
@@ -37,17 +29,18 @@ class TrainingExecutor(BasePyTorchModelExecutor):
         self.out_model: Asset = self.assets_out["model"]
         out_model_handler: PyTorchModel
 
-        self.in_model: Asset = self.assets_in["model"]
         self.in_cmb_asset: Asset = self.assets_in["cmb_map"]
+        self.in_norm_file: Asset = self.assets_in["norm_file"]
         self.in_obs_assets: Asset = self.assets_in["obs_maps"]
         self.in_all_p_ids_asset: Asset = self.assets_in["patch_dict"]
+        self.in_model: Asset = self.assets_in["model"]
         self.in_lut_asset: Asset = self.assets_in["lut"]
         # self.in_norm: Asset = self.assets_in["norm_file"]  # We may need this later
         in_model_handler: PyTorchModel
         in_cmb_map_handler: HealpyMap
         in_obs_map_handler: HealpyMap
+        in_norm_handler: Config
         in_lut_handler: NumpyMap
-        # in_norm_handler: Config
 
         self.nside_patch = cfg.model.patches.nside_patch
 
@@ -59,8 +52,16 @@ class TrainingExecutor(BasePyTorchModelExecutor):
         self.extra_check = cfg.model.patch_nn.train.extra_check
         self.checkpoint = cfg.model.patch_nn.train.checkpoint_every
 
+        self.scaling = cfg.model.patch_nn.get("scaling", None)
+        if self.scaling and self.scaling != "minmax":
+            msg = f"Only minmax scaling is supported, not {self.scaling}."
+            raise NotImplementedError(msg)
+        self.extrema = None
+
     def execute(self) -> None:
         logger.debug(f"Running {self.__class__.__name__} execute()")
+
+        self.extrema = self.get_extrema()
 
         model = SimpleUNetModel(
                            n_in_channels=len(self.instrument.dets),
@@ -71,8 +72,6 @@ class TrainingExecutor(BasePyTorchModelExecutor):
 
         template_split = self.splits[0]
 
-        # TODO: Include normalization (high priority, requires an executor to scan files. See Petroff method)
-        # TODO: Preprocess dataset (cut into patches, normalize, save, etc.) (??? priority - this seems slow currently)
         # TODO: Dataset for validation (lower priority)
         dataset = self.set_up_dataset(template_split)
         dataloader = DataLoader(
@@ -117,6 +116,11 @@ class TrainingExecutor(BasePyTorchModelExecutor):
         with self.name_tracker.set_context("epoch", "final"):
             self.out_model.write(model=model, epoch="final")
 
+    def get_extrema(self) -> None:
+        # TODO: Use a class to better handle scaling/normalization
+        if self.scaling == "minmax":
+            self.extrema = self.in_norm_file.read()
+
     def set_up_dataset(self, template_split: Split) -> None:
         cmb_path_template = self.make_fn_template(template_split, self.in_cmb_asset)
         obs_path_template = self.make_fn_template(template_split, self.in_obs_assets)
@@ -124,20 +128,23 @@ class TrainingExecutor(BasePyTorchModelExecutor):
         with self.name_tracker.set_context("split", template_split.name):
             which_patch_dict = self.get_patch_dict()
 
+        transform = None
+        if self.scaling == "minmax":
+            vmins = np.array([self.extrema[f]["I"]["vmin"].value for f in self.instrument.dets.keys()])
+            vmaxs = np.array([self.extrema[f]["I"]["vmax"].value for f in self.instrument.dets.keys()])
+            transform = MinMaxScaler(vmins=vmins, vmaxs=vmaxs)
+
         dataset = TrainCMBMap2PatchDataset(
             n_sims = template_split.n_sims,
             freqs = self.instrument.dets.keys(),
             map_fields=self.map_fields,
             label_path_template=cmb_path_template,
             label_handler=self.in_cmb_asset.handler,
-            # label_handler=HealpyMap(),
             feature_path_template=obs_path_template,
             feature_handler=self.in_obs_assets.handler,
             which_patch_dict=which_patch_dict,
-            nside_obs=self.nside,
-            nside_patches=self.nside_patch,
             lut=self.in_lut_asset.read(),
-            # feature_handler=HealpyMap()
+            transform=transform
             )
         return dataset
 
