@@ -30,7 +30,7 @@ from cmbml.patch_nn_test.stage_executors._pytorch_executor_base import BasePyTor
 logger = logging.getLogger(__name__)
 
 
-class PredictExectutor(BasePyTorchModelExecutor):
+class PredictTryDataloaderExecutor(BasePyTorchModelExecutor):
     """
     Goal: Reassemble a map from patches.
 

@@ -30,15 +30,15 @@ from cmbml.core import (
 from cmbml.core.A_check_hydra_configs import HydraConfigCheckerExecutor
 from cmbml.sims import MaskCreatorExecutor
 from cmbml.patch_nn_test import (
-    SerialPreprocessMakeExtremaExecutor,
-    PreprocessMakeExtremaExecutor,
+    FindExtremaSerialExecutor,
+    FindExtremaParallelExecutor,
     PreprocessPatchesExecutor,
-    SnipConfigExecutor,
-    ShowPatchTestExecutor,
-    ShowPatchDistTestExecutor,
+    ChoosePatchesExecutor,
+    TryShowPatchExecutor,
+    TryShowPatchDistExecutor,
     MakeLutExecutor,
     TrainingExecutor,
-    PredictExectutor
+    PredictTryModelLoadExecutor
     )
 
 from cmbml.analysis import (
@@ -90,7 +90,7 @@ def run_cmbnncs(cfg):
     # pipeline_context.add_pipe(MakeLutExecutor)
 
     # pipeline_context.add_pipe(TrainingExecutor)
-    pipeline_context.add_pipe(PredictExectutor)
+    pipeline_context.add_pipe(PredictTryModelLoadExecutor)
 
     # Apply to the target (CMB realization)
     pipeline_context.add_pipe(CommonRealPostExecutor)

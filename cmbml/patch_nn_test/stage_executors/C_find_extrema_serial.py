@@ -16,10 +16,10 @@ from cmbml.core.asset_handlers.healpy_map_handler import HealpyMap  # Import for
 logger = logging.getLogger(__name__)
 
 
-class SerialPreprocessMakeExtremaExecutor(BaseStageExecutor):
+class FindExtremaSerialExecutor(BaseStageExecutor):
     def __init__(self, cfg: DictConfig) -> None:
         # The following string must match the pipeline yaml
-        super().__init__(cfg, stage_str="make_normalization")
+        super().__init__(cfg, stage_str="find_extrema")
 
         instrument: Instrument = make_instrument(cfg=cfg)
         self.channels = ["cmb", *instrument.dets.keys()]

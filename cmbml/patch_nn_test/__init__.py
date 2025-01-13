@@ -1,11 +1,14 @@
-from .stage_executors.__find_extremes_serial import SerialPreprocessMakeExtremaExecutor
-from .stage_executors.__find_extremes_parallel import PreprocessMakeExtremaExecutor
-from .stage_executors.__snip_ptaches_serial import PreprocessPatchesExecutor
-from .stage_executors.M_snip_or_cfg_patches import SnipConfigExecutor, SnipExecutor
-from .stage_executors.C_test_patch_dist import ShowPatchDistTestExecutor
-from .stage_executors.D_make_lut import MakeLutExecutor
-from .stage_executors.B_test_patch import ShowPatchTestExecutor
+from .stage_executors.B_make_lut import MakeLutExecutor
+# from .stage_executors._0_try_show_patch import TryShowPatchExecutor
+# from .stage_executors._1_try_show_patch_dist import TryShowPatchDistExecutor
+from .stage_executors.C_find_extrema_serial import FindExtremaSerialExecutor
+from .stage_executors.C_find_extrema_parallel import FindExtremaParallelExecutor
+from .stage_executors.C_choose_patches import ChoosePatchesExecutor
+from .stage_executors.D_preprocess_patches_serial import PreprocessPatchesExecutor
 from .stage_executors.E_train import TrainingExecutor
-# from .stage_executors.F_predict_test_dataloader import PredictExectutor
-# from .stage_executors.F_predict_test_model_load import PredictExectutor
+from .stage_executors.E_train_no_preprocess import TrainingNoPreprocessExecutor
+# from .stage_executors._E1_train_try_dataloader import TrainingTryDataloaderExecutor
+# from .stage_executors._E2_train_try_network import TrainingTryNetworkExecutor
 from .stage_executors.F_predict import PredictExectutor
+# from .stage_executors._F1_predict_test_dataloader import PredictTryDataloaderExecutor
+# from .stage_executors._F2_predict_test_model_load import PredictTryModelLoadExecutor

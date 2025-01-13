@@ -35,10 +35,10 @@ class TaskTarget(NamedTuple):
     sim_num: str
 
 
-class PreprocessMakeExtremaExecutor(BaseStageExecutor):
+class FindExtremaParallelExecutor(BaseStageExecutor):
     def __init__(self, cfg: DictConfig) -> None:
         # The following string must match the pipeline yaml
-        super().__init__(cfg, stage_str="make_normalization")
+        super().__init__(cfg, stage_str="find_extrema")
 
         self.instrument: Instrument = make_instrument(cfg=cfg)
         self.channels = self.instrument.dets.keys()
