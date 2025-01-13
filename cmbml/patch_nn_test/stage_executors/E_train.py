@@ -12,11 +12,9 @@ from omegaconf import DictConfig
 import healpy as hp
 
 from cmbml.core import Split, Asset
-from cmbml.core.executor_base import BaseStageExecutor
-from cmbml.core.asset_handlers import Config
 from cmbml.core.asset_handlers.pytorch_model_handler import PyTorchModel # Import for typing hint
-from cmbml.core.asset_handlers.healpy_map_handler import HealpyMap
 from cmbml.core.asset_handlers.handler_npymap import NumpyMap
+from cmbml.core.asset_handlers.appending_csv_handler import AppendingCsvHandler
 # from core.pytorch_dataset import TrainCMBMapDataset
 from cmbml.patch_nn_test.dataset import TrainCMBPrePatchDataset
 # from cmbml.core.pytorch_transform import TrainToTensor
@@ -36,7 +34,9 @@ class TrainingExecutor(BasePyTorchModelExecutor):
         super().__init__(cfg, stage_str="train")
 
         self.out_model: Asset = self.assets_out["model"]
+        self.out_loss_record: Asset = self.assets_out["loss_record"]
         out_model_handler: PyTorchModel
+        out_loss_record: AppendingCsvHandler
 
         self.in_model: Asset = self.assets_in["model"]
         self.in_cmb_asset: Asset = self.assets_in["cmb_map"]
@@ -62,10 +62,11 @@ class TrainingExecutor(BasePyTorchModelExecutor):
     def execute(self) -> None:
         logger.debug(f"Running {self.__class__.__name__} execute()")
 
-        # TODO: TEMPORARY! REPLACE!
-        with open('loss_records.csv', 'w', newline='') as f:
-            writer = csv.writer(f)
-            writer.writerow(['Epoch', 'Training Loss', 'Validation Loss'])
+        loss_record_headers = ['Epoch', 'Training Loss', 'Validation Loss']
+        self.out_loss_record.write(data=loss_record_headers)
+        # with open('loss_records.csv', 'w', newline='') as f:
+        #     writer = csv.writer(f)
+        #     writer.writerow()
 
         model = SimpleUNetModel(
                            n_in_channels=len(self.instrument.dets),
@@ -140,9 +141,11 @@ class TrainingExecutor(BasePyTorchModelExecutor):
                 all_valid_loss.append(valid_loss)
             logger.info(f"Epoch {epoch:<{n_epoch_digits}} Validation loss: {valid_loss:.02e}")
 
-            with open('loss_records.csv', 'a', newline='') as f:
-                writer = csv.writer(f)
-                writer.writerow([epoch + 1, train_loss, valid_loss])
+            self.out_loss_record.append([epoch + 1, train_loss, valid_loss])
+
+            # with open('loss_records.csv', 'a', newline='') as f:
+            #     writer = csv.writer(f)
+            #     writer.writerow([epoch + 1, train_loss, valid_loss])
 
             # Checkpoint every so many epochs
             if (epoch + 1) in self.extra_check or (epoch + 1) % self.checkpoint == 0:

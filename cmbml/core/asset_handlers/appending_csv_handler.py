@@ -3,8 +3,10 @@ from pathlib import Path
 import logging
 import csv
 
-from cmbml.core.asset_handlers import GenericHandler, make_directories
-from .asset_handler_registration import register_handler
+from .asset_handlers_base import (
+    GenericHandler, 
+    register_handler, 
+    make_directories)
 
 
 logger = logging.getLogger(__name__)

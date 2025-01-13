@@ -11,8 +11,7 @@ from cmbml.core import (
     Asset
     )
 from cmbml.utils import make_instrument, Instrument
-from cmbml.core.asset_handlers.asset_handlers_base import Config
-from cmbml.core.asset_handlers.healpy_map_handler import HealpyMap
+from cmbml.core.asset_handlers import (Config, HealpyMap)
 
 
 logger = logging.getLogger(__name__)

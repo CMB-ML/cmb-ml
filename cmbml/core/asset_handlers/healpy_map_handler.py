@@ -6,8 +6,10 @@ import numpy as np
 import healpy as hp
 from astropy.units import Quantity
 
-from cmbml.core.asset_handlers import GenericHandler, make_directories
-from .asset_handler_registration import register_handler
+from .asset_handlers_base import (
+    GenericHandler, 
+    register_handler, 
+    make_directories)
 from cmbml.utils.physics_units import get_fields_units_from_fits
 
 

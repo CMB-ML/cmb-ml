@@ -5,8 +5,10 @@ import pandas as pd
 
 import camb
 
-from cmbml.core.asset_handlers import GenericHandler, make_directories
-from .asset_handler_registration import register_handler
+from .asset_handlers_base import (
+    GenericHandler, 
+    register_handler, 
+    make_directories)
 
 import logging
 

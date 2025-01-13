@@ -18,10 +18,12 @@ from cmbml.core import (
     Asset
     )
 from cmbnncs.spherical import sphere2piecePlane
-from cmbml.core.asset_handlers.qtable_handler import QTableHandler  # Import to register handler
-from cmbml.core.asset_handlers.handler_npymap import NumpyMap             # Import to register handler
-from cmbml.core.asset_handlers.asset_handlers_base import Config    # Import for typing hint
-from cmbml.core.asset_handlers.healpy_map_handler import HealpyMap  # Import for typing hint
+from cmbml.core.asset_handlers import (
+    QTableHandler,
+    NumpyMap,
+    HealpyMap,
+    Config
+    )
 from cmbml.utils import make_instrument, Instrument, Detector
 
 

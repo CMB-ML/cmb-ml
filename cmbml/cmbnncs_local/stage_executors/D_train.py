@@ -12,10 +12,13 @@ import healpy as hp
 
 from .pytorch_model_base_executor import BaseCMBNNCSModelExecutor
 from cmbml.core import Split, Asset
-from cmbml.core.asset_handlers.asset_handlers_base import Config
-from cmbml.core.asset_handlers.pytorch_model_handler import PyTorchModel # Import for typing hint
-# from core.asset_handlers.healpy_map_handler import HealpyMap
-from cmbml.core.asset_handlers.handler_npymap import NumpyMap
+
+from cmbml.core.asset_handlers import (
+    PyTorchModel,
+    NumpyMap,
+    Config
+    )
+
 # from core.pytorch_dataset import TrainCMBMapDataset
 from cmbml.cmbnncs_local.dataset import TrainCMBMapDataset
 # from cmbml.core.pytorch_transform import TrainToTensor

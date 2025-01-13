@@ -4,8 +4,10 @@ from pathlib import Path
 
 import numpy as np
 
-from cmbml.core import GenericHandler, register_handler
-from cmbml.core import make_directories
+from .asset_handlers_base import (
+    GenericHandler, 
+    register_handler, 
+    make_directories)
 
 
 logger = logging.getLogger(__name__)
