@@ -15,12 +15,12 @@ from cmbml.patch_nn_test.utils.display_help import show_patch
 logger = logging.getLogger(__name__)
 
 
-class ShowPatchTestExecutor(BaseStageExecutor):
+class TryShowPatchExecutor(BaseStageExecutor):
     """
     info here
     """
     def __init__(self, cfg):
-        super().__init__(cfg, stage_str='test_patch')
+        super().__init__(cfg, stage_str='try_show_patch')
 
         self.in_patch_id: Asset = self.assets_in['patch_id']
         in_map_handler: HealpyMap

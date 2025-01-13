@@ -29,7 +29,7 @@ from cmbml.patch_nn_test.stage_executors._pytorch_executor_base import BasePyTor
 logger = logging.getLogger(__name__)
 
 
-class TrainingExecutor(BasePyTorchModelExecutor):
+class TrainingTryDataloaderExecutor(BasePyTorchModelExecutor):
     def __init__(self, cfg: DictConfig) -> None:
         super().__init__(cfg, stage_str="train")
 

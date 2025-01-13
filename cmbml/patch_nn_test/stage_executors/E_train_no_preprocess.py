@@ -22,9 +22,9 @@ from cmbml.patch_nn_test.utils.minmax_scale import MinMaxScaler
 logger = logging.getLogger(__name__)
 
 
-class TrainingExecutor(BasePyTorchModelExecutor):
+class TrainingNoPreprocessExecutor(BasePyTorchModelExecutor):
     def __init__(self, cfg: DictConfig) -> None:
-        super().__init__(cfg, stage_str="train_full_map")
+        super().__init__(cfg, stage_str="train_no_preprocess")
 
         self.out_model: Asset = self.assets_out["model"]
         out_model_handler: PyTorchModel

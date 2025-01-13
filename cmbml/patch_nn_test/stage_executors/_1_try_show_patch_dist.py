@@ -17,12 +17,12 @@ from cmbml.utils.patch_healpix import get_inverse_nside
 logger = logging.getLogger(__name__)
 
 
-class ShowPatchDistTestExecutor(BaseStageExecutor):
+class TryShowPatchDistExecutor(BaseStageExecutor):
     """
     info here
     """
     def __init__(self, cfg):
-        super().__init__(cfg, stage_str='try_patch_dist')
+        super().__init__(cfg, stage_str='try_show_patch_dist')
 
         self.in_patch_id: Asset = self.assets_in['patch_id']
         in_patch_id_handler: PlainText

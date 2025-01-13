@@ -28,7 +28,7 @@ from cmbml.patch_nn_test.dummy_model import SimpleUNetModel
 logger = logging.getLogger(__name__)
 
 
-class PredictExectutor(BasePyTorchModelExecutor):
+class PredictTryModelLoadExecutor(BasePyTorchModelExecutor):
     """
     Goal: Reassemble a map from patches.
 
