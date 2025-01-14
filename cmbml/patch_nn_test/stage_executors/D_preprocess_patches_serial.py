@@ -33,12 +33,12 @@ class PreprocessPatchesExecutor(BaseStageExecutor):
 
         self.in_cmb_map: Asset = self.assets_in["cmb_map"]
         self.in_obs_maps: Asset = self.assets_in["obs_maps"]
-        self.in_norm_file: Asset = self.assets_in["norm_file"]
+        self.in_dataset_stats: Asset = self.assets_in["dataset_stats"]
         self.in_lut: Asset = self.assets_in["lut"]
         self.in_patch_id: Asset = self.assets_in["patch_id"]
         in_cmb_map_handler: HealpyMap
         in_obs_map_handler: HealpyMap
-        in_norm_file_handler: Config
+        in_dataset_stats_handler: Config
         in_lut_handler: NumpyMap
         in_patch_id_handler: Config
 
@@ -48,13 +48,13 @@ class PreprocessPatchesExecutor(BaseStageExecutor):
             raise NotImplementedError(msg)
 
         self.lut = None
-        self.extrema = None
+        self.dataset_stats = None
 
     def execute(self) -> None:
         logger.debug(f"Running {self.__class__.__name__} execute()")
         self.ensure_splits()
         self.load_lut()
-        self.load_extrema()
+        self.load_dataset_stats()
         for split in self.splits:
             logger.info(f"{self.__class__.__name__} preprocessing {split.name}.")
             with self.name_tracker.set_context("split", split.name):
@@ -63,10 +63,10 @@ class PreprocessPatchesExecutor(BaseStageExecutor):
     def load_lut(self) -> None:
         self.lut = self.in_lut.read()
 
-    def load_extrema(self) -> None:
+    def load_dataset_stats(self) -> None:
         # TODO: Use a class to better handle scaling/normalization
         if self.scaling == "minmax":
-            self.extrema = self.in_norm_file.read()
+            self.dataset_stats = self.in_dataset_stats.read()
 
     def process_split(self, 
                       split: Split) -> None:
@@ -84,7 +84,7 @@ class PreprocessPatchesExecutor(BaseStageExecutor):
         self.save_patch_from_map(
                                  cmb_map, 
                                  r_ids,
-                                 self.get_extrema("cmb"),
+                                 self.get_dataset_stats("cmb"),
                                  self.out_cmb_patch
                                  )
 
@@ -93,22 +93,22 @@ class PreprocessPatchesExecutor(BaseStageExecutor):
                 obs_map = self.in_obs_maps.read()
                 self.save_patch_from_map(obs_map, 
                                          r_ids, 
-                                         self.get_extrema(freq), 
+                                         self.get_dataset_stats(freq), 
                                          self.out_obs_patch)
 
-    def get_extrema(self, freq):
-        extrema = None
+    def get_dataset_stats(self, freq):
+        dataset_stats = None
         try:
-            extrema = self.extrema[freq]
+            dataset_stats = self.dataset_stats[freq]
         except TypeError:
-            # self.extrema is None
+            # self.dataset_stats is None
             pass
-        return extrema
+        return dataset_stats
 
     def save_patch_from_map(self,
                             map_data: np.ndarray,  # Or Astropy Quantity
                             r_ids: List[int],
-                            extrema: Dict[str, Dict[str, Any]],
+                            dataset_stats: Dict[str, Dict[str, Any]],
                             out_asset: Asset,
                             ) -> None:
         """
@@ -120,8 +120,8 @@ class PreprocessPatchesExecutor(BaseStageExecutor):
             patch = map_data[field_int][r_ids]
             if self.scaling == "minmax":
                 patch = minmax_scale(patch, 
-                                     extrema[field_str]["vmin"], 
-                                     extrema[field_str]["vmax"])
+                                     dataset_stats[field_str]["vmin"], 
+                                     dataset_stats[field_str]["vmax"])
             map_patches.append(patch.value)
         map_patches = np.array(map_patches)
         out_asset.write(data=map_patches)

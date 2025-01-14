@@ -10,12 +10,56 @@ defaults:
   - override hydra/job_logging: custom_log
   - _self_
 
-dataset_name: ${scenario.map_fields}_${scenario.nside}_${splits.name}
-working_dir : "Simulation_Working/"
+# Details for this were accidentally over-written; I've pulled this from another branch for now
+## Example 1:
+dataset_name   : ${scenario.map_fields}_${scenario.nside}_Compare_Ellpeaks
+working_dir    : "PyILC_CNILC_two_lp_${lp1}_${lp2}/"
+fig_model_name : "CNILC"
 hydra:
+  mode: MULTIRUN
+  sweeper:
+    params:
+      lp1: 150, 200, 250
+      lp2: 900, 1025, 1150
   run:
-    dir: Logs/${now:%Y-%m-%d-%H-%M-%S}
-  verbose: true
+    dir        : Logs/${now:%Y-%m-%d-%H-%M-%S}
+  sweep:
+    dir        : Logs/${now:%Y-%m-%d-%H-%M-%S}  # Should be the same as run.dir
+    subdir     : ${hydra.job.num}               # Subsequent jobs will include duplicate logs for all previous jobs. 
+                                                #   This is a minor bug, not worth fixing.
+  verbose      : true
+
+# Placeholders for the two ell peaks
+lp1:  ???
+lp2:  ???
+
+## Example 2:
+# dataset_name   : ${scenario.map_fields}_${scenario.nside}_${splits.name}
+# # dataset_name   : IQU_${scenario.nside}_${splits.name}
+# # dataset_name   : I_128_1450
+# working_dir    : "PyILC_HILC_Test_bt${model.pyilc.ILC_bias_tol}_bs${model.pyilc.distinct.BinSize}/"
+# fig_model_name : "HILC bias_tol=${model.pyilc.ILC_bias_tol} bin_size=${model.pyilc.distinct.BinSize}"
+# hydra:
+#   mode: MULTIRUN
+#   sweeper:
+#     params:
+#       # Note that the parameters which are altered are used above in the working_dir and fig_model_name for clarity!
+#       model.pyilc.ILC_bias_tol: 0.001, 0.999
+#       model.pyilc.distinct.BinSize: 200, 10
+#   run:
+#     dir        : Logs/${now:%Y-%m-%d-%H-%M-%S}
+#   sweep:
+#     dir        : Logs/${now:%Y-%m-%d-%H-%M-%S}  # Should be the same as run.dir
+#     subdir     : ${hydra.job.num}               # Subsequent jobs will include duplicate logs for all previous jobs. This is a minor bug, not worth fixing.
+#   verbose      : true
+
+## What was left here
+# dataset_name: ${scenario.map_fields}_${scenario.nside}_${splits.name}
+# working_dir : "Simulation_Working/"
+# hydra:
+#   run:
+#     dir: Logs/${now:%Y-%m-%d-%H-%M-%S}
+#   verbose: true
 
 # Settings below this point are used for interpolation.
 # These are not to be used directly in the python

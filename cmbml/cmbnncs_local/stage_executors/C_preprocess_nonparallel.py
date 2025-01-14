@@ -35,11 +35,11 @@ class NonParallelPreprocessExecutor(BaseStageExecutor):
         out_cmb_map_handler: NumpyMap
         out_obs_map_handler: NumpyMap
 
-        self.in_norm_file: Asset = self.assets_in["norm_file"]
+        self.in_dataset_stats: Asset = self.assets_in["dataset_stats"]
         self.in_cmb_asset: Asset = self.assets_in["cmb_map"]
         self.in_obs_assets: Asset = self.assets_in["obs_maps"]
         in_det_table: Asset  = self.assets_in['planck_deltabandpass']
-        in_norm_file_handler: Config
+        in_dataset_stats_handler: Config
         in_cmb_map_handler: HealpyMap
         in_obs_map_handler: HealpyMap
         in_det_table_handler: QTableHandler
@@ -54,8 +54,8 @@ class NonParallelPreprocessExecutor(BaseStageExecutor):
     def process_split(self, 
                       split: Split) -> None:
         logger.info(f"Running {self.__class__.__name__} process_split() for split: {split.name}.")
-        logger.debug(f"Reading norm_file from: {self.in_norm_file.path}")
-        scale_factors = self.in_norm_file.read()
+        logger.debug(f"Reading dataset_stats from: {self.in_dataset_stats.path}")
+        scale_factors = self.in_dataset_stats.read()
         for sim in tqdm(split.iter_sims(), total=split.n_sims):
             with self.name_tracker.set_context("sim_num", sim):
                 self.process_sim(scale_factors)

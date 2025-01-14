@@ -2,8 +2,11 @@ import numpy as np
 
 
 def prep_scaling(data: np.ndarray, vmin: np.ndarray, vmax: np.ndarray):
-    if data.ndim == 1:
+    # if the data is 1D or 2D, we aren't doing PyTorch stuff.
+    if data.ndim in [1, 2]:
         return vmin, vmax
+    
+    # Otherwise, we need to make sure vmin and vmax are broadcastable.
     reshape_dims = (data.shape[0],) + (1,) * (data.ndim - 1)
     vmin = vmin.reshape(reshape_dims)
     vmax = vmax.reshape(reshape_dims)

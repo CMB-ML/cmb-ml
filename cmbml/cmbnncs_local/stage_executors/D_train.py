@@ -39,7 +39,7 @@ class TrainingExecutor(BaseCMBNNCSModelExecutor):
         self.in_model: Asset = self.assets_in["model"]
         self.in_cmb_asset: Asset = self.assets_in["cmb_map"]
         self.in_obs_assets: Asset = self.assets_in["obs_maps"]
-        # self.in_norm: Asset = self.assets_in["norm_file"]  # TODO: Does removing this line break anything?
+        # self.in_norm: Asset = self.assets_in["dataset_stats"]  # TODO: Does removing this line break anything?
         in_model_handler: PyTorchModel
         in_cmb_map_handler: NumpyMap
         in_obs_map_handler: NumpyMap

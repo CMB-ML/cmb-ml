@@ -21,8 +21,9 @@ class TrainCMBMap2PatchDataset(Dataset):
                  feature_path_template,
                  feature_handler,
                  which_patch_dict: dict,
-                 lut, 
-                 transform=None
+                 lut,
+                 features_transform=None,
+                 labels_transform=None
                  ):
         # TODO: Adopt similar method as in parallel operations to allow 
         #       this to use num_workers and transforms
@@ -35,7 +36,8 @@ class TrainCMBMap2PatchDataset(Dataset):
         self.n_map_fields:int = len(map_fields)
         self.which_patch_dict = which_patch_dict
 
-        self.transform = transform
+        self.features_transform = features_transform
+        self.labels_transform = labels_transform
 
         self.patch_lut = lut
         logger.debug(f"Patch LUT shape: {self.patch_lut.shape}")
@@ -61,6 +63,10 @@ class TrainCMBMap2PatchDataset(Dataset):
         features_tensor = tuple([torch.as_tensor(f) for f in features])
         features_tensor = torch.stack(features_tensor, dim=0)
 
+        if self.features_transform:
+            features_tensor = self.features_transform(features_tensor)
+            label = self.labels_transform(label)
+
         label_tensor = torch.as_tensor(label)
         label_tensor = label_tensor.unsqueeze(0)
         return features_tensor, label_tensor, sim_idx, patch_id  # For debugging
@@ -79,6 +85,7 @@ class TrainCMBPrePatchDataset(Dataset):
                  label_handler,
                  feature_path_template,
                  feature_handler,
+                #  transform=None
                  ):
         self.n_sims = n_sims
         self.freqs = freqs
@@ -87,6 +94,7 @@ class TrainCMBPrePatchDataset(Dataset):
         self.feature_path_template = feature_path_template
         self.feature_handler = feature_handler
         self.n_map_fields:int = len(map_fields)
+        # self.transform = transform
 
     def __len__(self):
         return self.n_sims
@@ -103,9 +111,9 @@ class TrainCMBPrePatchDataset(Dataset):
                                n_map_fields=self.n_map_fields,
                                sim_idx=sim_idx)
 
-        if self.transform:
-            features = self.transform(np.array(features))
-            label = self.transform(np.array(label))
+        # if self.transform:
+        #     features = self.transform(np.array(features))
+        #     label = self.transform(np.array(label))
 
         features_tensor = tuple([torch.as_tensor(f) for f in features])
         features_tensor = torch.stack(features_tensor, dim=0)

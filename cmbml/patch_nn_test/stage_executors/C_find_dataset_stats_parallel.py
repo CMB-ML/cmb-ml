@@ -35,7 +35,7 @@ class TaskTarget(NamedTuple):
     sim_num: str
 
 
-class FindExtremaParallelExecutor(BaseStageExecutor):
+class FindDatasetStatsParallelExecutor(BaseStageExecutor):
     def __init__(self, cfg: DictConfig) -> None:
         # The following string must match the pipeline yaml
         super().__init__(cfg, stage_str="get_dataset_stats")
@@ -43,7 +43,7 @@ class FindExtremaParallelExecutor(BaseStageExecutor):
         self.instrument: Instrument = make_instrument(cfg=cfg)
         self.channels = self.instrument.dets.keys()
 
-        self.out_norm_file: Asset = self.assets_out["norm_file"]
+        self.out_dataset_stats: Asset = self.assets_out["dataset_stats"]
         out_norm_handler: Config
 
         self.in_cmb_map: Asset = self.assets_in["cmb_map"]
@@ -93,7 +93,7 @@ class FindExtremaParallelExecutor(BaseStageExecutor):
 
         results_summary = self.scale_sift_method(results_list)
 
-        self.out_norm_file.write(data=results_summary)
+        self.out_dataset_stats.write(data=results_summary)
 
 
     def run_all_tasks(self, process, tasks):

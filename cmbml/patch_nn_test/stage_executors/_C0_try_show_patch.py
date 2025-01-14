@@ -1,4 +1,4 @@
-# Goal: create Executor that loads and shows patches of a map
+# Goal: create Executor that loads and shows patches of a map, testing C_choose_patches.py
 
 import logging
 
@@ -66,4 +66,3 @@ class TryShowPatchExecutor(BaseStageExecutor):
             show_patch(cmb_patch, obs_patches, title)
             if sim_num >= self.show_n - 1:
                 break
-

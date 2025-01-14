@@ -52,9 +52,9 @@ class PostprocessExecutor(BaseStageExecutor):
         self.out_cmb_asset: Asset = self.assets_out["cmb_map"]
         out_cmb_map_handler: HealpyMap
 
-        self.in_norm_file: Asset = self.assets_in["norm_file"]
+        self.in_dataset_stats: Asset = self.assets_in["dataset_stats"]
         self.in_cmb_asset: Asset = self.assets_in["cmb_map"]
-        in_norm_file_handler: Config
+        in_dataset_stats_handler: Config
         in_cmb_map_handler: NumpyMap
 
         self.num_processes = self.cfg.model.cmbnncs.postprocess.num_processes
@@ -74,7 +74,7 @@ class PostprocessExecutor(BaseStageExecutor):
         self.run_all_tasks(parallel_postprocess, tasks)
 
     def build_tasks(self):
-        scale_factors = self.in_norm_file.read()
+        scale_factors = self.in_dataset_stats.read()
         tasks = []
         for epoch in self.model_epochs:
             for split in self.splits:

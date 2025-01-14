@@ -24,8 +24,8 @@ class PreprocessMakeScaleExecutor(BaseStageExecutor):
 
         self.instrument: Instrument = make_instrument(cfg=cfg)
 
-        self.out_norm_file: Asset = self.assets_out["norm_file"]
-        out_norm_file_handler: Config
+        self.out_dataset_stats: Asset = self.assets_out["dataset_stats"]
+        out_dataset_stats_handler: Config
 
         self.in_cmb_map: Asset = self.assets_in["cmb_map"]
         self.in_obs_maps: Asset = self.assets_in["obs_maps"]
@@ -46,4 +46,4 @@ class PreprocessMakeScaleExecutor(BaseStageExecutor):
                 scale_factors[freq][field_char] = {}
                 scale_factors[freq][field_char]['scale'] = self.scale_features
         scale_factors['cmb'] = {field_char: {'scale': self.scale_target} for field_char in self.cfg.scenario.map_fields}
-        self.out_norm_file.write(data=scale_factors)
+        self.out_dataset_stats.write(data=scale_factors)

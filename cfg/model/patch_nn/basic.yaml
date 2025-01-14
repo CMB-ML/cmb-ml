@@ -1,0 +1,35 @@
+# Consistent properties for all stages:
+dtype     : float
+# scaling   : null  # minmax or null
+scaling   : minmax  # minmax or null
+
+preprocess:
+  n_workers : 20
+
+train:
+  # Operate on CPU or CUDA; null for auto selection.
+  device            : null
+  
+  # Data loading
+  batch_size        : 100
+  num_loader_workers: 10
+
+  # Training parameters
+  learning_rate     : 0.0002
+
+  # Epochs
+  n_epochs          : ${num_epochs}
+  restart_epoch     : init  # Set to null to create a new model, or give a checkpoint number
+
+  # Checkpointing
+  checkpoint_every  : 5     # checkpoint every this number of epochs
+  extra_check       : [1, 2, 3, 7, 9]  # Extra checkpoints to save
+  # Above will output checkpoints at epochs 1, 2, 3, 5, 7, 9, 10, 15, 20, ...
+
+test:
+  batch_size: 4
+  device    : null
+# analysis:  # TODO: implement local settings for analysis procedures in models
+#   fig_model_name : PatchNN
+#   fig_model_dir  : PatchNN/
+#   fig_model_color: "#2D1C24"
