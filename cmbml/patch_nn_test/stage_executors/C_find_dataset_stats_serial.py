@@ -16,7 +16,7 @@ from cmbml.core.asset_handlers.healpy_map_handler import HealpyMap  # Import for
 logger = logging.getLogger(__name__)
 
 
-class FindExtremaSerialExecutor(BaseStageExecutor):
+class FindDatasetStatsSerialExecutor(BaseStageExecutor):
     def __init__(self, cfg: DictConfig) -> None:
         # The following string must match the pipeline yaml
         super().__init__(cfg, stage_str="get_dataset_stats")
@@ -24,8 +24,8 @@ class FindExtremaSerialExecutor(BaseStageExecutor):
         instrument: Instrument = make_instrument(cfg=cfg)
         self.channels = ["cmb", *instrument.dets.keys()]
 
-        self.out_norm_file: Asset = self.assets_out["norm_file"]
-        out_norm_file_handler: Config
+        self.out_dataset_stats: Asset = self.assets_out["dataset_stats"]
+        out_dataset_stats_handler: Config
 
         self.in_cmb_map: Asset = self.assets_in["cmb_map"]
         self.in_obs_maps: Asset = self.assets_in["obs_maps"]
@@ -51,7 +51,7 @@ class FindExtremaSerialExecutor(BaseStageExecutor):
             logger.info(f"{self.__class__.__name__} scanning split {split.name}.")
             with self.name_tracker.set_context("split", split.name):
                 self.search_split_contents(split, extrema)
-        self.out_norm_file.write(data=extrema)
+        self.out_dataset_stats.write(data=extrema)
 
     def search_split_contents(self, 
                               split: Split, 

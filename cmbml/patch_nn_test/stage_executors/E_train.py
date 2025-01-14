@@ -1,27 +1,18 @@
 import logging
 
 from tqdm import tqdm
-import csv
 
-# import multiprocessing as mp
 import torch
 from torch.utils.data import DataLoader
-# from torch.optim.lr_scheduler import LambdaLR
 from omegaconf import DictConfig
 
-import healpy as hp
-
 from cmbml.core import Split, Asset
-from cmbml.core.asset_handlers.pytorch_model_handler import PyTorchModel # Import for typing hint
-from cmbml.core.asset_handlers.handler_npymap import NumpyMap
-from cmbml.core.asset_handlers.appending_csv_handler import AppendingCsvHandler
-# from core.pytorch_dataset import TrainCMBMapDataset
+from cmbml.core.asset_handlers import (
+    PyTorchModel, 
+    NumpyMap, 
+    AppendingCsvHandler
+    )
 from cmbml.patch_nn_test.dataset import TrainCMBPrePatchDataset
-# from cmbml.core.pytorch_transform import TrainToTensor
-# from cmbml.cmbnncs_local.preprocessing.scale_methods_factory import get_scale_class
-# from cmbml.cmbnncs_local.preprocessing.transform_pixel_rearrange import sphere2rect
-from cmbml.utils.planck_instrument import make_instrument, Instrument
-from cmbml.patch_nn_test.utils.display_help import show_patch
 from cmbml.patch_nn_test.dummy_model import SimpleUNetModel
 from cmbml.patch_nn_test.stage_executors._pytorch_executor_base import BasePyTorchModelExecutor
 
@@ -45,15 +36,16 @@ class TrainingExecutor(BasePyTorchModelExecutor):
         in_obs_map_handler: NumpyMap
         in_model_handler: PyTorchModel
 
-        self.choose_device(cfg.model.patch_nn.train.device)
-        self.n_epochs   = cfg.model.patch_nn.train.n_epochs
-        self.batch_size = cfg.model.patch_nn.train.batch_size
-        self.learning_rate = cfg.model.patch_nn.train.learning_rate
-        self.dtype = self.dtype_mapping[cfg.model.patch_nn.dtype]
-        self.extra_check = cfg.model.patch_nn.train.extra_check
-        self.checkpoint = cfg.model.patch_nn.train.checkpoint_every
+        self.dtype         = self.dtype_mapping[cfg.model.patch_nn.dtype]  # TODO: Ensure this is used
 
-        self.num_workers = cfg.model.patch_nn.train.num_loader_workers
+        self.choose_device(cfg.model.patch_nn.train.device)  # See parent class
+        self.batch_size    = cfg.model.patch_nn.train.batch_size
+        self.num_workers   = cfg.model.patch_nn.train.num_loader_workers
+        self.learning_rate = cfg.model.patch_nn.train.learning_rate
+        self.n_epochs      = cfg.model.patch_nn.train.n_epochs
+        self.restart_epoch = cfg.model.patch_nn.train.restart_epoch
+        self.checkpoint    = cfg.model.patch_nn.train.checkpoint_every
+        self.extra_check   = cfg.model.patch_nn.train.extra_check
 
     def execute(self) -> None:
         logger.debug(f"Running {self.__class__.__name__} execute()")
@@ -92,8 +84,24 @@ class TrainingExecutor(BasePyTorchModelExecutor):
         loss_function = torch.nn.L1Loss(reduction='mean')
         optimizer = torch.optim.Adam(model.parameters(), lr=self.learning_rate)
 
-        # TODO: Add mechanics for resuming training (code present in CMBNNCS)
-        start_epoch = 0
+        if self.restart_epoch is not None:
+            logger.info(f"Restarting training at epoch {self.restart_epoch}")
+            # The following returns the epoch number stored in the checkpoint 
+            #     as well as loading the model and optimizer with checkpoint information
+            with self.name_tracker.set_context("epoch", self.restart_epoch):
+                start_epoch = self.in_model.read(model=model, 
+                                                 epoch=self.restart_epoch, 
+                                                 optimizer=optimizer, 
+                                                #  scheduler=scheduler
+                                                 )
+            if start_epoch == "init":
+                start_epoch = 0
+        else:
+            logger.info(f"Starting new model.")
+            with self.name_tracker.set_context("epoch", "init"):
+                self.out_model.write(model=model, epoch="init")
+            start_epoch = 0
+
         n_epoch_digits = len(str(self.n_epochs))
 
         all_train_loss = []
@@ -117,7 +125,7 @@ class TrainingExecutor(BasePyTorchModelExecutor):
                     train_loss += batch_train_loss.item()
                 train_loss /= len(train_dataloader)
                 all_train_loss.append(train_loss)
-            logger.info(f"Epoch {epoch:<{n_epoch_digits}} Training loss: {train_loss:.02e}")
+            logger.info(f"Epoch {epoch + 1:<{n_epoch_digits}} Training loss: {train_loss:.02e}")
 
             # Validation
             model.eval()
@@ -130,7 +138,7 @@ class TrainingExecutor(BasePyTorchModelExecutor):
                     valid_loss += loss_function(output, valid_label).item()
                 valid_loss /= len(valid_dataloader)
                 all_valid_loss.append(valid_loss)
-            logger.info(f"Epoch {epoch:<{n_epoch_digits}} Validation loss: {valid_loss:.02e}")
+            logger.info(f"Epoch {epoch + 1:<{n_epoch_digits}} Validation loss: {valid_loss:.02e}")
 
             self.out_loss_record.append([epoch + 1, train_loss, valid_loss])
 
@@ -141,7 +149,6 @@ class TrainingExecutor(BasePyTorchModelExecutor):
                                          optimizer=optimizer,
                                         #  scheduler=scheduler,
                                          epoch=epoch + 1)
-                                        #  loss=epoch_loss)
 
         with self.name_tracker.set_context("epoch", "final"):
             self.out_model.write(model=model, epoch="final")
@@ -166,11 +173,3 @@ class TrainingExecutor(BasePyTorchModelExecutor):
         patch_dict = self.in_all_p_ids_asset.read()
         patch_dict = patch_dict["patch_ids"]
         return patch_dict
-
-    def inspect_data(self, dataloader):
-        train_features, train_labels = next(iter(dataloader))
-        logger.info(f"{self.__class__.__name__}.inspect_data() Feature batch shape: {train_features.size()}")
-        logger.info(f"{self.__class__.__name__}.inspect_data() Labels batch shape: {train_labels.size()}")
-        npix_data = train_features.size()[-1] * train_features.size()[-2]
-        npix_cfg  = hp.nside2npix(self.nside)
-        assert npix_cfg == npix_data, "Npix for loaded map does not match configuration yamls."

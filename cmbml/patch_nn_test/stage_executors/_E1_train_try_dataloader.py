@@ -30,7 +30,7 @@ class TrainingTryDataloaderExecutor(BasePyTorchModelExecutor):
         self.in_cmb_asset: Asset = self.assets_in["cmb_map"]
         self.in_obs_assets: Asset = self.assets_in["obs_maps"]
         self.in_lut_asset: Asset = self.assets_in["lut"]
-        self.in_norm_file: Asset = self.assets_in["norm_file"]
+        self.in_dataset_stats: Asset = self.assets_in["dataset_stats"]
         self.in_all_p_ids_asset: Asset = self.assets_in["patch_dict"]
 
         in_cmb_map_handler: HealpyMap
@@ -48,9 +48,12 @@ class TrainingTryDataloaderExecutor(BasePyTorchModelExecutor):
         if self.scaling and self.scaling != "minmax":
             msg = f"Only minmax scaling is supported, not {self.scaling}."
             raise NotImplementedError(msg)
+        self.dataset_stats = None
 
     def execute(self) -> None:
         logger.debug(f"Running {self.__class__.__name__} execute()")
+
+        self.load_dataset_stats()
 
         template_split = self.splits[0]
         dataset = self.set_up_dataset(template_split)
@@ -72,6 +75,11 @@ class TrainingTryDataloaderExecutor(BasePyTorchModelExecutor):
                 break
             batch_n += 1
 
+    def load_dataset_stats(self) -> None:
+        # TODO: Use a class to better handle scaling/normalization
+        if self.scaling == "minmax":
+            self.dataset_stats = self.in_dataset_stats.read()
+
     def set_up_dataset(self, template_split: Split) -> None:
         cmb_path_template = self.make_fn_template(template_split, self.in_cmb_asset)
         obs_path_template = self.make_fn_template(template_split, self.in_obs_assets)
@@ -79,11 +87,15 @@ class TrainingTryDataloaderExecutor(BasePyTorchModelExecutor):
         with self.name_tracker.set_context("split", template_split.name):
             which_patch_dict = self.get_patch_dict()
 
-        transform = None
+        features_transform = None
         if self.scaling == "minmax":
-            vmins = np.array([self.extrema[f]["I"]["vmin"].value for f in self.instrument.dets.keys()])
-            vmaxs = np.array([self.extrema[f]["I"]["vmax"].value for f in self.instrument.dets.keys()])
-            transform = MinMaxScaler(vmins=vmins, vmaxs=vmaxs)
+            vmins = np.array([self.dataset_stats[f]["I"]["vmin"].value for f in self.instrument.dets.keys()])
+            vmaxs = np.array([self.dataset_stats[f]["I"]["vmax"].value for f in self.instrument.dets.keys()])
+            features_transform = MinMaxScaler(vmins=vmins, vmaxs=vmaxs)
+
+            vmins = self.dataset_stats["cmb"]["I"]["vmin"].value
+            vmaxs = self.dataset_stats["cmb"]["I"]["vmax"].value
+            labels_transform = MinMaxScaler(vmins=vmins, vmaxs=vmaxs)
 
         dataset = TrainCMBMap2PatchDataset(
             n_sims = template_split.n_sims,
@@ -95,7 +107,8 @@ class TrainingTryDataloaderExecutor(BasePyTorchModelExecutor):
             feature_handler=self.in_obs_assets.handler,
             which_patch_dict=which_patch_dict,
             lut=self.in_lut_asset.read(),
-            transform=transform
+            features_transform=features_transform,
+            labels_transform=labels_transform
             )
         return dataset
 

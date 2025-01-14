@@ -203,13 +203,13 @@ class ShowSimsPrepExecutor(ShowSimsExecutor):
         self.in_cmb_map_prep: Asset = self.assets_in["cmb_map_prep"]
         self.in_obs_map_sim: Asset = self.assets_in["obs_maps_sim"]
         self.in_obs_map_prep: Asset = self.assets_in["obs_maps_prep"]
-        self.in_norm_file: Asset = self.assets_in["norm_file"]
+        self.in_dataset_stats: Asset = self.assets_in["dataset_stats"]
         in_cmb_map_handler: NumpyMap
         in_obs_map_handler: NumpyMap
-        in_norm_file_handler: Config
+        in_dataset_stats_handler: Config
 
     def process_sim(self) -> None:
-        scale_factors = self.in_norm_file.read()
+        scale_factors = self.in_dataset_stats.read()
         cmb_map_sim, cmb_map_prep = load_sim_and_mang_map(self.in_cmb_map_sim, self.in_cmb_map_prep, 'cmb')
         self.make_maps_per_field(cmb_map_sim, 
                                  cmb_map_prep, 
@@ -240,14 +240,14 @@ class CMBNNCSShowSimsPredExecutor(ShowSimsExecutor):
 
         self.in_cmb_map_sim: Asset = self.assets_in["cmb_map_sim"]
         self.in_cmb_map_pred: Asset = self.assets_in["cmb_map_pred"]
-        self.in_norm_file: Asset = self.assets_in["norm_file"]
+        self.in_dataset_stats: Asset = self.assets_in["dataset_stats"]
         in_cmb_map_sim_handler: HealpyMap
         in_cmb_map_pred_handler: NumpyMap
-        in_norm_file_handler: Config
+        in_dataset_stats_handler: Config
 
     def process_sim(self) -> None:
-        logger.debug(f"Reading norm_file from: {self.in_norm_file.path}")
-        scale_factors = self.in_norm_file.read()
+        logger.debug(f"Reading dataset_stats from: {self.in_dataset_stats.path}")
+        scale_factors = self.in_dataset_stats.read()
         for epoch in self.model_epochs:
             logger.info(f"Creating map figures predictions, model epoch {epoch}")
             with self.name_tracker.set_context('epoch', epoch):

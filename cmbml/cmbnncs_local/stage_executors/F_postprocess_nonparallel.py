@@ -33,9 +33,9 @@ class NonParallelPostprocessExecutor(BaseStageExecutor):
         self.out_cmb_asset: Asset = self.assets_out["cmb_map"]
         out_cmb_map_handler: HealpyMap
 
-        self.in_norm_file: Asset = self.assets_in["norm_file"]
+        self.in_dataset_stats: Asset = self.assets_in["dataset_stats"]
         self.in_cmb_asset: Asset = self.assets_in["cmb_map"]
-        in_norm_file_handler: Config
+        in_dataset_stats_handler: Config
         in_cmb_map_handler: NumpyMap
 
         # self.map_fields = cfg.scenario.map_fields
@@ -50,8 +50,8 @@ class NonParallelPostprocessExecutor(BaseStageExecutor):
         logger.info(f"Running {self.__class__.__name__} process_split() for split: {split.name}.")
         # At some point, TODO: implement this for varied epochs
         # logger.info(f"Running {self.__class__.__name__} process_split() for epoch: {self.name_tracker.context['epoch']}, split: {split.name}.")
-        logger.debug(f"Reading norm_file from: {self.in_norm_file.path}")
-        scale_factors = self.in_norm_file.read()
+        logger.debug(f"Reading dataset_stats from: {self.in_dataset_stats.path}")
+        scale_factors = self.in_dataset_stats.read()
         for sim in tqdm(split.iter_sims()):
             with self.name_tracker.set_context("sim_num", sim):
                 self.process_sim(scale_factors)

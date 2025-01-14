@@ -1,5 +1,5 @@
 # Goal: Create an Executor that loads all training patch IDs and shows a 
-#       heatmap of the distribution
+#       heatmap of the distribution, testing C_choose_patches.py
 
 import logging
 

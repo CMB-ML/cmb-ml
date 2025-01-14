@@ -1,12 +1,12 @@
 from .stage_executors.B_make_lut import MakeLutExecutor
 
-from .stage_executors.C_find_extrema_serial import FindExtremaSerialExecutor
-from .stage_executors.C_find_extrema_parallel import FindExtremaParallelExecutor
+from .stage_executors.C_find_dataset_stats_serial import FindDatasetStatsSerialExecutor
+from .stage_executors.C_find_dataset_stats_parallel import FindDatasetStatsParallelExecutor
 from .stage_executors.C_choose_patches import ChoosePatchesExecutor
 
 # After patches are chosen, we can demonstrate loading them
-from .stage_executors._0_try_show_patch import TryShowPatchExecutor
-from .stage_executors._1_try_show_patch_dist import TryShowPatchDistExecutor
+from .stage_executors._C0_try_show_patch import TryShowPatchExecutor
+from .stage_executors._C1_try_show_patch_dist import TryShowPatchDistExecutor
 
 from .stage_executors.D_preprocess_patches_serial import PreprocessPatchesExecutor
 

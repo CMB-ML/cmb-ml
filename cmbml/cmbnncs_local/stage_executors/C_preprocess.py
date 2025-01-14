@@ -54,11 +54,11 @@ class PreprocessExecutor(BaseStageExecutor):
         out_cmb_map_handler: NumpyMap
         out_obs_map_handler: NumpyMap
 
-        self.in_norm_file: Asset = self.assets_in["norm_file"]
+        self.in_dataset_stats: Asset = self.assets_in["dataset_stats"]
         self.in_cmb_asset: Asset = self.assets_in["cmb_map"]
         self.in_obs_assets: Asset = self.assets_in["obs_maps"]
         in_det_table: Asset  = self.assets_in['planck_deltabandpass']
-        in_norm_file_handler: Config
+        in_dataset_stats_handler: Config
         in_cmb_map_handler: HealpyMap
         in_obs_map_handler: HealpyMap
         in_det_table_handler: QTableHandler
@@ -83,7 +83,7 @@ class PreprocessExecutor(BaseStageExecutor):
         self.run_all_tasks(parallel_preprocess, tasks)
 
     def build_tasks(self):
-        scale_factors = self.in_norm_file.read()
+        scale_factors = self.in_dataset_stats.read()
         tasks = []
         for split in self.splits:
             for sim in split.iter_sims():

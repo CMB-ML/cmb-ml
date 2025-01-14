@@ -30,15 +30,24 @@ from cmbml.core import (
 from cmbml.core.A_check_hydra_configs import HydraConfigCheckerExecutor
 from cmbml.sims import MaskCreatorExecutor
 from cmbml.patch_nn_test import (
-    FindExtremaSerialExecutor,
-    FindExtremaParallelExecutor,
-    PreprocessPatchesExecutor,
+    MakeLutExecutor,
+
     ChoosePatchesExecutor,
     TryShowPatchExecutor,
     TryShowPatchDistExecutor,
-    MakeLutExecutor,
+
+    FindDatasetStatsSerialExecutor,
+    FindDatasetStatsParallelExecutor,
+    PreprocessPatchesExecutor,
+
+    TrainingTryDataloaderExecutor,
+    TrainingTryNetworkExecutor,
     TrainingExecutor,
-    PredictTryModelLoadExecutor
+    TrainingNoPreprocessExecutor,
+
+    PredictTryDataloaderExecutor,
+    PredictTryModelLoadExecutor,
+    PredictExectutor
     )
 
 from cmbml.analysis import (
@@ -73,34 +82,39 @@ def run_cmbnncs(cfg):
 
     pipeline_context.add_pipe(HydraConfigCheckerExecutor)
 
-    # pipeline_context.add_pipe(SerialPreprocessMakeExtremaExecutor)
-    # pipeline_context.add_pipe(PreprocessMakeExtremaExecutor)
+    pipeline_context.add_pipe(MakeLutExecutor)
 
-    # pipeline_context.add_pipe(MaskCreatorExecutor)
-    # pipeline_context.add_pipe(SnipConfigExecutor)
-    # pipeline_context.add_pipe(SerialSnipPatchesExecutor)
-    # pipeline_context.add_pipe(ShowPatchDistTestExecutor)
-    # pipeline_context.add_pipe(ShowPatchTestExecutor)
+    pipeline_context.add_pipe(MaskCreatorExecutor)
 
-    # TODO: Add these three stages
-    # pipeline_context.add_pipe(PreprocessMakeScaleExecutor)
-    # # # pipeline_context.add_pipe(NonParallelPreprocessExecutor)  # For demonstration only
-    # pipeline_context.add_pipe(PreprocessExecutor)
-# 
-    # pipeline_context.add_pipe(MakeLutExecutor)
+    pipeline_context.add_pipe(ChoosePatchesExecutor)
+    # pipeline_context.add_pipe(TryShowPatchExecutor)
+    # pipeline_context.add_pipe(TryShowPatchDistExecutor)
 
-    # pipeline_context.add_pipe(TrainingExecutor)
-    pipeline_context.add_pipe(PredictTryModelLoadExecutor)
+    # pipeline_context.add_pipe(FindDatasetStatsSerialExecutor)
+    pipeline_context.add_pipe(FindDatasetStatsParallelExecutor)
 
-    # Apply to the target (CMB realization)
+    pipeline_context.add_pipe(PreprocessPatchesExecutor)
+
+    # pipeline_context.add_pipe(TrainingTryDataloaderExecutor)
+    # pipeline_context.add_pipe(TrainingTryNetworkExecutor)
+
+    pipeline_context.add_pipe(TrainingExecutor)
+    # pipeline_context.add_pipe(TrainingNoPreprocessExecutor)
+
+    # pipeline_context.add_pipe(PredictTryDataloaderExecutor)
+    # pipeline_context.add_pipe(PredictTryModelLoadExecutor)
+
+    # # Comment/Uncomment as a group
+    pipeline_context.add_pipe(PredictExectutor)
+    # # Apply to the target (CMB realization)
     pipeline_context.add_pipe(CommonRealPostExecutor)
-
-    # Apply to CMBNNCS's predictions
+    # # Apply to CMBNNCS's predictions
     pipeline_context.add_pipe(CommonNNPredPostExecutor)
-
-    # Show results of cleaning
+    # # Show results of cleaning
     pipeline_context.add_pipe(CommonNNShowSimsPostExecutor)
-    # # pipeline_context.add_pipe(CommonCMBNNCSShowSimsPostIndivExecutor)
+
+    ## ????
+    # pipeline_context.add_pipe(CommonCMBNNCSShowSimsPostIndivExecutor)
 
     # pipeline_context.add_pipe(PixelAnalysisExecutor)
     # pipeline_context.add_pipe(PixelSummaryExecutor)

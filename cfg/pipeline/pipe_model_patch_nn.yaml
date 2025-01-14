@@ -46,7 +46,7 @@ try_show_patch_dist:  # Demonstration of which patches are extracted (test = con
 
 get_dataset_stats:
   assets_out:
-    norm_file: 
+    dataset_stats: 
       handler: Config
       path_template: "{root}/{dataset}/{working}{stage}/feature_stats.yaml"
   assets_in:
@@ -68,7 +68,7 @@ prep_patches:
     cmb_map: {stage: make_sims}
     obs_maps: {stage: make_sims}
     lut: {stage: make_lut}
-    norm_file: {stage: get_dataset_stats}
+    dataset_stats: {stage: get_dataset_stats}
     patch_id: {stage: choose_patches}
   dir_name: PatchNN_D_Preprocessing
   splits:
@@ -86,7 +86,7 @@ train:
   assets_in:
     cmb_map: {stage: prep_patches}
     obs_maps: {stage: prep_patches}
-    norm_file: {stage: get_dataset_stats}
+    dataset_stats: {stage: get_dataset_stats}
     model: {stage: train}
   splits:
     - train
@@ -103,7 +103,7 @@ train_no_preprocess:
     cmb_map: {stage: make_sims}
     obs_maps: {stage: make_sims}
     lut: {stage: make_lut}
-    norm_file: {stage: get_dataset_stats}
+    dataset_stats: {stage: get_dataset_stats}
     model: {stage: train}
     patch_dict: {stage: choose_patches, orig_name: all_ids}
   splits:
@@ -121,7 +121,7 @@ predict: &final_inference
   assets_in:
     obs_maps: {stage: make_sims}
     lut: {stage: make_lut}
-    norm_file: {stage: get_dataset_stats}
+    dataset_stats: {stage: get_dataset_stats}
     model: {stage: train}
   splits:
     - ${splits.run_inference_on}
