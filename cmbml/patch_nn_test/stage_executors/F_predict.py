@@ -57,7 +57,7 @@ class PredictExectutor(BasePyTorchModelExecutor):
     def execute(self) -> None:
         logger.debug(f"Running {self.__class__.__name__} execute()")
         self.load_lut()
-        self.get_dataset_stats()
+        self.load_dataset_stats()
 
         # It would likely be safer to have this within the loop, right before read()
         #    But this should work and be faster (especially with larger models)
@@ -77,7 +77,7 @@ class PredictExectutor(BasePyTorchModelExecutor):
     def load_lut(self) -> None:
         self.lut = self.in_lut_asset.read()
 
-    def get_dataset_stats(self) -> None:
+    def load_dataset_stats(self) -> None:
         # TODO: Use a class to better handle scaling/normalization
         if self.scaling == "minmax":
             self.dataset_stats = self.in_dataset_stats.read()
