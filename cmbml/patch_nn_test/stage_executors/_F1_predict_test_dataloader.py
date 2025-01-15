@@ -50,13 +50,13 @@ class PredictTryDataloaderExecutor(BasePyTorchModelExecutor):
 
     def execute(self) -> None:
         logger.debug(f"Running {self.__class__.__name__} execute()")
-        self.get_dataset_stats()
+        self.load_dataset_stats()
 
         for split in self.splits:
             with self.name_tracker.set_contexts(contexts_dict={"split": split.name}):
                 self.process_split(split)
 
-    def get_dataset_stats(self) -> None:
+    def load_dataset_stats(self) -> None:
         # TODO: Use a class to better handle scaling/normalization
         if self.scaling == "minmax":
             self.dataset_stats = self.in_dataset_stats.read()
