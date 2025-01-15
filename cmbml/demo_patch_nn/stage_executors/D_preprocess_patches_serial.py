@@ -14,7 +14,7 @@ from cmbml.core.asset_handlers import Config    # Import for typing hint
 from cmbml.core.asset_handlers.healpy_map_handler import HealpyMap  # Import for typing hint
 from cmbml.core.asset_handlers.handler_npymap import NumpyMap
 from cmbml.utils.map_fields_helper import map_field_str2int
-from cmbml.patch_nn_test.utils.minmax_scale import minmax_scale
+from cmbml.demo_patch_nn.utils.minmax_scale import minmax_scale
 
 
 logger = logging.getLogger(__name__)

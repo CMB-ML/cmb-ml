@@ -13,11 +13,11 @@ import healpy as hp
 from cmbml.core import Split, Asset
 from cmbml.core.executor_base import BaseStageExecutor
 from cmbml.core.asset_handlers import Config, PyTorchModel, HealpyMap, NumpyMap
-from cmbml.patch_nn_test.dataset import TrainCMBMap2PatchDataset
+from cmbml.demo_patch_nn.dataset import TrainCMBMap2PatchDataset
 from cmbml.utils.planck_instrument import make_instrument, Instrument
-from cmbml.patch_nn_test.utils.display_help import show_patch
-from cmbml.patch_nn_test.stage_executors._pytorch_executor_base import BasePyTorchModelExecutor
-from cmbml.patch_nn_test.utils.minmax_scale import MinMaxScaler
+from cmbml.demo_patch_nn.utils.display_help import show_patch
+from cmbml.demo_patch_nn.stage_executors._pytorch_executor_base import BasePyTorchModelExecutor
+from cmbml.demo_patch_nn.utils.minmax_scale import MinMaxScaler
 
 
 logger = logging.getLogger(__name__)
