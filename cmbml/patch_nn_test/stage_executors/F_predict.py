@@ -48,7 +48,7 @@ class PredictExectutor(BasePyTorchModelExecutor):
 
         self.choose_device(cfg.model.patch_nn.test.device)
         self.batch_size = cfg.model.patch_nn.test.batch_size
-        self.lut = self.in_lut_asset.read()
+        self.lut = None
         self.dtype = self.dtype_mapping[cfg.model.patch_nn.dtype]
 
         self.model = None  # Placeholder for model
@@ -56,6 +56,7 @@ class PredictExectutor(BasePyTorchModelExecutor):
 
     def execute(self) -> None:
         logger.debug(f"Running {self.__class__.__name__} execute()")
+        self.load_lut()
         self.get_dataset_stats()
 
         # It would likely be safer to have this within the loop, right before read()
@@ -72,6 +73,9 @@ class PredictExectutor(BasePyTorchModelExecutor):
                     with self.name_tracker.set_contexts(context_dict):
                         self.in_model_asset.read(model=self.model, epoch=model_epoch)
                         self.process_split(split)
+
+    def load_lut(self) -> None:
+        self.lut = self.in_lut_asset.read()
 
     def get_dataset_stats(self) -> None:
         # TODO: Use a class to better handle scaling/normalization
