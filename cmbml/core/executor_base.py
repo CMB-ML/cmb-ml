@@ -17,6 +17,16 @@ logger = logging.getLogger(__name__)
 
 
 class BaseStageExecutor(ABC):
+    """
+    Each stage of the pipeline has an Executor. The executors contain:
+    - The configuration for the stage
+    - The assets in and out for the stage
+    - The splits that the stage applies to
+    - The method to execute the stage
+
+    The Executor is an abstract class that must be subclassed for each stage of the pipeline.
+    Many parameters are common to all executors; this base class provides a common interface for them.
+    """
     def __init__(self, cfg, stage_str):
         self.cfg: DictConfig = cfg
         self.stage_str: str = stage_str
