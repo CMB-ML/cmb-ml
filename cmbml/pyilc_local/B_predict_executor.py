@@ -30,12 +30,12 @@ class PredictionExecutor(BaseStageExecutor):
         self.out_cmb_asset: Asset = self.assets_out["cmb_map"]
         out_config_handler: Config
         out_model_handler: EmptyHandler
-        out_cmb_map_handler: HealpyMap  # Switch to EmptyHandler?
+        out_cmb_map_handler: HealpyMap
 
         self.in_obs_assets: Asset = self.assets_in["obs_maps"]
         self.in_mask: Asset = self.assets_in.get("mask", None)
         self.in_planck_deltabandpass: Asset = self.assets_in["planck_deltabandpass"]
-        in_obs_handler: HealpyMap  # Switch to EmptyHandler?
+        in_obs_handler: HealpyMap
         in_planck_deltabandpass_handler: QTableHandler
 
         in_det_table: Asset = self.assets_in['planck_deltabandpass']
