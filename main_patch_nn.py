@@ -29,7 +29,7 @@ from cmbml.core import (
                       )
 from cmbml.core.A_check_hydra_configs import HydraConfigCheckerExecutor
 from cmbml.sims import MaskCreatorExecutor
-from cmbml.patch_nn_test import (
+from cmbml.demo_patch_nn import (
     MakeLutExecutor,
 
     ChoosePatchesExecutor,

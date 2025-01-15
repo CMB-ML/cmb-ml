@@ -9,7 +9,7 @@ from cmbml.core.asset_handlers.asset_handlers_base import PlainText
 from cmbml.core.asset_handlers.qtable_handler import QTableHandler # Import to register handler
 from cmbml.core.asset_handlers.healpy_map_handler import HealpyMap # Import for typing hint
 from cmbml.utils.patch_healpix import get_patch_pixels
-from cmbml.patch_nn_test.utils.display_help import show_patch
+from cmbml.demo_patch_nn.utils.display_help import show_patch
 
 
 logger = logging.getLogger(__name__)
