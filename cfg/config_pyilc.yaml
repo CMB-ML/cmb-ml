@@ -10,8 +10,8 @@ defaults:
   - override hydra/job_logging: custom_log
 
 # dataset_name   : ${scenario.map_fields}_${scenario.nside}_${splits.name}
-dataset_name   : I_512_1450_new_noise
-working_dir    : "PyILC_CNILC/"
+dataset_name   : I_512_1450
+working_dir    : "PyILC_CNILC_test/"
 fig_model_name : "CNILC"
 hydra:
   run:
