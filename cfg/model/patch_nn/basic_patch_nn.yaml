@@ -1,7 +1,7 @@
 # Consistent properties for all stages:
 dtype     : float
-# scaling   : null  # minmax or null
-scaling   : minmax  # minmax or null
+scaling   : null  # minmax or null
+# scaling   : minmax  # minmax or null
 
 preprocess:
   n_workers : 20
@@ -19,7 +19,7 @@ train:
 
   # Epochs
   n_epochs          : ${num_epochs}
-  restart_epoch     : init  # Set to null to create a new model, or give a checkpoint number
+  restart_epoch     : null  # Set to null to create a new model, or give a checkpoint number
 
   # Checkpointing
   checkpoint_every  : 5     # checkpoint every this number of epochs
