@@ -82,18 +82,20 @@ def run_cmbnncs(cfg):
 
     pipeline_context.add_pipe(HydraConfigCheckerExecutor)
 
-    pipeline_context.add_pipe(MakeLutExecutor)
+    # ########################### ALREADY RAN
+    # pipeline_context.add_pipe(MakeLutExecutor)
 
-    pipeline_context.add_pipe(MaskCreatorExecutor)
+    # pipeline_context.add_pipe(MaskCreatorExecutor)
 
-    pipeline_context.add_pipe(ChoosePatchesExecutor)
-    # pipeline_context.add_pipe(TryShowPatchExecutor)
-    # pipeline_context.add_pipe(TryShowPatchDistExecutor)
+    # pipeline_context.add_pipe(ChoosePatchesExecutor)
+    # # pipeline_context.add_pipe(TryShowPatchExecutor)
+    # # pipeline_context.add_pipe(TryShowPatchDistExecutor)
 
-    # pipeline_context.add_pipe(FindDatasetStatsSerialExecutor)
-    pipeline_context.add_pipe(FindDatasetStatsParallelExecutor)
+    # # pipeline_context.add_pipe(FindDatasetStatsSerialExecutor)
+    # pipeline_context.add_pipe(FindDatasetStatsParallelExecutor)
 
-    pipeline_context.add_pipe(PreprocessPatchesExecutor)
+    # pipeline_context.add_pipe(PreprocessPatchesExecutor)
+    # ########################### ALREADY RAN
 
     # pipeline_context.add_pipe(TrainingTryDataloaderExecutor)
     # pipeline_context.add_pipe(TrainingTryNetworkExecutor)
