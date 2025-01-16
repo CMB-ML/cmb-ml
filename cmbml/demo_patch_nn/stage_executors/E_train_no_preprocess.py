@@ -155,6 +155,7 @@ class TrainingNoPreprocessExecutor(BasePyTorchModelExecutor):
             which_patch_dict = self.get_patch_dict()
 
         features_transform = None
+        labels_transform = None
         if self.scaling == "minmax":
             vmins = np.array([self.dataset_stats[f]["I"]["vmin"].value for f in self.instrument.dets.keys()])
             vmaxs = np.array([self.dataset_stats[f]["I"]["vmax"].value for f in self.instrument.dets.keys()])
