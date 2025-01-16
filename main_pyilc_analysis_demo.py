@@ -49,7 +49,7 @@ from cmbml.analysis import   (
                             MakeTheoryPSStats,
                             PyILCMakePSExecutor,
                             PixelSummaryFigsExecutor,
-                            PSAnalysisExecutor,
+                            PowerSpectrumAnalysisExecutor,
                             PowerSpectrumSummaryExecutor,
                             PowerSpectrumSummaryFigsExecutor,
                             ShowOnePSExecutor,
