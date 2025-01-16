@@ -156,6 +156,6 @@ class CMBNNCSMakePSExecutor(MakePredPowerSpectrumExecutor):
     def __init__(self, cfg: DictConfig) -> None:
         super().__init__(cfg, "beam_cmbnncs")
 
-class NNMakePSExecutor(MakePredPowerSpectrumExecutor):
+class NNMakePowerSpectrumExecutor(MakePredPowerSpectrumExecutor):
     def __init__(self, cfg: DictConfig) -> None:
         super().__init__(cfg, "beam_nn")

@@ -49,7 +49,7 @@ from cmbml.analysis import   (
                             MakeTheoryPSStats,
                             PyILCMakePSExecutor,
                             PixelSummaryFigsExecutor,
-                            PSAnalysisExecutor,
+                            PowerSpectrumAnalysisExecutor,
                             PowerSpectrumSummaryExecutor,
                             PowerSpectrumSummaryFigsExecutor,
                             ShowOnePSExecutor,
@@ -90,7 +90,7 @@ def run_pyilc_analysis(cfg):
     # PyILC's Predictions as Power Spectra Anaylsis
     pipeline_context.add_pipe(PyILCMakePSExecutor)
     # # pipeline_context.add_pipe(ShowOnePSExecutor)  # Used for debugging; does not require full set of theory ps for simulations
-    pipeline_context.add_pipe(PSAnalysisExecutor)
+    pipeline_context.add_pipe(PowerSpectrumAnalysisExecutor)
     pipeline_context.add_pipe(PowerSpectrumSummaryExecutor)
     pipeline_context.add_pipe(PowerSpectrumSummaryFigsExecutor)
     pipeline_context.add_pipe(PostAnalysisPsFigExecutor)

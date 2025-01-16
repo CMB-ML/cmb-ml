@@ -32,7 +32,7 @@ class TaskTarget(NamedTuple):
     epoch: int
 
 
-class PSAnalysisExecutor(BaseStageExecutor):
+class PowerSpectrumAnalysisExecutor(BaseStageExecutor):
     def __init__(self, cfg: DictConfig) -> None:
         # The following string must match the pipeline yaml
         super().__init__(cfg, stage_str="ps_analysis")
