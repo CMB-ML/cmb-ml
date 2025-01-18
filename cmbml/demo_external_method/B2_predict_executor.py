@@ -31,9 +31,9 @@ class PredictionExecutor(BaseStageExecutor):
 
         self.in_obs_assets: Asset = self.assets_in["obs_maps"]
         self.in_mask: Asset = self.assets_in.get("mask", None)
-        self.in_planck_deltabandpass: Asset = self.assets_in["planck_deltabandpass"]
+        self.in_deltabandpass: Asset = self.assets_in["deltabandpass"]
         in_obs_handler: HealpyMap
-        in_planck_deltabandpass_handler: QTableHandler
+        in_deltabandpass_handler: QTableHandler
 
         # Pull some parameters from the config
         self.my_paramA = cfg.model.my_method.paramA
@@ -41,7 +41,7 @@ class PredictionExecutor(BaseStageExecutor):
         self.my_paramC = cfg.model.my_method.paramC
 
         # For example, the channels and fwhms are likely to be needed parameters
-        in_det_table: Asset = self.assets_in['planck_deltabandpass']
+        in_det_table: Asset = self.assets_in['deltabandpass']
         with self.name_tracker.set_context('src_root', cfg.local_system.assets_dir):
             det_info = in_det_table.read()
         self.instrument: Instrument = make_instrument(cfg=cfg)

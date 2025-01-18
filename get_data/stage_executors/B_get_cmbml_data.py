@@ -7,13 +7,13 @@ from omegaconf import DictConfig
 from tqdm import tqdm
 
 from cmbml.core import BaseStageExecutor, Asset
-from cmbml.core.asset_handlers.asset_handlers_base import Config
-from cmbml.utils.planck_instrument import make_instrument, Instrument
-from cmbml.core.asset_handlers.healpy_map_handler import HealpyMap
-from cmbml.core.asset_handlers.qtable_handler import QTableHandler
+from cmbml.core.asset_handlers import Config, HealpyMap
+# from cmbml.utils.planck_instrument import make_instrument, Instrument
+# from cmbml.core.asset_handlers.healpy_map_handler import HealpyMap
+# from cmbml.core.asset_handlers.qtable_handler import QTableHandler
 
-from get_data.utils.get_planck_data_ext import get_planck_obs_data_ext
-from get_data.utils.get_wmap_data_ext import get_wmap_chains_ext
+# from get_data.utils.get_planck_data_ext import get_planck_obs_data_ext
+# from get_data.utils.get_wmap_data_ext import get_wmap_chains_ext
 from get_data.utils.box_download_utils import make_url_from_shared_link, download_file, extract_tar_file
 from get_data.utils.get_sha import calculate_sha1
 
@@ -27,7 +27,7 @@ class GetFromBoxBaseExecutor(BaseStageExecutor):
     """
     def __init__(self, cfg: DictConfig, stage_str:str) -> None:
         # The following stage_str must match the pipeline yaml
-        super().__init__(cfg, stage_str=stage_str)
+        super().__init__(cfg, stage_str='download_sims')
 
         self.temp_tar_dir: Asset = self.assets_out['temp_tar_dir']
         self.dataset_dir:  Asset = self.assets_out['dataset_dir']
@@ -38,7 +38,8 @@ class GetFromBoxBaseExecutor(BaseStageExecutor):
         in_links: Config
 
         if not self.in_shared_links.path.exists():
-            raise FileNotFoundError(f"Shared links file not found at {self.in_shared_links.path}.")
+            raise FileNotFoundError(f"Shared links file not found at {self.in_shared_links.path}. " \
+                                    "Please be sure that it's been copied from '<this_repo>/assets/CMB-ML'")
 
         self.shared_links = None  # This will be loaded in the execute method
 
@@ -112,7 +113,7 @@ class GetDatasetExecutor(GetFromBoxBaseExecutor):
 
     def execute(self) -> None:
         """
-        Executes the noise cache generation process.
+        Downloads the dataset.
         """
         logger.debug(f"Running {self.__class__.__name__} execute() method.")
         self.shared_links = self.in_shared_links.read()
@@ -127,7 +128,7 @@ class GetDatasetExecutor(GetFromBoxBaseExecutor):
 
 class GetNoiseModelExecutor(GetFromBoxBaseExecutor):
     """
-    GetAssetsExecutor downloads assets needed for running CMB-ML.
+    GetAssetsExecutor downloads assets needed for the noise model.
     """
     def __init__(self, cfg: DictConfig) -> None:
         # The following stage_str must match the pipeline yaml
@@ -135,7 +136,9 @@ class GetNoiseModelExecutor(GetFromBoxBaseExecutor):
 
     def execute(self) -> None:
         """
-        Executes the noise cache generation process.
+        Downloads summary files for the noise model. Those can be regenerated instead, using
+        cmbml/sims/D_make_average_map -> MakePlanckAverageNoiseExecutor
+        cmbml/sims/E_make_noise_models -> MakePlanckNoiseModelExecutor
         """
         logger.debug(f"Running {self.__class__.__name__} execute() method.")
         self.shared_links = self.in_shared_links.read()

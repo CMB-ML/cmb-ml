@@ -60,6 +60,7 @@ class SpatialCorrNoise:
         context = dict(freq=freq, n_sims=self.n_planck_noise_sims)
         with self.name_tracker.set_contexts(context):
             self.load_avg_maps(freq)
+            map_fn = self.in_scale_cache.path
             sd_map = self.in_scale_cache.read()
             target_cl, tgt_unit = self.get_noise_ps_and_unit(noise_seed)
 

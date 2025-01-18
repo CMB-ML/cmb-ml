@@ -27,7 +27,7 @@ class TryShowPatchExecutor(BaseStageExecutor):
         self.in_cmb_map: Asset = self.assets_in['cmb_map']
         self.in_obs_maps: Asset = self.assets_in['obs_maps']
         in_patch_id_handler: PlainText
-        in_det_table: Asset  = self.assets_in['planck_deltabandpass']
+        in_det_table: Asset  = self.assets_in['deltabandpass']
         in_det_table_handler: QTableHandler
 
         det_info = in_det_table.read()

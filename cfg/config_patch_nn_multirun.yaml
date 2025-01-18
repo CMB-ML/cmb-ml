@@ -14,12 +14,13 @@ defaults:
 # When creating multiple datasets, using interpolation like this may be easier:
 # dataset_name       : ${scenario.map_fields}_${scenario.nside}_${splits.name}
 dataset_name       : I_512_1450
-working_dir        : "PatchNN_no_scaling_${junk_seed}/"
+working_dir        : "PatchNN_${model.patch_nn.scaling}_${junk_seed}/"
 fig_model_name     : PatchNN
 hydra:
   mode            : MULTIRUN
   sweeper:
     params:
+      model.patch_nn.scaling: minmax, null
       junk_seed: 1, 2, 3, 4, 5
   run:
     dir            : Logs/${now:%Y-%m-%d-%H-%M-%S}

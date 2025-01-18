@@ -58,7 +58,7 @@ class NoiseMapCreatorExecutor(BaseStageExecutor):
         out_noise_maps_handler: HealpyMap
 
         self.in_noise_cache: Asset = self.assets_in['scale_cache']
-        in_det_table: Asset = self.assets_in['planck_deltabandpass']
+        in_det_table: Asset = self.assets_in['deltabandpass']
         in_noise_cache_handler: Union[HealpyMap, NumpyPowerSpectrum]
         in_det_table_handler: QTableHandler
 

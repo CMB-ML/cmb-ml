@@ -7,9 +7,9 @@ from astropy import units as u
 
 
 class ILCConfigMaker:
-    def __init__(self, cfg, planck_deltabandpass, use_dets=None) -> None:
+    def __init__(self, cfg, deltabandpass, use_dets=None) -> None:
         self.cfg = cfg
-        self.planck_deltabandpass = planck_deltabandpass
+        self.deltabandpass = deltabandpass
         self.use_dets = use_dets
         self.detector_freqs: List[int] = None
         self.bandwidths: List[float] = None
@@ -25,7 +25,7 @@ class ILCConfigMaker:
             detector_freqs = self.use_dets
         band_strs = {det: f"{det}" for det in detector_freqs}
         
-        table = self.planck_deltabandpass
+        table = self.deltabandpass
         fwhm_s = {det: table.loc[det_str]["fwhm"] for det, det_str in band_strs.items()}
         
         sorted_det_bandwidths = sorted(fwhm_s.items(), key=lambda item: item[1], reverse=True)

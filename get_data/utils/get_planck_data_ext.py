@@ -1,9 +1,6 @@
 from pathlib import Path
-import requests
 import logging
 
-import numpy as np
-from tqdm import tqdm
 from get_data.utils.new_download_utils import (
     download,
     download_progress,
@@ -94,7 +91,7 @@ def get_planck_noise_fn(detector, realization):
 
 def get_planck_noise_data_ext(detector, assets_directory, realization=0, progress=False):
     """
-    Get the filename for the Planck noise data, downloading it if necessary.
+    Get the filepath for the Planck noise data, downloading it if necessary.
 
     Parameters
     ----------
@@ -118,20 +115,32 @@ def get_planck_noise_data_ext(detector, assets_directory, realization=0, progres
     return fn
 
 
-def get_planck_pred_data_ext(detector, assets_directory, realization=0):
+def get_planck_pred_data_ext(assets_directory, fn=None, file_size=None, progress=False):
     """
-    Get the filename for the Planck noise data, downloading it if necessary.
+    Get the filepath for the Planck's prediction map, downloading it if necessary.
 
     Parameters
     ----------
-    realization : int
-        The realization number for the noise map. Default is 0. There are 300 available.
-    """
-    planck_noise_fn_template = "COM_CMB_IQU-nilc_2048_R3.00_full.fits"
-    url_template_sims = "http://pla.esac.esa.int/pla/aio/product-action?MAP.MAP_ID={fn}"
+    assets_directory : str
+        The directory to save the prediction map.
+    fn : str
+        The filename of the prediction map. Default is the NILC prediction, "COM_CMB_IQU-nilc_2048_R3.00_full.fits".
 
-    fn = planck_noise_fn_template.format(frequency=format_freq(detector), 
-                                         realization=format_real(realization))
-    fn = Path(assets_directory) / fn
-    download(fn, url_template_sims)
-    return fn
+    Returns
+    -------
+    Path
+        The filepath to the prediction map.
+    """
+    if fn is None:
+        fn = "COM_CMB_IQU-nilc_2048_R3.00_full.fits"
+    if fn == "COM_CMB_IQU-nilc_2048_R3.00_full.fits" and file_size is None:
+        file_size = 1535  # size of file on local system (MB)
+
+    url_template = "http://pla.esac.esa.int/pla/aio/product-action?MAP.MAP_ID={fn}"
+
+    dest_fp = Path(assets_directory) / fn
+    if progress:
+        download_progress(dest_fp, url_template, file_size=file_size)
+    else:
+        download(dest_fp, url_template)
+    return dest_fp

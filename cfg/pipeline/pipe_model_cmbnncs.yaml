@@ -20,7 +20,7 @@ preprocess:
     dataset_stats: {stage: make_normalization}
     cmb_map: {stage: make_sims}
     obs_maps: {stage: make_sims}
-    planck_deltabandpass: {stage: raw}
+    deltabandpass: {stage: raw}
   splits: &all_splits
     - train
     - valid
@@ -82,7 +82,7 @@ show_cmb_pred_cmbnncs:
     dataset_stats: {stage: make_normalization}
     cmb_map_pred: {stage: predict, orig_name: cmb_map}
     cmb_map_sim: {stage: make_sims, orig_name: cmb_map}
-    planck_deltabandpass: {stage: raw}
+    deltabandpass: {stage: raw}
   splits:
     - ${splits.run_inference_on}
   override_n_sims: ${n_show_cap}
@@ -106,7 +106,7 @@ show_sims_prep_cmbnncs:
     cmb_map_prep: {stage: preprocess, orig_name: cmb_map}
     obs_maps_sim: {stage: make_sims, orig_name: obs_maps}
     obs_maps_prep: {stage: preprocess, orig_name: obs_maps}
-    planck_deltabandpass: {stage: raw}
+    deltabandpass: {stage: raw}
   splits:
     - train
   override_n_sims: ${n_show_cap}

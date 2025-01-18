@@ -1,3 +1,11 @@
+import sys
+import os
+
+# Get the root of the repository
+script_dir = os.path.dirname(os.path.abspath(__file__))
+repo_root = os.path.abspath(os.path.join(script_dir, ".."))
+sys.path.insert(0, repo_root)
+
 import logging
 import hydra
 from cmbml.core import PipelineContext, LogMaker

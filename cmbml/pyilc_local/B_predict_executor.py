@@ -34,13 +34,13 @@ class PredictionExecutor(BaseStageExecutor):
 
         self.in_obs_assets: Asset = self.assets_in["obs_maps"]
         self.in_mask: Asset = self.assets_in.get("mask", None)
-        self.in_planck_deltabandpass: Asset = self.assets_in["planck_deltabandpass"]
+        self.in_deltabandpass: Asset = self.assets_in["deltabandpass"]
         in_obs_handler: HealpyMap
-        in_planck_deltabandpass_handler: QTableHandler
+        in_deltabandpass_handler: QTableHandler
 
-        in_det_table: Asset = self.assets_in['planck_deltabandpass']
+        in_det_table: Asset = self.assets_in['deltabandpass']
         # with self.name_tracker.set_context("src_root", cfg.local_system.assets_dir):
-        #     planck_bandpass = self.in_planck_deltabandpass.read()
+        #     planck_bandpass = self.in_deltabandpass.read()
         with self.name_tracker.set_context('src_root', cfg.local_system.assets_dir):
             det_info = in_det_table.read()
 
