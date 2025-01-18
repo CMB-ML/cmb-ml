@@ -11,7 +11,7 @@ predict: &final_inference
       path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/cmb_pred.fits"
   assets_in:
     obs_maps: {stage: make_sims}
-    planck_deltabandpass: {stage: raw}
+    deltabandpass: {stage: raw}
     mask: {stage: make_mask}  # Remove or set to null for no masking
   splits:
     - ${splits.run_inference_on}

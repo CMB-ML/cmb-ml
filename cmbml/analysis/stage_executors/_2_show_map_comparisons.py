@@ -50,7 +50,7 @@ class ShowSimsExecutor(BaseStageExecutor):
             # TODO: Can I ABC this?
             raise NotImplementedError("This is a base class.")
 
-        in_det_table: Asset  = self.assets_in['planck_deltabandpass']
+        in_det_table: Asset  = self.assets_in['deltabandpass']
         in_det_table_handler: QTableHandler
         det_info = in_det_table.read()
         self.instrument: Instrument = make_instrument(cfg=cfg, det_info=det_info)

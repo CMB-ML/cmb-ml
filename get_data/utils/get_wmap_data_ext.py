@@ -26,6 +26,8 @@ def get_wmap_chains_ext(assets_directory, mnu=True, progress=False):
     else:
         download(dest_path, url_template_maps)
 
+    logger.info("Files downloaded. Extracting...")
+
     extract_file(dest_path)
 
     return dest_path

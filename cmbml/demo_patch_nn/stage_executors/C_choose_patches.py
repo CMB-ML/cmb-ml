@@ -52,7 +52,7 @@ class ChoosePatchesExecutor(BaseStageExecutor):
         self.in_mask: Asset = self.assets_in['mask']
         in_mask_handler: HealpyMap
 
-        in_det_table: Asset  = self.assets_in['planck_deltabandpass']
+        in_det_table: Asset  = self.assets_in['deltabandpass']
         in_det_table_handler: QTableHandler
 
         det_info = in_det_table.read()

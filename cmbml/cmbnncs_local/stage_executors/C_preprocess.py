@@ -57,7 +57,7 @@ class PreprocessExecutor(BaseStageExecutor):
         self.in_dataset_stats: Asset = self.assets_in["dataset_stats"]
         self.in_cmb_asset: Asset = self.assets_in["cmb_map"]
         self.in_obs_assets: Asset = self.assets_in["obs_maps"]
-        in_det_table: Asset  = self.assets_in['planck_deltabandpass']
+        in_det_table: Asset  = self.assets_in['deltabandpass']
         in_dataset_stats_handler: Config
         in_cmb_map_handler: HealpyMap
         in_obs_map_handler: HealpyMap

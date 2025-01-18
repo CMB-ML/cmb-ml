@@ -17,7 +17,7 @@ choose_patches:
       handler: PlainText
       path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/patch_id.txt"
   assets_in:
-    planck_deltabandpass: {stage: raw}
+    deltabandpass: {stage: raw}
     mask: {stage: make_mask}
   dir_name: PatchNN_C_PreprocessingPrep
   splits:
@@ -29,7 +29,7 @@ try_show_patch:  # Demonstration of how a patch is extracted (confirmation that 
     patch_id: {stage: choose_patches}
     cmb_map: {stage: make_sims}
     obs_maps: {stage: make_sims}
-    planck_deltabandpass: {stage: raw}
+    deltabandpass: {stage: raw}
   splits:
     - train
   dir_name: PatchNN_0_Test_Patch  # Not used

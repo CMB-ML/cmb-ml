@@ -6,9 +6,9 @@ from astropy import units as u
 
 
 class ConfigMaker:
-    def __init__(self, cfg, planck_deltabandpass, use_dets=None) -> None:
+    def __init__(self, cfg, deltabandpass, use_dets=None) -> None:
         self.cfg = cfg
-        self.planck_deltabandpass = planck_deltabandpass
+        self.deltabandpass = deltabandpass
         self.use_dets = use_dets
         self.detector_freqs: List[int] = None
         self.bandwidths: List[float] = None
@@ -25,11 +25,11 @@ class ConfigMaker:
         """
         # Pull the detector frequencies from the config
         detector_freqs = self.cfg.scenario.detector_freqs
-        # Convert to strings for lookup in the planck_deltabandpass table
+        # Convert to strings for lookup in the deltabandpass table
         band_strs = {det: f"{det}" for det in detector_freqs}
         
-        # Get the FWHM values from the planck_deltabandpass table
-        table = self.planck_deltabandpass
+        # Get the FWHM values from the deltabandpass table
+        table = self.deltabandpass
         fwhm_s = {det: table.loc[det_str]["fwhm"] for det, det_str in band_strs.items()}
         
         # Sort the detectors by bandwidth

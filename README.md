@@ -107,7 +107,7 @@ Setting up the repository:
     - Move the CMB-ML folder (including the file within), to the assets directory (`assets_dir`) defined in local_system yaml.
 - Next, set up to run.
   - You will need to either generate simulations or download them. 
-  - We provide a tiny demonstration dataset in this repository. 
+   - We provide a tiny demonstration dataset in this repository. 
     - It is suitable for running PyILC's CNILC prediction method, and for confirming that data appears as it should when running simulations
     - Unfortunately, the CMBNNCS model is too large, so it cannot be transferred by GitHub
 
@@ -118,11 +118,11 @@ Setting up the repository:
 - When generating simulations for the first time, [PySM3](https://pysm3.readthedocs.io/en/latest/) relies on [astropy](https://www.astropy.org/) to download and cache template maps.
   - These will be stored in an `.astropy` directory.
   - Downloading templates is sometimes interrupted resulting in an error and the code crashing. It is annoying and beyond our control. However, because the templates are cached, the pipeline can be resumed and will proceed smoothly.
-
+<!-- 
 ## For CMB_ML_512_1-1
 
 This is a demonstration dataset. It is suitable for comparing simulation output and running PyILC demonstration only.
-- Transfer the contents of the `assets/demo_simulation` folder to your `dataset_root` folder, as set up above
+- Transfer the contents of the `assets/demo_simulation` folder to your `dataset_root` folder, as set up above (REMOVED - LARGE FILES)
 - Run `main_pyilc_predict_demo.py` to perform CMB cleaning
 - Run `main_pyilc_analysis_demo.py` to get analysis results
   - Note that the output figure for the power spectrum will be slightly different, as you do not have the bank of theory spectra.
@@ -130,15 +130,17 @@ This is a demonstration dataset. It is suitable for comparing simulation output 
 - Run `main_sims_demo.py` to generate a new simulation; results should be comparable to the included demo (slight differences may occur in the CMB map, as this may have a different seed)
   - This will take quite a while the first time. Astropy will download component templates in the background.
   - Download errors may result; simply restart the process a few times.
-  - This is only for the first time. Subsequent runs will proceed more quickly. If time is of the essence, remove `preset_strings` from the [sim config](cfg/config_sim_demo.yaml).
+  - This is only for the first time. Subsequent runs will proceed more quickly. If time is of the essence, remove `preset_strings` from the [sim config](cfg/config_sim_demo.yaml). -->
 
-## For CMB_ML_512_1450 (Simulations must be generated)
+## For CMB_ML_512_1450
 
 - Download CMB_ML_512_1450
-  - [Script for downloading CMB_ML_512_1450](./get_data/get_box_CMB_ML_512_1450.py)
-  - `python ./get_data/get_box_CMB_ML_512_1450.py`
-  - Files are visible at this (disabled) [Box link for CMB_ML_512_1450](https://somewhere.box.com/v/cmb-ml-512-1450)
+  - [Script for downloading CMB_ML_512_1450](./get_data/get_dataset.py)
+  - `python ./get_data/get_dataset.py`
+  - Files are visible at this [Box link for CMB_ML_512_1450](https://utdallas.box.com/v/cmb-ml-512-1450)
   - Alternatively, to generate simulations, use `python main_sims.py`
+- To train, predict, and run analysis with the demonstration UNet model
+  - `python main_patch_nn.py`
 - To train, predict, and run analysis using CMBNNCS
   - `python main_cmbnncs.py`
 - To predict using PyILC (this must be performed separately from analysis due to import issues)
@@ -148,7 +150,7 @@ This is a demonstration dataset. It is suitable for comparing simulation output 
 - To compare results between CMBNNCS and PyILC
   - `python main_analysis_compare.py`
 
-## For CMB_ML_128_1450 (Simulations must be generated)
+<!-- ## For CMB_ML_128_1450
 
 This will run more quickly than the higher resolution.
 
@@ -164,7 +166,7 @@ This will run more quickly than the higher resolution.
     - `python main_pyilc_analysis.py dataset_name=CMB_ML_128_1450 nside=128 ELLMAX=382 model.pyilc.distinct.N_scales=5 model.pyilc.distinct.ellpeaks=[100,200,300,383]`
     - An even faster method is available, using PyILC's HILC method.
 - Run Comparison:
-    - `python main_analysis_compare.py --config-name config_comp_models_t_128`
+    - `python main_analysis_compare.py --config-name config_comp_models_t_128` -->
 
 # Demonstrations
 
@@ -174,6 +176,7 @@ Demonstrations exist for both installation and introduction to core concepts. Mo
 - [Setting up your environment](./demonstrations/C_setting_up_local.ipynb)
 - [Getting and looking at simulation instances](./demonstrations/D_getting_dataset_instances.ipynb)
 
+<!-- TODO: Move these to another repository; these are unneccesarily large files. -->
 More demonstrations are available that use the data generated while running the CMB-ML pipeline. Note that (1) they require the pipeline has been run and (2) they were not developed as tutorials, unlike previous notebooks.
 - [paper_figure_planck_obs_and_target.ipynb](../paper_figures/paper_figure_planck_obs_and_target.ipynb): Creates figures of Planck's observation maps and predicted CMB
 - [dataset_results.ipynb](../paper_figures/dataset_results.ipynb): Plots maps after cleaning, to be assembled externally (e.g., in LaTeX)

@@ -11,7 +11,7 @@
 #     cmb_map_sim: {stage: make_sims, orig_name: cmb_map}
 #     obs_maps_prep: {stage: preprocess, orig_name: obs_maps}
 #     obs_maps_sim: {stage: make_sims, orig_name: obs_maps}
-#     planck_deltabandpass: {stage: raw}
+#     deltabandpass: {stage: raw}
 #   splits:
 #     - train
 #   override_n_sims: ${n_show_cap}
@@ -52,7 +52,7 @@ show_cmb_post_masked:
   assets_in:
     cmb_map_post: {stage: common_post_map_pred, orig_name: cmb_map}
     cmb_map_sim: {stage: common_post_map_real, orig_name: cmb_map}
-    planck_deltabandpass: {stage: raw}
+    deltabandpass: {stage: raw}
   splits:
     - ${splits.run_inference_on}
   override_n_sims: ${n_show_cap}    
@@ -84,7 +84,7 @@ show_cmb_post_masked_ind:
   assets_in:
     cmb_map_post: {stage: common_post_map_pred, orig_name: cmb_map}
     cmb_map_sim: {stage: common_post_map_real, orig_name: cmb_map}
-    planck_deltabandpass: {stage: raw}
+    deltabandpass: {stage: raw}
   splits:
     - ${splits.run_inference_on}
   override_n_sims: ${n_show_cap}    

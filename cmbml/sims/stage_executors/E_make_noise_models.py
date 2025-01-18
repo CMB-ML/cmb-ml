@@ -35,7 +35,7 @@ class MakePlanckNoiseModelExecutor(BaseStageExecutor):
         
         self.in_sims: Asset = self.assets_in['noise_sims']
         self.in_sims_avg: Asset = self.assets_in['noise_avg']
-        in_det_table: Asset = self.assets_in['planck_deltabandpass']
+        in_det_table: Asset = self.assets_in['deltabandpass']
         # For reference:
         in_sim: HealpyMap
         in_det_table_handler: QTableHandler

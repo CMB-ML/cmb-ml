@@ -55,7 +55,7 @@ class NoiseCacheExecutor(BaseStageExecutor):
         else:
             self.out_scale_cache: Asset = self.assets_out['scale_cache']
             self.in_varmap_src: Asset = self.assets_in['noise_src_varmaps']
-            in_det_table: Asset = self.assets_in['planck_deltabandpass']
+            in_det_table: Asset = self.assets_in['deltabandpass']
             # For reference:
             out_noise_cache_handler: HealpyMap
             in_noise_src_handler: HealpyMap

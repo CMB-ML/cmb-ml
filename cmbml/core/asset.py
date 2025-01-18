@@ -38,20 +38,7 @@ class Asset:
             raise Exception("No path template found! No known good reasons for this dead end...")
 
         self.use_fields = asset_info.get("use_fields", None)
-        # self.get_other_keys(asset_info)
-
-    # def get_other_keys(self, asset_info):
-    #     for k, v in asset_info.items():
-    #         if k in ["path_template", "handler"]:
-    #             continue
-    #         elif k in ["path_template_alt"]:
-    #             # Ensure this is not a simple Asset:
-    #             assert self.__class__.__name__ != "Asset", "This was created as an 'Asset' instead of an 'AssetWithPathAlts'. Either something has gone wrong in the BaseExecutor or a custom BaseExecutor has been made incorrecty."
-    #         elif k in ["fn", "alt_path_template"]:
-    #             # No, move this to Check configs if it's a concern. It can happen before runtime.
-    #             raise KeyError("The keys 'fn' and 'alt_path_template' are banned (at least during active development).")
-    #         else:
-    #             self.__setattr__(k, v)
+        self.file_size = asset_info.get("file_size", None)
 
     @property
     def path(self):

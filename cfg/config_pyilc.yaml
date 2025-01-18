@@ -41,5 +41,5 @@ use_epochs_ps_stats  : *epochs
 # Limit the number of simulations for which to generate figures
 n_show_cap           : 1   # int: first n_sims; null: all sims (not recommended); list: particular sims by index
 # Limit the number of simulations for which inference is run. In the splits yaml; null to run on all
-n_infer_cap          : 1
+n_infer_cap          : null
 run_inference_on     : valid  # Either "test" or "valid" ("train" should work, but is not recommended)

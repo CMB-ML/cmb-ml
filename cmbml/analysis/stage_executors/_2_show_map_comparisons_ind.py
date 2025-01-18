@@ -37,7 +37,7 @@ class ShowSimsPostIndivExecutor(BaseStageExecutor):
         stage_str = "show_cmb_post_masked_ind"
         super().__init__(cfg, stage_str)
 
-        in_det_table: Asset  = self.assets_in['planck_deltabandpass']
+        in_det_table: Asset  = self.assets_in['deltabandpass']
         in_det_table_handler: QTableHandler
         det_info = in_det_table.read()
         self.instrument: Instrument = make_instrument(cfg=cfg, det_info=det_info)

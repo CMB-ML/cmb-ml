@@ -4,7 +4,7 @@ get_planck_noise_sims:
       handler: HealpyMap
       path_template: "{src_root}/PlanckNoise/{filename}"
   assets_in:
-    planck_deltabandpass: {stage: raw}
+    deltabandpass: {stage: raw}
 
 make_planck_noise_sims_avgs:
   assets_out:
@@ -12,7 +12,7 @@ make_planck_noise_sims_avgs:
       handler: HealpyMap
       path_template: "{root}/{dataset}/{stage}/avg_{freq}_{fields}_{n_sims}.fits"
   assets_in:
-    planck_deltabandpass: {stage: raw}
+    deltabandpass: {stage: raw}
     noise_sims: {stage: get_planck_noise_sims}
   dir_name: NoiseModel
 
@@ -22,7 +22,20 @@ make_noise_models:
       handler: Mover
       path_template: "{root}/{dataset}/{stage}/noise_model_{freq}_{n_sims}.npz"
   assets_in:
-    planck_deltabandpass: {stage: raw}
+    deltabandpass: {stage: raw}
     noise_sims: {stage: get_planck_noise_sims}
     noise_avg: {stage: make_planck_noise_sims_avgs}
   dir_name: NoiseModel
+
+download_noise_model:
+  assets_out:
+    temp_tar_dir:
+      handler: EmptyHandler
+      path_template: "{root}/{dataset}/{working}{stage}"
+    dataset_dir:
+      handler: EmptyHandler
+      path_template: "{root}/{dataset}/"
+  assets_in:
+    deltabandpass: {stage: raw}
+  dir_name: NoiseModel
+  make_stage_log: False
