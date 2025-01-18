@@ -16,13 +16,6 @@ The script uses the Hydra library for configuration management.
 
 Usage:
     python main_pyilc_predict.py
-
-Note: This script requires the project to be installed, with associated libraries in pyproject.toml.
-Note: This script may require the environment variable "CMB_SIMS_LOCAL_SYSTEM" to be set,
-        or for appropriate settings in your configuration for local_system.
-
-Author:
-Date: June 11, 2024
 """
 from functools import partial
 import logging

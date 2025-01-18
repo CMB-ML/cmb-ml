@@ -12,9 +12,6 @@ The script uses the Hydra library for configuration management.
 
 Usage:
     python main_pyilc_predict.py
-
-Author: 
-Date: June 11, 2024
 """
 import logging
 import hydra

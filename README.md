@@ -95,21 +95,16 @@ Setting up the repository:
   - No installation is needed, CMB-ML runs the code as its own
   - This was run and tested with [the version from April 30, 2024](https://github.com/jcolinhill/pyilc/tree/7ced3ec392a520977b3c672a2a7af62064dcc296)
 - Configure your local system
-  - In the configuration files, enter the directories where you will keep datasets and science assets
+  - In the [configuration files](./cfg), enter the directories where you will keep datasets and science assets
   - In pyilc_redir, edit the `__init__.py` file to point to the directory containing your local installation of pyilc (containing the pyilc `inputs.py` and `wavelets.py`)
-  - See [Setting up your environment](.demonstrations/C_setting_up_local.ipynb) for more information
+  - See [Setting up your environment](./demonstrations/C_setting_up_local.ipynb) for more information
 - Download the science assets
   - These are available from the original sources and a mirror set up for this purpose
   - If you are not creating simulations, you only need one science asset: "COM_CMB_IQU-nilc_2048_R3.00_full.fits" (for the mask)
   - Scripts are available in the `get_data` folder, which will download all files.
-    - [Download from original sources](./get_data/get_assets.py)
-  - Transfer the CMB-ML bandpass table to your assets directory manually.
-    - Move the CMB-ML folder (including the file within), to the assets directory (`assets_dir`) defined in local_system yaml.
+    - [Downloads from original sources](./get_data/get_assets.py) gets files from the official sources (and the CMB-ML files from this repo)
 - Next, set up to run.
-  - You will need to either generate simulations or download them. 
-   - We provide a tiny demonstration dataset in this repository. 
-    - It is suitable for running PyILC's CNILC prediction method, and for confirming that data appears as it should when running simulations
-    - Unfortunately, the CMBNNCS model is too large, so it cannot be transferred by GitHub
+  - You will need to either generate simulations or download them.
 
 ## Notes on Running Simulations
 
