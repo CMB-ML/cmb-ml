@@ -1,19 +1,12 @@
 from pathlib import Path
 import logging
-import tarfile
 
-import hydra
 from omegaconf import DictConfig
 from tqdm import tqdm
 
 from cmbml.core import BaseStageExecutor, Asset
 from cmbml.core.asset_handlers import Config, HealpyMap
-# from cmbml.utils.planck_instrument import make_instrument, Instrument
-# from cmbml.core.asset_handlers.healpy_map_handler import HealpyMap
-# from cmbml.core.asset_handlers.qtable_handler import QTableHandler
 
-# from get_data.utils.get_planck_data_ext import get_planck_obs_data_ext
-# from get_data.utils.get_wmap_data_ext import get_wmap_chains_ext
 from get_data.utils.box_download_utils import make_url_from_shared_link, download_file, extract_tar_file
 from get_data.utils.get_sha import calculate_sha1
 

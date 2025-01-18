@@ -10,13 +10,6 @@ Final comparison is performed in the main_analysis_compare.py script.
 
 Usage:
     python main_<TODO: Name it>.py
-
-Note: This script requires the project to be installed, with associated libraries in pyproject.toml.
-Note: This script may require the environment variable "CMB_SIMS_LOCAL_SYSTEM" to be set,
-        or for appropriate settings in your configuration for local_system.
-
-Author: Jim Amato
-Date: December 12, 2024
 """
 import logging
 

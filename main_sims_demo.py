@@ -11,13 +11,6 @@ To run the simulation pipeline, execute the `run_simulations()` function.
 
 Example usage:
     python main_sims.py
-
-Note: This script requires the project to be installed, with associated libraries in pyproject.toml.
-Note: This script may require the environment variable "CMB_SIMS_LOCAL_SYSTEM" to be set,
-        or for appropriate settings in your configuration for local_system.
-
-Author:
-Date: June 11, 2024
 """
 
 import logging

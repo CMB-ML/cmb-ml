@@ -41,3 +41,6 @@ lmax_ratio_planck_noise : 2
 mask_galactic_size      : 10
 # Smoothing (degrees) of the simple galactic plane mask
 mask_galactic_smooth    : 1
+
+# # After review period, remove this setting. It is only because maps with resolution greater than 512 cannot be included in the repository.
+# save_512_avg_for_reviewers: false
