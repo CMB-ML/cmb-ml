@@ -1,0 +1,30 @@
+{
+  "Test_sim0000": {
+    "tar_size": 15213683,
+    "archive_sha1": "d6ab90a61412b3eb603c85faf7d357b7478dac52",
+    "file_name": "Test_sim0000.tar.gz",
+    "box_id": "1753935153349",
+    "token": "tlmedtycya1b0wndhhymwptlrfs79471"
+  },
+  "Logs": {
+    "tar_size": 2275082,
+    "archive_sha1": "ef7b74a415d5a6a54c6b5d628a443db99abe8ec1",
+    "file_name": "Logs.tar.gz",
+    "box_id": "1753942339101",
+    "token": "rtx8qyxkhtudb6sqrd1ez058rdz76gi8"
+  },
+  "NoiseCache": {
+    "tar_size": 6087716,
+    "archive_sha1": "af2fa0e2f42813070500016351e864719880c341",
+    "file_name": "NoiseCache.tar.gz",
+    "box_id": "1753936658091",
+    "token": "hqebnij596ghh4v9t9dop107y2xkm3ef"
+  },
+  "NoiseModel": {
+    "tar_size": 2011489814,
+    "archive_sha1": "30491767e2ad0618c2ea46e57e3e76101da32d4a",
+    "file_name": "NoiseModel.tar.gz",
+    "box_id": "1753964449987",
+    "token": "yt5odl6h1hoqfn6ygc8027jyzof6tnnv"
+  }
+}

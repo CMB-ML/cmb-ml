@@ -98,11 +98,14 @@ Setting up the repository:
   - In the [configuration files](./cfg), enter the directories where you will keep datasets and science assets
   - In pyilc_redir, edit the `__init__.py` file to point to the directory containing your local installation of pyilc (containing the pyilc `inputs.py` and `wavelets.py`)
   - See [Setting up your environment](./demonstrations/C_setting_up_local.ipynb) for more information
-- Download the science assets
+- Download some external science assets and the CMB-ML assets
+  - External science assets include Planck's observations maps (from which we get information for producing noise) and Planck's NILC prediction map (for the mask; NILC is a parameter)
   - These are available from the original sources and a mirror set up for this purpose
-  - If you are not creating simulations, you only need one science asset: "COM_CMB_IQU-nilc_2048_R3.00_full.fits" (for the mask)
+  - CMB-ML assets include the substitute detector information and information required for downloading datasets
+  - If you are not creating simulations, you only need one external science asset: "COM_CMB_IQU-nilc_2048_R3.00_full.fits" (for the mask)
   - Scripts are available in the `get_data` folder, which will download all files.
     - [Downloads from original sources](./get_data/get_assets.py) gets files from the official sources (and the CMB-ML files from this repo)
+    - If you prefer to download fewer files, adjust (this executor)[get_data/stage_executors/A_get_assets.py] (not recommended)
 - Next, set up to run.
   - You will need to either generate simulations or download them.
 

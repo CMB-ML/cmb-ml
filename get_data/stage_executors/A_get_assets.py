@@ -41,13 +41,20 @@ class GetAssetsExecutor(BaseStageExecutor):
         """
         logger.debug(f"Running {self.__class__.__name__} execute() method.")
 
-        # logger.info("Getting Planck observations.")
-        # self.get_noise_src_varmaps()
-        # logger.info("Getting WMAP chains.")
-        # self.get_wmap_chains()
-        # logger.info("Getting Planck predicted data for the NILC mask.")  # TODO: Parameterize this
-        # self.get_src_maskmap()
-        logger.info("Getting CMB-ML bandpass table.")
+        # Optional Planck observations are needed if you will be producing simulations (noise maps)
+        logger.info("Getting Planck observations.")
+        self.get_noise_src_varmaps()
+        # Optional WMAP chains only needed if you will not be producing simulations (CMB maps)
+        logger.info("Getting WMAP chains.")
+        self.get_wmap_chains()
+
+        # Needed for analysis
+        logger.info("Getting Planck predicted data for the NILC mask.")  # TODO: Parameterize this
+        self.get_src_maskmap()
+
+        # CMB-ML assets include the detector information (needed for all stages) and the file
+        #    information for the simulations (optional, but small, so it's lumped together)
+        logger.info("Getting CMB-ML assets.")
         self.copy_cmb_ml_assets()
 
     def get_wmap_chains(self):
