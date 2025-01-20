@@ -116,24 +116,11 @@ Setting up the repository:
 - When generating simulations for the first time, [PySM3](https://pysm3.readthedocs.io/en/latest/) relies on [astropy](https://www.astropy.org/) to download and cache template maps.
   - These will be stored in an `.astropy` directory.
   - Downloading templates is sometimes interrupted resulting in an error and the code crashing. It is annoying and beyond our control. However, because the templates are cached, the pipeline can be resumed and will proceed smoothly.
-<!-- 
-## For CMB_ML_512_1-1
-
-This is a demonstration dataset. It is suitable for comparing simulation output and running PyILC demonstration only.
-- Transfer the contents of the `assets/demo_simulation` folder to your `dataset_root` folder, as set up above (REMOVED - LARGE FILES)
-- Run `main_pyilc_predict_demo.py` to perform CMB cleaning
-- Run `main_pyilc_analysis_demo.py` to get analysis results
-  - Note that the output figure for the power spectrum will be slightly different, as you do not have the bank of theory spectra.
-  - The figure presented above can be recreated only after generating the full CMB_ML_512_1450 dataset.
-- Run `main_sims_demo.py` to generate a new simulation; results should be comparable to the included demo (slight differences may occur in the CMB map, as this may have a different seed)
-  - This will take quite a while the first time. Astropy will download component templates in the background.
-  - Download errors may result; simply restart the process a few times.
-  - This is only for the first time. Subsequent runs will proceed more quickly. If time is of the essence, remove `preset_strings` from the [sim config](cfg/config_sim_demo.yaml). -->
 
 ## For CMB_ML_512_1450
 
 - Download CMB_ML_512_1450
-  - [Script for downloading CMB_ML_512_1450](./get_data/get_dataset.py)
+  - [Use the downloading script](./get_data/get_dataset.py)
   - `python ./get_data/get_dataset.py`
   - Files are visible at this [Box link for CMB_ML_512_1450](https://utdallas.box.com/v/cmb-ml-512-1450)
   - Alternatively, to generate simulations, use `python main_sims.py`
@@ -148,14 +135,14 @@ This is a demonstration dataset. It is suitable for comparing simulation output 
 - To compare results between CMBNNCS and PyILC
   - `python main_analysis_compare.py`
 
-<!-- ## For CMB_ML_128_1450
+## For CMB_ML_128_1450
 
 This will run more quickly than the higher resolution.
 
 - Download CMB_ML_128_1450:
-  - [Script for downloading CMB_ML-128-1450](./get_data/get_box_CMB_ML_128_1450.py)
-  - `python ./get_data/get_box_CMB_ML_128_1450.py`
-  - Files are visible at this (disabled) [Box link for CMB_ML_128_1450](https://somewhere.box.com/v/cmb-ml-128-1450)
+  - [Use the downloading script](./get_data/get_box_CMB_ML_128_1450.py)
+    - Change [cfg/pipeline/pipe_sim.yaml](../cfg/pipeline/pipe_sim.yaml) to use the correct set of shared links. In this yaml, look for `download_sims_reference` and change the `path_template` (replace '512' with '128').
+  - Files are visible at this [Box link for CMB_ML_128_1450](https://utdallas.box.com/v/cmb-ml-128-1450)
   - Alternatively, to generate simulations, use `python main_sims.py dataset_name=CMB_ML_128_1450 nside=128`
 - Run CMBNNCS on CMB_ML_128_1450 (the smaller UNet5 must be used):
     - `python main_cmbnncs.py dataset_name=CMB_ML_128_1450 working_dir=CMBNNCS_UNet5/ nside=128 num_epochs=2 use_epochs=[2] model/cmbnncs/network=unet5`
@@ -164,7 +151,7 @@ This will run more quickly than the higher resolution.
     - `python main_pyilc_analysis.py dataset_name=CMB_ML_128_1450 nside=128 ELLMAX=382 model.pyilc.distinct.N_scales=5 model.pyilc.distinct.ellpeaks=[100,200,300,383]`
     - An even faster method is available, using PyILC's HILC method.
 - Run Comparison:
-    - `python main_analysis_compare.py --config-name config_comp_models_t_128` -->
+    - `python main_analysis_compare.py --config-name config_comp_models_t_128`
 
 # Demonstrations
 
@@ -235,36 +222,28 @@ We provide links to the various data used. Alternatives to get this data are in 
       - Planck delta bandpass table:
         - [Planck delta bandpass table, from Simons Observatory](https://github.com/galsci/mapsims/raw/main/mapsims/data/planck_deltabandpass/planck_deltabandpass.tbl)
       - CMB-ML delta bandpass table:
-        - [CMB-ML delta bandpass table, from Simons Observatory](assets/delta_bandpasses/CMB-ML/cmb-ml_deltabandpass.tbl)
+        - [Original delta bandpass table, from Simons Observatory](assets/delta_bandpasses/CMB-ML/cmb-ml_deltabandpass.tbl)
+          - CMB-ML modifies these instrumentation properties
         - Simply move the CMB-ML directory contained in assets/delta_bandpasses to your assets folder (as defined in e.g., [your local_system config](cfg/local_system/generic_lab.yaml))
       - [Downloading script](./get_data/get_assets.py)
   - On Box: 
-    - [All Science Assets](https://somewhere.box.com/v/cmb-ml-science-assets)
-    - [Downloading script](./get_data/get_box_science_assets.py)
+    - [All Science Assets](https://utdallas.box.com/v/cmb-ml-science-assets)
+    - Script to be replaced if needed. Please send a message if so.
+    <!-- - [Downloading script](./get_data/get_assets.py) -->
 
 - Datasets
-  - We are unable to provide links here to the dataset. If needed, please contact us through this GitHub repository. One set of example observations is included in the repository.
-
   - CMB_ML_512_1450
-    - Bulk data: (disabled) [Box link, CMB_ML_512_1450, monolithic](https://somewhere.box.com/v/cmb-ml-512-1450-lump), Note that this is ~1 TB
-      - Download files individually. Downloading the directory will result in a single zip folder, which must then be extracted.
-      - After downloading files individally, use something like the following to reassemble them:
-          ```
-          part_files=$(find "$dataset_dir" -name '*.part_*')
-          total_size=$(du -cb $part_files | grep total$ | awk '{print $1}')
-          cat $part_files | pv -s $total_size > "${data_dir}/${reconstructed_tar}"
-          ``` 
-    - Individual files: (disabled) [Box Link, CMB_ML_512_1450, individual](https://somewhere.box.com/v/cmb-ml-512-1450)
+    - Individual files: [Box Link, CMB_ML_512_1450](https://utdallas.box.com/v/cmb-ml-512-1450)
       - Each simulation instance is in its own tar file and will need to be extracted before use
       - The power spectra and cosmological parameters are in Simulation_Working.tar.gz
       - Log files, including the exact code used to generate simulations, are in Logs.tar.gz. No changes of substance have been made to the code in this archive.
-      - A script for these download is available [here](./get_data/get_box_CMB_ML_512_1450.py)
+      - A script for these download is available [here](./get_data/get_dataset.py)
   - CMB_ML_128_1450
     - Lower resolution simulations ($\text{N}_\text{side}=128$), for use when testing code and models
-    - Bulk files: (disabled) [Box link, CMB_ML_128_1450, monolithic](https://somewhere.box.com/v/cmb-ml-128-1450-lump)
-      - Files must be assembled with `cat`, as described above, then extracted
-    - Individual instance files: (disabled) [Box Link, CMB_ML_128_1450, individual](https://somewhere.box.com/v/cmb-ml-128-1450)
+    - Individual instance files: [Box Link, CMB_ML_128_1450](https://utdallas.box.com/v/cmb-ml-128-1450)
     - A script for these download is available [here](./get_data/get_box_CMB_ML_128_1450.py)
+    - Change [cfg/pipeline/pipe_sim.yaml](./cfg/pipeline/pipe_sim.yaml) to use the correct set of shared links. In this yaml, look for download_sims_reference and change the path_template (replace '512' with '128').
+
   - Files are expected to be in the following folder structure, any other structure requires changes to the pipeline yaml's:
 ```
 └─ Datasets
@@ -289,4 +268,4 @@ We provide links to the various data used. Alternatives to get this data are in 
 
 - Trained models
   - CMBNNCS
-    - [UNet8 trained on CMB_ML_512_1450, at various epochs](https://somewhere.box.com/v/cmb-ml-UNet8-512-1450-bl)
+    - [UNet8 trained on CMB_ML_512_1450, at various epochs](https://utdallas.box.com/v/ml-cmb-UNet8-IQU-512-1450-bl)

@@ -110,11 +110,24 @@ make_sims:
   make_stage_log: True
   top_level_working: True
 
+make_mask:
+  assets_out:
+    mask:
+      handler: HealpyMap
+      path_template: "{root}/{dataset}/{stage}/mask.fits"
+    mask_sm:
+      handler: HealpyMap
+      path_template: "{root}/{dataset}/{stage}/mask_sm.fits"
+  assets_in:
+    mask: {stage: raw, orig_name: mask_src_map}
+  dir_name: Simulation_Mask
+
 download_sims_reference:
   assets_out:
     shared_links:
       handler: Config
       path_template: "{src_root}/CMB-ML/upload_records_I_512_1450.json"
+      # path_template: "{src_root}/CMB-ML/upload_records_I_128_1450.json"
 
 download_sims:
   assets_out:
@@ -131,15 +144,3 @@ download_sims:
   splits: *all_splits
   make_stage_log: True
   top_level_working: True
-
-make_mask:
-  assets_out:
-    mask:
-      handler: HealpyMap
-      path_template: "{root}/{dataset}/{stage}/mask.fits"
-    mask_sm:
-      handler: HealpyMap
-      path_template: "{root}/{dataset}/{stage}/mask_sm.fits"
-  assets_in:
-    mask: {stage: raw, orig_name: mask_src_map}
-  dir_name: Simulation_Mask
