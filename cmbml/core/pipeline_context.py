@@ -4,13 +4,13 @@ from .executor_base import BaseStageExecutor
 logger = logging.getLogger("stages")
 
 class PipelineContext:
-    def __init__(self, cfg, log_maker):
+    def __init__(self, cfg, log_maker=None):
         """
         Initialize a PipelineContext object.
 
         Parameters:
         cfg (object): The configuration object.
-        log_maker (object): The log maker object.
+        log_maker (object): The log maker object or None.
 
         Returns:
         None
@@ -84,6 +84,7 @@ class PipelineContext:
                 stage_str = executor.stage_str
                 top_level_working = executor.top_level_working
                 stage_dir = self.cfg.pipeline[stage_str].dir_name
-                self.log_maker.copy_hydra_run_to_stage_log(stage_dir, top_level_working)
+                if self.log_maker is not None:
+                    self.log_maker.copy_hydra_run_to_stage_log(stage_dir, top_level_working)
             else:
                 logger.warning(f"Skipping stage logs for stage {stage.__name__}.")
