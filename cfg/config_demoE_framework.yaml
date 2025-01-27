@@ -1,0 +1,28 @@
+defaults:
+  - local_system: ${oc.env:CMB_ML_LOCAL_SYSTEM}
+  - file_system : common_fs
+  - scenario    : scenario
+  - splits      : all_demo
+  - override hydra/job_logging: custom_log
+  - _self_
+
+dataset_name: DemoNotebook_E
+
+# This would normally be in a separate file, but for the sake of the tutorial, we'll keep it here.
+pipeline:
+  ps_setup:
+    assets_out:
+      cmb_ps:
+        handler: TextPowerSpectrum
+        path_template: "{root}/{dataset}/{stage}/cmb_dummy_ps.fits"
+    dir_name: A_PS_Setup
+  ps2map:
+    assets_out:
+      cmb_map:
+        handler: HealpyMap
+        path_template: "{root}/{dataset}/{stage}/cmb_dummy_map.fits"
+    assets_in:
+      cmb_ps: {stage: ps_setup}
+    dir_name: B_CMB_Map
+    # splits: *all_splits
+    # make_stage_log: True
