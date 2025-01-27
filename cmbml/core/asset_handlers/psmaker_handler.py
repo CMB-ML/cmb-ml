@@ -62,7 +62,7 @@ class TextPowerSpectrum(GenericHandler):
 
     def write(self, path: Path, data: np.ndarray) -> None:
         make_directories(path)
-        np.savetxt(path, arr=data)
+        np.savetxt(path, X=data)
 
 
 register_handler("CambPowerSpectrum", CambPowerSpectrum)
