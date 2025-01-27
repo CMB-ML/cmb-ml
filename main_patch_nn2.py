@@ -76,7 +76,7 @@ def run_cmbnncs(cfg):
     pipeline_context.add_pipe(HydraConfigCheckerExecutor)
 
     ##########################
-    # PREPROCESSING  
+    # CLEANING: PREPROCESSING  
     # (Simulations must be downloaded or generated previously)
     ##########################
 
@@ -106,7 +106,7 @@ def run_cmbnncs(cfg):
     # pipeline_context.add_pipe(TrainingTryNetworkExecutor)
 
     ##########################
-    # TRAINING
+    # CLEANING: TRAINING
     ##########################
 
     # Train the model using the preprocessed dataset

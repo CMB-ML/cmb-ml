@@ -24,22 +24,10 @@ from cmbml.core.A_check_hydra_configs import HydraConfigCheckerExecutor
 from cmbml.sims import MaskCreatorExecutor
 from cmbml.demo_patch_nn import (
     MakeLutExecutor,
-
     ChoosePatchesExecutor,
-    TryShowPatchExecutor,
-    TryShowPatchDistExecutor,
-
-    FindDatasetStatsSerialExecutor,
     FindDatasetStatsParallelExecutor,
     PreprocessPatchesExecutor,
-
-    TrainingTryDataloaderExecutor,
-    TrainingTryNetworkExecutor,
     TrainingExecutor,
-    TrainingNoPreprocessExecutor,
-
-    PredictTryDataloaderExecutor,
-    PredictTryModelLoadExecutor,
     PredictExectutor
     )
 
@@ -47,18 +35,15 @@ from cmbml.analysis import (
     CommonRealPostExecutor,
     CommonNNPredPostExecutor,
     CommonNNShowSimsPostExecutor,
-    CommonCMBNNCSShowSimsPostIndivExecutor,
     PixelAnalysisExecutor,
     PixelSummaryExecutor,
     PixelSummaryFigsExecutor,
-    ConvertTheoryPowerSpectrumExecutor,
-    MakeTheoryPSStats,
     NNMakePowerSpectrumExecutor,
     PowerSpectrumAnalysisExecutor,
     PowerSpectrumSummaryExecutor,
     PowerSpectrumSummaryFigsExecutor,
     PostAnalysisPsFigExecutor,
-    ShowOnePSExecutor)
+    )
 
 
 logger = logging.getLogger(__name__)
@@ -75,14 +60,14 @@ def run_cmbnncs(cfg):
 
     pipeline_context.add_pipe(HydraConfigCheckerExecutor)
 
-    # Preprocessing
+    # Cleaning: Preprocessing
     pipeline_context.add_pipe(MakeLutExecutor)
     pipeline_context.add_pipe(MaskCreatorExecutor)
     pipeline_context.add_pipe(ChoosePatchesExecutor)
     pipeline_context.add_pipe(FindDatasetStatsParallelExecutor)
     pipeline_context.add_pipe(PreprocessPatchesExecutor)
 
-    # Training and Prediction
+    # Cleaning: Training and Prediction
     pipeline_context.add_pipe(TrainingExecutor)
     pipeline_context.add_pipe(PredictExectutor)
 
