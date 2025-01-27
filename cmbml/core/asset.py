@@ -46,6 +46,8 @@ class Asset:
             return self.name_tracker.path(self.path_template)
 
     def read(self, **kwargs):
+        if not self.can_read:
+            raise AttributeError("This asset is not set up to read.")
         try:
             if self.can_read:
                 return self.handler.read(self.path, **kwargs)
@@ -54,6 +56,8 @@ class Asset:
             raise e
 
     def write(self, **kwargs):
+        if not self.can_write:
+            raise AttributeError("This asset is not set up to write.")
         # If you're here debugging a "TypeError: write() takes 1 positional argument but 2 were given" error, 
         #   it's because you're calling .write() with positional arguments. 
         # It must be called with keyword arguments only.
@@ -79,6 +83,8 @@ class Asset:
                 return self.handler.append(**kwargs)
             else:
                 return self.handler.append()
+        else:
+            raise AttributeError("This asset is not set up to write.")
 
 class AssetWithPathAlts(Asset):
     def __init__(self, cfg, source_stage, asset_name, name_tracker, in_or_out):
