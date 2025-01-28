@@ -3,7 +3,11 @@ defaults:
   - file_system : common_fs
   - scenario    : scenario
   - splits      : all_demo
-  - override hydra/job_logging: custom_log
+  # - override hydra/job_logging: default
+  # - override hydra/hydra_logging: default
+  # - override hydra/launcher: basic
+  # - override hydra/sweeper: basic
+  # - hydra/hydra_logging: default
   - _self_
 
 dataset_name: DemoNotebook
@@ -25,4 +29,6 @@ pipeline:
       cmb_ps: {stage: ps_setup}
     dir_name: B_CMB_Map
     # splits: *all_splits
-    # make_stage_log: True
+    make_stage_log: True
+
+nside: 256

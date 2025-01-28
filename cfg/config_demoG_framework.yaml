@@ -2,8 +2,7 @@ defaults:
   - local_system: ${oc.env:CMB_ML_LOCAL_SYSTEM}
   - file_system : common_fs
   - scenario    : scenario
-  - splits      : all_demo
-  - override hydra/job_logging: custom_log
+  - splits      : "3-3"
   - _self_
 
 dataset_name: DemoNotebook
@@ -25,4 +24,16 @@ pipeline:
       cmb_ps: {stage: ps_setup}
     dir_name: B_CMB_Map
     # splits: *all_splits
-    # make_stage_log: True
+    make_stage_log: True
+
+nside: 256
+model:
+  ps: [ 1.51935454e-13,
+       -1.33044280e-10,
+        4.87473463e-08,
+       -9.68198860e-06,
+        1.12257186e-03, 
+       -7.62816561e-02,
+        3.00276536e+00, 
+       -4.49411282e+01,
+        1.04893659e+03]
