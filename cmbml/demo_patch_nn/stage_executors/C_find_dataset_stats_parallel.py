@@ -143,6 +143,10 @@ class FindDatasetStatsParallelExecutor(BaseStageExecutor):
             raise Exception(res['error'])
 
 
+# These functions can be used in multiprocessing.
+# They can also be swapped out for different functions, e.g. to find the abs(min, max) or the average instead.
+# Side note: you can't find the average and standard deviation for all simulations in the same function,
+#    because the average and standard deviation are not additive (yay statistics!).
 def find_min_max(task_target: TaskTarget, freqs, map_fields):
     """
     Acts on a single simulation (TaskTarget) to find the max and min values
