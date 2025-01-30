@@ -2,7 +2,7 @@ defaults:
   - local_system: ${oc.env:CMB_ML_LOCAL_SYSTEM}
   - file_system : common_fs
   - scenario    : scenario
-  - splits      : "3-3"
+  - splits      : "3-140"
   - _self_
 
 dataset_name: DemoNotebook
@@ -54,3 +54,4 @@ model:
        -4.49411282e+01,
         1.04893659e+03]
   max_ell: 200
+n_workers: 6
