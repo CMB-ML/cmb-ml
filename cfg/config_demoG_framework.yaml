@@ -2,10 +2,10 @@ defaults:
   - local_system: ${oc.env:CMB_ML_LOCAL_SYSTEM}
   - file_system : common_fs
   - scenario    : scenario
-  - splits      : "3-140"
+  - splits      : "3-3"
   - _self_
 
-dataset_name: DemoNotebook
+dataset_name: DemoNotebook_${nside}
 
 # This would normally be in a separate file, but for the sake of the tutorial, we'll keep it here.
 pipeline:
@@ -19,11 +19,11 @@ pipeline:
     assets_out:
       cmb_map:
         handler: HealpyMap
-        path_template: "{root}/{dataset}/{stage}/{split}/{sim}/cmb_dummy_map.fits"
+        path_template: "{root}/{dataset}/{stage}/{split}/{sim}/cmb_map.fits"
     assets_in:
       cmb_ps: {stage: ps_setup}
     dir_name: B_CMB_Map
-    splits: &all_splits
+    splits: &all_splits  # Labelling for reuse
       - train
       - valid
       - test
@@ -37,12 +37,24 @@ pipeline:
       cmb_map: {stage: ps2map}
     dir_name: C_Map_Min_Max
     # splits: *all_splits
-    splits: &some_splits
+    splits: &some_splits  # Labelling for reuse; pretending we only need 
+                          # training and validation sets
       - train
       - valid
     make_stage_log: false
+  prep:
+    assets_out:
+      cmb_map:
+        handler: HealpyMap
+        path_template: "{root}/{dataset}/{stage}/{split}/{sim}/cmb_map.fits"
+    assets_in:
+      cmb_map: {stage: ps2map}
+      dataset_stats: {stage: get_map_min_max, orig_name: cmb_map_min_max}
+    dir_name: D_Prep
+    splits: *some_splits  # Reusing the label from get_map_min_max
+    make_stage_log: false
 
-nside: 256
+nside: 32
 model:
   ps: [ 1.51935454e-13,
        -1.33044280e-10,
@@ -55,3 +67,7 @@ model:
         1.04893659e+03]
   max_ell: 200
 n_workers: 6
+
+prep:
+  n_workers: 0
+  batch_size: 1
