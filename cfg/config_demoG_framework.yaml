@@ -49,7 +49,7 @@ pipeline:
         path_template: "{root}/{dataset}/{stage}/{split}/{sim}/cmb_map.fits"
     assets_in:
       cmb_map: {stage: ps2map}
-      dataset_stats: {stage: get_map_min_max, orig_name: cmb_map_min_max}
+      cmb_map_min_max: {stage: get_map_min_max}
     dir_name: D_Prep
     splits: *some_splits  # Reusing the label from get_map_min_max
     make_stage_log: false
