@@ -1,0 +1,47 @@
+defaults:
+  - local_system: ${oc.env:CMB_ML_LOCAL_SYSTEM}
+  - file_system : common_fs
+  - pipeline    : pipe_raw
+  - scenario    : scenario
+  - splits      : "1-1"
+  - model/sim   : sim
+  - _self_
+
+dataset_name: DemoNotebook_${nside_name}
+
+# I add to the above pipeline, instead of creating more pipeline chaos.
+pipeline:
+  sim:
+    assets_out:
+      sky_map:
+        handler: HealpyMap
+        path_template: "{root}/{dataset}/{stage}/{sim}/sky_{freq}_map.fits"
+    assets_in:
+      deltabandpass: {stage: raw}
+    dir_name: Simulation
+  compare:
+    assets_out:
+      fig_maps:
+        handler: Figure
+        path_template: "{root}/{dataset}/{stage}/{sim}/fig_maps_{freq}.png"
+      fig_hist:
+        handler: Figure
+        path_template: "{root}/{dataset}/{stage}/{sim}/fig_hist_{freq}.png"
+    assets_in:
+      sky_map: {stage: sim}
+    dir_name: Comparison
+
+# detector_info_path: "{src_root}/CMB-ML/cmb-ml_deltabandpass.tbl"
+detector_info_path: "{src_root}/Planck/planck_deltabandpass.tbl"
+
+nside: ???
+nside_name: "full"
+map_fields: I
+detectors: ???
+
+preset_strings: ["d9", "s4", "f1", "a1", "cib1", "ksz1", "tsz1", "rg1"]
+nside_sky: ???
+
+fig:
+  min_max:
+    GHz30: [-500, 500]

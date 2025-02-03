@@ -65,3 +65,19 @@ def convert_field_str_to_Unit(unit_str):
     if unit_str in custom_units.keys():
         return custom_units[unit_str]
     return u.Unit(unit_str)
+
+
+def convert_units(data: u.Quantity, target_unit: u.Unit, center_freq: u.Quantity):
+    """
+    Convert the units of a map to a target unit.
+
+    Args:
+        map_data (u.Quantity): Some data.
+        target_unit (u.Unit): The target unit.
+        center_freq (u.Quantity): The center frequency at which the data was collected. Relevant for MJy/sr units at high GHz frequencies.
+
+    Returns:
+        u.Quantity: The map data in the target unit.
+    """
+    data = data.to(target_unit, equivalencies=u.cmb_equivalencies(center_freq))
+    return data
