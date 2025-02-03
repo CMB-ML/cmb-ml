@@ -194,9 +194,20 @@ CMB-ML was built in the hopes that researchers can compare on this as a standard
 
 None so far!
 
-## Errata
+# Errata
 
-Any issues in the original dataset will be listed here. If there are critical issues, we will do our best to keep the current dataset and release an updated one as well.
+February 2025: 
+- The repository history was edited to reduce the `.git` size.
+  - The `.git` information was **300 MB**, due to several maps and large python notebooks.
+  - It has been reduced to **21 MB**.  The bulk of this is images for this README and the demonstration notebooks.
+November 2024: New dataset released:
+- The noise generation procedure has been revised to be non-white noise
+- The detector FWHM's were changed
+  - Previously they were sub-pixel
+  - They are now larger and still vary
+  - More details [here](assets/CMB-ML/README.txt)
+- The CMB signal was changed away from and returned to using CMBLensed
+- Because the work is still unpublished and we do not know of anyone else using it, references to previous datasets have been updated. The original dataset will be removed June 30, 2025, unless we're made aware of anyone using it.
 
 # Data File Links
 
