@@ -113,7 +113,7 @@ class PredictionExecutor(BaseStageExecutor):
             raise ValueError(f"Method {method} not recognized.")
 
         self.move_result()
-        self.clear_pyilc_working_directory()
+        self.clear_working_directory()
 
     def run_script(self, script_path: str) -> None:
         """
@@ -139,7 +139,7 @@ class PredictionExecutor(BaseStageExecutor):
 
         result_path.rename(destination_path)
 
-    def clear_pyilc_working_directory(self):
+    def clear_working_directory(self):
         """
         Outside scripts may use a working directory. That can be cleared between runs.
         """

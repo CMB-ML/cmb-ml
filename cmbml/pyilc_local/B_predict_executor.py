@@ -83,7 +83,7 @@ class PredictionExecutor(BaseStageExecutor):
             run_ilc(self.out_config.path)
         # logger.debug("Moving resulting map.")
         self.move_result()
-        self.clear_pyilc_working_directory()
+        self.clear_working_directory()
 
     def move_result(self):
         result_dir = self.out_model.path
@@ -98,7 +98,7 @@ class PredictionExecutor(BaseStageExecutor):
 
         result_path.rename(destination_path)
 
-    def clear_pyilc_working_directory(self):
+    def clear_working_directory(self):
         working_path = self.out_model.path
         for file in working_path.iterdir():
             file.unlink()
