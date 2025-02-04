@@ -48,5 +48,5 @@ n_show_cap           : 1
 
 # Limit the number of simulations on which to do inference and postprocessing
 # In the splits yaml; null to run on all
-n_infer_cap           : 2
+n_infer_cap           : null
 run_inference_on      : valid  # Either "test" or "valid" ("train" should work, but is not recommended)
