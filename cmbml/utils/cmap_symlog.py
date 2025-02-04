@@ -129,6 +129,6 @@ def many_symlog_map_add_cbar(symlog_settings: SymLogPlotSettings, fig):
     linthresh_neg = norm(-symlog_settings.linthresh)
 
     # cax.text(linthresh_neg, 0.5, '$\\![$', fontsize=14, ha='center', va='center', transform=cax.transAxes)
-    cax.plot([linthresh_neg], [0.5], '4', color='black', markersize=8, transform=cax.transAxes, clip_on=False)
+    cax.plot([linthresh_neg], [0.5], '4', color='black', markersize=20, transform=cax.transAxes, clip_on=False)
     # cax.text(linthresh_pos, 0.5, '$\\!]$', fontsize=14, ha='center', va='center', transform=cax.transAxes)
-    cax.plot([linthresh_pos], [0.5], '3', color='black', markersize=8, transform=cax.transAxes, clip_on=False)
+    cax.plot([linthresh_pos], [0.5], '3', color='black', markersize=20, transform=cax.transAxes, clip_on=False)
