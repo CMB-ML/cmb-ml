@@ -64,7 +64,6 @@ class CENN(nn.Module):
             x = conv(x)
             skips.append(x)
 
-        # TODO: deal with last deconv that doesn't have a skip layer
         for i, deconv in enumerate(self.deconvs):
             if i < 5:
                 x = deconv(x, skips[4-i])
