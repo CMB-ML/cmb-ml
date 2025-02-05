@@ -4,6 +4,7 @@ from dataclasses import dataclass
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 
+import numpy as np
 import healpy as hp
 from pysm3.units import Unit
 
@@ -45,7 +46,15 @@ def single_symlog_map_fig(map_data,
                        cmap=symlog_cmap,
                        hold=True)
 
-    hp.mollview(norm(map_data), 
+    try:
+        mask = map_data.mask
+        normed_map = norm(map_data)
+        normed_map = hp.ma(normed_map)
+        normed_map.mask = mask
+    except AttributeError:
+        normed_map = norm(map_data)
+
+    hp.mollview(normed_map, 
                 title=title, 
                 **plot_params)
 
@@ -95,7 +104,15 @@ def many_symlog_map_fig(map_data,
                        hold=True)
     plt.axes(dest)
 
-    hp.mollview(norm(map_data), 
+    try:
+        mask = map_data.mask
+        normed_map = norm(map_data)
+        normed_map = hp.ma(normed_map)
+        normed_map.mask = mask
+    except AttributeError:
+        normed_map = norm(map_data)
+
+    hp.mollview(normed_map, 
                 title=title, 
                 **plot_params)
 
