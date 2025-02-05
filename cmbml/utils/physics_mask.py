@@ -14,9 +14,10 @@ def convert_mask_from_Quantity(mask):
     return mask
 
 
-def downgrade_mask(mask_data, nside_out, threshold):
+def downgrade_mask(mask_data, nside_out, threshold=0.9):
     """
-    Downgrade the resolution of a mask to a specified resolution.
+    Downgrade the resolution of a mask to a specified resolution. 
+    Following Planck 2015 results:IX, the approriate threshold is 0.9.
 
     Args:
         mask_data (np.ndarray): Numpy array representing the input mask data.
