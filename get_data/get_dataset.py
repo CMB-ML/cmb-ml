@@ -18,11 +18,13 @@ logger = logging.getLogger(__name__)
 @hydra.main(version_base=None, config_path="../cfg", config_name="config_sim")
 def main(cfg):
     """
-    Gets dataset.
-
+    Gets a dataset. To use this script, ensure that:
+    - Your local_system/CMB-ML/ contains upload_records for the dataset you want.
+    - In cfg/pipeline/pipe_raw.yaml, select the version of the shared_links file.
+    - In cfg/config_sim.yaml, select the splits file with simulations you want.
+    
     Args:
-        cfg: The hydra configuration object. Provided by the @hydra.main decorator.
-             Critical to note: the splits yaml determines which sims are downloaded!
+        cfg: The splits yaml determines which sims are downloaded!
              Change this file if you do not want to download the full dataset.
 
     Raises:
