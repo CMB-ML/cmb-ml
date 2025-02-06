@@ -155,20 +155,26 @@ This will run more quickly than the higher resolution.
 
 # Demonstrations
 
-Demonstrations exist for both installation and introduction to core concepts. Most of these are jupyter notebooks:
+CMB-ML manages a complex pipeline that processes data across multiple stages. Each stage produces outputs that need to be tracked, reused, and processed in later stages. Without a clear framework, this can lead to disorganized code, redundant logic, and errors.
+
+The CMB-ML library provides a set of tools to manage the pipeline in a modular and scalable way. 
+
+We include a set of demonstrations to help with both installation and introduction to core concepts. The first introduces our approach configuration management. That background paves the way to set up a local configuration and get the required files. Following this are a series of tutorials for the Python objects.
+
+Most of these are in jupyter notebooks:
 - [Hydra and its use in CMB-ML](./demonstrations/A_hydra_tutorial.ipynb)
 - [Hydra in scripts](./demonstrations/B_hydra_script_tutorial.ipynb) (*.py files)
 - [Setting up your environment](./demonstrations/C_setting_up_local.ipynb)
 - [Getting and looking at simulation instances](./demonstrations/D_getting_dataset_instances.ipynb)
 
 <!-- TODO: Move these to another repository; these are unneccesarily large files. -->
-More demonstrations are available that use the data generated while running the CMB-ML pipeline. Note that (1) they require the pipeline has been run and (2) they were not developed as tutorials, unlike previous notebooks.
+<!-- More demonstrations are available that use the data generated while running the CMB-ML pipeline. Note that (1) they require the pipeline has been run and (2) they were not developed as tutorials, unlike previous notebooks.
 - [paper_figure_planck_obs_and_target.ipynb](../paper_figures/paper_figure_planck_obs_and_target.ipynb): Creates figures of Planck's observation maps and predicted CMB
 - [dataset_results.ipynb](../paper_figures/dataset_results.ipynb): Plots maps after cleaning, to be assembled externally (e.g., in LaTeX)
 - [make_component_maps.ipynb](../paper_figures/make_component_maps.ipynb): Creates single-component maps, for use in other analysis (next line)
 - [paper_components.ipynb](../paper_figures/paper_components.ipynb): Creates figures showing single components (requires previous line having been run)
 - [paper_figure_planck_variance.ipynb](../paper_figures/paper_figure_planck_variance.ipynb): Creates the figure of Planck's variance map at 100 GHz
-- [planck_fwhm_detail.ipynb](../paper_figures/planck_fwhm_detail.ipynb): Creates figures with the detail view of Plancks's maps, such that the effect of different FWHMs is visible
+- [planck_fwhm_detail.ipynb](../paper_figures/planck_fwhm_detail.ipynb): Creates figures with the detail view of Plancks's maps, such that the effect of different FWHMs is visible -->
 
 # Comparing Results
 
