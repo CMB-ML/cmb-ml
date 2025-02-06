@@ -1,21 +1,3 @@
-raw:
-  assets_out:
-    deltabandpass:
-      handler: QTable
-      # path_template: "{src_root}/Planck/deltabandpass.tbl"
-      path_template: "{src_root}/CMB-ML/cmb-ml_deltabandpass.tbl"
-    noise_src_varmaps:
-      handler: HealpyMap
-      path_template: "{src_root}/Planck/{filename}"
-    wmap_chains:  # TODO: 
-      handler: Mover
-      path_template: "{src_root}/WMAP/{filename}"
-    mask_src_map: 
-      path_template: "{src_root}/Planck/COM_CMB_IQU-nilc_2048_R3.00_full.fits"
-      handler: HealpyMap
-      use_fields: 3  # Healpy indices are 0-based. We are using Healpy. FITS file indices are 1-based. If you inspect the FITS file, this may lead to confusion.
-      file_size: 1610  # Slightly smaller so we don't trigger re-download in get_assets.py
-
 check_hydra_configs:  # No information needed here
 
 make_noise_cache:
@@ -121,13 +103,6 @@ make_mask:
   assets_in:
     mask: {stage: raw, orig_name: mask_src_map}
   dir_name: Simulation_Mask
-
-download_sims_reference:
-  assets_out:
-    shared_links:
-      handler: Config
-      path_template: "{src_root}/CMB-ML/upload_records_I_512_1450.json"
-      # path_template: "{src_root}/CMB-ML/upload_records_I_128_1450.json"
 
 download_sims:
   assets_out:

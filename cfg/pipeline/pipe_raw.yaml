@@ -15,3 +15,10 @@ raw:
       handler: HealpyMap
       use_fields: 3  # Healpy indices are 0-based. We are using Healpy. FITS file indices are 1-based. If you inspect the FITS file, this may lead to confusion.
       file_size: 1610  # Slightly smaller so we don't trigger re-download in get_assets.py
+
+download_sims_reference:
+  assets_out:
+    shared_links:
+      handler: Config
+      path_template: "{src_root}/CMB-ML/upload_records_I_512_1450.json"
+      # path_template: "{src_root}/CMB-ML/upload_records_I_128_1450.json"
