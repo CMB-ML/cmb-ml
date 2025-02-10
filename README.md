@@ -166,6 +166,18 @@ Most of these are in jupyter notebooks:
 - [Hydra in scripts](./demonstrations/B_hydra_script_tutorial.ipynb) (*.py files)
 - [Setting up your environment](./demonstrations/C_setting_up_local.ipynb)
 - [Getting and looking at simulation instances](./demonstrations/D_getting_dataset_instances.ipynb)
+- [CMB_ML framework: stage code](./demonstrations/E_CMB_ML_framework.ipynb)
+- [CMB_ML framework: pipeline code](./demonstrations/F_CMB_ML_pipeline.ipynb)
+- [CMB_ML framework: Executors](./demonstrations/G_CMB_ML_executors.ipynb)
+
+Only the Setting up your environment is really critical, though the others should help.
+
+I'm interested in hearing what other demonstrations would be helpful. Please let me know what would be helpful. I've considered these notebooks:
+- Executors, continued: showing how executors are set up for PyTorch training/inference and matplotlib figure production
+- Looking at actual pipeline stages and explaining them
+- Paper figure production (available, in another repository, need cleaning)
+
+
 
 <!-- TODO: Move these to another repository; these are unneccesarily large files. -->
 <!-- More demonstrations are available that use the data generated while running the CMB-ML pipeline. Note that (1) they require the pipeline has been run and (2) they were not developed as tutorials, unlike previous notebooks.
@@ -206,6 +218,7 @@ February 2025:
 - The repository history was edited to reduce the `.git` size.
   - The `.git` information was **300 MB**, due to several maps and large python notebooks.
   - It has been reduced to **21 MB**.  The bulk of this is images for this README and the demonstration notebooks.
+
 November 2024: New dataset released:
 - The noise generation procedure has been revised to be non-white noise
 - The detector FWHM's were changed
