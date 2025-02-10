@@ -105,25 +105,3 @@ class GetAssetsExecutor(BaseStageExecutor):
             print(f"Error: Source folder does not exist: {src}")
         except Exception as e:
             print(f"An unexpected error occurred: {e}")
-
-    def copy_cmb_ml_assets(self):
-        """
-        Copies the 'delta_bandpasses' folder from the repository assets to the user's asset directory.
-        """
-        # Define source and destination paths
-        src = Path("./assets/CMB-ML").resolve()
-        dst = self.deltabandpass.path.parent.resolve()
-
-        try:
-            # Inform the user about the copy operation
-            print(f"Copying:\n  Source: {src}\n  Destination: {dst}")
-
-            # Perform the copy operation
-            shutil.copytree(src, dst, dirs_exist_ok=True)  # Allows overwriting existing directories
-            print("Copy operation completed successfully.")
-        except FileExistsError:
-            print(f"Error: Destination folder already exists: {dst}")
-        except FileNotFoundError:
-            print(f"Error: Source folder does not exist: {src}")
-        except Exception as e:
-            print(f"An unexpected error occurred: {e}")
