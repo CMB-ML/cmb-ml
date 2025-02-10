@@ -6,7 +6,8 @@ from .get_sha import calculate_sha1
 
 def download_shared_link_info(shared_link_info: dict, 
                               temp_tar_dir: Path,
-                              dataset_dir: Path) -> None:
+                              dataset_dir: Path,
+                              tqdm_pos:int = 1) -> None:
     temp_tar_dir = Path(temp_tar_dir)
     dataset_dir = Path(dataset_dir)
     temp_tar_dir.mkdir(parents=True, exist_ok=True)
@@ -17,8 +18,7 @@ def download_shared_link_info(shared_link_info: dict,
     tar_path = temp_tar_dir / tar_file_name
 
     url = make_url_from_shared_link(shared_link)
-    t_pos = 1  # Operating within the tqdm progress bar from execute()
-    download_file(url, tar_path, filesize=tar_file_size, tqdm_position=t_pos)
+    download_file(url, tar_path, filesize=tar_file_size, tqdm_position=tqdm_pos)
 
     new_sha1 = calculate_sha1(tar_path)
     old_sha1 = shared_link["archive_sha1"]

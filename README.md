@@ -81,6 +81,8 @@ As an alternative, see the cmbNNCS [top-level script](main_cmbnncs.py). The exec
 
 # Installation
 
+See next section if you don't want to install CMB-ML, and just want the dataset.
+
 Installation of CMB-ML requires setting up the repository, then getting the data assets for the portion you want to run. Demonstrations are available with practical examples. The early ones cover how to set up CMB-ML to run on your system.
 
 Setting up the repository:
@@ -152,6 +154,10 @@ This will run more quickly than the higher resolution.
     - An even faster method is available, using PyILC's HILC method.
 - Run Comparison:
     - `python main_analysis_compare.py --config-name config_comp_models_t_128`
+
+# Dataset Only
+
+If you only want to get the dataset, you can use [this notebook](./demonstrations/_0_get_dataset_only.ipynb) to download them. It includes a (short) list of required libraries.
 
 # Demonstrations
 
