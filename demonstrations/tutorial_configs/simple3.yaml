@@ -1,0 +1,5 @@
+icons:
+  - shape: square
+    color: blue
+  - shape: circle
+    color: red

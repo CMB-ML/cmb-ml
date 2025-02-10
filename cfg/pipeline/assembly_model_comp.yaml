@@ -1,7 +1,6 @@
 defaults:
   - _self_
-  - pipe_sim
-  - pipe_sim_analysis
+  - assembly_sim
   - pipe_model_pyilc
   - pipe_model_analysis
   - pipe_model_compare
