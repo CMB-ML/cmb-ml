@@ -32,7 +32,7 @@ class FindDatasetStatsSerialExecutor(BaseStageExecutor):
         in_cmb_map_handler: HealpyMap
         in_obs_map_handler: HealpyMap
 
-        scaling = cfg.model.patch_nn.get("scaling", None)
+        scaling = cfg.model.cenn.get("scaling", None)
         if scaling and scaling != "minmax":
             msg = f"Only minmax scaling is supported, not {scaling}."
             raise NotImplementedError(msg)

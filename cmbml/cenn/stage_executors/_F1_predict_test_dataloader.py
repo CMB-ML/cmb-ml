@@ -39,12 +39,12 @@ class PredictTryDataloaderExecutor(BasePyTorchModelExecutor):
         in_dataset_stats_handler: Config
         # in_model_handler: PyTorchModel
 
-        self.scaling = cfg.model.patch_nn.get("scaling", None)
+        self.scaling = cfg.model.cenn.get("scaling", None)
         if self.scaling and self.scaling != "minmax":
             msg = f"Only minmax scaling is supported, not {self.scaling}."
             raise NotImplementedError(msg)
 
-        self.batch_size = cfg.model.patch_nn.test.batch_size
+        self.batch_size = cfg.model.cenn.test.batch_size
         self.lut = self.in_lut_asset.read()
         self.dataset_stats = None  # Placeholder for dataset_stats (min/max values for normalization)
 

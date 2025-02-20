@@ -42,7 +42,7 @@ class PreprocessPatchesExecutor(BaseStageExecutor):
         in_lut_handler: NumpyMap
         in_patch_id_handler: Config
 
-        self.scaling = cfg.model.patch_nn.get("scaling", None)
+        self.scaling = cfg.model.cenn.get("scaling", None)
         if self.scaling and self.scaling != "minmax":
             msg = f"Only minmax scaling is supported, not {self.scaling}."
             raise NotImplementedError(msg)

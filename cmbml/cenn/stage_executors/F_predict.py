@@ -41,15 +41,15 @@ class PredictExectutor(BasePyTorchModelExecutor):
         in_dataset_stats_handler: Config
         in_model_handler: PyTorchModel
 
-        self.scaling = cfg.model.patch_nn.get("scaling", None)
+        self.scaling = cfg.model.cenn.get("scaling", None)
         if self.scaling and self.scaling != "minmax":
             msg = f"Only minmax scaling is supported, not {self.scaling}."
             raise NotImplementedError(msg)
 
-        self.choose_device(cfg.model.patch_nn.test.device)
-        self.batch_size = cfg.model.patch_nn.test.batch_size
+        self.choose_device(cfg.model.cenn.test.device)
+        self.batch_size = cfg.model.cenn.test.batch_size
         self.lut = None
-        self.dtype = self.dtype_mapping[cfg.model.patch_nn.dtype]
+        self.dtype = self.dtype_mapping[cfg.model.cenn.dtype]
 
         self.model = None  # Placeholder for model
         self.dataset_stats = None  # Placeholder for dataset_stats (min/max values for normalization)

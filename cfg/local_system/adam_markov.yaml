@@ -1,0 +1,4 @@
+# datasets_root    : /bigdata/adam/CMB_Data/Datasets/
+# assets_dir       : /bigdata/adam/CMB_Data/Assets/
+datasets_root    : /bigdata/cmb_project/data/Datasets/
+assets_dir       : /bigdata/cmb_project/data/Assets/

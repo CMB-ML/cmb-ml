@@ -51,7 +51,7 @@ class FindDatasetStatsParallelExecutor(BaseStageExecutor):
         in_cmb_map_handler: HealpyMap
         in_obs_map_handler: HealpyMap
 
-        scaling = cfg.model.patch_nn.get("scaling", None)
+        scaling = cfg.model.cenn.get("scaling", None)
         if scaling and scaling != "minmax":
             msg = f"Only minmax scaling is supported, not {scaling}."
             raise NotImplementedError(msg)
@@ -61,7 +61,7 @@ class FindDatasetStatsParallelExecutor(BaseStageExecutor):
         self.scale_sift_method = None
         self.set_scale_find_methods()
 
-        self.n_workers = cfg.model.patch_nn.preprocess.n_workers
+        self.n_workers = cfg.model.cenn.preprocess.n_workers
 
     def set_scale_find_methods(self):
         # A different method can be used to find alternative statistics:

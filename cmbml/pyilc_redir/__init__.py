@@ -1,5 +1,5 @@
 import sys
-sys.path.append('/home/jim/VSCode_Projects_SPACE/pyilc2/pyilc')
+sys.path.append('/bigdata/adam/pyilc/pyilc/')
 
 # Angry yellow squiggles are expected under the import statements in the following lines.
 from input import ILCInfo

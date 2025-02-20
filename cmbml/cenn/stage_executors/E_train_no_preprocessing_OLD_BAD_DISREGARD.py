@@ -44,15 +44,15 @@ class TrainingNoPreprocessExecutor(BasePyTorchModelExecutor):
 
         self.nside_patch = cfg.model.patches.nside_patch
 
-        self.choose_device(cfg.model.patch_nn.train.device)
-        self.n_epochs   = cfg.model.patch_nn.train.n_epochs
-        self.batch_size = cfg.model.patch_nn.train.batch_size
+        self.choose_device(cfg.model.cenn.train.device)
+        self.n_epochs   = cfg.model.cenn.train.n_epochs
+        self.batch_size = cfg.model.cenn.train.batch_size
         self.learning_rate = 0.0002
-        self.dtype = self.dtype_mapping[cfg.model.patch_nn.dtype]
-        self.extra_check = cfg.model.patch_nn.train.extra_check
-        self.checkpoint = cfg.model.patch_nn.train.checkpoint_every
+        self.dtype = self.dtype_mapping[cfg.model.cenn.dtype]
+        self.extra_check = cfg.model.cenn.train.extra_check
+        self.checkpoint = cfg.model.cenn.train.checkpoint_every
 
-        self.scaling = cfg.model.patch_nn.get("scaling", None)
+        self.scaling = cfg.model.cenn.get("scaling", None)
         if self.scaling and self.scaling != "minmax":
             msg = f"Only minmax scaling is supported, not {self.scaling}."
             raise NotImplementedError(msg)

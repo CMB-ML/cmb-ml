@@ -33,9 +33,9 @@ class TrainingTryNetworkExecutor(BasePyTorchModelExecutor):
 
         # self.nside_patch = cfg.model.patches.nside_patch
 
-        self.choose_device(cfg.model.patch_nn.train.device)
-        # self.n_epochs   = cfg.model.patch_nn.train.n_epochs
-        # self.batch_size = cfg.model.patch_nn.train.batch_size
+        self.choose_device(cfg.model.cenn.train.device)
+        # self.n_epochs   = cfg.model.cenn.train.n_epochs
+        # self.batch_size = cfg.model.cenn.train.batch_size
 
     def execute(self) -> None:
         logger.debug(f"Running {self.__class__.__name__} execute()")

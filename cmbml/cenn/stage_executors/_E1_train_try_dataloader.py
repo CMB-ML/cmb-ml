@@ -42,9 +42,9 @@ class TrainingTryDataloaderExecutor(BasePyTorchModelExecutor):
         self.nside_patch = cfg.model.patches.nside_patch
 
         self.batch_size = 4  # Batch size can be very large; for demo purposes, we use 4
-        # self.batch_size = cfg.model.patch_nn.train.batch_size
+        # self.batch_size = cfg.model.cenn.train.batch_size
 
-        self.scaling = cfg.model.patch_nn.get("scaling", None)
+        self.scaling = cfg.model.cenn.get("scaling", None)
         if self.scaling and self.scaling != "minmax":
             msg = f"Only minmax scaling is supported, not {self.scaling}."
             raise NotImplementedError(msg)

@@ -2,20 +2,20 @@
 defaults:
   - local_system   : ${oc.env:CMB_ML_LOCAL_SYSTEM}
   - file_system    : common_fs
-  - pipeline       : assembly_patch_nn
+  - pipeline       : assembly_cenn
   - scenario       : scenario
-  - splits         : all  # If you aren't getting as many results as expected, check n_infer_cap as well
+  - splits         : "all"  # If you aren't getting as many results as expected, check n_infer_cap as well
   - model/patches  : healpatch
   - model/analysis : basic_analysis
-  - model/patch_nn : basic_patch_nn
+  - model/cenn     : basic_cenn
   - override hydra/job_logging: custom_log
   - _self_
 
 # When creating multiple datasets, using interpolation like this may be easier:
 # dataset_name       : ${scenario.map_fields}_${scenario.nside}_${splits.name}
 dataset_name       : I_512_1450
-working_dir        : "PatchNN_${model.patch_nn.scaling}_test/"
-fig_model_name     : PatchNN
+working_dir        : "CENN_test/"
+fig_model_name     : CENN
 hydra:
   run:
     dir            : Logs/${now:%Y-%m-%d-%H-%M-%S}
@@ -26,8 +26,7 @@ hydra:
 # They are picked up from here and MAY be used elsewhere in the yamls.
 # In the scenario yaml
 nside              : 512
-detectors          : [30, 44, 70, 100, 143, 217, 353, 545, 857]
-# detectors          : [100, 143, 217, 353]
+detectors          : [143, 217, 353]
 map_fields         : "I"
 
 # In the model yaml
@@ -44,9 +43,9 @@ use_epochs_map_stats : ${use_epochs}
 # For summary statistics:
 use_epochs_ps_stats  : ${use_epochs}
 # Limit the number of simulations for which to generate figures
-n_show_cap           : 1
+n_show_cap           : 5
 
 # Limit the number of simulations on which to do inference and postprocessing
 # In the splits yaml; null to run on all
-n_infer_cap           : 1 # null
+n_infer_cap           : null
 run_inference_on      : valid  # Either "test" or "valid" ("train" should work, but is not recommended)

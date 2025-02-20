@@ -1,0 +1,132 @@
+make_lut:
+  assets_out:
+    lut: 
+      handler: NumpyMap
+      path_template: "{root}/{dataset}/{working}{stage}/lut.npy"
+  assets_in:
+    cmb_map: {stage: make_sims}
+    obs_maps: {stage: make_sims}
+  dir_name: CENN_B_LUT
+
+choose_patches:
+  assets_out:
+    all_ids:
+      handler: Config
+      path_template: "{root}/{dataset}/{working}{stage}/{split}/all_patches.yaml"
+    patch_id:
+      handler: PlainText
+      path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/patch_id.txt"
+  assets_in:
+    deltabandpass: {stage: raw}
+    mask: {stage: make_mask}
+  dir_name: CENN_C_PreprocessingPrep
+  splits:
+    - train
+    - valid
+
+try_show_patch:  # Demonstration of how a patch is extracted (confirmation that it works)
+  assets_in:
+    patch_id: {stage: choose_patches}
+    cmb_map: {stage: make_sims}
+    obs_maps: {stage: make_sims}
+    deltabandpass: {stage: raw}
+  splits:
+    - train
+  dir_name: CENN_0_Test_Patch  # Not used
+  make_stage_log: False
+  override_n_sims: ${n_show_cap}
+
+try_show_patch_dist:  # Demonstration of which patches are extracted (test = confirmation, not data split)
+  assets_in:
+    patch_id: {stage: choose_patches}
+  splits:
+    - train
+  dir_name: CENN_1_Test_Patch  # Not used
+  make_stage_log: False
+
+get_dataset_stats:
+  assets_out:
+    dataset_stats: 
+      handler: Config
+      path_template: "{root}/{dataset}/{working}{stage}/feature_stats.yaml"
+  assets_in:
+    cmb_map: {stage: make_sims}
+    obs_maps: {stage: make_sims}
+  splits: 
+    - train
+  dir_name: CENN_C_PreprocessingPrep
+
+prep_patches:
+  assets_out:
+    cmb_map:
+      handler: NumpyMap
+      path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/cmb_patch.npy"
+    obs_maps:
+      handler: NumpyMap
+      path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/obs_patch_{freq}.npy"
+  assets_in:
+    cmb_map: {stage: make_sims}
+    obs_maps: {stage: make_sims}
+    lut: {stage: make_lut}
+    dataset_stats: {stage: get_dataset_stats}
+    patch_id: {stage: choose_patches}
+  dir_name: CENN_D_Preprocessing
+  splits:
+    - train
+    - valid
+
+train:
+  assets_out:
+    model: 
+      handler: PyTorchModel
+      path_template: "{root}/{dataset}/{working}{stage}/model_{epoch}.pth"
+    loss_record:
+      handler: AppendingCsvHandler
+      path_template: "{root}/{dataset}/{working}{stage}/loss_record.csv"
+  assets_in:
+    cmb_map: {stage: prep_patches}
+    obs_maps: {stage: prep_patches}
+    dataset_stats: {stage: get_dataset_stats}
+    model: {stage: train}
+  splits:
+    - train
+    - valid
+  dir_name: CENN_E_Model
+  make_stage_log: True
+
+train_no_preprocess:
+  assets_out:
+    model: 
+      handler: PyTorchModel
+      path_template: "{root}/{dataset}/{working}{stage}/model_{epoch}.pth"
+  assets_in:
+    cmb_map: {stage: make_sims}
+    obs_maps: {stage: make_sims}
+    lut: {stage: make_lut}
+    dataset_stats: {stage: get_dataset_stats}
+    model: {stage: train}
+    patch_dict: {stage: choose_patches, orig_name: all_ids}
+  splits:
+    - train
+  dir_name: CENN_E_Model
+  make_stage_log: True
+
+predict: &final_inference
+  assets_out:
+    cmb_map: 
+      # handler: NumpyMap
+      # path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/cmb_map_pred_{epoch}.npy"
+      handler: HealpyMap
+      path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/cmb_map_pred_{epoch}.fits"
+  assets_in:
+    obs_maps: {stage: make_sims}
+    lut: {stage: make_lut}
+    dataset_stats: {stage: get_dataset_stats}
+    model: {stage: train}
+  splits:
+    - ${splits.run_inference_on}
+  epochs: ${use_epochs}
+  dir_name: CENN_F_Predict
+  make_stage_log: True
+
+final_infer: *final_inference  # Used so that analysis code can find a consistent name
