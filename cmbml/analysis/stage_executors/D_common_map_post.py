@@ -41,10 +41,10 @@ class CommonPostExecutor(BaseStageExecutor):
         self.mask_threshold = self.cfg.model.analysis.mask_threshold
 
         self.use_pixel_weights = False
-        self.mask_post_map_deconv        = self.cfg.model.analysis.post_map_mask_b4_deconv
-        self.do_deconv                   = self.cfg.model.analysis.post_map_do_deconv
-        self.mask_post_map_remove_dipole = self.cfg.model.analysis.post_map_mask_b4_remove_dipole
-        self.do_remove_dipole            = self.cfg.model.analysis.post_map_remove_dipole
+        self.mask_b4_deconv        = self.cfg.model.analysis.post_map_mask_b4_deconv
+        self.do_deconv             = self.cfg.model.analysis.post_map_do_deconv
+        self.mask_b4_remove_dipole = self.cfg.model.analysis.post_map_mask_b4_remove_dipole
+        self.do_remove_dipole      = self.cfg.model.analysis.post_map_remove_dipole
 
         # Prepare to load beam and mask in execute()
         self.beam = None
@@ -99,7 +99,7 @@ class CommonPostExecutor(BaseStageExecutor):
         post_map = cmb_map.copy()
 
         # Apply the mask
-        if self.mask_post_map_deconv:
+        if self.mask_b4_deconv:
             post_map = hp.ma(post_map)
             post_map.mask = np.logical_not(self.mask)
 
@@ -108,7 +108,7 @@ class CommonPostExecutor(BaseStageExecutor):
             post_map = self.deconv(post_map)
 
         # Reapply the mask
-        if self.mask_post_map_remove_dipole:
+        if self.mask_b4_remove_dipole:
             post_map = hp.ma(post_map)
             post_map.mask = np.logical_not(self.mask)
 
