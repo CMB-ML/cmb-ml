@@ -11,7 +11,7 @@ defaults:
 
 # dataset_name   : ${scenario.map_fields}_${scenario.nside}_${splits.name}
 dataset_name   : I_512_1450
-working_dir    : "PyILC_CNILC_test/"
+working_dir    : "PyILC_CNILC/"
 fig_model_name : "CNILC"
 hydra:
   run:
