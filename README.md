@@ -107,7 +107,7 @@ Setting up the repository:
   - If you are not creating simulations, you only need one external science asset: "COM_CMB_IQU-nilc_2048_R3.00_full.fits" (for the mask)
   - Scripts are available in the `get_data` folder, which will download all files.
     - [Downloads from original sources](./get_data/get_assets.py) gets files from the official sources (and the CMB-ML files from this repo)
-    - If you prefer to download fewer files, adjust (this executor)[get_data/stage_executors/A_get_assets.py] (not recommended)
+    - If you prefer to download fewer files, adjust [this executor](get_data/stage_executors/A_get_assets.py) (not recommended)
 - Next, set up to run.
   - You will need to either generate simulations or download them.
 
