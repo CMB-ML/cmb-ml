@@ -92,7 +92,7 @@ class TheoryPSExecutor(BaseStageExecutor):
         cosmo_params = self._translate_params_keys(cosmo_params)
 
         camb_results = make_camb_ps(cosmo_params, lmax=self.max_ell_for_camb)
-        ps_asset.write(use_alt_path=use_alt_path, data=camb_results)
+        ps_asset.write(use_alt_path=use_alt_path, data=camb_results, lmax=self.max_ell_for_camb)
 
     def _translate_params_keys(self, src_params):
         translation_dict = self._param_translation_dict()

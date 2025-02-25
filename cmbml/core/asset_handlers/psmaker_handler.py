@@ -42,9 +42,9 @@ class CambPowerSpectrum(GenericHandler):
             raise NotImplementedError("Untested, no use case currently.")
             return df
 
-    def write(self, path: Path, data: camb.CAMBdata) -> None:
+    def write(self, path: Path, data: camb.CAMBdata, lmax: int) -> None:
         make_directories(path)
-        data.save_cmb_power_spectra(filename=path)
+        data.save_cmb_power_spectra(filename=path, lmax=lmax)
 
 
 class NumpyPowerSpectrum(GenericHandler):
