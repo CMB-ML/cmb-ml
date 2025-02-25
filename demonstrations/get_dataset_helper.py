@@ -4,7 +4,7 @@ import tempfile
 
 from cmbml.core.asset_handlers import Config
 from cmbml.core import Namer
-from get_data.utils.get_from_shared_link import download_shared_link_info
+from cmbml.get_data.utils.get_from_shared_link import download_shared_link_info
 
 
 

@@ -6,7 +6,7 @@ from tqdm import tqdm
 from cmbml.core import BaseStageExecutor, Asset
 from cmbml.core.asset_handlers import Config, HealpyMap
 
-from get_data.utils.get_from_shared_link import download_shared_link_info
+from cmbml.get_data.utils.get_from_shared_link import download_shared_link_info
 
 
 logger = logging.getLogger(__name__)

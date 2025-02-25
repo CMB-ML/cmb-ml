@@ -1,5 +1,5 @@
 import logging
-from get_data.stage_executors.B_get_cmbml_data import GetNoiseModelExecutor
+from cmbml.get_data.stage_executors.B_get_cmbml_data import GetNoiseModelExecutor
 
 
 logger = logging.getLogger(__name__)

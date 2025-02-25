@@ -1,11 +1,11 @@
 from pathlib import Path
 import logging
 
-from get_data.utils.new_download_utils import (
+from cmbml.get_data.utils.new_download_utils import (
     download,
     download_progress,
 )
-from get_data.utils.download import extract_file
+from cmbml.get_data.utils.download import extract_file
 
 
 logger = logging.getLogger(__name__)

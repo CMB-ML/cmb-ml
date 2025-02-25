@@ -9,7 +9,7 @@ sys.path.insert(0, repo_root)
 import logging
 import hydra
 from cmbml.core import PipelineContext, LogMaker
-from get_data.stage_executors.B_get_cmbml_data import GetDatasetExecutor
+from cmbml.get_data.stage_executors.B_get_cmbml_data import GetDatasetExecutor
 
 
 logger = logging.getLogger(__name__)

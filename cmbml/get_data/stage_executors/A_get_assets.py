@@ -8,8 +8,8 @@ from tqdm import tqdm
 from cmbml.core import BaseStageExecutor, Asset
 from cmbml.core.asset_handlers import HealpyMap, Mover, QTableHandler
 
-from get_data.utils.get_planck_data_ext import get_planck_obs_data_ext, get_planck_pred_data_ext
-from get_data.utils.get_wmap_data_ext import get_wmap_chains_ext
+from cmbml.get_data.utils.get_planck_data_ext import get_planck_obs_data_ext, get_planck_pred_data_ext
+from cmbml.get_data.utils.get_wmap_data_ext import get_wmap_chains_ext
 
 
 logger = logging.getLogger(__name__)

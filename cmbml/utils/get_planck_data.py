@@ -4,7 +4,7 @@ import logging
 
 import numpy as np
 from tqdm import tqdm
-from get_data.utils.new_download_utils import (
+from cmbml.get_data.utils.new_download_utils import (
     download,
     download_progress,
 )

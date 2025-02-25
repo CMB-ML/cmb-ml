@@ -1,7 +1,7 @@
 from pathlib import Path
 import logging
 
-from get_data.utils.new_download_utils import (
+from cmbml.get_data.utils.new_download_utils import (
     download,
     download_progress,
 )

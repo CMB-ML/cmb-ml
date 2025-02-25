@@ -6,7 +6,7 @@ from tqdm import tqdm
 
 from cmbml.core import BaseStageExecutor, Asset
 from cmbml.utils.planck_instrument import make_instrument, Instrument
-from get_data.utils.get_planck_data_ext import get_planck_noise_data_ext
+from cmbml.get_data.utils.get_planck_data_ext import get_planck_noise_data_ext
 
 from cmbml.core.asset_handlers.healpy_map_handler import HealpyMap
 from cmbml.core.asset_handlers.qtable_handler import QTableHandler
