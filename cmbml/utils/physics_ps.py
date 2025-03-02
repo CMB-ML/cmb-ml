@@ -27,7 +27,7 @@ def get_xpower(map1, map2, mask, lmax, use_pixel_weights=False):
         else:
             mean2 = np.sum(map2*mask)/np.sum(mask)
             input2 = mask*(map2-mean2)
-        fsky = np.sum(mask)/mask.shape[0]
+        fsky = np.sum(mask**2)/mask.size
         ps = hp.anafast(input1,
                         input2,
                         lmax=lmax,
