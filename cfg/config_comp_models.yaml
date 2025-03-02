@@ -28,10 +28,6 @@ models_comp:
     working_directory : PyILC_CNILC/
     # No epochs for this model
     epoch             : ""
-  - patch_nn:
-    model_name        : PatchNN
-    working_directory : PatchNN/
-    epoch             : 30
 ps_baseline           : theory
 
 

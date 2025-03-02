@@ -16,9 +16,5 @@ __pycache__/
 .DS_Store
 */.DS_Store
 
-junk.py
-junk*.py
-junk.ipynb
-junk*.ipynb
-
-loss_records.csv
+junk.*
+junk*.*
