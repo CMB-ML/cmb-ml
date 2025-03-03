@@ -26,7 +26,7 @@ def run_pyilc_analysis(cfg):
 
     pipeline_context = PipelineContext(cfg, log_maker)
 
-    pipeline_context.add_pipe(HydraConfigCheckerExecutor)
+    # pipeline_context.add_pipe(HydraConfigCheckerExecutor)
 
     pipeline_context.add_pipe(PixelCompareTableExecutor)
     pipeline_context.add_pipe(PSCompareTableExecutor)
