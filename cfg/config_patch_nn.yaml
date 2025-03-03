@@ -13,7 +13,7 @@ defaults:
 
 # When creating multiple datasets, using interpolation like this may be easier:
 # dataset_name       : ${scenario.map_fields}_${scenario.nside}_${splits.name}
-dataset_name       : I_512_1450
+dataset_name       : CMB-ML_512_1450
 working_dir        : "PatchNN_${model.patch_nn.scaling}_test/"
 fig_model_name     : PatchNN
 hydra:

@@ -6,7 +6,7 @@ defaults:
   - override hydra/job_logging: custom_log
   - _self_
 
-dataset_name: ${scenario.map_fields}_${scenario.nside}_${splits.name}
+dataset_name: CMB-ML_${scenario.nside}_${splits.name}
 working_dir : "Simulation_Working/"
 hydra:
   run:
