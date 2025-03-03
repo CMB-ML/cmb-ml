@@ -1,0 +1,18 @@
+defaults:
+  - network: base_settings
+  - _self_
+
+train:
+  device           : null  # Goes to None in python
+  learning_rate    : 1e-3
+  # n_epochs         : 120     # 
+  n_epochs         : ${num_epochs}     #
+  batch_size       : 11    # Adjust based on GPU Memory, empty A100 with 40GB can handle 11 at nside 128
+  checkpoint_every : 5     # checkpoint every this number of epochs (paper checkpoints every epoch but using 5 not to hog disk space)
+  extra_check      : [1, 2, 3, 6, 9]
+  restart_epoch    : null       # Set to null to create a new model, or give a checkpoint number
+  # restart_epoch    : 40
+predict:
+  device           : null  # Goes to None in python
+  batch_size       : 11
+  best_epoch       : null

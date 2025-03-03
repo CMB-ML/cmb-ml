@@ -20,7 +20,7 @@ hydra:
 # These are not to be used directly in the python
 # They are picked up from here and MAY be used elsewhere in the yamls.
 # In the scenario yaml
-nside          : 512
+nside          : 64
 detectors      : [30, 44, 70, 100, 143, 217, 353, 545, 857]
 map_fields     : "I"
 

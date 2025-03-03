@@ -1,0 +1,3 @@
+depth: 4 # no other option yet
+laplacian_type: combinatorial # or normalized (paper uses combinatorial)
+kernel_size: 3
