@@ -11,7 +11,7 @@ defaults:
 
 # dataset_name: CMML_Dataset
 # When creating multiple datasets, using interpolation like this may be easier:
-dataset_name       : ${scenario.map_fields}_${scenario.nside}_${splits.name}
+dataset_name       : CMB-ML_${scenario.nside}_${splits.name}
 working_dir        : "CMBNNCS_UNet8/"
 fig_model_name     : CMBNNCS
 hydra:
