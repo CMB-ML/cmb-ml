@@ -1,5 +1,7 @@
 # CMB-ML: A Cosmic Microwave Background Radiation Dataset for Machine Learning
 
+**Due to double-blinding, simulations must be recreated. Download utilities that rely on Box hav been disabled. Download utilities for external science assets still function. Generation of noise relies on either enabling (in main_sims.py) the noise model creation, or downloading the noise model files from [this anonymized Google Drive](https://drive.google.com/drive/folders/1Tx8r7A4RXmTAVIlwAFAo_C28Br2ofwOL?usp=drive_link) and putting them into the target Datasets/CMB-ML_512_1450/NoiseModel directory.** We've checked that download of these files cannot be known to the authors. Nevertheless, logging out of active Google accounts is recommended. We apologize for the inconvenience.
+
 ZENODO (DOI) BADGE HERE
 
 Contents:
@@ -235,6 +237,8 @@ November 2024: New dataset released:
 - Because the work is still unpublished and we do not know of anyone else using it, references to previous datasets have been updated. The original dataset will be removed June 30, 2025, unless we're made aware of anyone using it.
 
 # Data File Links
+
+**Due to double-blinding, links to CMB-ML files are disabled. Simulations must be recreated. See top of README for more information.**
 
 We provide links to the various data used. Alternatives to get this data are in `get_data` and the `Demonstrations`. "Science assets" refers to data created by long-standing cosmological surveys.
 
