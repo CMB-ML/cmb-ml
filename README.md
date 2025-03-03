@@ -206,8 +206,8 @@ We list below the datasets and model's aggregated (across the Test split) perfor
 
 | Model   | MAE                    | RMSE                  | NRMSE                    | PSNR                  |
 |---------|------------------------|-----------------------|--------------------------|-----------------------|
-| CMBNNCS | $\bf{25.40 \pm 0.29}$  | $\bf{31.88 \pm 0.36}$ | $\bf{0.3057 \pm 0.0040}$ | $\bf{30.20 \pm 0.33}$ |
-| CNILC   | $32.15 \pm 0.44$       | $40.35 \pm 0.55$      | $0.3869 \pm 0.0043$      | $28.57 \pm 0.52$      |
+| CMBNNCS | $\bf{25.25 \pm 0.29}$  | $\bf{31.69 \pm 0.36}$ | $\bf{0.3039 \pm 0.0040}$ | $\bf{30.25 \pm 0.33}$ |
+| CNILC   | $32.28 \pm 0.44$       | $40.52 \pm 0.55$      | $0.3885 \pm 0.0043$      | $28.89 \pm 0.60$      |
 
 
 # Outside Works
