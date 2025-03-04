@@ -74,6 +74,10 @@ def run_simulations(cfg):
     # pipeline_context.add_pipe(MakePlanckNoiseModelExecutor)
 
     # Download the noise model (much faster)
+    # The noise model is a summary of 100 Planck noise maps in the form of
+    # an average noise map, a power spectrum, and a noise covariance matrix
+    # for each detector frequency. It's much smaller than the original data
+    # (processed above in commented out Executors)
     pipeline_context.add_pipe(DownloadNoiseModelExecutor)
 
     ############################
