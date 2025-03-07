@@ -56,7 +56,7 @@ show_cmb_post_masked:
   splits:
     - ${splits.run_inference_on}
   override_n_sims: ${n_show_cap}    
-  plot_min_max: 500                  # value, v: plots from -v to +v; null: allow MPL to choose; list (size 2): min and max val
+  plot_min_max: 300                  # value, v: plots from -v to +v; null: allow MPL to choose; list (size 2): min and max val
   make_stage_log: False
   dir_name: Analysis_2_Show_CMB_Post
   epochs: ${use_epochs_imgs}
@@ -88,7 +88,7 @@ show_cmb_post_masked_ind:
   splits:
     - ${splits.run_inference_on}
   override_n_sims: ${n_show_cap}    
-  plot_min_max: 500                  # value, v: plots from -v to +v; null: allow MPL to choose; list (size 2): min and max val
+  plot_min_max: 300                  # value, v: plots from -v to +v; null: allow MPL to choose; list (size 2): min and max val
   make_stage_log: False
   dir_name: Analysis_2_Show_CMB_Post_Indiv
   epochs: ${use_epochs_imgs}
