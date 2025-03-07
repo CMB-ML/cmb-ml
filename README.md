@@ -71,7 +71,9 @@ We can compare the CMB predictions to the ground truths in order to determine ho
 
 Other figures are produced of summary statistics, but these are far more boring (for now!).
 
-# Blinding Notes
+# Blinding Notes for Reviewers
+
+If you have somehow stumbled upon this and are not a reviewer, please contact us through GitHub and we will gladly redirect you to the fully functional repository being actively developed.
 
 Download utilities for the dataset have been disabled. Download utilities for external science assets still function. Generation of noise relies on either enabling (in main_sims.py) the noise model creation, or downloading the noise model files from [this anonymized Google Drive](https://drive.google.com/drive/folders/1Tx8r7A4RXmTAVIlwAFAo_C28Br2ofwOL?usp=drive_link) and putting them into the target Datasets/CMB-ML_512_1450/NoiseModel directory. We've checked that download of these files cannot be known to the authors. Nevertheless, logging out of active Google accounts is recommended.
 
@@ -80,6 +82,8 @@ This repository has one set of simulations in the assets folder (not present in 
 More simulations and both the initial and final cmbNNCS model are in the anonymous Google Drive. Simulations obtained from here need to be placed in Datasets/CMB-ML_512_1450/Simulations/Test. Final cmbNNCS model should be placed in Datasets/CMB-ML_512_1450/CMBNNCS_UNet8/CMBNNCS_D_Model.
 
 We apologize for the inconvenience.
+
+The rest of the README is largely unchanged from the main repository.
 
 # New Methods
 
