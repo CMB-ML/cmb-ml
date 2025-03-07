@@ -41,11 +41,30 @@ mask_sm_apo_size:  20.6  # Matching smallest beam and pyilc perform_ILC_at_beam
 mask_sm_apo_type:  'C1'  # NaMaster mask type
 
 post_map_mask_b4_deconv : false       # Whether the post_map will be masked before deconvolving it
-post_map_do_deconv: false             # Whether the post_map will be deconvolved
+post_map_do_deconv: true              # Whether the post_map will be deconvolved
 post_map_mask_b4_remove_dipole: true  # Whether the post_map will be masked before removing the dipole
 post_map_remove_dipole: true          # Whether the post_map will have the dipole removed
 
 ps_use_smooth_mask: true  # Whether to use the smoothed mask for power spectrum calculations
+
+# # SAS
+# target_beam:
+#   _target_: cmbml.utils.physics_beam.GaussianBeam
+#   _partial_: true  # _partial_ is a flag for Hydra. In this case, 
+#                    #    lmax will come from python code
+#   beam_fwhm: 20.6
+# post_map_delta_range: [-25, 25]
+
+# LAS
+target_beam:
+  # _target_: cmbml.utils.physics_beam.NoBeam
+  # _partial_: true  # _partial_ is a flag for Hydra. In this case, 
+  #                  #    lmax will come from python code
+  _target_: cmbml.utils.physics_beam.GaussianBeam
+  _partial_: true  # _partial_ is a flag for Hydra. In this case, 
+                   #    lmax will come from python code
+  beam_fwhm: 60
+post_map_delta_range: [-20, 20]
 
 lmax_ratio: 2.0
 beam_real:

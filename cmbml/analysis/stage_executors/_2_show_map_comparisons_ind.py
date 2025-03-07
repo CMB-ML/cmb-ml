@@ -62,13 +62,15 @@ class ShowSimsPostIndivExecutor(BaseStageExecutor):
         self.in_cmb_map_sim: Asset = self.assets_in["cmb_map_sim"]
         in_cmb_map_handler: HealpyMap
 
-        self.diff_min_max = [-120, 120]
+        self.diff_min_max = cfg.model.analysis.post_map_delta_range
         self.hist_color = "#524FA1"
 
         self.plot_size_map = (3, 1.5)
         self.plot_size_hist = (3, 1.5)
         self.cbar_height = 0.1
         self.cbar_shrink = 0.7
+
+        self.n_bins = 50
 
     def get_plot_min_max(self):
         """
@@ -168,28 +170,31 @@ class ShowSimsPostIndivExecutor(BaseStageExecutor):
                 self.make_mollview(map_post[field_idx], title="Prediction", out_asset=self.out_pred_fig)
                 self.make_mollview(diff, title="Difference", out_asset=self.out_diff_fig, min_or=diff_min, max_or=diff_max)
 
-                # healpy applies the graticule to every subplot, so we only need to do it once; 
-                # if this were in self.make_mollview, earlier subplots will have multiple graticules applied.
-                hp.graticule(dpar=45, dmer=45)
-
-                n_bins = 50
-
+                # Make histogram
                 fig, ax = plt.subplots(1, 1, figsize=self.plot_size_hist)  # DPI doesn't matter; exporting vector graphic
-                plt.hist(diff.compressed(), bins=n_bins, range=(diff_min, diff_max), color=self.hist_color, histtype='stepfilled')
+                plt.hist(diff.compressed(), bins=self.n_bins, range=(diff_min, diff_max), color=self.hist_color, histtype='stepfilled')
                 ax.set_yticks([])
-                ax.set_xticks([])
-                # Enable once to get ticks for figure in Supplementary Material. TODO: Better way.
-                # ax.set_xticks([-100, -50, 0, 50, 100])
-                # ax.set_xlabel("$\\delta \\mathrm{T} \\; [\\mu \\mathrm{K}_\\mathrm{CMB}]$")
-                # ax.set_ylabel("Pixel Count")
-                # ax.set_title("Histogram of Difference")
-                for x in [-100, -50, 0, 50, 100]:  # Hard-coded. Sorry. :(
+                # ax.set_xticks([])
+
+                x_lines = [
+                    diff_min,
+                    diff_min / 2,
+                    0,
+                    diff_max / 2,
+                    diff_max,
+                ]
+                ax.set_xticks(x_lines)
+                ax.set_xlabel("$\\delta \\mathrm{T} \\; [\\mu \\mathrm{K}_\\mathrm{CMB}]$")
+
+                for x in x_lines:
                     ax.axvline(x=x, color='black', linestyle='--', linewidth=0.5)
                 plt.tight_layout()
-                self.save_figure(self.out_hist_fig)
+                # self.save_figure(self.out_hist_fig)
+                self.save_figure(self.out_hist_fig, extra_label="_ticks")
 
-    def save_figure(self, out_asset):
+    def save_figure(self, out_asset, extra_label=""):
         fn = out_asset.path
+        fn = fn.parent / (fn.stem + extra_label + fn.suffix)  # Preserve full path
         out_asset.write()  # Create directory if it doesn't exist
         file_fmt = fn.suffix[1:]  # Remove the dot
         plt.savefig(fn, format=file_fmt)
@@ -211,6 +216,16 @@ class ShowSimsPostIndivExecutor(BaseStageExecutor):
             margins=(-0.125, -0.1, -0.1, -0.1),  # Left, right, bottom, top; healpy is difficult.
         )
         hp.mollview(to_plot, **plot_params)
+
+        # Get the current axis
+        ax = plt.gca()
+
+        # Draw an ellipse (instead of a full graticule)
+        theta = np.linspace(0, 2 * np.pi, 100)
+        x = np.cos(theta) * 2
+        y = np.sin(theta) 
+        ax.plot(x, y, 'k', linewidth=1.5)  # Black border
+
         self.save_figure(out_asset)
 
 

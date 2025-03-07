@@ -60,15 +60,15 @@ def run_cmbnncs(cfg):
 
     pipeline_context.add_pipe(HydraConfigCheckerExecutor)
 
-    # Cleaning: Preprocessing
-    pipeline_context.add_pipe(MakeLutExecutor)
-    pipeline_context.add_pipe(MaskCreatorExecutor)
-    pipeline_context.add_pipe(ChoosePatchesExecutor)
-    pipeline_context.add_pipe(FindDatasetStatsParallelExecutor)
-    pipeline_context.add_pipe(PreprocessPatchesExecutor)
+    # # Cleaning: Preprocessing
+    # pipeline_context.add_pipe(MakeLutExecutor)
+    # pipeline_context.add_pipe(MaskCreatorExecutor)
+    # pipeline_context.add_pipe(ChoosePatchesExecutor)
+    # pipeline_context.add_pipe(FindDatasetStatsParallelExecutor)
+    # pipeline_context.add_pipe(PreprocessPatchesExecutor)
 
-    # Cleaning: Training and Prediction
-    pipeline_context.add_pipe(TrainingExecutor)
+    # # Cleaning: Training and Prediction
+    # # pipeline_context.add_pipe(TrainingExecutor)
     pipeline_context.add_pipe(PredictExectutor)
 
     # Analysis: processing the maps in a common way

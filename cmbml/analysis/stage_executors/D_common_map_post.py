@@ -47,13 +47,14 @@ class CommonPostExecutor(BaseStageExecutor):
         self.do_remove_dipole      = self.cfg.model.analysis.post_map_remove_dipole
 
         # Prepare to load beam and mask in execute()
-        self.beam = None
+        self.source_beam = None
+        self.target_beam = self.cfg.model.analysis.target_beam
         self.mask = None
 
     def execute(self) -> None:
         logger.debug(f"Running {self.__class__.__name__} execute().")
         self.mask = self.get_mask()
-        self.beam = self.get_beam()
+        self.source_beam, self.target_beam = self.get_beams()
         self.default_execute()
 
     def get_mask(self):
@@ -72,11 +73,13 @@ class CommonPostExecutor(BaseStageExecutor):
         mask = downgrade_mask(mask, self.nside_out, threshold=self.mask_threshold)
         return mask
 
-    def get_beam(self):
+    def get_beams(self):
         # Partially instantiate the beam object, defined in the hydra configs (cfg.model.analysis)
-        beam = instantiate(self.beam_cfg)  # Defined in children classes (at bottom of file)
-        beam = beam(lmax=self.lmax)
-        return beam
+        source_beam = instantiate(self.beam_cfg)  # Defined in children classes (at bottom of file)
+        source_beam = source_beam(lmax=self.lmax)
+        target_beam = instantiate(self.target_beam)
+        target_beam = target_beam(lmax=self.lmax)
+        return source_beam, target_beam
 
     def process_split(self, 
                       split: Split) -> None:
@@ -122,8 +125,10 @@ class CommonPostExecutor(BaseStageExecutor):
         # Convert to spherical harmonic space (a_lm)
         alm_in = hp.map2alm(data, lmax=self.lmax)
 
+        beam = self.target_beam.beam[:self.lmax] / self.source_beam.beam[:self.lmax]
+
         # Deconvolve the beam
-        alm_deconv = hp.almxfl(alm_in, 1 / self.beam.beam[:self.lmax])
+        alm_deconv = hp.almxfl(alm_in, beam)
 
         # Convert back to map space
         map_deconv = hp.alm2map(alm_deconv, nside=self.nside_out)
@@ -140,12 +145,6 @@ class CommonRealPostExecutor(CommonPostExecutor):
         self.out_cmb_map: Asset = self.assets_out["cmb_map"]
         self.in_cmb_map: Asset = self.assets_in["cmb_map"]
         self.beam_cfg = cfg.model.analysis.beam_real
-
-    def deconv(self, data):
-        """
-        No-op because the realization map was never convolved
-        """
-        return data
 
 
 class CommonCMBNNCSPredPostExecutor(CommonPostExecutor):

@@ -174,6 +174,12 @@ class ShowSimsExecutor(BaseStageExecutor):
         )
         hp.mollview(to_plot, **plot_params)
 
+        # Draw an ellipse (instead of a full graticule)
+        theta = np.linspace(0, 2 * np.pi, 100)
+        x = np.cos(theta) * 2
+        y = np.sin(theta) 
+        ax.plot(x, y, 'k', linewidth=1.5)  # Black border
+
         plt.title(title)
 
 
@@ -276,6 +282,8 @@ class ShowSimsPostExecutor(ShowSimsExecutor):
         self.in_cmb_map_sim: Asset = self.assets_in["cmb_map_sim"]
         in_cmb_map_handler: HealpyMap
 
+        self.delta_range = tuple(cfg.model.analysis.post_map_delta_range)
+
     def process_sim(self) -> None:
         for epoch in self.model_epochs:
             with self.name_tracker.set_context('epoch', epoch):
@@ -292,6 +300,8 @@ class ShowSimsPostExecutor(ShowSimsExecutor):
         split = self.name_tracker.context['split']
         sim_n = f"{self.name_tracker.context['sim_num']:0{self.cfg.file_system.sim_str_num_digits}d}"
         fields = self.cfg.scenario.map_fields
+
+        delta_range = self.delta_range
 
         for field_str in fields:
             with self.name_tracker.set_context("field", field_str):
@@ -312,21 +322,32 @@ class ShowSimsPostExecutor(ShowSimsExecutor):
 
                 self.make_mollview(map_sim[field_idx], axs[0], title="Realization", **plot_params)
                 self.make_mollview(map_post[field_idx], axs[1], title="Prediction", **plot_params)
-                self.make_mollview(diff, axs[2], title="Difference", min_or=-120, max_or=120, **plot_params)
+                self.make_mollview(diff, axs[2], title="Difference", 
+                                   min_or=delta_range[0], 
+                                   max_or=delta_range[1], 
+                                   **plot_params)
 
                 # healpy applies the graticule to every subplot, so we only need to do it once; 
                 # if this were in self.make_mollview, earlier subplots will have multiple graticules applied.
-                hp.graticule(dpar=45, dmer=45)
+                # hp.graticule(dpar=45, dmer=45)
 
                 n_bins = 50
+                hist_x_range = (delta_range[0] * 1.05, delta_range[1] * 1.05)
 
                 plt.axes(axs[3])
-                plt.hist(diff.compressed(), bins=n_bins, range=(-120, 120), color="#524FA1", histtype='stepfilled')
+                plt.hist(diff.compressed(), bins=n_bins, range=hist_x_range, color="#524FA1", histtype='stepfilled')
                 axs[3].set_yticks([])
                 axs[3].set_xlabel("Deviation from Zero Difference ($\\mu \\text{K}_\\text{CMB}$)")
                 axs[3].set_ylabel("Pixel Count")
                 axs[3].set_title("Histogram of Difference")
-                for x in [-100, -50, 0, 50, 100]:
+
+                lines = [hist_x_range[0],
+                         hist_x_range[0] / 2,
+                         0,
+                         hist_x_range[1] / 2,
+                         hist_x_range[1]]
+
+                for x in lines:
                     axs[3].axvline(x=x, color='black', linestyle='--', linewidth=0.5)
                 self.save_figure(self.suptitle, split, sim_n, field_str, out_asset)
 

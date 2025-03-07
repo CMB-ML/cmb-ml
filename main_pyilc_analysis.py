@@ -65,28 +65,28 @@ def run_pyilc_analysis(cfg):
 
     # In the following, "Common" means "Apply the same postprocessing to all models"; requires a mask
     # Apply to the target (CMB realization)
-    pipeline_context.add_pipe(CommonRealPostExecutor)
-    pipeline_context.add_pipe(CommonPyILCPredPostExecutor)
+    # pipeline_context.add_pipe(CommonRealPostExecutor)
+    # pipeline_context.add_pipe(CommonPyILCPredPostExecutor)
 
     # Show results of cleaning
-    pipeline_context.add_pipe(CommonNILCShowSimsPostExecutor)
+    # pipeline_context.add_pipe(CommonNILCShowSimsPostExecutor)
     pipeline_context.add_pipe(CommonNILCShowSimsPostIndivExecutor)
 
-    pipeline_context.add_pipe(PixelAnalysisExecutor)
-    pipeline_context.add_pipe(PixelSummaryExecutor)
-    pipeline_context.add_pipe(PixelSummaryFigsExecutor)
+    # pipeline_context.add_pipe(PixelAnalysisExecutor)
+    # pipeline_context.add_pipe(PixelSummaryExecutor)
+    # pipeline_context.add_pipe(PixelSummaryFigsExecutor)
 
-    # # Not needed in every analysis pipeline, but needed in one
-    pipeline_context.add_pipe(ConvertTheoryPowerSpectrumExecutor)
-    pipeline_context.add_pipe(MakeTheoryPSStats)
+    # # # Not needed in every analysis pipeline, but needed in one
+    # pipeline_context.add_pipe(ConvertTheoryPowerSpectrumExecutor)
+    # pipeline_context.add_pipe(MakeTheoryPSStats)
 
-    # PyILC's Predictions as Power Spectra Anaylsis
-    pipeline_context.add_pipe(PyILCMakePSExecutor)
-    # # pipeline_context.add_pipe(ShowOnePSExecutor)  # Used for debugging; does not require full set of theory ps for simulations
-    pipeline_context.add_pipe(PowerSpectrumAnalysisExecutor)
-    pipeline_context.add_pipe(PowerSpectrumSummaryExecutor)
-    pipeline_context.add_pipe(PowerSpectrumSummaryFigsExecutor)
-    pipeline_context.add_pipe(PostAnalysisPsFigExecutor)
+    # # PyILC's Predictions as Power Spectra Anaylsis
+    # pipeline_context.add_pipe(PyILCMakePSExecutor)
+    # # # pipeline_context.add_pipe(ShowOnePSExecutor)  # Used for debugging; does not require full set of theory ps for simulations
+    # pipeline_context.add_pipe(PowerSpectrumAnalysisExecutor)
+    # pipeline_context.add_pipe(PowerSpectrumSummaryExecutor)
+    # pipeline_context.add_pipe(PowerSpectrumSummaryFigsExecutor)
+    # pipeline_context.add_pipe(PostAnalysisPsFigExecutor)
 
     pipeline_context.prerun_pipeline()
 
