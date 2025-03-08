@@ -1,2 +1,4 @@
 from .stage_executors.B_train_deterministic_model import DeterministicTrainingExecutor
 from .stage_executors.C_predict_deterministic import PredictionExecutor
+from .stage_executors.initialize_bayesian_model import BayesianTrainingExecutor
+from .stage_executors.predict_bayesian import BayesianPredictionExecutor

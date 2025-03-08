@@ -36,8 +36,29 @@ train:
     obs_maps: {stage: make_sims}
   splits:
     - train
-    - valid
+    - test
   dir_name: DeepSphere_B_Train_Deterministic
+  make_stage_log: True
+
+load_bayesian:
+  assets_out:
+    model: 
+      handler: PyTorchModel
+      path_template: "{root}/{dataset}/{working}{stage}/model_{epoch}.pth"
+    best_epoch:
+      handler: Config
+      path_template: "{root}/{dataset}/{working}{stage}/best_epoch.yaml"
+    loss_record:
+      handler: AppendingCsvHandler
+      path_template: "{root}/{dataset}/{working}{stage}/loss_record.csv"
+  assets_in:
+    model: {stage: train}
+    cmb_map: {stage: make_sims}
+    obs_maps: {stage: make_sims}
+  splits:
+    - train
+    - test
+  dir_name: DeepSphere_C_Train_Bayesian
   make_stage_log: True
 
 predict: &final_inference
@@ -52,9 +73,26 @@ predict: &final_inference
   splits:
     - ${splits.run_inference_on}
   epochs: ${use_epochs}
-  dir_name: DeepSphere_C_Predict_Deterministic
+  dir_name: DeepSphere_D_Predict_Deterministic
   make_stage_log: True
 
+predict_bayesian: 
+  assets_out:
+    cmb_map: 
+      handler: HealpyMap
+      path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/cmb_map_pred_{epoch}.fits"
+    uncertainty: 
+      handler: HealpyMap
+      path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/uncertainty_{epoch}.fits"
+  assets_in:
+    model: {stage: load_bayesian}
+    best_epoch: {stage: load_bayesian}
+    obs_maps: {stage: make_sims}
+  splits:
+    - ${splits.run_inference_on}
+  epochs: ${use_epochs}
+  dir_name: DeepSphere_D_Predict_Bayesian
+  make_stage_log: True
 # postprocess: &final_inference
 #   assets_out:
 #     cmb_map: 

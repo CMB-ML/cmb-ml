@@ -8,7 +8,9 @@ from omegaconf import DictConfig
 
 import healpy as hp
 
-from .pytorch_model_base_executor import BaseDeepSphereModelExecutor
+from cmbml.deepsphere_unet.deepsphere.dropout import ConcreteDropout
+
+from .pytorch_model_base_executor import BayesianDeepSphereModelExecutor
 from cmbml.core import Split, Asset
 
 from cmbml.core.asset_handlers import (
@@ -24,9 +26,9 @@ from cmbml.deepsphere_unet.dataset import TrainCMBMapDataset
 logger = logging.getLogger(__name__)
 
 
-class DeterministicTrainingExecutor(BaseDeepSphereModelExecutor):
+class BayesianTrainingExecutor(BayesianDeepSphereModelExecutor):
     def __init__(self, cfg: DictConfig) -> None:
-        super().__init__(cfg, stage_str="train")
+        super().__init__(cfg, stage_str="load_bayesian")
 
         self.out_model: Asset = self.assets_out["model"]
         self.out_best_epoch: Asset = self.assets_out["best_epoch"]
@@ -50,13 +52,14 @@ class DeterministicTrainingExecutor(BaseDeepSphereModelExecutor):
             logger.info(f"MPS is not supported for sparse models. Using CPU.")
             self.choose_device("cpu")
 
-        self.lr = cfg.model.deepsphere.train.learning_rate
-        self.n_epochs = cfg.model.deepsphere.train.n_epochs
-        self.batch_size = cfg.model.deepsphere.train.batch_size
+        self.lr = cfg.model.deepsphere.train_bayesian.learning_rate
+        self.n_epochs = cfg.model.deepsphere.train_bayesian.n_epochs
+        self.batch_size = cfg.model.deepsphere.train_bayesian.batch_size
+
         self.checkpoint = cfg.model.deepsphere.train.checkpoint_every
         self.extra_check = cfg.model.deepsphere.train.extra_check
 
-        self.restart_epoch = cfg.model.deepsphere.train.restart_epoch
+        self.restart_epoch = cfg.model.deepsphere.train_bayesian.restart_epoch
 
 
     def execute(self) -> None:
@@ -104,7 +107,8 @@ class DeterministicTrainingExecutor(BaseDeepSphereModelExecutor):
             loss_record_headers = ["epoch", "train_loss"]
 
         model = self.make_model().to(self.device)
-        
+        model = self.transfer_from_deterministic(model)
+
         logger.debug(f"Testing model output: ")
         self.try_model(model)
 
@@ -112,8 +116,8 @@ class DeterministicTrainingExecutor(BaseDeepSphereModelExecutor):
         self.out_loss_record.write(data=loss_record_headers)
 
         lr = self.lr
-        loss_function = torch.nn.MSELoss()
-        optimizer = torch.optim.SGD(model.parameters(), lr=lr)
+        loss_function = self.heteroscedastic_loss
+        optimizer = torch.optim.Adam(model.parameters(), lr=lr)
 
         if self.restart_epoch is not None:
             logger.info(f"Restarting training at epoch {self.restart_epoch}")
@@ -137,6 +141,7 @@ class DeterministicTrainingExecutor(BaseDeepSphereModelExecutor):
 
         for epoch in range(start_epoch, self.n_epochs):
             combined_loss = 0.0
+            
             model.train()
             train_loss = self.train_loop(model, train_dataloader, optimizer, loss_function)
             if valid_dataloader is not None:
@@ -167,6 +172,14 @@ class DeterministicTrainingExecutor(BaseDeepSphereModelExecutor):
                                          epoch=epoch + 1,
                                          loss=combined_loss)
 
+    def heteroscedastic_loss(self, target, mu, log_var):
+        B, C, P = target.size()
+        target = target.view(B, -1)
+        mu = mu.view(B, -1)
+        log_var = log_var.view(B, -1)
+        precision = torch.exp(-log_var)
+        return torch.mean(torch.mean(0.5*precision * (target - mu)**2 + 0.5*log_var, 1), 0)
+    
     def train_loop(self, model: torch.nn.Module, dataloader: DataLoader, optimizer: torch.optim.Optimizer, loss_function: torch.nn.Module) -> float:
         """Runs the training loop for a single epoch.
 
@@ -189,10 +202,15 @@ class DeterministicTrainingExecutor(BaseDeepSphereModelExecutor):
 
                 train_features = train_features.to(device=self.device, dtype=self.dtype)
                 train_label = train_label.to(device=self.device, dtype=self.dtype)
+ 
+                mu, logvar = model(train_features)
+                reg = torch.zeros(1)
+                for module in filter(lambda x: isinstance(x, ConcreteDropout), model.modules()):
+                    reg = reg + module.regularization
+
+                loss = loss_function(train_label, mu, logvar) + reg
 
                 optimizer.zero_grad()
-                output = model(train_features)
-                loss = loss_function(output, train_label)
                 loss.backward()
                 optimizer.step()
                 batch_loss += loss.item()
@@ -224,8 +242,12 @@ class DeterministicTrainingExecutor(BaseDeepSphereModelExecutor):
                 valid_features = valid_features.to(device=self.device, dtype=self.dtype)
                 valid_label = valid_label.to(device=self.device, dtype=self.dtype)
 
-                output = model(valid_features)
-                loss = loss_function(output, valid_label)
+                mu, logvar = model(valid_features)
+                reg = torch.zeros(1)
+                for module in filter(lambda x: isinstance(x, ConcreteDropout), model.modules()):
+                    reg = reg + module.regularization
+
+                loss = loss_function(valid_label, mu, logvar) + reg
                 batch_loss += loss.item()
 
                 pbar.set_postfix({f'Loss for {batch_n}/{len(dataloader)}': loss.item() / self.batch_size})
@@ -234,6 +256,25 @@ class DeterministicTrainingExecutor(BaseDeepSphereModelExecutor):
             epoch_loss /= len(dataloader.dataset)
         return epoch_loss
 
+    def transfer_from_deterministic(self, model: torch.nn.Module) -> torch.nn.Module:
+        """Transfer the weights from a deterministic model to a Bayesian model. Assumes "best" epoch is saved.
+
+        Args:
+            model (torch.nn.Module): Bayesian model to transfer weights to
+
+        Returns:
+            torch.nn.Module: Bayesian model with transferred weights
+        """
+        with self.name_tracker.set_context("epoch", "best"):
+            deterministic_model_weights = torch.load(self.in_model.path)['model_state_dict']
+        # must be a better way to do this but I'm not sure what it isß
+        for key in deterministic_model_weights.keys():
+            if key in model.state_dict().keys():
+                model.state_dict()[key].copy_(deterministic_model_weights[key])
+        model.state_dict()['decoder.dec_fin_mu.weight'].copy_(deterministic_model_weights['decoder.dec_fin.weight'])
+        model.state_dict()['decoder.dec_fin_mu.bias'].copy_(deterministic_model_weights['decoder.dec_fin.bias'])
+        return model
+    
     def set_up_dataset(self, template_split: Split) -> None:
         cmb_path_template = self.make_fn_template(template_split, self.in_cmb_asset)
         obs_path_template = self.make_fn_template(template_split, self.in_obs_assets)
