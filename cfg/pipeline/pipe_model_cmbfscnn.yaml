@@ -28,71 +28,71 @@ preprocess:
   dir_name: CMBFSCNN_C_Preprocess
   make_stage_log: True
 
-train:
-  assets_out:
-    model: 
-      handler: PyTorchModel
-      path_template: "{root}/{dataset}/{working}{stage}/model_{epoch}.pth"
-  assets_in:
-    dataset_stats: {stage: make_normalization}
-    model: {stage: train}
-    cmb_map: {stage: preprocess}
-    obs_maps: {stage: preprocess}
-  splits:
-    - train
-  dir_name: CMBFSCNN_D_Model
-  make_stage_log: True
+# train:
+#   assets_out:
+#     model: 
+#       handler: PyTorchModel
+#       path_template: "{root}/{dataset}/{working}{stage}/model_{epoch}.pth"
+#   assets_in:
+#     dataset_stats: {stage: make_normalization}
+#     model: {stage: train}
+#     cmb_map: {stage: preprocess}
+#     obs_maps: {stage: preprocess}
+#   splits:
+#     - train
+#   dir_name: CMBFSCNN_D_Model
+#   make_stage_log: True
 
-predict:
-  assets_out:
-    cmb_map: 
-      handler: NumpyMap
-      path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/cmb_map_pred_{epoch}.npy"
-  assets_in:
-    model: {stage: train}
-    obs_maps: {stage: preprocess}
-  splits:
-    - ${splits.run_inference_on}
-  epochs: ${use_epochs}
-  dir_name: CMBFSCNN_E_Predict
-  make_stage_log: True
+# predict:
+#   assets_out:
+#     cmb_map: 
+#       handler: NumpyMap
+#       path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/cmb_map_pred_{epoch}.npy"
+#   assets_in:
+#     model: {stage: train}
+#     obs_maps: {stage: preprocess}
+#   splits:
+#     - ${splits.run_inference_on}
+#   epochs: ${use_epochs}
+#   dir_name: CMBFSCNN_E_Predict
+#   make_stage_log: True
 
-postprocess: &final_inference
-  assets_out:
-    cmb_map: 
-      handler: HealpyMap
-      path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/cmb_map_post_{epoch}.fits"
-  assets_in:
-    dataset_stats: {stage: make_normalization}
-    cmb_map: {stage: predict}
-  splits:
-    - ${splits.run_inference_on}
-  epochs: ${use_epochs}
-  dir_name: CMBFSCNN_F_Postprocess
-  make_stage_log: True
+# postprocess: &final_inference
+#   assets_out:
+#     cmb_map: 
+#       handler: HealpyMap
+#       path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/cmb_map_post_{epoch}.fits"
+#   assets_in:
+#     dataset_stats: {stage: make_normalization}
+#     cmb_map: {stage: predict}
+#   splits:
+#     - ${splits.run_inference_on}
+#   epochs: ${use_epochs}
+#   dir_name: CMBFSCNN_F_Postprocess
+#   make_stage_log: True
 
-final_infer: *final_inference  # Used so that analysis code can find a consistent name
+# final_infer: *final_inference  # Used so that analysis code can find a consistent name
 
-show_cmb_pred_cmbnncs:
-  assets_out:
-    cmb_map_render:
-      handler: EmptyHandler
-      path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/cmb_{epoch}_{field}.png"
-  assets_in:
-    dataset_stats: {stage: make_normalization}
-    cmb_map_pred: {stage: predict, orig_name: cmb_map}
-    cmb_map_sim: {stage: make_sims, orig_name: cmb_map}
-    deltabandpass: {stage: raw}
-  splits:
-    - ${splits.run_inference_on}
-  override_n_sims: ${n_show_cap}
-  plot_min_max: 500                  # value, v: plots from -v to +v; null: allow MPL to choose; list (size 2): min and max val
-  make_stage_log: False
-  dir_name: Analysis_2B_Show_CMB_Pred
-  epochs: ${use_epochs_imgs}
+# show_cmb_pred_cmbnncs:
+#   assets_out:
+#     cmb_map_render:
+#       handler: EmptyHandler
+#       path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/cmb_{epoch}_{field}.png"
+#   assets_in:
+#     dataset_stats: {stage: make_normalization}
+#     cmb_map_pred: {stage: predict, orig_name: cmb_map}
+#     cmb_map_sim: {stage: make_sims, orig_name: cmb_map}
+#     deltabandpass: {stage: raw}
+#   splits:
+#     - ${splits.run_inference_on}
+#   override_n_sims: ${n_show_cap}
+#   plot_min_max: 500                  # value, v: plots from -v to +v; null: allow MPL to choose; list (size 2): min and max val
+#   make_stage_log: False
+#   dir_name: Analysis_2B_Show_CMB_Pred
+#   epochs: ${use_epochs_imgs}
 
 
-show_sims_prep_cmbnncs:
+show_sims_prep:
   assets_out:
     cmb_map_render:
       handler: EmptyHandler
@@ -108,7 +108,7 @@ show_sims_prep_cmbnncs:
     obs_maps_prep: {stage: preprocess, orig_name: obs_maps}
     deltabandpass: {stage: raw}
   splits:
-    - train
+    - valid
   override_n_sims: ${n_show_cap}
   plot_min_max: 500                  # value, v: plots from -v to +v; null: allow MPL to choose; list (size 2): min and max val
   dir_name: Analysis_2A_Show_Sims_Prep_CMBFSCNN
