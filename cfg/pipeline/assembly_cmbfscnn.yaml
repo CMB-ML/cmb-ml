@@ -1,0 +1,5 @@
+defaults:
+  - _self_
+  - assembly_sim
+  - pipe_model_cmbfscnn
+  - pipe_model_analysis
