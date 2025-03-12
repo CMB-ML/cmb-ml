@@ -81,9 +81,7 @@ class BayesianPredictionExecutor(BayesianDeepSphereModelExecutor):
         else:
             model.train()
             for feature, idx in zip(features, idcs):
-                print(feature.shape, idx)
                 repeated_feature = feature.unsqueeze(0).repeat(self.mc_samples, 1, 1)
-                print(repeated_feature.shape)
                 out = model(repeated_feature)
                 mus = out[0]
                 logvars = out[1]

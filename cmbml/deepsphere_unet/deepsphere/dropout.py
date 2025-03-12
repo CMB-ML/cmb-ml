@@ -1,6 +1,6 @@
+## Code is taken and modified from the following repo: https://github.com/aurelio-amerio/ConcreteDropout.git
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 
 class ConcreteDropout(nn.Module):
     def __init__(self, channels_first=False, weight_regularizer=1e-6, dropout_regularizer=1e-5, init_min=0.001, init_max=0.001, is_mc_dropout=False):
@@ -13,6 +13,7 @@ class ConcreteDropout(nn.Module):
         self.p_logit = nn.Parameter(torch.empty(1).uniform_(init_min, init_max))
         self.p = torch.sigmoid(self.p_logit)
         self.is_mc_dropout = is_mc_dropout
+        # Buffers to train on GPU, otherwise will be mad
         self.register_buffer('ss', torch.tensor(0.))
         self.register_buffer('eps', torch.tensor(torch.finfo(torch.float32).eps))
         self.register_buffer('temperature', torch.tensor(2. / 3.))
@@ -34,7 +35,7 @@ class ConcreteDropout(nn.Module):
         # machine precision epsilon for numerical stability inside the log
         eps = self.eps
 
-        # this is the shape of the dropout noise, same as tf.nn.dropout
+        # this is the shape of the dropout noise
         noise_shape = self._get_noise_shape(x)
 
         unif_noise = torch.rand(*noise_shape, device=p.device)  # uniform noise
@@ -65,7 +66,8 @@ class ConcreteDropout(nn.Module):
         kernel_regularizer = self.weight_regularizer * ss / (1. - p)
         # the dropout regularizer corresponds to the second term
         dropout_regularizer = p * torch.log(p)
-        dropout_regularizer = dropout_regularizer + (1. - p) * torch.log1p(- p)
+        dropout_regularizer = dropout_regularizer + (1. - p) * torch.log(1. - p)
+
         if self.channels_first:
             input_dim = x.shape[1]
         else:

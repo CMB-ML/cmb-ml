@@ -1,4 +1,5 @@
-"""Chebyshev convolution layer. For the moment taking as-is from Michaël Defferrard's implementation. For v0.15 we will rewrite parts of this layer.
+"""
+Chebyshev convolution layer. For the moment taking as-is from Michaël Defferrard's implementation. 
 """
 # pylint: disable=W0221
 

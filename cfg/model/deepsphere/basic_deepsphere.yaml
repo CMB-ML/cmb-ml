@@ -14,8 +14,8 @@ train:
   # restart_epoch    : 40
 train_bayesian:
   learning_rate    : 1e-4
-  n_epochs         : 250     # 
-  batch_size       : 7    # Adjust based on GPU Memory, empty A100 with 40GB can handle 11 at nside 128
+  n_epochs         : 200   
+  batch_size       : 7    # Adjust based on GPU Memory, bayesian model takes up more memory
   restart_epoch    : null       # Set to null to create a new model, or give a checkpoint number
   # restart_epoch    : 40
 predict:
