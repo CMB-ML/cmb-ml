@@ -8,7 +8,7 @@ from omegaconf import DictConfig
 
 import healpy as hp
 
-from cmbml.deepsphere_unet.deepsphere.dropout import ConcreteDropout
+from cmbml.deepsphere_unet.deepsphere.dropout import SpatialConcreteDropout
 
 from .pytorch_model_base_executor import BayesianDeepSphereModelExecutor
 from cmbml.core import Split, Asset
@@ -205,7 +205,7 @@ class BayesianTrainingExecutor(BayesianDeepSphereModelExecutor):
  
                 mu, logvar = model(train_features)
                 reg = torch.zeros(1).to(self.device)
-                for module in filter(lambda x: isinstance(x, ConcreteDropout), model.modules()):
+                for module in filter(lambda x: isinstance(x, SpatialConcreteDropout), model.modules()):
                     reg = reg + module.regularization
 
                 loss = loss_function(train_label, mu, logvar) + reg
@@ -244,7 +244,7 @@ class BayesianTrainingExecutor(BayesianDeepSphereModelExecutor):
 
                 mu, logvar = model(valid_features)
                 reg = torch.zeros(1).to(self.device)
-                for module in filter(lambda x: isinstance(x, ConcreteDropout), model.modules()):
+                for module in filter(lambda x: isinstance(x, SpatialConcreteDropout), model.modules()):
                     reg = reg + module.regularization
 
                 loss = loss_function(valid_label, mu, logvar) + reg

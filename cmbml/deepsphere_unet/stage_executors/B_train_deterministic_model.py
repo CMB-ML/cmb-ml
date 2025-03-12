@@ -136,6 +136,7 @@ class DeterministicTrainingExecutor(BaseDeepSphereModelExecutor):
         best_epoch = 0
 
         for epoch in range(start_epoch, self.n_epochs):
+            combined_loss = None
             train_loss = self.train(model, train_dataloader, optimizer, loss_function)
             if epoch >= self.start_valid:
                 if valid_dataloader is not None:
@@ -162,7 +163,7 @@ class DeterministicTrainingExecutor(BaseDeepSphereModelExecutor):
                 self.out_loss_record.append(data=[epoch + 1, train_loss])
             else:
                 self.out_loss_record.append(data=[epoch + 1, train_loss, None])
-                
+
             # Checkpoint every so many epochs
             if (epoch + 1) in self.extra_check or (epoch + 1) % self.checkpoint == 0:
                 with self.name_tracker.set_context("epoch", epoch + 1):

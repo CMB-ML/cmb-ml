@@ -8,7 +8,7 @@ import math
 import torch
 from torch import nn
 
-from .dropout import ConcreteDropout
+from .dropout import SpatialConcreteDropout
 
 def cheb_conv(laplacian, inputs, weight):
     """Chebyshev convolution.
@@ -177,7 +177,7 @@ class ConcreteDropoutChebConv(nn.Module):
         super().__init__()
 
         self.chebconv = SphericalChebConv(in_channels, out_channels, lap, kernel_size)
-        self.dropout = ConcreteDropout(weight_regularizer=weight_regularizer, dropout_regularizer=dropout_regularizer)
+        self.dropout = SpatialConcreteDropout(weight_regularizer=weight_regularizer, dropout_regularizer=dropout_regularizer)
     
     def forward(self, x):
         x = self.dropout(x, self.chebconv)

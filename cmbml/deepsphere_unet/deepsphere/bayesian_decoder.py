@@ -3,7 +3,7 @@ import torch.nn as nn
 
 from .bayesian_utils import BayesianSphericalChebBN2
 
-from .dropout import ConcreteDropout
+from .dropout import SpatialConcreteDropout
 
 class BayesianSphericalChebBNPoolConcat(nn.Module):
     """Building Block calling a SphericalChebBNPool Block
@@ -64,8 +64,8 @@ class Decoder(nn.Module):
         self.dec_fin_logvar = torch.nn.Conv1d(16, 1, 1)
         self.dec_fin_logvar.weight.data.normal_(0, 1e-6)
         self.dec_fin_logvar.bias.data.fill_(0.01)
-        self.cd_mu = ConcreteDropout(channels_first=True, weight_regularizer=weight_regularizer, dropout_regularizer=dropout_regularizer)
-        self.cd_logvar = ConcreteDropout(channels_first=True, weight_regularizer=weight_regularizer, dropout_regularizer=dropout_regularizer)
+        self.cd_mu = SpatialConcreteDropout(channels_first=True, weight_regularizer=weight_regularizer, dropout_regularizer=dropout_regularizer)
+        self.cd_logvar = SpatialConcreteDropout(channels_first=True, weight_regularizer=weight_regularizer, dropout_regularizer=dropout_regularizer)
     
 
     def forward(self, x_enc0, x_enc1, x_enc2, x_enc3):
