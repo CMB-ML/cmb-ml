@@ -37,7 +37,13 @@ px_operations:
 # For power spectra
 mask_threshold:  0.9  # Per Planck's 2015 results:IX. Diffuse component separation: CMB maps
 
-mask_sm_apo_size:  20.6  # Matching smallest beam and pyilc perform_ILC_at_beam
+# Namaster settings for producing apodized masks
+#   If you get segmentation fault errors:
+#      - Larger nside permits smaller mask_sm_apo_size when using "C1"
+#      - "Smoothed" mask type can tolerate smaller mask_sm_apo_size
+# TODO: Dig in deeper, add viable settings to the HydraConfigCheckerS
+mask_sm_apo_size: 60  # Matching smallest beam and pyilc perform_ILC_at_beam
+# mask_sm_apo_size:  20.6  # Matching smallest beam and pyilc perform_ILC_at_beam
 mask_sm_apo_type:  'C1'  # NaMaster mask type
 
 post_map_mask_b4_deconv : false       # Whether the post_map will be masked before deconvolving it
