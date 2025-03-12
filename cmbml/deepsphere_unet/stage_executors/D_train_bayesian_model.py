@@ -204,7 +204,7 @@ class BayesianTrainingExecutor(BayesianDeepSphereModelExecutor):
                 train_label = train_label.to(device=self.device, dtype=self.dtype)
  
                 mu, logvar = model(train_features)
-                reg = torch.zeros(1)
+                reg = torch.zeros(1).to(self.device)
                 for module in filter(lambda x: isinstance(x, ConcreteDropout), model.modules()):
                     reg = reg + module.regularization
 
@@ -243,7 +243,7 @@ class BayesianTrainingExecutor(BayesianDeepSphereModelExecutor):
                 valid_label = valid_label.to(device=self.device, dtype=self.dtype)
 
                 mu, logvar = model(valid_features)
-                reg = torch.zeros(1)
+                reg = torch.zeros(1).to(self.device)
                 for module in filter(lambda x: isinstance(x, ConcreteDropout), model.modules()):
                     reg = reg + module.regularization
 

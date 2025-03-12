@@ -19,16 +19,6 @@ from cmbml.core import (
                       )
 from cmbml.core.A_check_hydra_configs import HydraConfigCheckerExecutor
 from cmbml.sims import MaskCreatorExecutor
-# from cmbml.cmbnncs_local import (
-#                          HydraConfigCMBNNCSCheckerExecutor,
-#                          PreprocessMakeScaleExecutor,
-#                          PreprocessExecutor,
-#                          NonParallelPreprocessExecutor,
-#                          TrainingExecutor,
-#                          PredictionExecutor,
-#                          PostprocessExecutor,
-#                          NonParallelPostprocessExecutor
-#                          )
 
 from cmbml.deepsphere_unet import (
                             DeterministicTrainingExecutor,
@@ -36,25 +26,6 @@ from cmbml.deepsphere_unet import (
                             BayesianTrainingExecutor,
                             BayesianPredictionExecutor
                             )
-
-# from cmbml.analysis import (ShowSimsPrepExecutor, 
-#                             CommonRealPostExecutor,
-#                             CommonCMBNNCSPredPostExecutor,
-#                             CommonCMBNNCSShowSimsPostExecutor,
-#                             CommonCMBNNCSShowSimsPostIndivExecutor,
-#                             CMBNNCSShowSimsPredExecutor, 
-#                             # CMBNNCSShowSimsPostExecutor,
-#                             PixelAnalysisExecutor,
-#                             PixelSummaryExecutor,
-#                             ConvertTheoryPowerSpectrumExecutor,
-#                             MakeTheoryPSStats,
-#                             CMBNNCSMakePSExecutor,
-#                             PixelSummaryFigsExecutor,
-#                             PowerSpectrumAnalysisExecutor,
-#                             PowerSpectrumSummaryExecutor,
-#                             PowerSpectrumSummaryFigsExecutor,
-#                             PostAnalysisPsFigExecutor,
-#                             ShowOnePSExecutor)
 
 from cmbml.sims import MaskCreatorExecutor
 
@@ -88,11 +59,10 @@ def run_deepsphere(cfg):
     pipeline_context.add_pipe(HydraConfigCheckerExecutor)
 
     pipeline_context.add_pipe(DeterministicTrainingExecutor)
-    pipeline_context.add_pipe(PredictionExecutor)
-
     pipeline_context.add_pipe(BayesianTrainingExecutor)
-    pipeline_context.add_pipe(BayesianPredictionExecutor)
 
+    pipeline_context.add_pipe(PredictionExecutor)
+    pipeline_context.add_pipe(BayesianPredictionExecutor)
 
     pipeline_context.prerun_pipeline()
 

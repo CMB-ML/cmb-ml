@@ -6,7 +6,7 @@ train:
   device           : null  # Goes to None in python
   learning_rate    : 1e-3
   # n_epochs         : 120     # 
-  n_epochs         : ${num_epochs}     #
+  n_epochs         : ${num_epochs_deterministic}
   batch_size       : 11    # Adjust based on GPU Memory, empty A100 with 40GB can handle 11 at nside 128
   checkpoint_every : 5     # checkpoint every this number of epochs (paper checkpoints every epoch but using 5 not to hog disk space)
   extra_check      : [1, 2, 3, 6, 9]
@@ -14,7 +14,7 @@ train:
   # restart_epoch    : 40
 train_bayesian:
   learning_rate    : 1e-4
-  n_epochs         : 200   
+  n_epochs         : ${num_epochs_bayesian}
   batch_size       : 7    # Adjust based on GPU Memory, bayesian model takes up more memory
   restart_epoch    : null       # Set to null to create a new model, or give a checkpoint number
   # restart_epoch    : 40
