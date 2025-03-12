@@ -93,8 +93,8 @@ class BaseDeepSphereModelExecutor(BasePyTorchModelExecutor):
     def __init__(self, cfg: DictConfig, stage_str) -> None:
         super().__init__(cfg, stage_str)
         
-        nside = cfg.scenario.nside
-        npix = hp.nside2npix(nside)
+        # self.nside = cfg.scenario.nside
+        npix = hp.nside2npix(self.nside)
 
         input_channels = cfg.scenario.detector_freqs 
         depth = cfg.model.deepsphere.network.depth 

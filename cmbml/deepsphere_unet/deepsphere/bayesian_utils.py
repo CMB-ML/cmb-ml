@@ -1,5 +1,6 @@
 import torch.nn.functional as F
 from torch import nn
+import torch
 
 from .chebyshev import SphericalChebConv
 from .bayesian_cheb import ConcreteDropoutChebConv
@@ -22,6 +23,7 @@ class BayesianSphericalChebBN(nn.Module):
         super().__init__()
         self.spherical_cheb = ConcreteDropoutChebConv(in_channels, out_channels, lap, kernel_size, weight_regularizer, dropout_regularizer)
         self.batchnorm = nn.BatchNorm1d(out_channels)
+        self.relu = nn.ReLU()
 
     def forward(self, x):
         """Forward Pass.
@@ -33,8 +35,10 @@ class BayesianSphericalChebBN(nn.Module):
             :obj:`torch.tensor`: output [batch x vertices x channels/features]
         """
         x = self.spherical_cheb(x)
-        x = self.batchnorm(x.permute(0, 2, 1))
-        x = F.relu(x.permute(0, 2, 1))
+        x = torch.permute(x, (0, 2, 1)) 
+        x = self.batchnorm(x)
+        x = torch.permute(x, (0, 2, 1))
+        x = self.relu(x)
         return x
     
     

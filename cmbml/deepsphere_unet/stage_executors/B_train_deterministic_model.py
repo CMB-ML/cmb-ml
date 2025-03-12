@@ -57,6 +57,7 @@ class DeterministicTrainingExecutor(BaseDeepSphereModelExecutor):
         self.extra_check = cfg.model.deepsphere.train.extra_check
 
         self.restart_epoch = cfg.model.deepsphere.train.restart_epoch
+        self.start_valid = cfg.model.deepsphere.train.start_valid
 
 
     def execute(self) -> None:
@@ -76,7 +77,7 @@ class DeterministicTrainingExecutor(BaseDeepSphereModelExecutor):
         for split in self.splits:
             if split.name == "Train":
                 train_split = split
-            elif split.name == "Test":
+            elif split.name == "Valid":
                 valid_split = split
         
         assert train_split is not None, "Train split not found, add train split in pipeline configuration file"
@@ -93,7 +94,7 @@ class DeterministicTrainingExecutor(BaseDeepSphereModelExecutor):
 
         if valid_split is not None:
             valid_dataset = self.set_up_dataset(valid_split)
-            valid_dataloader = DataLoader(valid_dataset, batch_size=self.batch_size, shuffle=True)
+            valid_dataloader = DataLoader(valid_dataset, batch_size=self.batch_size, shuffle=False)
             logger.info(f"Inspecting data for {valid_split.name} split: ")
             self.inspect_data(valid_dataloader)
             loss_record_headers = ["epoch", "train_loss", "valid_loss"]
@@ -103,13 +104,12 @@ class DeterministicTrainingExecutor(BaseDeepSphereModelExecutor):
             valid_dataloader = None
             loss_record_headers = ["epoch", "train_loss"]
 
+        self.out_loss_record.write(data=loss_record_headers)
+        
         model = self.make_model().to(self.device)
         
         logger.debug(f"Testing model output: ")
         self.try_model(model)
-
-        
-        self.out_loss_record.write(data=loss_record_headers)
 
         lr = self.lr
         loss_function = torch.nn.MSELoss()
@@ -136,29 +136,33 @@ class DeterministicTrainingExecutor(BaseDeepSphereModelExecutor):
         best_epoch = 0
 
         for epoch in range(start_epoch, self.n_epochs):
-            combined_loss = 0.0
-            model.train()
-            train_loss = self.train_loop(model, train_dataloader, optimizer, loss_function)
-            if valid_dataloader is not None:
-                model.eval()
-                with torch.no_grad():
+            train_loss = self.train(model, train_dataloader, optimizer, loss_function)
+            if epoch >= self.start_valid:
+                if valid_dataloader is not None:
                     valid_loss = self.validate(model, valid_dataloader, loss_function)
-                self.out_loss_record.append(data=[epoch + 1, train_loss, valid_loss])
-                combined_loss = 0.8 * valid_loss + 0.2 * train_loss
-                logger.info(f"Epoch {epoch + 1} Train Loss: {train_loss}, Valid Loss: {valid_loss}, Combined Loss: {combined_loss}")
-            else:
-                combined_loss = train_loss
-                logger.info(f"Epoch {epoch + 1} Train Loss: {train_loss}, Combined Loss: {combined_loss}")
+                    self.out_loss_record.append(data=[epoch + 1, train_loss, valid_loss])
+                    combined_loss = 0.8 * valid_loss + 0.2 * train_loss # Per Adams paper, select best model based on this weighted loss
+                    logger.info(f"Epoch {epoch + 1} Train Loss: {train_loss}, Valid Loss: {valid_loss}, Combined Loss: {combined_loss}")
+                else:
+                    combined_loss = train_loss
+                    logger.info(f"Epoch {epoch + 1} Train Loss: {train_loss}, Combined Loss: {combined_loss}")
+                    self.out_loss_record.append(data=[epoch + 1, train_loss])
+                
+                if combined_loss < best_loss:
+                    best_loss = combined_loss
+                    best_epoch = epoch + 1
+                    with self.name_tracker.set_context("epoch", "best"):
+                        res = {"best_epoch": best_epoch, "best_loss": best_loss}
+                        self.out_best_epoch.write(data=res)
+                        self.out_model.write(model=model, optimizer=optimizer, epoch=best_epoch, loss=best_loss)
+            
+            logger.info(f"Epoch {epoch + 1} Train Loss: {train_loss}")
+
+            if valid_split is None:
                 self.out_loss_record.append(data=[epoch + 1, train_loss])
-            
-            if combined_loss < best_loss:
-                best_loss = combined_loss
-                best_epoch = epoch + 1
-                with self.name_tracker.set_context("epoch", "best"):
-                    res = {"best_epoch": best_epoch, "best_loss": best_loss}
-                    self.out_best_epoch.write(data=res)
-                    self.out_model.write(model=model, optimizer=optimizer, epoch=best_epoch, loss=best_loss)
-            
+            else:
+                self.out_loss_record.append(data=[epoch + 1, train_loss, None])
+                
             # Checkpoint every so many epochs
             if (epoch + 1) in self.extra_check or (epoch + 1) % self.checkpoint == 0:
                 with self.name_tracker.set_context("epoch", epoch + 1):
@@ -167,7 +171,53 @@ class DeterministicTrainingExecutor(BaseDeepSphereModelExecutor):
                                          epoch=epoch + 1,
                                          loss=combined_loss)
 
-    def train_loop(self, model: torch.nn.Module, dataloader: DataLoader, optimizer: torch.optim.Optimizer, loss_function: torch.nn.Module) -> float:
+    def one_pass(self, model: torch.nn.Module, dataloader: DataLoader, optimizer: torch.optim.Optimizer, loss_function: torch.nn.Module, train: bool) -> float:
+        """Runs the training or validation loop for a single epoch.
+
+        Args:
+            model (torch.nn.Module): Model to train
+            dataloader (DataLoader): Data
+            optimizer (torch.optim.Optimizer): Optimizer
+            loss_function (torch.nn.Module): Loss
+            train (bool): If True, runs the training loop. If False, runs the validation loop.
+
+        Returns:
+            float: loss for the epoch
+        """
+        epoch_loss = 0.0
+        batch_n = 0
+        batch_loss = 0
+        if train:
+            model.train()
+        else:
+            model.eval()
+        with tqdm(dataloader, postfix={'Loss': 0}) as pbar:
+            for features, labels in pbar:
+                batch_n += 1
+
+                features = features.to(device=self.device, dtype=self.dtype)
+                labels = labels.to(device=self.device, dtype=self.dtype)
+
+                if train:
+                    optimizer.zero_grad()
+                    output = model(features)
+                    loss = loss_function(output, labels)
+                    loss.backward()
+                    optimizer.step()
+                else:
+                    with torch.no_grad():
+                        output = model(features)
+                        loss = loss_function(output, labels)
+
+                batch_loss += loss.item()
+
+                pbar.set_postfix({f'Loss for {batch_n}/{len(dataloader)}': loss.item() / self.batch_size})
+
+                epoch_loss += batch_loss
+            epoch_loss /= len(dataloader.dataset)
+        return epoch_loss
+    
+    def train(self, model: torch.nn.Module, dataloader: DataLoader, optimizer: torch.optim.Optimizer, loss_function: torch.nn.Module) -> float:
         """Runs the training loop for a single epoch.
 
         Args:
@@ -180,28 +230,7 @@ class DeterministicTrainingExecutor(BaseDeepSphereModelExecutor):
             float: training loss for the epoch
         """
 
-        epoch_loss = 0.0
-        batch_n = 0
-        batch_loss = 0
-        with tqdm(dataloader, postfix={'Loss': 0}) as pbar:
-            for train_features, train_label in pbar:
-                batch_n += 1
-
-                train_features = train_features.to(device=self.device, dtype=self.dtype)
-                train_label = train_label.to(device=self.device, dtype=self.dtype)
-
-                optimizer.zero_grad()
-                output = model(train_features)
-                loss = loss_function(output, train_label)
-                loss.backward()
-                optimizer.step()
-                batch_loss += loss.item()
-
-                pbar.set_postfix({f'Loss for {batch_n}/{len(dataloader)}': loss.item() / self.batch_size})
-
-                epoch_loss += batch_loss
-            epoch_loss /= len(dataloader.dataset)
-        return epoch_loss
+        return self.one_pass(model, dataloader, optimizer, loss_function, train=True)
     
     def validate(self, model: torch.nn.Module, dataloader: DataLoader, loss_function: torch.nn.Module) -> float:
         """Runs the validation loop for a single epoch.
@@ -214,25 +243,7 @@ class DeterministicTrainingExecutor(BaseDeepSphereModelExecutor):
         Returns:
             float: validation loss for the epoch
         """
-        epoch_loss = 0.0
-        batch_n = 0
-        batch_loss = 0
-        with tqdm(dataloader, postfix={'Loss': 0}) as pbar:
-            for valid_features, valid_label in pbar:
-                batch_n += 1
-
-                valid_features = valid_features.to(device=self.device, dtype=self.dtype)
-                valid_label = valid_label.to(device=self.device, dtype=self.dtype)
-
-                output = model(valid_features)
-                loss = loss_function(output, valid_label)
-                batch_loss += loss.item()
-
-                pbar.set_postfix({f'Loss for {batch_n}/{len(dataloader)}': loss.item() / self.batch_size})
-
-                epoch_loss += batch_loss
-            epoch_loss /= len(dataloader.dataset)
-        return epoch_loss
+        return self.one_pass(model, dataloader, None, loss_function, train=False)
 
     def set_up_dataset(self, template_split: Split) -> None:
         cmb_path_template = self.make_fn_template(template_split, self.in_cmb_asset)
