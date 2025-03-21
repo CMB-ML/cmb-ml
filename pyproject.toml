@@ -1,35 +1,26 @@
-[tool.poetry]
-name = "cmbml"
-version = "0.0.0"
-description = ""
-authors = ["  USERNAME GOES HERE   "]
-readme = "README.md"
-
-remember to fill in the user name.
-
-[tool.poetry.dependencies]
-python = "^3.9"
-torch = "1.12.1"
-hydra-core = "^1.3.2"
-healpy = "^1.17.1"
-tqdm = "^4.66.2"
-pysm3 = "^3.4.0"
-camb = "^1.5.4"
-pandas = "^2.2.2"
-scikit-image = "<0.23.2"
-scikit-learn = "^1.4.2"
-seaborn = "^0.13.2"
-cmbnncs = {git = "https://github.com/Guo-Jian-Wang/cmbnncs.git"}
-h5py = "^3.11.0"
-jinja2 = "^3.1.4"
-requests = "^2.32.3"
-chealpix = "^2022.10.30"
-jupyter = "^1.0.0"
-
-[tool.poetry.group.dev.dependencies]
-pytest = "^8.0.1"
-pylint = "^3.0.3"
-
 [build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cmbml"
+dynamic = ["version"]
+description = "CMB Machine Learning pipeline"
+license = { text = "CC-BY-4.0" }
+dependencies = []
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["cmbml", "cmbml.*", "hydra_plugins", "hydra_plugins.*"]
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.package-data]
+cmbml = ["cfg/**/*.yaml"]
+
+[tool.setuptools.dynamic]
+version = { attr = "cmbml.__version__" }
+
+[project.entry-points."hydra.searchpath_plugin"]
+cmbml = "hydra_plugins.cmbml_searchpath_plugin.CMBMLSearchPathPlugin"

@@ -47,64 +47,66 @@ def run_simulations(cfg):
     """
     logger.debug(f"Running {__name__} in {__file__}")
 
-    log_maker = LogMaker(cfg)
-    log_maker.log_procedure_to_hydra(source_script=__file__)
+    print(cfg.pretty())
 
-    pipeline_context = PipelineContext(cfg, log_maker)
+    # log_maker = LogMaker(cfg)
+    # log_maker.log_procedure_to_hydra(source_script=__file__)
 
-    pipeline_context.add_pipe(HydraConfigCheckerExecutor)
-    pipeline_context.add_pipe(HydraConfigSimsCheckerExecutor)
+    # pipeline_context = PipelineContext(cfg, log_maker)
 
-    # Required for the kinds of noise implemented in the pipeline
-    pipeline_context.add_pipe(NoiseCacheExecutor)
+    # pipeline_context.add_pipe(HydraConfigCheckerExecutor)
+    # pipeline_context.add_pipe(HydraConfigSimsCheckerExecutor)
 
-    ############################
-    # Noise model creation
-    ############################
-    # If using spatially correlated noise, either recreate or download the noise model
-    # Recreation requires GetPlanckNoiseSimsExecutor, MakePlanckAverageNoiseExecutor, and MakePlanckNoiseModelExecutor
-    # Downloading requires DownloadNoiseModelExecutor only
+    # # Required for the kinds of noise implemented in the pipeline
+    # pipeline_context.add_pipe(NoiseCacheExecutor)
 
-    # Recreate the noise model (slow)
-    # Download the number of noise sims defined in noise_spatial_corr.yaml (if not present already)
-    # pipeline_context.add_pipe(GetPlanckNoiseSimsExecutor)  # Full resolution! Lots of maps!
-    # Average the noise sims (slow); produces a single noise map per frequency
-    # pipeline_context.add_pipe(MakePlanckAverageNoiseExecutor)
-    # Create the noise model, requiring SHT of each map (slow)
-    # pipeline_context.add_pipe(MakePlanckNoiseModelExecutor)
+    # ############################
+    # # Noise model creation
+    # ############################
+    # # If using spatially correlated noise, either recreate or download the noise model
+    # # Recreation requires GetPlanckNoiseSimsExecutor, MakePlanckAverageNoiseExecutor, and MakePlanckNoiseModelExecutor
+    # # Downloading requires DownloadNoiseModelExecutor only
 
-    # Download the noise model (much faster)
-    pipeline_context.add_pipe(DownloadNoiseModelExecutor)
+    # # Recreate the noise model (slow)
+    # # Download the number of noise sims defined in noise_spatial_corr.yaml (if not present already)
+    # # pipeline_context.add_pipe(GetPlanckNoiseSimsExecutor)  # Full resolution! Lots of maps!
+    # # Average the noise sims (slow); produces a single noise map per frequency
+    # # pipeline_context.add_pipe(MakePlanckAverageNoiseExecutor)
+    # # Create the noise model, requiring SHT of each map (slow)
+    # # pipeline_context.add_pipe(MakePlanckNoiseModelExecutor)
 
-    ############################
-    # Simulation creation
-    ############################
+    # # Download the noise model (much faster)
+    # pipeline_context.add_pipe(DownloadNoiseModelExecutor)
 
-    # Needed for all:
-    pipeline_context.add_pipe(ConfigExecutor)
-    pipeline_context.add_pipe(TheoryPSExecutor)
-    pipeline_context.add_pipe(ObsCreatorExecutor)
-    pipeline_context.add_pipe(NoiseMapCreatorExecutor)
-    pipeline_context.add_pipe(SimCreatorExecutor)
+    # ############################
+    # # Simulation creation
+    # ############################
 
-    # # TODO: Put this back in the pipeline yaml; fix/make executor
-    # # pipeline_context.add_pipe(ShowSimsExecutor)  # Out of date, do not use.
+    # # Needed for all:
+    # pipeline_context.add_pipe(ConfigExecutor)
+    # pipeline_context.add_pipe(TheoryPSExecutor)
+    # pipeline_context.add_pipe(ObsCreatorExecutor)
+    # pipeline_context.add_pipe(NoiseMapCreatorExecutor)
+    # pipeline_context.add_pipe(SimCreatorExecutor)
 
-    pipeline_context.prerun_pipeline()
+    # # # TODO: Put this back in the pipeline yaml; fix/make executor
+    # # # pipeline_context.add_pipe(ShowSimsExecutor)  # Out of date, do not use.
 
-    had_exception = False
-    try:
-        pipeline_context.run_pipeline()
-    except Exception as e:
-        had_exception = True
-        logger.exception("An exception occurred during the pipeline.", exc_info=e)
-        raise e
-    finally:
-        if had_exception:
-            logger.error("Pipeline failed.")
-        else:
-            logger.info("Pipeline completed.")
-        log_maker.copy_hydra_run_to_dataset_log()
+    # pipeline_context.prerun_pipeline()
+
+    # had_exception = False
+    # try:
+    #     pipeline_context.run_pipeline()
+    # except Exception as e:
+    #     had_exception = True
+    #     logger.exception("An exception occurred during the pipeline.", exc_info=e)
+    #     raise e
+    # finally:
+    #     if had_exception:
+    #         logger.error("Pipeline failed.")
+    #     else:
+    #         logger.info("Pipeline completed.")
+    #     log_maker.copy_hydra_run_to_dataset_log()
 
 if __name__ == "__main__":
     run_simulations()
