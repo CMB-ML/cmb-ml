@@ -1,2 +1,2 @@
-datasets_root    : /data/jim/CMB_Data/Datasets/
-assets_dir       : /data/jim/CMB_Data/Assets/
+datasets_root    : "${oc.env:CMB_ML_DATA}/Datasets/"
+assets_dir       : "${oc.env:CMB_ML_DATA}/Assets/"
