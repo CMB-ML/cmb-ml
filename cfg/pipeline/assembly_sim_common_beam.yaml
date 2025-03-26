@@ -1,0 +1,6 @@
+defaults:
+  - _self_
+  - pipe_raw_common_beam
+  - pipe_sim
+  - pipe_noise_model
+  - pipe_sim_analysis

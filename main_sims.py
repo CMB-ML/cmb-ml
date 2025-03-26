@@ -15,6 +15,7 @@ Example usage:
 
 import logging
 import hydra
+from omegaconf import OmegaConf
 from cmbml.core import PipelineContext, LogMaker
 from cmbml.core.A_check_hydra_configs import HydraConfigCheckerExecutor
 from cmbml.sims import (
@@ -33,8 +34,19 @@ from cmbml.sims import (
 
 logger = logging.getLogger(__name__)
 
+def select_pipeline(beam: str) -> str:
+    mapping = {
+        "v": "{src_root}/CMB-ML/cmb-ml_deltabandpass.tbl",
+        "c": "{src_root}/CMB-ML/common_deltabandpass.tbl",
+        "p": "{src_root}/Planck/planck_deltabandpass.tbl",
+    }
+    return mapping.get(beam, "assembly_sim_error")
 
-@hydra.main(version_base=None, config_path="cfg", config_name="config_sim")
+OmegaConf.register_new_resolver("pipeline_select", select_pipeline)
+
+
+# @hydra.main(version_base=None, config_path="cfg", config_name="config_sim")
+@hydra.main(version_base=None, config_path="cfg", config_name="config_sim_compose_obs_MR")
 def run_simulations(cfg):
     """
     Runs the simulation pipeline.
