@@ -5,6 +5,9 @@ from omegaconf import OmegaConf # ListConfig, DictConfig
 from astropy import units as u
 
 
+# TODO: remove references to PyILC. Make this a more complete demonstration or whatever it's supposed to be.
+
+
 class ConfigMaker:
     def __init__(self, cfg, deltabandpass, use_dets=None) -> None:
         self.cfg = cfg
@@ -13,7 +16,7 @@ class ConfigMaker:
         self.detector_freqs: List[int] = None
         self.bandwidths: List[float] = None
         self.set_ordered_detectors()
-        self.ilc_cfg_hydra_yaml = self.cfg.model.pyilc
+        # self.ilc_cfg_hydra_yaml = self.cfg.model.pyilc
         self.template = {}
         self.compose_template()
 

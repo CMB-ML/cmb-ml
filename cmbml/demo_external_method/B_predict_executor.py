@@ -103,7 +103,7 @@ class PredictionExecutor(BaseStageExecutor):
         if method == "wrapped_api":
             # SuppressPrint keeps the console clear. It is useful for long-running code.
             with SuppressPrint():
-                # logger.debug("Running PyILC Code...")
+                # logger.debug("Running CMBNNCS Code...")
                 run_wrapped_api(self.out_config.path)
         elif method == "partial_api":
             run_partial_api(self.out_config.path)
@@ -121,23 +121,24 @@ class PredictionExecutor(BaseStageExecutor):
         """
         logger.debug(f"Running script: {script_path}")
 
-    def move_result(self):
-        """
-        Outside scripts may save to a hardcoded file name. We can
-        move the result to the final destination.
-        """
-        logger.debug("Moving result to final destination.")
-        result_dir = self.out_model.path
-        result_prefix = self.cfg.model.pyilc.output_prefix
-        result_ext = self.cfg.model.pyilc.save_as
-        result_fn = f"{result_prefix}needletILCmap_component_CMB.{result_ext}"
+    # Breaking this code deliberately... it refers to PyILC for something and shouldn't.
+    # def move_result(self):
+    #     """
+    #     Outside scripts may save to a hardcoded file name. We can
+    #     move the result to the final destination.
+    #     """
+    #     logger.debug("Moving result to final destination.")
+    #     result_dir = self.out_model.path
+    #     result_prefix = self.cfg.model.pyilc.output_prefix
+    #     result_ext = self.cfg.model.pyilc.save_as
+    #     result_fn = f"{result_prefix}needletILCmap_component_CMB.{result_ext}"
 
-        result_path = result_dir / result_fn
-        destination_path = self.out_cmb_asset.path
+    #     result_path = result_dir / result_fn
+    #     destination_path = self.out_cmb_asset.path
 
-        destination_path.parent.mkdir(exist_ok=True, parents=True)
+    #     destination_path.parent.mkdir(exist_ok=True, parents=True)
 
-        result_path.rename(destination_path)
+    #     result_path.rename(destination_path)
 
     def clear_working_directory(self):
         """

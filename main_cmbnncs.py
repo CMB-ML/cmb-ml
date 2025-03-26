@@ -18,7 +18,7 @@ And also generating various analysis figures, throughout.
 Final comparison is performed in the main_analysis_compare.py script.
 
 Usage:
-    python main_pyilc_predict.py
+    python main_cmbnncs.py
 """
 import logging
 
