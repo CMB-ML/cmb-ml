@@ -17,7 +17,7 @@ include = ["cmbml", "cmbml.*", "hydra_plugins", "hydra_plugins.*"]
 include-package-data = true
 
 [tool.setuptools.package-data]
-cmbml = ["cfg/**/*.yaml"]
+cmbml = ["cfg/**/*.yaml", "utils/planck_colormap.txt"]
 
 [tool.setuptools.dynamic]
 version = { attr = "cmbml.__version__" }
