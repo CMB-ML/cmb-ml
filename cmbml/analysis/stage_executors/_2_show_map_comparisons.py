@@ -32,6 +32,7 @@ from cmbml.utils import planck_cmap
 logger = logging.getLogger(__name__)
 
 
+# TODO: Fix all this up. I'm inheriting the wrong stuff. It's like the end of Akira, stuff added to stuff added...
 class ShowSimsExecutor(BaseStageExecutor):
     """
     Abstract.
@@ -177,90 +178,6 @@ class ShowSimsExecutor(BaseStageExecutor):
         plt.title(title)
 
 
-def load_sim_and_mang_map(sim_asset, mang_asset, cen_freq):
-    sim_map = sim_asset.read().to(u.uK_CMB)
-    if cen_freq == 'cmb':
-        sim_map = sim_map.to(u.uK_CMB)
-    else:
-        sim_map = sim_map.to(u.uK_CMB, equivalencies=u.cmb_equivalencies(cen_freq))
-    mang_map = mang_asset.read() * u.uK_CMB
-    return sim_map, mang_map
-
-
-class ShowSimsPrepExecutor(ShowSimsExecutor):
-    def __init__(self, cfg: DictConfig) -> None:
-        stage_str = "show_sims_prep_cmbnncs"
-        super().__init__(cfg, stage_str)
-
-        self.right_subplot_title = "Preprocessed"
-
-        self.out_cmb_figure: Asset = self.assets_out["cmb_map_render"]
-        self.out_obs_figure: Asset = self.assets_out["obs_map_render"]
-        out_cmb_figure_handler: EmptyHandler
-        out_obs_figure_handler: EmptyHandler
-
-        self.in_cmb_map_sim: Asset = self.assets_in["cmb_map_sim"]
-        self.in_cmb_map_prep: Asset = self.assets_in["cmb_map_prep"]
-        self.in_obs_map_sim: Asset = self.assets_in["obs_maps_sim"]
-        self.in_obs_map_prep: Asset = self.assets_in["obs_maps_prep"]
-        self.in_dataset_stats: Asset = self.assets_in["dataset_stats"]
-        in_cmb_map_handler: NumpyMap
-        in_obs_map_handler: NumpyMap
-        in_dataset_stats_handler: Config
-
-    def process_sim(self) -> None:
-        scale_factors = self.in_dataset_stats.read()
-        cmb_map_sim, cmb_map_prep = load_sim_and_mang_map(self.in_cmb_map_sim, self.in_cmb_map_prep, 'cmb')
-        self.make_maps_per_field(cmb_map_sim, 
-                                 cmb_map_prep, 
-                                 det="cmb", 
-                                 scale_factors=scale_factors['cmb'],
-                                 out_asset=self.out_cmb_figure)
-        for freq, detector in self.instrument.dets.items():
-            with self.name_tracker.set_context("freq", freq):
-                obs_map_sim, obs_map_prep = load_sim_and_mang_map(self.in_obs_map_sim, 
-                                                                  self.in_obs_map_prep, 
-                                                                  detector.cen_freq)
-                self.make_maps_per_field(obs_map_sim, 
-                                         obs_map_prep, 
-                                         det=freq, 
-                                         scale_factors=scale_factors[freq],
-                                         out_asset=self.out_obs_figure)
-
-
-class CMBNNCSShowSimsPredExecutor(ShowSimsExecutor):
-    def __init__(self, cfg: DictConfig) -> None:
-        stage_str = "show_cmb_pred_cmbnncs"
-        super().__init__(cfg, stage_str)
-
-        self.right_subplot_title = "Predicted"
-
-        self.out_cmb_figure: Asset = self.assets_out["cmb_map_render"]
-        out_cmb_figure_handler: EmptyHandler
-
-        self.in_cmb_map_sim: Asset = self.assets_in["cmb_map_sim"]
-        self.in_cmb_map_pred: Asset = self.assets_in["cmb_map_pred"]
-        self.in_dataset_stats: Asset = self.assets_in["dataset_stats"]
-        in_cmb_map_sim_handler: HealpyMap
-        in_cmb_map_pred_handler: NumpyMap
-        in_dataset_stats_handler: Config
-
-    def process_sim(self) -> None:
-        logger.debug(f"Reading dataset_stats from: {self.in_dataset_stats.path}")
-        scale_factors = self.in_dataset_stats.read()
-        for epoch in self.model_epochs:
-            logger.info(f"Creating map figures predictions, model epoch {epoch}")
-            with self.name_tracker.set_context('epoch', epoch):
-                cmb_map_sim, cmb_map_pred = load_sim_and_mang_map(self.in_cmb_map_sim, 
-                                                                  self.in_cmb_map_pred, 
-                                                                  'cmb')
-                self.make_maps_per_field(cmb_map_sim,
-                                         cmb_map_pred,
-                                         det="cmb",
-                                         scale_factors=scale_factors['cmb'],
-                                         out_asset=self.out_cmb_figure)
-
-
 class ShowSimsPostExecutor(ShowSimsExecutor):
     def __init__(self, cfg: DictConfig, stage_str=None) -> None:
         stage_str = "show_cmb_post_masked"
@@ -331,49 +248,13 @@ class ShowSimsPostExecutor(ShowSimsExecutor):
                 self.save_figure(self.suptitle, split, sim_n, field_str, out_asset)
 
 
-# class CMBNNCSShowSimsPostExecutor(ShowSimsPostExecutor):
-#     def __init__(self, cfg: DictConfig) -> None:
-#         super().__init__(cfg)
-#         self.right_subplot_title = "CMBNNCS Predicted"
-
-
-# class PetroffShowSimsPostExecutor(ShowSimsPostExecutor):
-#     def __init__(self, cfg: DictConfig) -> None:
-#         super().__init__(cfg)
-#         self.right_subplot_title = "Petroff Predicted"
-
-
-# class NILCShowSimsPostExecutor(ShowSimsPostExecutor):
-#     def __init__(self, cfg: DictConfig) -> None:
-#         super().__init__(cfg)
-#         self.right_subplot_title = "NILC Predicted"
-
-
 class CommonRealPostExecutor(ShowSimsPostExecutor):
     def __init__(self, cfg: DictConfig) -> None:
         stage_str = "show_cmb_post_masked"
         super().__init__(cfg, stage_str=stage_str)
 
 
-class CommonCMBNNCSShowSimsPostExecutor(CommonRealPostExecutor):
-    def __init__(self, cfg: DictConfig) -> None:
-        super().__init__(cfg)
-        self.right_subplot_title = "CMBNNCS Predicted"
-
-
-class CommonNNShowSimsPostExecutor(CommonRealPostExecutor):
-    def __init__(self, cfg: DictConfig) -> None:
-        super().__init__(cfg)
-        self.right_subplot_title = "NN Predicted"
-
-
-class CommonPetroffShowSimsPostExecutor(CommonRealPostExecutor):
-    def __init__(self, cfg: DictConfig) -> None:
-        super().__init__(cfg)
-        self.right_subplot_title = "Petroff Predicted"
-
-
-class CommonNILCShowSimsPostExecutor(CommonRealPostExecutor):
+class CommonShowSimsPostExecutor(CommonRealPostExecutor):
     def __init__(self, cfg: DictConfig) -> None:
         super().__init__(cfg)
         self.right_subplot_title = "NILC Predicted"
