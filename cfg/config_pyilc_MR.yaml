@@ -1,0 +1,52 @@
+defaults:
+  - _self_
+  - local_system              : ${oc.env:CMB_ML_LOCAL_SYSTEM}
+  - file_system               : common_fs
+  - pipeline                  : assembly_pyilc
+  - scenario                  : scenario
+  - splits                    : "1-1"
+  - model/pyilc               : empty
+  - model/analysis            : basic_analysis
+  - override hydra/job_logging: custom_log
+
+dataset_name   : "512_1_N${noise}_B${beam}_redux"
+working_dir    : "PyILC_cnilc_${model.pyilc.distinct.N_scales}ell/"
+fig_model_name : "CNILC"
+hydra:
+  mode: MULTIRUN
+  sweeper:
+    params:
+      noise: c, w
+      beam: c, p, v
+      model/pyilc: cnilc_512_4ell, cnilc_512_8ell, cnilc_512_9ell
+  run:
+    dir        : Logs/${now:%Y-%m-%d-%H-%M-%S}
+  sweep:
+    dir        : Logs/${now:%Y-%m-%d-%H-%M-%S}  # Should be the same as run.dir
+    subdir     : ${hydra.job.num}               # Subsequent jobs will include duplicate logs for all previous jobs. This is a minor bug, not worth fixing.
+  verbose      : true
+
+# Placeholders for the map types
+noise:  ???
+beam:  ???
+
+# Settings below this point are used for interpolation.
+# These are not to be used directly in python.
+# They are picked up from here and MAY be used elsewhere in the yamls. Be careful, check assumptions!
+# In the scenario yaml
+nside          : 512
+detectors      : [44, 70, 100, 143, 217, 353, 545, 857]
+map_fields     : "I"
+
+# In the pipeline yamls
+# No epochs exist for PyILC method; use a placeholder:
+use_epochs           : &epochs [""]
+use_epochs_imgs      : *epochs
+use_epochs_map_stats : *epochs
+use_epochs_ps_stats  : *epochs
+
+# Limit the number of simulations for which to generate figures
+n_show_cap           : 1   # int: first n_sims; null: all sims (not recommended); list: particular sims by index
+# Limit the number of simulations for which inference is run. In the splits yaml; null to run on all
+n_infer_cap          : null
+run_inference_on     : test  # Either "test" or "valid" ("train" should work, but is not recommended)
