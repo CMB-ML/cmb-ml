@@ -108,7 +108,7 @@ class HealpyMap(GenericHandler):
                 data = [datum.value for datum in data]
         if isinstance(data, Quantity):
             if column_units is None:
-                logger.debug(f"Data is Quantity object with shape {data.shape}, no units are provided, setting units to array of {data.unit}, length {data.shape[0]}")
+                logger.debug(f"Data is Quantity object with shape {data.shape}, no unit parameter provided to write(), setting units to array of {data.unit}, length {data.shape[0]}")
                 if len(data.shape) == 1:  # One map in a shape (Npix, ) array
                     column_units = [data.unit]
                 else:  # Maps in a shape (Nmaps, Npix) array
