@@ -129,6 +129,8 @@ class LogMaker:
             maybe_path = config_path / f"{top_config_name}.yaml"
             if maybe_path.exists():
                 relevant_files[provider] = [maybe_path]
+            else:
+                relevant_files[provider] = []
 
         missing_combinations = []
 
