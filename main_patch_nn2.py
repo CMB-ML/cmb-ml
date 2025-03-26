@@ -160,5 +160,4 @@ def run_cmbnncs(cfg):
 
 
 if __name__ == "__main__":
-    validate_environment_variable("CMB_ML_LOCAL_SYSTEM")
     run_cmbnncs()
