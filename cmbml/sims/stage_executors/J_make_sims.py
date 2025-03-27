@@ -101,7 +101,7 @@ class SimCreatorExecutor(BaseStageExecutor):
                 column_names = get_field_types_from_fits(self.in_noise.path)  # path requires being in freq context
 
             # Perform addition in-place 
-            obs_maps = noise_maps.to(self.output_units, equivalencies=u.cmb_equivalencies(detector.cen_freq))
+            obs_maps = 1e-6 * noise_maps.to(self.output_units, equivalencies=u.cmb_equivalencies(detector.cen_freq))
             obs_maps += sky_no_noise_maps.to(self.output_units, equivalencies=u.cmb_equivalencies(detector.cen_freq))
 
             with self.name_tracker.set_contexts(dict(freq=freq)):

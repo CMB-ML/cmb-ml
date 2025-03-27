@@ -9,7 +9,7 @@ defaults:
   - model/analysis            : basic_analysis
   - override hydra/job_logging: custom_log
 
-dataset_name   : "512_1_N${noise}_B${beam}_redux"
+dataset_name   : "512_1_N${noise}_B${beam}_low_noise"
 working_dir    : "PyILC_cnilc_${model.pyilc.distinct.N_scales}ell/"
 fig_model_name : "CNILC"
 hydra:

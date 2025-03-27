@@ -9,7 +9,7 @@ defaults:
   - override hydra/job_logging: custom_log
   - _self_
 
-dataset_name   : "512_1_N${noise}_B${beam}_redux"
+dataset_name   : "512_1_N${noise}_B${beam}_low_noise"
 working_dir    : "Simulation_Working/"
 hydra:
   mode: MULTIRUN
