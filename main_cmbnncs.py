@@ -31,7 +31,7 @@ from cmbml.core import (
                       )
 from cmbml.core.A_check_hydra_configs import HydraConfigCheckerExecutor
 from cmbml.sims import MaskCreatorExecutor
-from cmbml.cmbnncs_local import (
+from cmbml.cmbnncs_localOLD import (
                          HydraConfigCMBNNCSCheckerExecutor,
                          PreprocessMakeScaleExecutor,
                          PreprocessExecutor,

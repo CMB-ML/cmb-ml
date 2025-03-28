@@ -4,7 +4,7 @@ from pathlib import Path
 
 import torch
 
-from .asset_handlers_base import (
+from ..core.asset_handlers.asset_handlers_base import (
     GenericHandler, 
     register_handler, 
     make_directories)

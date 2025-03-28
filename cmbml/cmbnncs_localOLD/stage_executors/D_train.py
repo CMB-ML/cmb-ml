@@ -20,7 +20,7 @@ from cmbml.core.asset_handlers import (
     )
 
 # from core.pytorch_dataset import TrainCMBMapDataset
-from cmbml.cmbnncs_local.dataset import TrainCMBMapDataset
+from cmbml.cmbnncs_localOLD.dataset import TrainCMBMapDataset
 # from cmbml.core.pytorch_transform import TrainToTensor
 # from cmbml.cmbnncs_local.preprocessing.scale_methods_factory import get_scale_class
 # from cmbml.cmbnncs_local.preprocessing.transform_pixel_rearrange import sphere2rect

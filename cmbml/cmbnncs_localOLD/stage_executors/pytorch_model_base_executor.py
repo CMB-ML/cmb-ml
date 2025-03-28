@@ -14,9 +14,9 @@ from cmbml.core import (
 
 # from ..dataset import CMBMapDataset
 # from ..dummymodel import DummyNeuralNetwork
-from cmbml.cmbnncs_local.unet_wrapper import make_unet
+from cmbml.cmbnncs_localOLD.unet_wrapper import make_unet
 
-from cmbml.core.asset_handlers.pytorch_model_handler import PyTorchModel  # Must be imported to get it registered
+from cmbml.torch.pytorch_model_handler import PyTorchModel  # Must be imported to get it registered
 from cmbml.utils import make_instrument, Instrument, Detector
 
 

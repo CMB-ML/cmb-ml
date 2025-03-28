@@ -4,7 +4,7 @@ from omegaconf import DictConfig
 
 from cmbml.core import Split, Asset
 from cmbml.core.executor_base import BaseStageExecutor
-from cmbml.core.asset_handlers.pytorch_model_handler import PyTorchModel # Import for typing hint
+from cmbml.torch.pytorch_model_handler import PyTorchModel # Import for typing hint
 from cmbml.core.asset_handlers.healpy_map_handler import HealpyMap
 from cmbml.utils.patch_healpix import make_pixel_index_lut
 
