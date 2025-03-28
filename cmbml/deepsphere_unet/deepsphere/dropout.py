@@ -83,8 +83,12 @@ class SpatialConcreteDropout(nn.Module):
     def get_regularization(self, x, layer):
         p = self.p
         # We will now compute the KL terms following eq.3 of 1705.07832
-        weight = layer.weight
-        ss = torch.sum(torch.pow(weight, 2))
+
+        ss = 0
+        for name, param in layer.named_parameters():
+            if name.endswith("weight"):
+                weight = param
+                ss = ss + torch.sum(torch.pow(weight, 2))
 
         # The kernel regularizer corresponds to the first term
         # Note: we  divide by (1 - p) because  we  scaled  layer  output  by (1 - p)

@@ -60,6 +60,7 @@ class BayesianTrainingExecutor(BayesianDeepSphereModelExecutor):
         self.extra_check = cfg.model.deepsphere.train.extra_check
 
         self.restart_epoch = cfg.model.deepsphere.train_bayesian.restart_epoch
+        self.start_valid = cfg.model.deepsphere.train_bayesian.start_valid
 
 
     def execute(self) -> None:
@@ -79,7 +80,7 @@ class BayesianTrainingExecutor(BayesianDeepSphereModelExecutor):
         for split in self.splits:
             if split.name == "Train":
                 train_split = split
-            elif split.name == "Test":
+            elif split.name == "Valid":
                 valid_split = split
         
         assert train_split is not None, "Train split not found, add train split in pipeline configuration file"
@@ -140,47 +141,104 @@ class BayesianTrainingExecutor(BayesianDeepSphereModelExecutor):
         best_epoch = 0
 
         for epoch in range(start_epoch, self.n_epochs):
-            combined_loss = 0.0
-            
-            model.train()
-            train_loss = self.train_loop(model, train_dataloader, optimizer, loss_function)
-            if valid_dataloader is not None:
-                model.eval()
-                with torch.no_grad():
+            train_loss = self.train(model, train_dataloader, optimizer, loss_function)
+            if epoch >= self.start_valid:
+                if valid_dataloader is not None:
                     valid_loss = self.validate(model, valid_dataloader, loss_function)
-                self.out_loss_record.append(data=[epoch + 1, train_loss, valid_loss])
-                combined_loss = 0.8 * valid_loss + 0.2 * train_loss
-                logger.info(f"Epoch {epoch + 1} Train Loss: {train_loss}, Valid Loss: {valid_loss}, Combined Loss: {combined_loss}")
+                    self.out_loss_record.append(data=[epoch + 1, train_loss, valid_loss])
+                    combined_loss = 0.8 * valid_loss + 0.2 * train_loss # Per Adams paper, select best model based on this weighted loss
+                    logger.info(f"Epoch {epoch + 1} Train Loss: {train_loss}, Valid Loss: {valid_loss}, Combined Loss: {combined_loss}")
+                else:
+                    combined_loss = train_loss
+                    logger.info(f"Epoch {epoch + 1} Train Loss: {train_loss}, Combined Loss: {combined_loss}")
+                    self.out_loss_record.append(data=[epoch + 1, train_loss])
+                
+                if combined_loss < best_loss:
+                    best_loss = combined_loss
+                    best_epoch = epoch + 1
+                    with self.name_tracker.set_context("epoch", "best"):
+                        res = {"best_epoch": best_epoch, "best_loss": best_loss}
+                        self.out_best_epoch.write(data=res)
+                        self.out_model.write(model=model, optimizer=optimizer, epoch=best_epoch)
             else:
-                combined_loss = train_loss
-                logger.info(f"Epoch {epoch + 1} Train Loss: {train_loss}, Combined Loss: {combined_loss}")
-                self.out_loss_record.append(data=[epoch + 1, train_loss])
-            
-            if combined_loss < best_loss:
-                best_loss = combined_loss
-                best_epoch = epoch + 1
-                with self.name_tracker.set_context("epoch", "best"):
-                    res = {"best_epoch": best_epoch, "best_loss": best_loss}
-                    self.out_best_epoch.write(data=res)
-                    self.out_model.write(model=model, optimizer=optimizer, epoch=best_epoch, loss=best_loss)
+                logger.info(f"Epoch {epoch + 1} Train Loss: {train_loss}")
+
+                if valid_split is None:
+                    self.out_loss_record.append(data=[epoch + 1, train_loss])
+                else:
+                    self.out_loss_record.append(data=[epoch + 1, train_loss, None])
             
             # Checkpoint every so many epochs
             if (epoch + 1) in self.extra_check or (epoch + 1) % self.checkpoint == 0:
                 with self.name_tracker.set_context("epoch", epoch + 1):
                     self.out_model.write(model=model,
                                          optimizer=optimizer,
-                                         epoch=epoch + 1,
-                                         loss=combined_loss)
+                                         epoch=epoch + 1)
 
-    def heteroscedastic_loss(self, target, mu, log_var):
+    def heteroscedastic_loss(self, output, target):
         B, C, P = target.size()
         target = target.view(B, -1)
-        mu = mu.view(B, -1)
-        log_var = log_var.view(B, -1)
+        mu = output[0].view(B, -1)
+        log_var = output[1].view(B, -1)
         precision = torch.exp(-log_var)
-        return torch.mean(torch.mean(0.5*precision * (target - mu)**2 + 0.5*log_var, 1), 0)
+        return torch.mean(torch.sum(0.5*precision * (target - mu)**2 + 0.5*log_var, 1), 0)
     
-    def train_loop(self, model: torch.nn.Module, dataloader: DataLoader, optimizer: torch.optim.Optimizer, loss_function: torch.nn.Module) -> float:
+    def get_regularization(self, model: torch.nn.Module) -> torch.Tensor:
+        reg = torch.zeros(1).to(self.device)
+        for module in filter(lambda x: isinstance(x, SpatialConcreteDropout), model.modules()):
+            reg = reg + module.regularization
+        return reg
+    
+    def one_pass(self, model: torch.nn.Module, dataloader: DataLoader, optimizer: torch.optim.Optimizer, loss_function: torch.nn.Module, train: bool) -> float:
+        """Runs the training or validation loop for a single epoch.
+
+        Args:
+            model (torch.nn.Module): Model to train
+            dataloader (DataLoader): Data
+            optimizer (torch.optim.Optimizer): Optimizer
+            loss_function (torch.nn.Module): Loss
+            train (bool): If True, runs the training loop. If False, runs the validation loop.
+
+        Returns:
+            float: loss for the epoch
+        """
+        n_batches = len(dataloader)
+
+        epoch_loss = 0.0
+        batch_n = 0
+        batch_loss = 0
+        if train:
+            model.train()
+        else:
+            model.eval()
+        with tqdm(dataloader, postfix={'Loss': 0}) as pbar:
+            for features, labels in pbar:
+                batch_n += 1
+
+                features = features.to(device=self.device, dtype=self.dtype)
+                labels = labels.to(device=self.device, dtype=self.dtype)
+
+                if train:
+                    optimizer.zero_grad()
+                    output = model(features)
+                    reg = self.get_regularization(model)
+                    loss = loss_function(output, labels) + reg
+                    loss.backward()
+                    optimizer.step()
+                else:
+                    with torch.no_grad():
+                        output = model(features)
+                        loss = loss_function(output, labels)
+
+                batch_loss += loss.item()
+
+                pbar.set_postfix({f'Loss for {batch_n}/{len(dataloader)}': loss.item() / self.batch_size})
+
+                epoch_loss += batch_loss / self.batch_size
+            epoch_loss /= n_batches
+        return epoch_loss
+    
+    def train(self, model: torch.nn.Module, dataloader: DataLoader, optimizer: torch.optim.Optimizer, loss_function: torch.nn.Module) -> float:
         """Runs the training loop for a single epoch.
 
         Args:
@@ -193,33 +251,7 @@ class BayesianTrainingExecutor(BayesianDeepSphereModelExecutor):
             float: training loss for the epoch
         """
 
-        epoch_loss = 0.0
-        batch_n = 0
-        batch_loss = 0
-        with tqdm(dataloader, postfix={'Loss': 0}) as pbar:
-            for train_features, train_label in pbar:
-                batch_n += 1
-
-                train_features = train_features.to(device=self.device, dtype=self.dtype)
-                train_label = train_label.to(device=self.device, dtype=self.dtype)
- 
-                mu, logvar = model(train_features)
-                reg = torch.zeros(1).to(self.device)
-                for module in filter(lambda x: isinstance(x, SpatialConcreteDropout), model.modules()):
-                    reg = reg + module.regularization
-
-                loss = loss_function(train_label, mu, logvar) + reg
-
-                optimizer.zero_grad()
-                loss.backward()
-                optimizer.step()
-                batch_loss += loss.item()
-
-                pbar.set_postfix({f'Loss for {batch_n}/{len(dataloader)}': loss.item() / self.batch_size})
-
-                epoch_loss += batch_loss
-            epoch_loss /= len(dataloader.dataset)
-        return epoch_loss
+        return self.one_pass(model, dataloader, optimizer, loss_function, train=True)
     
     def validate(self, model: torch.nn.Module, dataloader: DataLoader, loss_function: torch.nn.Module) -> float:
         """Runs the validation loop for a single epoch.
@@ -232,29 +264,7 @@ class BayesianTrainingExecutor(BayesianDeepSphereModelExecutor):
         Returns:
             float: validation loss for the epoch
         """
-        epoch_loss = 0.0
-        batch_n = 0
-        batch_loss = 0
-        with tqdm(dataloader, postfix={'Loss': 0}) as pbar:
-            for valid_features, valid_label in pbar:
-                batch_n += 1
-
-                valid_features = valid_features.to(device=self.device, dtype=self.dtype)
-                valid_label = valid_label.to(device=self.device, dtype=self.dtype)
-
-                mu, logvar = model(valid_features)
-                reg = torch.zeros(1).to(self.device)
-                for module in filter(lambda x: isinstance(x, SpatialConcreteDropout), model.modules()):
-                    reg = reg + module.regularization
-
-                loss = loss_function(valid_label, mu, logvar) + reg
-                batch_loss += loss.item()
-
-                pbar.set_postfix({f'Loss for {batch_n}/{len(dataloader)}': loss.item() / self.batch_size})
-
-                epoch_loss += batch_loss
-            epoch_loss /= len(dataloader.dataset)
-        return epoch_loss
+        return self.one_pass(model, dataloader, None, loss_function, train=False)
 
     def transfer_from_deterministic(self, model: torch.nn.Module) -> torch.nn.Module:
         """Transfer the weights from a deterministic model to a Bayesian model. Assumes "best" epoch is saved.

@@ -59,10 +59,10 @@ def run_deepsphere(cfg):
     pipeline_context.add_pipe(HydraConfigCheckerExecutor)
 
     pipeline_context.add_pipe(DeterministicTrainingExecutor)
-    # pipeline_context.add_pipe(BayesianTrainingExecutor)
-
     pipeline_context.add_pipe(PredictionExecutor)
-    # pipeline_context.add_pipe(BayesianPredictionExecutor)
+
+    pipeline_context.add_pipe(BayesianTrainingExecutor)
+    pipeline_context.add_pipe(BayesianPredictionExecutor)
 
     pipeline_context.prerun_pipeline()
 

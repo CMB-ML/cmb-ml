@@ -136,7 +136,6 @@ class DeterministicTrainingExecutor(BaseDeepSphereModelExecutor):
         best_epoch = 0
 
         for epoch in range(start_epoch, self.n_epochs):
-            combined_loss = None
             train_loss = self.train(model, train_dataloader, optimizer, loss_function)
             if epoch >= self.start_valid:
                 if valid_dataloader is not None:
@@ -155,22 +154,21 @@ class DeterministicTrainingExecutor(BaseDeepSphereModelExecutor):
                     with self.name_tracker.set_context("epoch", "best"):
                         res = {"best_epoch": best_epoch, "best_loss": best_loss}
                         self.out_best_epoch.write(data=res)
-                        self.out_model.write(model=model, optimizer=optimizer, epoch=best_epoch, loss=best_loss)
-            
-            logger.info(f"Epoch {epoch + 1} Train Loss: {train_loss}")
-
-            if valid_split is None:
-                self.out_loss_record.append(data=[epoch + 1, train_loss])
+                        self.out_model.write(model=model, optimizer=optimizer, epoch=best_epoch)
             else:
-                self.out_loss_record.append(data=[epoch + 1, train_loss, None])
+                logger.info(f"Epoch {epoch + 1} Train Loss: {train_loss}")
+
+                if valid_split is None:
+                    self.out_loss_record.append(data=[epoch + 1, train_loss])
+                else:
+                    self.out_loss_record.append(data=[epoch + 1, train_loss, None])
 
             # Checkpoint every so many epochs
             if (epoch + 1) in self.extra_check or (epoch + 1) % self.checkpoint == 0:
                 with self.name_tracker.set_context("epoch", epoch + 1):
                     self.out_model.write(model=model,
                                          optimizer=optimizer,
-                                         epoch=epoch + 1,
-                                         loss=combined_loss)
+                                         epoch=epoch + 1)
 
     def one_pass(self, model: torch.nn.Module, dataloader: DataLoader, optimizer: torch.optim.Optimizer, loss_function: torch.nn.Module, train: bool) -> float:
         """Runs the training or validation loop for a single epoch.
@@ -185,6 +183,8 @@ class DeterministicTrainingExecutor(BaseDeepSphereModelExecutor):
         Returns:
             float: loss for the epoch
         """
+        n_batches = len(dataloader)
+
         epoch_loss = 0.0
         batch_n = 0
         batch_loss = 0
@@ -214,8 +214,8 @@ class DeterministicTrainingExecutor(BaseDeepSphereModelExecutor):
 
                 pbar.set_postfix({f'Loss for {batch_n}/{len(dataloader)}': loss.item() / self.batch_size})
 
-                epoch_loss += batch_loss
-            epoch_loss /= len(dataloader.dataset)
+                epoch_loss += batch_loss / self.batch_size
+            epoch_loss /= n_batches
         return epoch_loss
     
     def train(self, model: torch.nn.Module, dataloader: DataLoader, optimizer: torch.optim.Optimizer, loss_function: torch.nn.Module) -> float:
