@@ -89,7 +89,7 @@ class GetAssetsExecutor(BaseStageExecutor):
         Copies the 'delta_bandpasses' folder from the repository assets to the user's asset directory.
         """
         # Define source and destination paths
-        src = Path("./assets/CMB-ML").resolve()
+        src = Path("../assets/CMB-ML").resolve()
         dst = self.deltabandpass.path.parent.resolve()
 
         try:
