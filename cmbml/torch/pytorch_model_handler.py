@@ -18,7 +18,8 @@ class PyTorchModel(GenericHandler):
              model: torch.nn.Module, 
              epoch: str, 
              optimizer=None, 
-             scheduler=None) -> Dict:
+             scheduler=None,
+             scaler=None) -> Dict:
         logger.debug(f"Reading model from '{path}'")
         fn_template = path.name
         fn = fn_template.format(epoch=epoch)
@@ -29,6 +30,8 @@ class PyTorchModel(GenericHandler):
             optimizer.load_state_dict(checkpoint['optimizer'])
         if 'scheduler' in checkpoint and scheduler is not None:
             scheduler.load_state_dict(checkpoint['scheduler'])
+        if 'scaler' in checkpoint and scaler is not None:
+            scaler.load_state_dict(checkpoint['scaler'])
         return checkpoint['epoch']
 
     def write(self, 
@@ -37,6 +40,7 @@ class PyTorchModel(GenericHandler):
               epoch: Union[int, str], 
               optimizer = None,
               scheduler = None,
+              scaler = None,
               loss = None,
               ) -> None:
         checkpoint = {
@@ -48,6 +52,8 @@ class PyTorchModel(GenericHandler):
             checkpoint['optimizer_state_dict'] = optimizer.state_dict()
         if scheduler is not None:
             checkpoint['scheduler_state_dict'] = scheduler.state_dict()
+        if scaler is not None:
+            checkpoint['scaler_state_dict'] = scaler.state_dict()
         if loss is not None:
             checkpoint['loss'] = loss
 
