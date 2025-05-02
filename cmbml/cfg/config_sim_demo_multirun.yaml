@@ -1,5 +1,5 @@
 defaults:
-  - local_system   : ${oc.env:CMB_ML_LOCAL_SYSTEM}
+  - local_system   : generic_lab
   - file_system    : common_fs
   - pipeline       : assembly_sim
   - scenario       : scenario_t
