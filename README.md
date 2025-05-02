@@ -100,7 +100,8 @@ NEW INSTRUCTIONS:
     - `conda activate cmb-ml`
 - Install CMB-ML
     - `which pip` (ensure that the response is within the conda environment)
-    - `pip install .`
+    - `pip install .` OR
+    - `pip install -e .` (if you expect to want to update the cmbml code, recommended currently/internally while under extensive development)
 
 THESE ARE THE OLD INSTRUCTIONS, WHICH MAY OR MAY NOT WORK:
 Setting up the repository:
