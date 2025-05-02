@@ -4,7 +4,8 @@ import logging
 
 import numpy as np
 import healpy as hp
-from astropy.units import Quantity
+import astropy.units as u
+import astropy.io.fits as fits
 
 from .asset_handlers_base import (
     GenericHandler, 
@@ -38,11 +39,22 @@ class HealpyMap(GenericHandler):
                 map_fields = 0
             else:
                 map_fields = field_strs_to_ints(map_field_strs)
+        if precision is None:
+            # Get and use the data type from the FITS file
+            with fits.open(path) as hdul:
+                use_field = map_fields if isinstance(map_fields, int) else map_fields[0]
+                # HDUL[1] is the first extension of the FITS file; this is almost always the case
+                #   And if it's not, you know it's such a weird situation that you'd check here
+                dtype = hdul[1].columns[use_field].dtype
+                # dtype is currently a weird numpy thing; get the actual class
+                dtype = dtype.base.type
+        else:
+            dtype = precision
         path = Path(path)
         if read_to_nest is None:
             read_to_nest = False
         try:
-            this_map: np.ndarray = hp.read_map(path, field=map_fields, nest=read_to_nest)
+            this_map: np.ndarray = hp.read_map(path, field=map_fields, nest=read_to_nest, dtype=dtype)
         except IndexError as e:
             # IndexError occurs if a map field does not exist for a given file - especially when trying to get polarization information from 545 or 857 GHz map
             logger.error(f"Map fields requested were {map_field_strs}, parsed as {map_fields}. Map at {path} does not have these fields. Note that field numbers for Healpy are 1 less than in the fits file.")
@@ -56,29 +68,24 @@ class HealpyMap(GenericHandler):
             # else:
         except FileNotFoundError as e:
             raise FileNotFoundError(f"This map file cannot be found: {path}")
-        # When healpy reads a single map that I've generated with simulations,
-        #    the bite order is Big-Endian instead of native ('>' instead of '=')
-        if this_map.dtype.byteorder == '>':
-            # The byteswap() method swaps the byte order of the array elements
-            # The newbyteorder() method changes the dtype to native byte order without changing the actual data
-            this_map = this_map.byteswap().newbyteorder()
         # If a single field was requested, healpy.read_map with produce it as a 1D array
         #    for consistency, we want a 2D array
         if len(this_map.shape) == 1:
             this_map = this_map.reshape(1, -1)
-        if precision == "float":
-            this_map = this_map.astype(np.float32)
         map_units = get_fields_units_from_fits(path, map_fields)
         for map_unit in map_units:
             if map_unit != map_units[0]:
                 raise ValueError("All fields in a map must have the same units.")
-        if map_units is not None:
-            this_map = this_map * map_units[0]
+        map_unit = map_units[0]
+        # If the map is not a unitless map, convert it to the correct unit
+        #   We check because otherwise the conversion will produce a 64 bit map regardless of the original type
+        if not map_unit.is_equivalent(u.dimensionless_unscaled):
+            this_map = u.Quantity(this_map, unit=map_unit, copy=False)
         return this_map
 
     def write(self, 
               path: Union[Path, str], 
-              data: Union[List[Union[np.ndarray, Quantity]], np.ndarray],
+              data: Union[List[Union[np.ndarray, u.Quantity]], np.ndarray],
               nest: bool = None,
               column_names: List[str] = None,
               column_units: List[str] = None,
@@ -102,11 +109,11 @@ class HealpyMap(GenericHandler):
 
         # Handle Quantity objects first
         if isinstance(data, list):
-            if isinstance(data[0], Quantity):
+            if isinstance(data[0], u.Quantity):
                 if column_units is None:
                     column_units = [datum.unit.to_string().replace(' ', '') for datum in data]
                 data = [datum.value for datum in data]
-        if isinstance(data, Quantity):
+        if isinstance(data, u.Quantity):
             if column_units is None:
                 logger.debug(f"Data is Quantity object with shape {data.shape}, no unit parameter provided to write(), setting units to array of {data.unit}, length {data.shape[0]}")
                 if len(data.shape) == 1:  # One map in a shape (Npix, ) array
