@@ -43,8 +43,7 @@ class TheoryPSExecutor(BaseStageExecutor):
         super().__init__(cfg, stage_str='make_theory_ps')
 
         self.max_ell_for_camb = cfg.model.sim.cmb.ell_max
-        self.wmap_param_labels = cfg.model.sim.cmb.wmap_params
-        self.camb_param_labels = cfg.model.sim.cmb.camb_params_equiv
+        self.cosmo_params = cfg.model.sim.cmb.wmap_camb_params
 
         self.out_cmb_ps: AssetWithPathAlts = self.assets_out['cmb_ps']
         self.in_wmap_config: AssetWithPathAlts = self.assets_in['wmap_config']
@@ -95,16 +94,16 @@ class TheoryPSExecutor(BaseStageExecutor):
         ps_asset.write(use_alt_path=use_alt_path, data=camb_results)
 
     def _translate_params_keys(self, src_params):
-        translation_dict = self._param_translation_dict()
-        target_dict = {}
-        for k in src_params:
-            if k == "chain_idx":
+        out_params = {}
+        for param_k, param_v in src_params.items():
+            if param_k not in self.cosmo_params:
+                raise ValueError(f"Key {param_k} not in {self.cosmo_params}. Was this config written in this pipeline?")
+            xl_dict = self.cosmo_params[param_k]
+            if not xl_dict:  # If grabbing other elements of the chain, but not using them in CAMB
                 continue
-            target_dict[translation_dict[k]] = src_params[k]
-        return target_dict
-
-    def _param_translation_dict(self):
-        translation = {}
-        for i in range(len(self.wmap_param_labels)):
-            translation[self.wmap_param_labels[i]] = self.camb_param_labels[i]
-        return translation
+            new_k = xl_dict['camb']
+            new_v = param_v
+            if 'factor' in xl_dict:
+                new_v = param_v * xl_dict['factor']
+            out_params[new_k] = new_v
+        return out_params

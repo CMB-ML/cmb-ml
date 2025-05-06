@@ -9,8 +9,8 @@ wmap_camb_params   :
     omegabh2:  {camb: ombh2}
     ns002:     {camb: ns}
     tau:       {camb: tau}
-    # a002:      {camb: As, factor: 1e-9}
-    mnu:       {camb: mnu}
+    a002:      {camb: As, factor: 1e-9}
+    # mnu:       null  # Do not use neutrino mass (which is not in the chain)
 ell_max            : 8150  # Testing shows no change above ~3.5*nside
                            # We use 8150 as a default incase we do resolution 2048 maps.
                            # TODO: Reduce this to 3.5 x nside or exchange with factor parameter
@@ -18,5 +18,5 @@ seed_template      : "{split}_{sim}_cmb"
 make_ps_if_absent  : true
 wmap_indcs_seed    : 8675309  # Random number
 
-wmap_chain_dir     : wmap_lcdm_mnu_wmap9_chains_v5
-wmap_chain_length  : 603936   # Length of cahins files; change if using different list of cosmo parameters
+wmap_chain_dir     : wmap_lcdm_wmap9_chains_v5
+wmap_chain_length  : 1296570   # Length of chains files; change if using different list of cosmo parameters

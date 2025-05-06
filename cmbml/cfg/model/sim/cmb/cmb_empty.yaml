@@ -1,12 +1,23 @@
 cmb_type           : empty
 
 # Remainder of parameters are unused. CMB_Empty is for debugging; an empty array of zeros will be generated.
-wmap_params        : ['H0', 'omegach2', 'omegabh2', 'ns002', 'tau']
-camb_params_equiv  : ['H0', 'omch2', 'ombh2', 'ns', 'tau']
+wmap_camb_params   :
+    # Commented out values will not be pulled from the chain and put into the config.
+    # Setting a value to null will get the value from the chain, but not use it when
+    #    making a CMB power spectrum.
+    chain_idx: {}  # For tracking purposes
+    H0:        {camb: H0}
+    omegach2:  {camb: omch2}
+    omegabh2:  {camb: ombh2}
+    ns002:     {camb: ns}
+    a002:      {camb: As, factor: 1e-9}
+    tau:       {camb: tau}
 ell_max            : 8150  # Testing shows no change above ~3.5*nside
                            # We use 8150 as a default incase we do resolution 2048 maps.
                            # TODO: Reduce this to 3.5 x nside or exchange with factor parameter
 seed_template      : "{split}_{sim}_cmb"
 make_ps_if_absent  : true
 wmap_indcs_seed    : 8675309  # Random number
+
+wmap_chain_dir     : wmap_lcdm_mnu_wmap9_chains_v5
 wmap_chain_length  : 603936   # Length of cahins files; change if using different list of cosmo parameters

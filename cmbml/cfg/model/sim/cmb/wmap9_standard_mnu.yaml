@@ -9,7 +9,7 @@ wmap_camb_params   :
     omegabh2:  {camb: ombh2}
     ns002:     {camb: ns}
     tau:       {camb: tau}
-    # a002:      {camb: As, factor: 1e-9}
+    a002:      {camb: As, factor: 1e-9}
     mnu:       {camb: mnu}
 ell_max            : 8150  # Testing shows no change above ~3.5*nside
                            # We use 8150 as a default incase we do resolution 2048 maps.
@@ -19,4 +19,4 @@ make_ps_if_absent  : true
 wmap_indcs_seed    : 8675309  # Random number
 
 wmap_chain_dir     : wmap_lcdm_mnu_wmap9_chains_v5
-wmap_chain_length  : 603936   # Length of cahins files; change if using different list of cosmo parameters
+wmap_chain_length  : 603936   # Length of chains files; change if using different list of cosmo parameters

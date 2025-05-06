@@ -9,8 +9,8 @@ wmap_camb_params   :
     omegabh2:  {camb: ombh2}
     ns002:     {camb: ns}
     tau:       {camb: tau}
-    # a002:      {camb: As, factor: 1e-9}
-    mnu:       {camb: mnu}
+    # a002:      {camb: As, factor: 1e-9}  # Do not use "As", per Yunan
+    # mnu:       null  # Do not use neutrino mass, do not (b/c commented out) note the value
 ell_max            : 8150  # Testing shows no change above ~3.5*nside
                            # We use 8150 as a default incase we do resolution 2048 maps.
                            # TODO: Reduce this to 3.5 x nside or exchange with factor parameter

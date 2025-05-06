@@ -7,9 +7,9 @@ raw:
     noise_src_varmaps:
       handler: HealpyMap
       path_template: "{src_root}/Planck/{filename}"
-    wmap_chains:  # TODO: 
+    wmap_chains:
       handler: Mover
-      path_template: "{src_root}/WMAP/{filename}"
+      path_template: "{src_root}/WMAP/${model.sim.cmb.wmap_chain_dir}"
     mask_src_map: 
       path_template: "{src_root}/Planck/COM_CMB_IQU-nilc_2048_R3.00_full.fits"
       handler: HealpyMap

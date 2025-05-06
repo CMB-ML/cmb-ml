@@ -19,8 +19,8 @@ make_sim_configs:
       handler: Config
       path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/wmap_params.yaml"
       path_template_alt: "{root}/{dataset}/{working}{stage}/{split}/wmap_params.yaml"
-  # assets_in:
-  #   wmap_chains: {stage: raw}
+  assets_in:
+    wmap_chains: {stage: raw}
   splits: &all_splits
     - train
     - valid
