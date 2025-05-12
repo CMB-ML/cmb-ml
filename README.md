@@ -82,8 +82,6 @@ As an alternative, see the cmbNNCS [top-level script](main_cmbnncs.py). The exec
 
 # Installation
 
-<!-- See next section if you don't want to install CMB-ML, and just want the dataset. -->
-
 Installation of CMB-ML requires setting up the repository, then getting the data assets for the portion you want to run. Demonstrations are available with practical examples. The early ones cover how to set up CMB-ML to run on your system.
 
 <!-- NEW INSTRUCTIONS: -->
@@ -118,39 +116,10 @@ Installation of CMB-ML requires setting up the repository, then getting the data
     - `cd ~/repos/pysm` (substitute as needed)
     - `pip install .`
 
-
 Tutorial notebooks are in https://github.com/CMB-ML/cmb-ml-tutorials.git.
 The PatchNN method is https://github.com/CMB-ML/cmb-ml-patch-nn.git
 The cmbNNCS method is https://github.com/CMB-ML/cmb-ml-cmbnncs.git.
 The PyILC method is https://github.com/CMB-ML/cmb-ml-pyilc.git.
-
-
-<!-- THESE ARE THE OLD INSTRUCTIONS, WHICH MAY OR MAY NOT WORK:
-Setting up the repository:
-- Clone this repository
-- Set up the Python environment, using `conda`
-  - From within the repository, create a "cmb-ml" environment using the included `env.yaml`
-    - `conda env create -f env.yaml`
-  - Activate the environment
-    - `conda activate cmb-ml`
-- Get [PyILC](https://github.com/jcolinhill/pyilc)
-  - Simply clone the repository
-  - No installation is needed, CMB-ML runs the code as its own
-  - This was run and tested with [the version from April 30, 2024](https://github.com/jcolinhill/pyilc/tree/7ced3ec392a520977b3c672a2a7af62064dcc296)
-- Configure your local system
-  - In the [configuration files](./cfg), enter the directories where you will keep datasets and science assets
-  - In pyilc_redir, edit the `__init__.py` file to point to the directory containing your local installation of pyilc (containing the pyilc `inputs.py` and `wavelets.py`)
-  - See [Setting up your environment](./demonstrations/C_setting_up_local.ipynb) for more information
-- Download some external science assets and the CMB-ML assets
-  - External science assets include Planck's observations maps (from which we get information for producing noise) and Planck's NILC prediction map (for the mask; NILC is a parameter)
-  - These are available from the original sources and a mirror set up for this purpose
-  - CMB-ML assets include the substitute detector information and information required for downloading datasets
-  - If you are not creating simulations, you only need one external science asset: "COM_CMB_IQU-nilc_2048_R3.00_full.fits" (for the mask)
-  - Scripts are available in the `get_data` folder, which will download all files.
-    - [Downloads from original sources](./get_data/get_assets.py) gets files from the official sources (and the CMB-ML files from this repo)
-    - If you prefer to download fewer files, adjust [this executor](get_data/stage_executors/A_get_assets.py) (not recommended)
-- Next, set up to run.
-  - You will need to either generate simulations or download them. -->
 
 ## Notes on Running Simulations
 
@@ -200,43 +169,6 @@ This will run more quickly than the higher resolution.
 <!-- # Dataset Only
 
 If you only want to get the dataset, you can use [this notebook](./demonstrations/_0_get_dataset_only.ipynb) to download them. It includes a (short) list of required libraries. -->
-
-# Demonstrations
-
-TODO: Update instructions
-<!-- 
-CMB-ML manages a complex pipeline that processes data across multiple stages. Each stage produces outputs that need to be tracked, reused, and processed in later stages. Without a clear framework, this can lead to disorganized code, redundant logic, and errors.
-
-The CMB-ML library provides a set of tools to manage the pipeline in a modular and scalable way. 
-
-We include a set of demonstrations to help with both installation and introduction to core concepts. The first introduces our approach configuration management. That background paves the way to set up a local configuration and get the required files. Following this are a series of tutorials for the Python objects.
-
-Most of these are in jupyter notebooks:
-- [Hydra and its use in CMB-ML](./demonstrations/A_hydra_tutorial.ipynb)
-- [Hydra in scripts](./demonstrations/B_hydra_script_tutorial.ipynb) (*.py files)
-- [Setting up your environment](./demonstrations/C_setting_up_local.ipynb)
-- [Getting and looking at simulation instances](./demonstrations/D_getting_dataset_instances.ipynb)
-- [CMB_ML framework: stage code](./demonstrations/E_CMB_ML_framework.ipynb)
-- [CMB_ML framework: pipeline code](./demonstrations/F_CMB_ML_pipeline.ipynb)
-- [CMB_ML framework: Executors](./demonstrations/G_CMB_ML_executors.ipynb)
-
-Only the Setting up your environment is really critical, though the others should help.
-
-I'm interested in hearing what other demonstrations would be helpful. Please let me know what would be helpful. I've considered these notebooks:
-- Executors, continued: showing how executors are set up for PyTorch training/inference and matplotlib figure production
-- Looking at actual pipeline stages and explaining them
-- Paper figure production (available, in another repository, need cleaning) -->
-
-
-
-<!-- TODO: Move these to another repository; these are unneccesarily large files. -->
-<!-- More demonstrations are available that use the data generated while running the CMB-ML pipeline. Note that (1) they require the pipeline has been run and (2) they were not developed as tutorials, unlike previous notebooks.
-- [paper_figure_planck_obs_and_target.ipynb](../paper_figures/paper_figure_planck_obs_and_target.ipynb): Creates figures of Planck's observation maps and predicted CMB
-- [dataset_results.ipynb](../paper_figures/dataset_results.ipynb): Plots maps after cleaning, to be assembled externally (e.g., in LaTeX)
-- [make_component_maps.ipynb](../paper_figures/make_component_maps.ipynb): Creates single-component maps, for use in other analysis (next line)
-- [paper_components.ipynb](../paper_figures/paper_components.ipynb): Creates figures showing single components (requires previous line having been run)
-- [paper_figure_planck_variance.ipynb](../paper_figures/paper_figure_planck_variance.ipynb): Creates the figure of Planck's variance map at 100 GHz
-- [planck_fwhm_detail.ipynb](../paper_figures/planck_fwhm_detail.ipynb): Creates figures with the detail view of Plancks's maps, such that the effect of different FWHMs is visible -->
 
 # Comparing Results
 
