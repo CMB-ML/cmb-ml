@@ -34,6 +34,7 @@ class GetAssetsExecutor(BaseStageExecutor):
         in_delta_bandpass: QTableHandler
 
         self.detectors = list(cfg.scenario.full_instrument.keys())
+        self.wmap_chains_version = cfg.model.sim.cmb.wmap_chain_version
 
     def execute(self) -> None:
         """
@@ -63,7 +64,7 @@ class GetAssetsExecutor(BaseStageExecutor):
             dummy_fp = self.wmap_chains.path
         wmap_dir = dummy_fp.parent
         wmap_dir.mkdir(parents=True, exist_ok=True)
-        get_wmap_chains_ext(assets_directory=wmap_dir, mnu=True, progress=True)
+        get_wmap_chains_ext(assets_directory=wmap_dir, chain_version=self.wmap_chains_version, progress=True)
 
     def get_noise_src_varmaps(self):
         # Cheating a bit to use the name tracker; we don't have a filename but just need the parent directory

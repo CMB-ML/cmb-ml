@@ -9,7 +9,7 @@ raw:
       path_template: "{src_root}/Planck/{filename}"
     wmap_chains:
       handler: Mover
-      path_template: "{src_root}/WMAP/${model.sim.cmb.wmap_chain_dir}"
+      path_template: "{src_root}/WMAP/${model.sim.cmb.wmap_chain_version}"
     mask_src_map: 
       path_template: "{src_root}/Planck/COM_CMB_IQU-nilc_2048_R3.00_full.fits"
       handler: HealpyMap

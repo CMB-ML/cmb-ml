@@ -71,22 +71,34 @@ Other figures are produced of summary statistics, but these are far more boring 
 
 # New Methods
 
-We encourage you to first familiarize yourself with the content of the tutorial notebooks and Hydra. Afterwards, you may want to follow either the patterns set in either the [classic method](cmbml/demo_external_method) or [ML method](cmbml/demo_patch_nn/) demonstrations. The main difference between these is the amount of stuff you want to do within CMB-ML's pipeline; if you already have code that can take input parameters, the patterns for classic methods may be more appropriate.
+TODO: Update this section.
+<!-- We encourage you to first familiarize yourself with the content of the tutorial notebooks and Hydra. Afterwards, you may want to follow either the patterns set in either the [classic method](cmbml/demo_external_method) or [ML method](cmbml/demo_patch_nn/) demonstrations. The main difference between these is the amount of stuff you want to do within CMB-ML's pipeline; if you already have code that can take input parameters, the patterns for classic methods may be more appropriate.
 
 At this time, the classic method patterns are non-functional suggestions. To see operational code, the PyILC method works (very well!). Please excuse any confusion caused by the hoops which enable us to run it on many simulations at once. Start with the [first top-level script](main_pyilc_predict.py), which gets the pipeline through the cleaning process. Then the [second top-level script](main_pyilc_analysis.py) must be run to finish the process. Both of these scripts use the same configuration file, there is simply a conflict in execution due to settings of `matplotlib`.
 
 All of the ML patterns are functional. We suggest using the demonstration network as a prototype. The pipeline overview is in the [top-level script](main_patch_nn.py). This network operates on patches of sky maps, cut directly from the HEALPix arrangement. Some preprocessing stages are needed to enable fast training. The training and prediction executors follow common PyTorch design patterns ([train](cmbml/demo_patch_nn/stage_executors/E_train.py) and [predict](cmbml/demo_patch_nn/stage_executors/F_predict.py)). Both training and prediction use subclasses of a PyTorch [Dataset](https://pytorch.org/tutorials/beginner/basics/data_tutorial.html).
 
-As an alternative, see the cmbNNCS [top-level script](main_cmbnncs.py). The executors for this method are very similar to the demonstration network, though some changes are needed in order to adhere to the method described in the paper. It does differ more significantly in the [predict](cmbml/cmbnncs/stage_executors/E_predict.py) stage, as this model predicts entire skymaps in a single operation.
+As an alternative, see the cmbNNCS [top-level script](main_cmbnncs.py). The executors for this method are very similar to the demonstration network, though some changes are needed in order to adhere to the method described in the paper. It does differ more significantly in the [predict](cmbml/cmbnncs/stage_executors/E_predict.py) stage, as this model predicts entire skymaps in a single operation. -->
 
 # Installation
 
-See next section if you don't want to install CMB-ML, and just want the dataset.
+<!-- See next section if you don't want to install CMB-ML, and just want the dataset. -->
 
 Installation of CMB-ML requires setting up the repository, then getting the data assets for the portion you want to run. Demonstrations are available with practical examples. The early ones cover how to set up CMB-ML to run on your system.
 
-NEW INSTRUCTIONS:
+<!-- NEW INSTRUCTIONS: -->
+- Assuming you install all your repos in the same directory, e.g. `~/repos/`
+    - Go to that folder `cd ~/repos`
+- Get the latest PySM3
+    - The version installed by conda is a few updates behind, including one that fixes a bug in CMBLensed
+    - If not yet acquired:
+        - `cd ~/repos`
+        - `git clone https://github.com/galsci/pysm.git`
+    - If acquired, update it:
+        - `cd ~/repos/pysm`
+        - `git pull`
 - Download the CMB-ML repository
+    - `cd ~/repos` (or whatever top-level repo folder you use)
     - `git clone git@github.com:CMB-ML/cmb-ml.git`
     - `cd cmb-ml`
     - `git switch whatever`
@@ -102,8 +114,18 @@ NEW INSTRUCTIONS:
     - `which pip` (ensure that the response is within the conda environment)
     - `pip install .` OR
     - `pip install -e .` (if you expect to want to update the cmbml code, recommended currently/internally while under extensive development)
+- Install pysm3
+    - `cd ~/repos/pysm` (substitute as needed)
+    - `pip install .`
 
-THESE ARE THE OLD INSTRUCTIONS, WHICH MAY OR MAY NOT WORK:
+
+Tutorial notebooks are in https://github.com/CMB-ML/cmb-ml-tutorials.git.
+The PatchNN method is https://github.com/CMB-ML/cmb-ml-patch-nn.git
+The cmbNNCS method is https://github.com/CMB-ML/cmb-ml-cmbnncs.git.
+The PyILC method is https://github.com/CMB-ML/cmb-ml-pyilc.git.
+
+
+<!-- THESE ARE THE OLD INSTRUCTIONS, WHICH MAY OR MAY NOT WORK:
 Setting up the repository:
 - Clone this repository
 - Set up the Python environment, using `conda`
@@ -128,7 +150,7 @@ Setting up the repository:
     - [Downloads from original sources](./get_data/get_assets.py) gets files from the official sources (and the CMB-ML files from this repo)
     - If you prefer to download fewer files, adjust [this executor](get_data/stage_executors/A_get_assets.py) (not recommended)
 - Next, set up to run.
-  - You will need to either generate simulations or download them.
+  - You will need to either generate simulations or download them. -->
 
 ## Notes on Running Simulations
 
@@ -145,7 +167,8 @@ Setting up the repository:
   - `python ./get_data/get_dataset.py`
   - Files are visible at this [Box link for CMB_ML_512_1450](https://utdallas.box.com/v/cmb-ml-512-1450)
   - Alternatively, to generate simulations, use `python main_sims.py`
-- To train, predict, and run analysis with the demonstration UNet model
+  
+<!-- - To train, predict, and run analysis with the demonstration UNet model
   - `python main_patch_nn.py`
 - To train, predict, and run analysis using CMBNNCS
   - `python main_cmbnncs.py`
@@ -154,8 +177,8 @@ Setting up the repository:
 - To run analysis for PyILC
   - `python main_pyilc_analysis.py`
 - To compare results between CMBNNCS and PyILC
-  - `python main_analysis_compare.py`
-
+  - `python main_analysis_compare.py` -->
+<!-- 
 ## For CMB_ML_128_1450
 
 This will run more quickly than the higher resolution.
@@ -172,14 +195,16 @@ This will run more quickly than the higher resolution.
     - `python main_pyilc_analysis.py dataset_name=CMB_ML_128_1450 nside=128 ELLMAX=382 model.pyilc.distinct.N_scales=5 model.pyilc.distinct.ellpeaks=[100,200,300,383]`
     - An even faster method is available, using PyILC's HILC method.
 - Run Comparison:
-    - `python main_analysis_compare.py --config-name config_comp_models_t_128`
+    - `python main_analysis_compare.py --config-name config_comp_models_t_128` -->
 
-# Dataset Only
+<!-- # Dataset Only
 
-If you only want to get the dataset, you can use [this notebook](./demonstrations/_0_get_dataset_only.ipynb) to download them. It includes a (short) list of required libraries.
+If you only want to get the dataset, you can use [this notebook](./demonstrations/_0_get_dataset_only.ipynb) to download them. It includes a (short) list of required libraries. -->
 
 # Demonstrations
 
+TODO: Update instructions
+<!-- 
 CMB-ML manages a complex pipeline that processes data across multiple stages. Each stage produces outputs that need to be tracked, reused, and processed in later stages. Without a clear framework, this can lead to disorganized code, redundant logic, and errors.
 
 The CMB-ML library provides a set of tools to manage the pipeline in a modular and scalable way. 
@@ -200,7 +225,7 @@ Only the Setting up your environment is really critical, though the others shoul
 I'm interested in hearing what other demonstrations would be helpful. Please let me know what would be helpful. I've considered these notebooks:
 - Executors, continued: showing how executors are set up for PyTorch training/inference and matplotlib figure production
 - Looking at actual pipeline stages and explaining them
-- Paper figure production (available, in another repository, need cleaning)
+- Paper figure production (available, in another repository, need cleaning) -->
 
 
 

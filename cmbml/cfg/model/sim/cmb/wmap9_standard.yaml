@@ -18,5 +18,5 @@ seed_template      : "{split}_{sim}_cmb"
 make_ps_if_absent  : true
 wmap_indcs_seed    : 8675309  # Random number
 
-wmap_chain_dir     : wmap_lcdm_wmap9_chains_v5
+wmap_chain_version : wmap_lcdm_wmap9_chains_v5
 wmap_chain_length  : 1296570   # Length of chains files; change if using different list of cosmo parameters
