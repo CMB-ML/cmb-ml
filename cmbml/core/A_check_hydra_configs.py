@@ -25,7 +25,8 @@ class HydraConfigCheckerExecutor(BaseStageExecutor):
         for issue in self.issues:
             logger.warning(issue)
         if len(self.issues) > 0:
-            raise ValueError("Conflicts found in hydra configs.")
+            issues = '\n'.join(self.issues)
+            raise ValueError(f"Conflicts found in hydra configs. {issues}")
         logger.debug("No conflict in Hydra Configs found.")
 
     def check_scenario_yaml(self) -> None:
