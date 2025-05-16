@@ -56,7 +56,7 @@ make_obs_no_noise:
     # scale_cache: {stage: make_noise_cache}
     cmb_ps: {stage: make_theory_ps}
   splits: *all_splits
-  dir_name: Simulation_D_No_Noise
+  dir_name: Simulation_D_Sky_Emission
   make_stage_log: True
   # top_level_working: True
 
