@@ -28,6 +28,8 @@
           - e.g. given stages stage_1 through stage_4, 
             - stage_3's assets_in will generally only reference stage_1 or stage_2
             - stage_3 can reference stage_3 (e.g. training a model, which can continue from a checkpoint)
+        - [OPTIONAL, USE SPARINGLY] *orig_name*: In case a pipeline stage needs to pull output assets with the same name from different stages (useful when comparing assets, such as in when comparing CMBNNCS's preprocessing to the original map in C_show_preprocessed_cmbcnns)
+        - [OPTIONAL, USE SPARINGLY] anything else: will be considered relevant to the path template and override things for the namers.
   - *splits*: list of splits to process
     - These should match those in the *splits* yaml
     - Each split is a string
@@ -41,7 +43,6 @@
     - Especially for the purpose of previews
   - *epochs*: (list of ints) which epochs to process
   - *path_template_alt*: (str) Similar to *path_template*; when defined, allows a flag to dictate which template is used.
-  - assets_in.*orig_name*: In case a pipeline stage needs to pull output assets with the same name from different stages (useful when comparing assets, such as in when comparing CMBNNCS's preprocessing to the original map in C_show_preprocessed_cmbcnns)
 
 # Notes: Multi-file structure
 

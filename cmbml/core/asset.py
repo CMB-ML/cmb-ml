@@ -53,11 +53,17 @@ class Asset:
 
         self.use_fields = asset_info.get("use_fields", None)
         self.file_size = asset_info.get("file_size", None)
+        self.path_overrides = {}
 
     @property
     def path(self):
         with self.name_tracker.set_context("stage", self.source_stage_dir):
-            return self.name_tracker.path(self.path_template)
+            if self.path_overrides:
+                # If there are path overrides, use them
+                with self.name_tracker.set_contexts(self.path_overrides):
+                    return self.name_tracker.path(self.path_template)
+            else:
+                return self.name_tracker.path(self.path_template)
 
     def read(self, **kwargs):
         if not self.can_read:
