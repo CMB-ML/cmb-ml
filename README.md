@@ -258,7 +258,7 @@ We provide links to the various data used. Alternatives to get this data are in 
 
   - Files are expected to be in the following folder structure, any other structure requires changes to the pipeline yaml's:
 ```
-└─ Datasets
+└─ Some Particular Dataset (e.g., I_512_1450)
    ├─ Simulations
    |   ├─ Train
    |   |     ├─ sim0000
