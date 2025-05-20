@@ -112,6 +112,8 @@ Installation of CMB-ML requires setting up the repository, then getting the data
     - `which pip` (ensure that the response is within the conda environment)
     - `pip install .` OR
     - `pip install -e .` (if you expect to want to update the cmbml code, recommended currently/internally while under extensive development)
+    - I have noticed that VS Code does not work well with code installed in editable mode; I will often switch between the modes using:
+      - `pip uninstall cmbml`
 - Install pysm3
     - `cd ~/repos/pysm` (substitute as needed)
     - `pip install .`
