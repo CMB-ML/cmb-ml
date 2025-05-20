@@ -218,10 +218,12 @@ class ShowSimsPostExecutor(ShowSimsExecutor):
 
                 axs = [plt.subplot(gs[i]) for i in range(4)]
 
-                mask = map_sim[field_idx] == hp.UNSEEN
+                try:  # If an astropy.Quantity
+                    mask = map_sim[field_idx].value == hp.UNSEEN
+                except AttributeError:  #  If not an astropy.Quantity
+                    mask = map_sim[field_idx] == hp.UNSEEN
 
                 diff = map_post[field_idx] - map_sim[field_idx]
-
                 diff = hp.ma(diff)
                 diff.mask = mask
 
