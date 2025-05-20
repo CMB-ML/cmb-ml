@@ -118,7 +118,9 @@ class CommonPostExecutor(BaseStageExecutor):
         if self.do_remove_dipole:
             post_map = hp.remove_dipole(post_map)
 
-        self.out_cmb_map.write(data=post_map)
+        units = [cmb_map.unit for _ in self.map_fields]
+
+        self.out_cmb_map.write(data=post_map, column_units=units)
 
     def deconv(self, data) -> np.ndarray:
         # Convert to spherical harmonic space (a_lm)
