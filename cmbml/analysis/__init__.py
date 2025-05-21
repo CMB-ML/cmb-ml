@@ -42,6 +42,7 @@ from .stage_executors.D_common_map_post import (
 
 from .stage_executors.F_pixel_analysis import PixelAnalysisExecutor
 
+from .stage_executors.J_make_real_ps import MakeRealPowerSpectrumExecutor
 # from .stage_executors.K_make_pred_ps import (
 #     # PyILCMakePSExecutor, 
 #     # CMBNNCSMakePSExecutor,

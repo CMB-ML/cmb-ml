@@ -136,7 +136,7 @@ pixel_summary_figs:
   epochs: ${use_epochs_map_stats}
   dir_name: Analysis_4_Pixel_Summary_Figs
 
-make_pred_ps:
+make_ps: &make_ps  # Used for all power spectrum stagesZ
   assets_out:
     # Autocorrelation for realization (target)
     auto_real:
@@ -165,6 +165,8 @@ make_pred_ps:
     - ${splits.run_inference_on}
   epochs: ${use_epochs_ps_stats}
   dir_name: Analysis_K_Power_Spectra
+
+make_pred_ps: *make_ps
 
 one_ps_fig:  # Produce a power spectrum without needing the rest of the spectra from the training set
   assets_out:
