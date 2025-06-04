@@ -136,7 +136,7 @@ pixel_summary_figs:
   epochs: ${use_epochs_map_stats}
   dir_name: Analysis_4_Pixel_Summary_Figs
 
-make_ps: &make_ps  # Used for all power spectrum stagesZ
+make_ps: &make_ps  # Used for all power spectrum stages
   assets_out:
     # Autocorrelation for realization (target)
     auto_real:
