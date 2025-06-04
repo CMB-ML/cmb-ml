@@ -139,24 +139,15 @@ The PyILC method is https://github.com/CMB-ML/cmb-ml-pyilc.git.
   - Files are visible at this [Box link for CMB_ML_512_1450](https://utdallas.box.com/v/cmb-ml-512-1450)
   - Alternatively, to generate simulations, use `python main_sims.py`
   
-<!-- - To train, predict, and run analysis with the demonstration UNet model
-  - `python main_patch_nn.py`
-- To train, predict, and run analysis using CMBNNCS
-  - `python main_cmbnncs.py`
-- To predict using PyILC (this must be performed separately from analysis due to import issues)
-  - `python main_pyilc_predict.py`
-- To run analysis for PyILC
-  - `python main_pyilc_analysis.py`
-- To compare results between CMBNNCS and PyILC
-  - `python main_analysis_compare.py` -->
-<!-- 
 ## For CMB_ML_128_1450
 
 This will run more quickly than the higher resolution.
 
 - Download CMB_ML_128_1450:
   - [Use the downloading script](./get_data/get_box_CMB_ML_128_1450.py)
-    - Change [cfg/pipeline/pipe_sim.yaml](../cfg/pipeline/pipe_sim.yaml) to use the correct set of shared links. In this yaml, look for `download_sims_reference` and change the `path_template` (replace '512' with '128').
+    - Change [cfg/pipeline/pipe_raw.yaml](../cfg/pipeline/pipe_raw.yaml) to use the correct set of shared links. In this yaml, look for `download_sims_reference` and change the `path_template`.
+    - `path_template` should be set based on whatever file you need.
+    - Be sure to change `config_sim.yaml` to write to the correct dataset folder! By default it will save to the 512 dataset folder; there's currently no check against this.
   - Files are visible at this [Box link for CMB_ML_128_1450](https://utdallas.box.com/v/cmb-ml-128-1450)
   - Alternatively, to generate simulations, use `python main_sims.py dataset_name=CMB_ML_128_1450 nside=128`
 - Run CMBNNCS on CMB_ML_128_1450 (the smaller UNet5 must be used):
@@ -166,11 +157,7 @@ This will run more quickly than the higher resolution.
     - `python main_pyilc_analysis.py dataset_name=CMB_ML_128_1450 nside=128 ELLMAX=382 model.pyilc.distinct.N_scales=5 model.pyilc.distinct.ellpeaks=[100,200,300,383]`
     - An even faster method is available, using PyILC's HILC method.
 - Run Comparison:
-    - `python main_analysis_compare.py --config-name config_comp_models_t_128` -->
-
-<!-- # Dataset Only
-
-If you only want to get the dataset, you can use [this notebook](./demonstrations/_0_get_dataset_only.ipynb) to download them. It includes a (short) list of required libraries. -->
+    - `python main_analysis_compare.py --config-name config_comp_models_t_128` 
 
 # Comparing Results
 
