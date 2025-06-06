@@ -31,10 +31,14 @@ class PandasCsvHandler(GenericHandler):
             not self._is_numeric(row1[i]) for i, is_numeric in enumerate(is_numeric_col) if is_numeric
         ]
 
-        # Step 4: If enough numeric columns contain non-numeric values, assume multi-header
+        # Step 4: If 2+ numeric columns contain non-numeric values, assume multi-header
         if sum(suspicious) >= 2:
             df = pd.read_csv(path, header=[0, 1])
-            df.columns = ['_'.join(col).strip('_') for col in df.columns]
+            # Remove 'Unnamed' columns
+            df.columns = [
+                (a, '' if isinstance(b, str) and b.startswith('Unnamed') else b)
+                for a, b in df.columns
+            ]
         else:
             df = pd.read_csv(path)
 
