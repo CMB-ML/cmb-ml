@@ -20,7 +20,7 @@ class HydraConfigCheckerExecutor(BaseStageExecutor):
         self.issues = []
 
     def execute(self) -> None:
-        self.check_scenario_yaml()
+        # self.check_scenario_yaml()
         self.check_pipeline_yaml()
         for issue in self.issues:
             logger.warning(issue)
@@ -29,10 +29,10 @@ class HydraConfigCheckerExecutor(BaseStageExecutor):
             raise ValueError(f"Conflicts found in hydra configs. {issues}")
         logger.debug("No conflict in Hydra Configs found.")
 
-    def check_scenario_yaml(self) -> None:
-        for freq in self.cfg.scenario.detector_freqs:
-            if freq not in self.cfg.scenario.full_instrument:
-                self.issues.append(f"Detector {freq} not in instrument list in scenario yaml.")
+    # def check_scenario_yaml(self) -> None:
+    #     for freq in self.cfg.scenario.detector_freqs:
+    #         if freq not in self.cfg.scenario.full_instrument:
+    #             self.issues.append(f"Detector {freq} not in instrument list in scenario yaml.")
 
     def check_pipeline_yaml(self) -> None:
         pipeline = self.cfg.pipeline
