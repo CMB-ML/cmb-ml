@@ -55,8 +55,8 @@ def run_simulations(cfg):
 
     pipeline_context = PipelineContext(cfg, log_maker)
 
-    pipeline_context.add_pipe(HydraConfigCheckerExecutor)
-    pipeline_context.add_pipe(HydraConfigSimsCheckerExecutor)
+    # pipeline_context.add_pipe(HydraConfigCheckerExecutor)
+    # pipeline_context.add_pipe(HydraConfigSimsCheckerExecutor)
 
     # Required for the kinds of noise implemented in the pipeline
     pipeline_context.add_pipe(NoiseCacheExecutor)
@@ -77,18 +77,18 @@ def run_simulations(cfg):
     # pipeline_context.add_pipe(MakePlanckNoiseModelExecutor)
 
     # Download the noise model (much faster)
-    pipeline_context.add_pipe(DownloadNoiseModelExecutor)
+    # pipeline_context.add_pipe(DownloadNoiseModelExecutor)
 
     ############################
     # Simulation creation
     ############################
 
     # Needed for all:
-    pipeline_context.add_pipe(ConfigExecutor)
-    pipeline_context.add_pipe(TheoryPSExecutor)
-    pipeline_context.add_pipe(ObsCreatorExecutor)
-    pipeline_context.add_pipe(NoiseMapCreatorExecutor)
-    pipeline_context.add_pipe(SimCreatorExecutor)
+    # pipeline_context.add_pipe(ConfigExecutor)
+    # pipeline_context.add_pipe(TheoryPSExecutor)
+    # pipeline_context.add_pipe(ObsCreatorExecutor)
+    # pipeline_context.add_pipe(NoiseMapCreatorExecutor)
+    # pipeline_context.add_pipe(SimCreatorExecutor)
 
     # # TODO: Put this back in the pipeline yaml; fix/make executor
     # # pipeline_context.add_pipe(ShowSimsExecutor)  # Out of date, do not use.

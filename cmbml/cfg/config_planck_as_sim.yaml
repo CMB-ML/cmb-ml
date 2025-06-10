@@ -1,7 +1,7 @@
 defaults:
   - local_system   : generic_lab
   - file_system    : common_fs
-  - pipeline       : assembly_sim
+  - pipeline       : assembly_planck_as_sim
   - scenario       : scenario
   - splits         : all
   - model/sim      : sim
@@ -9,22 +9,29 @@ defaults:
   - override hydra/job_logging: custom_log
   - _self_
 
-dataset_name: "${map_fields}_${scenario.nside}_${splits.name}_junk"
+dataset_name: PlanckAsDataset_${scenario.nside}
 working_dir : "Simulation_Working/"
 hydra:
   run:
     dir: Logs/${now:%Y-%m-%d-%H-%M-%S}
   verbose: false
 
+in_cmb_beam_fwhm: 5.0
+out_cmb_beam_fwhm  : 20.6  # arcmin, matching narrowest beam for CMB-ML beams at 512
+# out_cmb_beam_fwhm  : 82.4  # arcmin, matching narrowest beam for CMB-ML beams at 128
+
 # Settings below this point are used for interpolation.
 # These are not to be used directly in the python
 # They are picked up from here and MAY be used elsewhere in the yamls.
 # In the scenario yaml
-nside          : 32
+nside          : 128
 detectors      : [30, 44, 70, 100, 143, 217, 353, 545, 857]
 map_fields     : "I"
 
+# NOTE: I'm pretty sure this should cause issues! We're squeezing blood from a turnip
+#       above l=~500
+
 # In the simulation yaml (only relevant to the simulation portion of the pipeline)
-nside_sky      : 64
-preset_strings : ["d9"]  #, "s4", "f1", "a1", "cib1", "ksz1", "tsz1", "rg1"]
+# nside_sky      : 64
+# preset_strings : ["d9"]  #, "s4", "f1", "a1", "cib1", "ksz1", "tsz1", "rg1"]
 # preset_strings : ["d9", "s4", "f1", "a1", "co1", "cib1", "ksz1", "tsz1", "rg1"]
