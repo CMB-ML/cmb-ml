@@ -20,5 +20,7 @@ download_sims_reference:
   assets_out:
     shared_links:
       handler: Config
-      path_template: "{src_root}/CMB-ML/upload_records_CMB-ML_512_1450.json"
+      # path_template: "{src_root}/CMB-ML/upload_records_CMB-ML_512_1450.json"
+      # path_template: "{src_root}/CMB-ML/upload_records_CMB-ML_512_1450_PREV_GOOD.json"
+      path_template: "{src_root}/CMB-ML/upload_records_I_128_1450.json"
       # path_template: "{src_root}/CMB-ML/upload_records_CMB-ML_128_1450.json"

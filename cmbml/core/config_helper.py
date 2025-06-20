@@ -151,7 +151,7 @@ def get_applicable_splits(cfg: DictConfig, stage_str: str) -> List[Split]:
         return []
 
     # Use regex to search for all matching Test# in all_splits
-    patterns = [re.compile(f"^{kind}\\d*$", re.IGNORECASE) for kind in splits_scope]
+    patterns = [re.compile(f"^{kind}(?:[A-Z])?(?:\\d{{1,4}})?$", re.IGNORECASE) for kind in splits_scope]
     filtered_names = [name for name in splits_all if any(pattern.match(name) for pattern in patterns)]
 
     # Create a Split object for each of the splits we found
