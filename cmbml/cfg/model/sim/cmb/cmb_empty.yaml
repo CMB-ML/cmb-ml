@@ -5,14 +5,15 @@ wmap_camb_params   :
     # Commented out values will not be pulled from the chain and put into the config.
     # Setting a value to null will get the value from the chain, but not use it when
     #    making a CMB power spectrum.
-    chain_idx: {}  # For tracking purposes
-    H0:        {camb: H0}
-    omegach2:  {camb: omch2}
-    omegabh2:  {camb: ombh2}
-    ns002:     {camb: ns}
-    a002:      {camb: As, factor: 1e-9}
-    tau:       {camb: tau}
-ell_max            : 8150  # Testing shows no change above ~3.5*nside
+    chain_idx: null
+    H0:        null
+    omegach2:  null
+    omegabh2:  null
+    ns002:     null
+    a002:      null
+    tau:       null
+# ell_max            : 8150  # Testing shows no change above ~3.5*nside
+ell_max            : null  # Testing shows no change above ~3.5*nside
                            # We use 8150 as a default incase we do resolution 2048 maps.
                            # TODO: Reduce this to 3.5 x nside or exchange with factor parameter
 seed_template      : "{split}_{sim}_cmb"

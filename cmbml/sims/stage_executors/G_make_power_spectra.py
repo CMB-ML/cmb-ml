@@ -43,13 +43,15 @@ class TheoryPSExecutor(BaseStageExecutor):
         super().__init__(cfg, stage_str='make_theory_ps')
 
         self.max_ell_for_camb = cfg.model.sim.cmb.ell_max
-        self.cosmo_params = cfg.model.sim.cmb.wmap_camb_params
+        self.cosmo_params = cfg.model.sim.cmb.camb_params
 
         self.out_cmb_ps: AssetWithPathAlts = self.assets_out['cmb_ps']
-        self.in_wmap_config: AssetWithPathAlts = self.assets_in['wmap_config']
+        self.in_cosmo_config: AssetWithPathAlts = self.assets_in['cosmo_config']
+
+        self.need_xl = cfg.model.sim.cmb.get('need_xl', False)
 
         out_cmb_ps_handler: CambPowerSpectrum
-        in_wmap_config_handler: Config
+        in_cosmo_config_handler: Config
 
     def execute(self) -> None:
         """
@@ -66,11 +68,11 @@ class TheoryPSExecutor(BaseStageExecutor):
             split (Split): The split to process.
         """
         if split.ps_fidu_fixed:
-            self.make_ps(self.in_wmap_config, self.out_cmb_ps, use_alt_path=True)
+            self.make_ps(self.in_cosmo_config, self.out_cmb_ps, use_alt_path=True)
         else:
             for sim in tqdm(split.iter_sims()):
                 with self.name_tracker.set_context("sim_num", sim):
-                    self.make_ps(self.in_wmap_config, self.out_cmb_ps, use_alt_path=False)
+                    self.make_ps(self.in_cosmo_config, self.out_cmb_ps, use_alt_path=False)
 
     def make_ps(self, 
                 wmap_params: AssetWithPathAlts, 
@@ -88,22 +90,47 @@ class TheoryPSExecutor(BaseStageExecutor):
         # Pull cosmological parameters from wmap_configs created earlier
         cosmo_params = wmap_params.read(use_alt_path=use_alt_path)
         # cosmological parameters from WMAP chains have (slightly) different names in camb
-        cosmo_params = self._translate_params_keys(cosmo_params)
+        if self.need_xl:
+            cosmo_params = self._translate_params_keys(cosmo_params)
 
         camb_results = make_camb_ps(cosmo_params, lmax=self.max_ell_for_camb)
         ps_asset.write(use_alt_path=use_alt_path, data=camb_results)
 
     def _translate_params_keys(self, src_params):
         out_params = {}
-        for param_k, param_v in src_params.items():
-            if param_k not in self.cosmo_params:
-                raise ValueError(f"Key {param_k} not in {self.cosmo_params}. Was this config written in this pipeline?")
+        for param_k in self.cosmo_params.keys():
+            # if param_k not in self.cosmo_params:
+            #     raise ValueError(f"Key {param_k} not in {self.cosmo_params}. Was this config written in this pipeline?")
             xl_dict = self.cosmo_params[param_k]
             if not xl_dict:  # If grabbing other elements of the chain, but not using them in CAMB
                 continue
+            # The key for use with CAMB is in the config under 'camb'
             new_k = xl_dict['camb']
-            new_v = param_v
-            if 'factor' in xl_dict:
-                new_v = param_v * xl_dict['factor']
+
+            if param_k not in src_params:
+                if 'value' in xl_dict:  # We force a value for this parameter (pivot_scalar, for example)
+                    new_v = xl_dict['value']
+                else:
+                    raise ValueError(f"Key {param_k} not in source parameters {src_params}. "
+                                     f"Was this config written in this pipeline?")
+            else:
+                new_v = src_params[param_k]
+                if 'factor' in xl_dict:
+                    new_v = new_v * xl_dict['factor']
             out_params[new_k] = new_v
         return out_params
+
+        # for param_k, param_v in src_params.items():
+        #     if param_k not in self.cosmo_params:
+        #         raise ValueError(f"Key {param_k} not in {self.cosmo_params}. Was this config written in this pipeline?")
+        #     xl_dict = self.cosmo_params[param_k]
+        #     if not xl_dict:  # If grabbing other elements of the chain, but not using them in CAMB
+        #         continue
+        #     new_k = xl_dict['camb']
+        #     new_v = param_v
+        #     if 'factor' in xl_dict:
+        #         new_v = param_v * xl_dict['factor']
+        #     if 'value' in xl_dict:
+        #         new_v = xl_dict['value']
+        #     out_params[new_k] = new_v
+        # return out_params

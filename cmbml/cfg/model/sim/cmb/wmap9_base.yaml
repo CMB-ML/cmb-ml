@@ -1,16 +1,24 @@
 cmb_type           : lensed
-wmap_camb_params   :
+param_set_name     : wmap9_base  # base = do not include a002 or mnu (neutrino mass)
+                                 # These were the original settings.
+
+need_xl            : true  # When pulling from the WMAP9 chains, we need to convert the
+                           #    WMAP9 parameter names to CAMB parameter names.
+                           #    This is not needed for best_fit methods, which draw
+                           #    parameters from simple normal distributions.
+camb_params   :
     # Commented out values will not be pulled from the chain and put into the config.
     # Setting a value to null will get the value from the chain, but not use it when
     #    making a CMB power spectrum.
     chain_idx: null  # For tracking purposes
-    H0:        {camb: H0}
-    omegach2:  {camb: omch2}
-    omegabh2:  {camb: ombh2}
-    ns002:     {camb: ns}
-    tau:       {camb: tau}
-    # a002:      {camb: As, factor: 1e-9}  # Do not use "As", per Yunan
-    # mnu:       null  # Do not use neutrino mass, do not (b/c commented out) note the value
+    H0:           {camb: H0}
+    omegach2:     {camb: omch2}
+    omegabh2:     {camb: ombh2}
+    ns002:        {camb: ns}
+    tau:          {camb: tau}
+    pivot_scalar: {camb: pivot_scalar, value: 0.002}
+    # a002:      null  # Do not use "As", per Yunan; note it if uncommented
+    # mnu:       null  # Do not use neutrino mass; (it is not in the chain)
 ell_max            : 8150  # Testing shows no change above ~3.5*nside
                            # We use 8150 as a default incase we do resolution 2048 maps.
                            # TODO: Reduce this to 3.5 x nside or exchange with factor parameter
@@ -18,5 +26,5 @@ seed_template      : "{split}_{sim}_cmb"
 make_ps_if_absent  : true
 wmap_indcs_seed    : 8675309  # Random number
 
-wmap_chain_version : wmap_lcdm_mnu_wmap9_chains_v5
+wmap_chain_version : wmap_lcdm_wmap9_chains_v5
 wmap_chain_length  : 603936   # Length of cahins files; change if using different list of cosmo parameters

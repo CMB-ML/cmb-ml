@@ -1,28 +1,24 @@
 cmb_type           : lensed
-param_set_name     : wmap9_standard_mnu  # standard = include a002, mnu = include neutrino mass
-need_xl            : true  # When pulling from the WMAP9 chains, we need to convert the
+param_set_name     : planck_w_bao_best_fit
+need_xl            : false # When pulling from the WMAP9 chains, we need to convert the
                            #    WMAP9 parameter names to CAMB parameter names.
                            #    This is not needed for best_fit methods, which draw
                            #    parameters from simple normal distributions.
-camb_params   :
+camb_params :
     # Commented out values will not be pulled from the chain and put into the config.
     # Setting a value to null will get the value from the chain, but not use it when
     #    making a CMB power spectrum.
-    chain_idx: null  # For tracking purposes
-    H0:           {camb: H0}
-    omegach2:     {camb: omch2}
-    omegabh2:     {camb: ombh2}
-    ns002:        {camb: ns}
-    tau:          {camb: tau}
-    a002:         {camb: As, factor: 1e-9}
-    pivot_scalar: {camb: pivot_scalar, value: 0.002}
-    mnu:          {camb: mnu}
+    # H0:        {camb: H0}
+    ombh2:    {mean: 0.02242, std: 0.00014}
+    omch2:    {mean: 0.11933, std: 0.00091}
+    tau:      {mean: 0.0561,  std: 0.0071}
+    ln1010as: {mean: 3.047,   std: 0.014}
+    ns:       {mean: 0.9665,  std: 0.0038}
+    H0:       {mean: 67.66,   std: 0.42}
 ell_max            : 8150  # Testing shows no change above ~3.5*nside
                            # We use 8150 as a default incase we do resolution 2048 maps.
                            # TODO: Reduce this to 3.5 x nside or exchange with factor parameter
 seed_template      : "{split}_{sim}_cmb"
 make_ps_if_absent  : true
-wmap_indcs_seed    : 8675309  # Random number
 
-wmap_chain_version : wmap_lcdm_mnu_wmap9_chains_v5
-wmap_chain_length  : 603936   # Length of chains files; change if using different list of cosmo parameters
+seed               : 8675309

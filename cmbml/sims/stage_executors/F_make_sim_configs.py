@@ -18,7 +18,7 @@ from cmbml.core import (
 logger = logging.getLogger(__name__)
 
 
-class ConfigExecutor(BaseStageExecutor):
+class ChainsConfigExecutor(BaseStageExecutor):
     """
     ConfigExecutor is responsible for generating the configuration files for the simulation.
 
@@ -49,11 +49,11 @@ class ConfigExecutor(BaseStageExecutor):
         self.in_wmap_chains: Asset = self.assets_in['wmap_chains']
 
         self.out_split_config: Asset = self.assets_out['split_configs']
-        self.out_wmap_config: AssetWithPathAlts = self.assets_out['wmap_config']
+        self.out_wmap_config: AssetWithPathAlts = self.assets_out['cosmo_config']
         out_split_config_handler: Config
         out_wmap_config_handler: Config
 
-        self.wmap_param_labels = self.get_param_labels(cfg.model.sim.cmb.wmap_camb_params)
+        self.wmap_param_labels = self.get_param_labels(cfg.model.sim.cmb.camb_params)
         self.wmap_chain_length = cfg.model.sim.cmb.wmap_chain_length
 
         self.seed = cfg.model.sim.cmb.wmap_indcs_seed
@@ -68,6 +68,7 @@ class ConfigExecutor(BaseStageExecutor):
         param_cfg = OmegaConf.to_container(param_cfg, resolve=True)
         param_labels = list(param_cfg.keys())
         param_labels.remove("chain_idx")
+        param_labels.remove("pivot_scalar")
         return param_labels
 
     def execute(self) -> None:
