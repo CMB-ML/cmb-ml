@@ -112,11 +112,16 @@ class AssetWithPathAlts(Asset):
         stage_cfg = cfg.pipeline[source_stage]
         asset_info = stage_cfg.assets_out[asset_name]
         self.path_template_alt = asset_info.path_template_alt
-    
+
     @property
     def path_alt(self):
         with self.name_tracker.set_context("stage", self.source_stage_dir):
-            return self.name_tracker.path(self.path_template_alt)
+            if self.path_overrides:
+                # If there are path overrides, use them
+                with self.name_tracker.set_contexts(self.path_overrides):
+                    return self.name_tracker.path(self.path_template_alt)
+            else:
+                return self.name_tracker.path(self.path_template_alt)
 
     def read(self, use_alt_path:bool=None, **kwargs):
         if use_alt_path is None:
@@ -126,6 +131,8 @@ class AssetWithPathAlts(Asset):
                 return self.handler.read(self.path_alt, **kwargs)
             else:
                 return self.handler.read(self.path, **kwargs)
+        else:
+            raise AttributeError("This asset is not set up to read.")
 
     def write(self, use_alt_path:bool=False, **kwargs):
         if self.can_write:
@@ -133,3 +140,5 @@ class AssetWithPathAlts(Asset):
                 return self.handler.write(self.path_alt, **kwargs)
             else:
                 return self.handler.write(self.path, **kwargs)
+        else:   
+            raise AttributeError("This asset is not set up to write.")
