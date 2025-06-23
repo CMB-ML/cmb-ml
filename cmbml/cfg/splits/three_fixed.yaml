@@ -1,4 +1,4 @@
-name: "1500"
+name: "1600"
 Train:
   n_sims: 1000
 Valid:
@@ -7,7 +7,15 @@ Valid:
 Test:
   n_sims: 200
   n_sims_cap: ${n_infer_cap}
-TestF:
+TestF1:
+  n_sims: 50
+  n_sims_cap: ${n_infer_cap}
+  ps_fidu_fixed: true
+TestF2:
+  n_sims: 50
+  n_sims_cap: ${n_infer_cap}
+  ps_fidu_fixed: true
+TestF3:
   n_sims: 50
   n_sims_cap: ${n_infer_cap}
   ps_fidu_fixed: true

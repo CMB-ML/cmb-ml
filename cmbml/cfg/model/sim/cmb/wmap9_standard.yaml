@@ -1,6 +1,6 @@
 cmb_type           : lensed
 param_set_name     : wmap9_standard  # standard = include a002, which is typical
-need_xl            : true  # When pulling from the WMAP9 chains, we need to convert the
+use_chains         : true  # When pulling from the WMAP9 chains, we need to convert the
                            #    WMAP9 parameter names to CAMB parameter names.
                            #    This is not needed for best_fit methods, which draw
                            #    parameters from simple normal distributions.

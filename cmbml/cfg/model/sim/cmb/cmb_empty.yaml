@@ -1,6 +1,7 @@
 cmb_type           : empty
 
 # Remainder of parameters are unused. CMB_Empty is for debugging; an empty array of zeros will be generated.
+use_chains         : true
 wmap_camb_params   :
     # Commented out values will not be pulled from the chain and put into the config.
     # Setting a value to null will get the value from the chain, but not use it when

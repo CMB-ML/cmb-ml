@@ -1,6 +1,6 @@
 cmb_type           : lensed
 param_set_name     : planck_w_bao_best_fit
-need_xl            : false # When pulling from the WMAP9 chains, we need to convert the
+use_chains         : false # When pulling from the WMAP9 chains, we need to convert the
                            #    WMAP9 parameter names to CAMB parameter names.
                            #    This is not needed for best_fit methods, which draw
                            #    parameters from simple normal distributions.

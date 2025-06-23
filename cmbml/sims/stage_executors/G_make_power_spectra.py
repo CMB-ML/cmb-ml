@@ -48,7 +48,7 @@ class TheoryPSExecutor(BaseStageExecutor):
         self.out_cmb_ps: AssetWithPathAlts = self.assets_out['cmb_ps']
         self.in_cosmo_config: AssetWithPathAlts = self.assets_in['cosmo_config']
 
-        self.need_xl = cfg.model.sim.cmb.get('need_xl', False)
+        self.need_xl = cfg.model.sim.cmb.get('use_chains', False)
 
         out_cmb_ps_handler: CambPowerSpectrum
         in_cosmo_config_handler: Config
@@ -68,7 +68,8 @@ class TheoryPSExecutor(BaseStageExecutor):
             split (Split): The split to process.
         """
         if split.ps_fidu_fixed:
-            self.make_ps(self.in_cosmo_config, self.out_cmb_ps, use_alt_path=True)
+            for _ in tqdm(range(1)):
+                self.make_ps(self.in_cosmo_config, self.out_cmb_ps, use_alt_path=True)
         else:
             for sim in tqdm(split.iter_sims()):
                 with self.name_tracker.set_context("sim_num", sim):

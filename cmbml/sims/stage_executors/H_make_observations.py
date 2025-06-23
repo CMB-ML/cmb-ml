@@ -98,7 +98,7 @@ class ObsCreatorExecutor(BaseStageExecutor):
         det_info = in_det_table.read()
         self.instrument: Instrument = make_instrument(cfg=cfg, det_info=det_info)
 
-        self.cmb_seed_factory = SeedFactory(cfg, cfg.model.sim.cmb.seed_template)
+        self.cmb_seed_factory = SeedFactory(cfg.model.sim.cmb.seed_template)
         self.cmb_factory = CMBFactory(cfg)
 
         # self.noise_seed_factory     = FreqLevelSeedFactory(cfg, 'noise')

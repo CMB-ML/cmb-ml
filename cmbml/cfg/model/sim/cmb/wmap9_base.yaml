@@ -1,8 +1,7 @@
 cmb_type           : lensed
 param_set_name     : wmap9_base  # base = do not include a002 or mnu (neutrino mass)
                                  # These were the original settings.
-
-need_xl            : true  # When pulling from the WMAP9 chains, we need to convert the
+use_chains         : true  # When pulling from the WMAP9 chains, we need to convert the
                            #    WMAP9 parameter names to CAMB parameter names.
                            #    This is not needed for best_fit methods, which draw
                            #    parameters from simple normal distributions.
