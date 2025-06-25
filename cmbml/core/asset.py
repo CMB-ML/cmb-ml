@@ -12,6 +12,14 @@ from .asset_handlers.asset_handler_registration import get_handler
 logger = logging.getLogger(__name__)
 
 
+class FailedPathInterpolationSentinel:
+    """
+    This class is used to indicate that path interpolation has failed.
+    It is used in the Namer class to indicate that the path cannot be generated.
+    """
+    pass
+
+
 class Asset:
     def __init__(self, cfg, source_stage, asset_name, name_tracker, in_or_out):
         stage_cfg = cfg.pipeline[source_stage]
@@ -30,8 +38,14 @@ class Asset:
 
         handler: GenericHandler = get_handler(asset_info)
         self.handler = handler()
-        # try:
-        self.path_template = asset_info.get('path_template', None)
+        try:
+            self.path_template = asset_info.get('path_template', None)
+        except OmegaErrors.InterpolationKeyError as e:
+            # This is a workaround. 
+            # The path template for WMAP9 chains uses interpolation. We set a special sentinel value
+            #   to indicate that the path template is not available. This allows us to work with other
+            #   assets that do not use interpolation.
+            self.path_template = FailedPathInterpolationSentinel()
         if self.path_template is None:
             logger.warning("No template found.")
             # TODO: Remove? Think through this?
@@ -39,11 +53,17 @@ class Asset:
 
         self.use_fields = asset_info.get("use_fields", None)
         self.file_size = asset_info.get("file_size", None)
+        self.path_overrides = {}
 
     @property
     def path(self):
         with self.name_tracker.set_context("stage", self.source_stage_dir):
-            return self.name_tracker.path(self.path_template)
+            if self.path_overrides:
+                # If there are path overrides, use them
+                with self.name_tracker.set_contexts(self.path_overrides):
+                    return self.name_tracker.path(self.path_template)
+            else:
+                return self.name_tracker.path(self.path_template)
 
     def read(self, **kwargs):
         if not self.can_read:
@@ -92,11 +112,16 @@ class AssetWithPathAlts(Asset):
         stage_cfg = cfg.pipeline[source_stage]
         asset_info = stage_cfg.assets_out[asset_name]
         self.path_template_alt = asset_info.path_template_alt
-    
+
     @property
     def path_alt(self):
         with self.name_tracker.set_context("stage", self.source_stage_dir):
-            return self.name_tracker.path(self.path_template_alt)
+            if self.path_overrides:
+                # If there are path overrides, use them
+                with self.name_tracker.set_contexts(self.path_overrides):
+                    return self.name_tracker.path(self.path_template_alt)
+            else:
+                return self.name_tracker.path(self.path_template_alt)
 
     def read(self, use_alt_path:bool=None, **kwargs):
         if use_alt_path is None:
@@ -106,6 +131,8 @@ class AssetWithPathAlts(Asset):
                 return self.handler.read(self.path_alt, **kwargs)
             else:
                 return self.handler.read(self.path, **kwargs)
+        else:
+            raise AttributeError("This asset is not set up to read.")
 
     def write(self, use_alt_path:bool=False, **kwargs):
         if self.can_write:
@@ -113,3 +140,5 @@ class AssetWithPathAlts(Asset):
                 return self.handler.write(self.path_alt, **kwargs)
             else:
                 return self.handler.write(self.path, **kwargs)
+        else:   
+            raise AttributeError("This asset is not set up to write.")

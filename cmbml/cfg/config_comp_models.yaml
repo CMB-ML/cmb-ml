@@ -1,0 +1,46 @@
+defaults:
+  - local_system   : generic_lab
+  - file_system    : common_fs
+  - pipeline       : assembly_model_comp
+  - scenario       : scenario
+  - splits         : all
+  - model/analysis : basic_analysis
+  - override hydra/job_logging: custom_log
+  - _self_
+
+# dataset_name: CMML_Dataset
+# When creating multiple datasets, using interpolation like this may be easier:
+dataset_name         : CMB-ML_${scenario.nside}_${splits.name}
+working_dir          : ""  # Otherwise None will be prepended to the directory name.
+fig_model_name       : null
+hydra:
+  run:
+    dir: Logs/${now:%Y-%m-%d-%H-%M-%S}
+  verbose: false
+
+models_comp:
+  - cmbnncs:
+    model_name        : CMBNNCS
+    working_directory : CMBNNCS_UNet8/
+    epoch             : 120
+  - pyilc:
+    model_name        : CNILC
+    working_directory : PyILC_CNILC/
+    # No epochs for this model
+    epoch             : ""
+ps_baseline           : theory
+
+
+# Settings below this point are used for interpolation.
+# These are not to be used directly in the python
+# They are picked up from here and MAY be used elsewhere in the yamls.
+# In the scenario yaml
+nside          : 512
+map_fields     : "I"
+
+# Limit the number of simulations on which to do inference and postprocessing
+# In the splits yaml; null to run on all
+# Should not be needed here; remove the check for this wherever it occurs
+n_test_cap       : null
+n_show_cap       : 5
+run_inference_on      : test  # Either "test" or "valid" ("train" should work, but is not recommended)

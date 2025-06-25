@@ -26,7 +26,7 @@ class CommonPostExecutor(BaseStageExecutor):
         # The following string must match the pipeline yaml
         super().__init__(cfg, stage_str)
 
-        self.out_cmb_map_real: Asset = self.assets_out["cmb_map"]
+        self.out_cmb_map: Asset = self.assets_out["cmb_map"]
         out_ps_handler: HealpyMap
 
         self.in_cmb_map: Asset = self.assets_in["cmb_map"]
@@ -34,17 +34,19 @@ class CommonPostExecutor(BaseStageExecutor):
         in_cmb_map_handler: HealpyMap
 
         # Basic parameters
-        self.nside_out = self.cfg.scenario.nside
+        self.nside_out = cfg.scenario.nside
         self.lmax = int(cfg.model.analysis.lmax_ratio * self.nside_out)
 
         # Prepare to load mask (in execute())
-        self.mask_threshold = self.cfg.model.analysis.mask_threshold
+        self.mask_threshold = cfg.model.analysis.mask_threshold
 
         self.use_pixel_weights = False
-        self.mask_b4_deconv        = self.cfg.model.analysis.post_map_mask_b4_deconv
-        self.do_deconv             = self.cfg.model.analysis.post_map_do_deconv
-        self.mask_b4_remove_dipole = self.cfg.model.analysis.post_map_mask_b4_remove_dipole
-        self.do_remove_dipole      = self.cfg.model.analysis.post_map_remove_dipole
+        self.mask_b4_deconv        = cfg.model.analysis.post_map_mask_b4_deconv
+        self.do_deconv             = cfg.model.analysis.post_map_do_deconv
+        self.mask_b4_remove_dipole = cfg.model.analysis.post_map_mask_b4_remove_dipole
+        self.do_remove_dipole      = cfg.model.analysis.post_map_remove_dipole
+
+        self.beam_cfg = cfg.model.beam
 
         # Prepare to load beam and mask in execute()
         self.beam = None
@@ -116,11 +118,20 @@ class CommonPostExecutor(BaseStageExecutor):
         if self.do_remove_dipole:
             post_map = hp.remove_dipole(post_map)
 
-        self.out_cmb_map_real.write(data=post_map)
+        units = [cmb_map.unit for _ in self.map_fields]
+
+        self.out_cmb_map.write(data=post_map, column_units=units)
 
     def deconv(self, data) -> np.ndarray:
         # Convert to spherical harmonic space (a_lm)
         alm_in = hp.map2alm(data, lmax=self.lmax)
+
+        # TODO: Update this. We want to convolve to a common beam here. I think.
+        #       Current work is just untangling repos, so this is future work.
+        #       It's simply a matter of adding the following (commented out) lines
+        # beam = self.target_beam.beam[:self.lmax] / self.source_beam.beam[:self.lmax]
+        # # Deconvolve the beam
+        # alm_deconv = hp.almxfl(alm_in, beam)
 
         # Deconvolve the beam
         alm_deconv = hp.almxfl(alm_in, 1 / self.beam.beam[:self.lmax])
@@ -137,9 +148,6 @@ class CommonRealPostExecutor(CommonPostExecutor):
     """
     def __init__(self, cfg: DictConfig) -> None:
         super().__init__(cfg, stage_str="common_post_map_real")
-        self.out_cmb_map: Asset = self.assets_out["cmb_map"]
-        self.in_cmb_map: Asset = self.assets_in["cmb_map"]
-        self.beam_cfg = cfg.model.analysis.beam_real
 
     def deconv(self, data):
         """
@@ -148,34 +156,42 @@ class CommonRealPostExecutor(CommonPostExecutor):
         return data
 
 
-class CommonCMBNNCSPredPostExecutor(CommonPostExecutor):
+class CommonPredPostExecutor(CommonPostExecutor):
     """
-    Applies mask, deconvolves beam, and removes monopole and dipole from CMBNNCS prediction map.
-    """
-    def __init__(self, cfg: DictConfig) -> None:
-        super().__init__(cfg, stage_str="common_post_map_pred")
-        self.out_cmb_map: Asset = self.assets_out["cmb_map"]
-        self.in_cmb_map: Asset = self.assets_in["cmb_map"]
-        self.beam_cfg = cfg.model.analysis.beam_cmbnncs
-
-
-class CommonNNPredPostExecutor(CommonPostExecutor):
-    """
-    Applies mask, deconvolves beam, and removes monopole and dipole from generic NN prediction map.
+    Applies mask, deconvolves beam, and removes monopole and dipole from CMB prediction map.
     """
     def __init__(self, cfg: DictConfig) -> None:
         super().__init__(cfg, stage_str="common_post_map_pred")
-        self.out_cmb_map: Asset = self.assets_out["cmb_map"]
-        self.in_cmb_map: Asset = self.assets_in["cmb_map"]
-        self.beam_cfg = cfg.model.analysis.beam_nn
 
 
-class CommonPyILCPredPostExecutor(CommonPostExecutor):
-    """
-    Applies mask, deconvolves beam, and removes monopole and dipole from PyILC prediction map.
-    """
-    def __init__(self, cfg: DictConfig) -> None:
-        super().__init__(cfg, stage_str="common_post_map_pred")
-        self.out_cmb_map: Asset = self.assets_out["cmb_map"]
-        self.in_cmb_map: Asset = self.assets_in["cmb_map"]
-        self.beam_cfg = cfg.model.analysis.beam_pyilc
+# class CommonCMBNNCSPredPostExecutor(CommonPostExecutor):
+#     """
+#     Applies mask, deconvolves beam, and removes monopole and dipole from CMBNNCS prediction map.
+#     """
+#     def __init__(self, cfg: DictConfig) -> None:
+#         super().__init__(cfg, stage_str="common_post_map_pred")
+#         self.out_cmb_map: Asset = self.assets_out["cmb_map"]
+#         self.in_cmb_map: Asset = self.assets_in["cmb_map"]
+#         self.beam_cfg = cfg.model.analysis.beam_cmbnncs
+
+
+# class CommonNNPredPostExecutor(CommonPostExecutor):
+#     """
+#     Applies mask, deconvolves beam, and removes monopole and dipole from generic NN prediction map.
+#     """
+#     def __init__(self, cfg: DictConfig) -> None:
+#         super().__init__(cfg, stage_str="common_post_map_pred")
+#         self.out_cmb_map: Asset = self.assets_out["cmb_map"]
+#         self.in_cmb_map: Asset = self.assets_in["cmb_map"]
+#         self.beam_cfg = cfg.model.analysis.beam_nn
+
+
+# class CommonPyILCPredPostExecutor(CommonPostExecutor):
+#     """
+#     Applies mask, deconvolves beam, and removes monopole and dipole from PyILC prediction map.
+#     """
+#     def __init__(self, cfg: DictConfig) -> None:
+#         super().__init__(cfg, stage_str="common_post_map_pred")
+#         self.out_cmb_map: Asset = self.assets_out["cmb_map"]
+#         self.in_cmb_map: Asset = self.assets_in["cmb_map"]
+#         self.beam_cfg = cfg.model.analysis.beam_pyilc

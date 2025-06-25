@@ -6,8 +6,13 @@ outputs/
 multirun/
 
 # Ignore potentially large files
-# *.fits
+*.fits
 *.tar.gz
+
+# Ignore build files
+build/
+dist/
+*.egg-info/
 
 # Ignore local system files
 .vscode/

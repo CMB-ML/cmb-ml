@@ -1,4 +1,5 @@
-import pkg_resources
+# import pkg_resources
+from importlib.resources import files
 from importlib.metadata import distributions
 import shutil
 import ast
@@ -66,17 +67,27 @@ class LogMaker:
 
     def log_cfgs_to_hydra(self, target_root):
         relevant_config_files = self.extract_relevant_config_paths()
-        base_path = self._find_common_paths(relevant_config_files)
-        # We want to include the parent of all configs in the path for organization. 
-        #   Otherwise they're alongside the python files.
-        base_path = base_path.parent
+        
+        # Make a text file in target_root for the providers and the common path
+        with open(target_root / "config_sources.txt", "w") as f:
+            for provider, config_files in relevant_config_files.items():
+                f.write(f"{provider}\n")
+                f.write(f"Common path: {self._find_common_paths(config_files)}\n")
+                for config_file in config_files:
+                    f.write(f"    {config_file}\n")
 
-        for config_file in relevant_config_files:
-            # resolve() is needed; absolute path not guaranteed
-            relative_cfg_path = config_file.resolve().relative_to(base_path)
-            target_path = target_root / relative_cfg_path
-            target_path.parent.mkdir(parents=True, exist_ok=True)
-            shutil.copy(config_file, target_path)
+        for provider, config_files in relevant_config_files.items():
+            base_path = self._find_common_paths(config_files)
+            # We want to include the parent of all configs in the path for organization. 
+            #   Otherwise they're alongside the python files.
+            base_path = base_path.parent
+
+            for config_file in config_files:
+                # resolve() is needed; absolute path not guaranteed
+                relative_cfg_path = config_file.resolve().relative_to(base_path)
+                target_path = target_root / provider / relative_cfg_path
+                target_path.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copy(config_file, target_path)
 
     def extract_relevant_config_paths(self):
         hydra_cfg = HydraConfig.get()
@@ -98,29 +109,38 @@ class LogMaker:
         # Hydra also has a dict of the configuration sources.
         # Extract the paths not provided by 'hydra' or 'schema'; we really just want
         #    the chain of config files.
-        config_paths = [
-            Path(source['path']) for source in hydra_cfg.runtime.config_sources
-            if source['provider'] not in ['hydra', 'schema'] and source['path']
-        ]
+        config_paths = {}
+        for source in hydra_cfg.runtime.config_sources:
+            if source['provider'] not in ['hydra', 'schema'] and source['path']:
+                if source['schema'] == 'file':
+                    config_paths[source['provider']] = (Path(source['path']))
+                elif source['schema'] == 'pkg':
+                    path_parts = source['path'].split('.')
+                    path = Path(files(path_parts[0]))
+                    for part in path_parts[1:]:
+                        path = path / part
+                    config_paths[source['provider']] = path
 
-        relevant_files = []
+        relevant_files = {}
         # Search the configuration paths for locations of files containing the
         #    default choices.
         top_config_name = hydra_cfg.job.config_name
-        for config_path in config_paths:
+        for provider, config_path in config_paths.items():
             maybe_path = config_path / f"{top_config_name}.yaml"
             if maybe_path.exists():
-                relevant_files.append(maybe_path)
+                relevant_files[provider] = [maybe_path]
+            else:
+                relevant_files[provider] = []
 
         missing_combinations = []
 
         # Attempt to find each choice in the available config paths
         for choice_key, choice_value in relevant_choices.items():
             found = False
-            for config_dir in config_paths:
+            for provider, config_dir in config_paths.items():
                 config_path = config_dir / f"{choice_key}/{choice_value}.yaml"
                 if config_path.exists():
-                    relevant_files.append(config_path)
+                    relevant_files[provider].append(config_path)
                     found = True
                     break
             if not found:
@@ -130,39 +150,41 @@ class LogMaker:
         if missing_combinations:
             logger.warning("Missing configuration files for:", missing_combinations)
 
-        # We sideload yaml files in some cases; hydra does not add these to the "choices" list.
-        for config_path in relevant_files:
-            config_path = Path(config_path)  # Del this line
-            with open(config_path, 'r') as f:
-                try:
-                    config_data = yaml.safe_load(f)
-                    if config_data is None:
-                        logger.warning(f"Loaded an empty config file: {config_path}")
-                        continue
-                    # if defaults is not a key, continue
-                    defaults = config_data.get('defaults', [])
-                    for item in defaults:
-                        # only consider strings, not k:v pairs (or maybe other things)
-                        if not isinstance(item, str):
+        # We sideload yaml files in some cases (e.g. pipeline yaml lists?); 
+        #   hydra does not add these to the "choices" list.
+        for provider, config_paths in relevant_files.items():
+            for config_path in config_paths:
+                config_path = Path(config_path)  # Del this line
+                with open(config_path, 'r') as f:
+                    try:
+                        config_data = yaml.safe_load(f)
+                        if config_data is None:
+                            logger.warning(f"Loaded an empty config file: {config_path}")
                             continue
-                        # _self_ must appear in the defaults list; this is ok and
-                        if item == '_self_':
-                            continue
-                        # if it's a string, hydra interprets it as a path neighboring the current config
-                        possible_path = config_path.parent / item
-                        # Suffixes in the defaults list are optional ('- test' and '- test.yaml' are equivalent)
-                        if not possible_path.suffix:
-                            possible_path = possible_path.with_suffix('.yaml')
-                        if possible_path.exists():
-                            if possible_path not in relevant_files:
-                                # In this case we can not create an infinite loop
-                                relevant_files.append(possible_path)
+                        # if defaults is not a key, continue
+                        defaults = config_data.get('defaults', [])
+                        for item in defaults:
+                            # only consider strings, not k:v pairs (or maybe other things)
+                            if not isinstance(item, str):
+                                continue
+                            # _self_ must appear in the defaults list; this is ok and
+                            if item == '_self_':
+                                continue
+                            # if it's a string, hydra interprets it as a path neighboring the current config
+                            possible_path = config_path.parent / item
+                            # Suffixes in the defaults list are optional ('- test' and '- test.yaml' are equivalent)
+                            if not possible_path.suffix:
+                                possible_path = possible_path.with_suffix('.yaml')
+                            if possible_path.exists():
+                                if possible_path not in relevant_files[provider]:
+                                    # In this case we can not create an infinite loop
+                                    relevant_files[provider].append(possible_path)
+                                else:
+                                    logger.warning(f"Circular dependency detected for file: {config_path} for line {item}")
                             else:
-                                logger.warning(f"Circular dependency detected for file: {config_path} for line {item}")
-                        else:
-                            logger.warning(f"File referenced in a defaults was not found: {config_path} for line {item}")
-                except yaml.YAMLError as e:
-                    logger.error(f"Error parsing YAML file {config_path}: {e}")
+                                logger.warning(f"File referenced in a defaults was not found: {config_path} for line {item}")
+                    except yaml.YAMLError as e:
+                        logger.error(f"Error parsing YAML file {config_path}: {e}")
         return relevant_files
 
     @staticmethod

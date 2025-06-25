@@ -18,7 +18,7 @@ from cmbml.core import (
 logger = logging.getLogger(__name__)
 
 
-class ConfigExecutor(BaseStageExecutor):
+class ChainsConfigExecutor(BaseStageExecutor):
     """
     ConfigExecutor is responsible for generating the configuration files for the simulation.
 
@@ -46,16 +46,30 @@ class ConfigExecutor(BaseStageExecutor):
         # The following stage_str must match the pipeline yaml
         super().__init__(cfg, stage_str="make_sim_configs")
 
+        self.in_wmap_chains: Asset = self.assets_in['wmap_chains']
+
         self.out_split_config: Asset = self.assets_out['split_configs']
-        self.out_wmap_config: AssetWithPathAlts = self.assets_out['wmap_config']
+        self.out_wmap_config: AssetWithPathAlts = self.assets_out['cosmo_config']
         out_split_config_handler: Config
         out_wmap_config_handler: Config
 
-        self.wmap_param_labels = cfg.model.sim.cmb.wmap_params
+        self.wmap_param_labels = self.get_param_labels(cfg.model.sim.cmb.camb_params)
         self.wmap_chain_length = cfg.model.sim.cmb.wmap_chain_length
-        self.wmap_chains_dir = Path(cfg.local_system.assets_dir) / cfg.file_system.wmap_chains_dir
 
         self.seed = cfg.model.sim.cmb.wmap_indcs_seed
+
+    def get_param_labels(self, param_cfg: DictConfig) -> None:
+        """
+        Get the parameter labels for the WMAP parameters.
+
+        Args:
+            param_cfg (DictConfig): The configuration for the parameters.
+        """
+        param_cfg = OmegaConf.to_container(param_cfg, resolve=True)
+        param_labels = list(param_cfg.keys())
+        param_labels.remove("chain_idx")
+        param_labels.remove("pivot_scalar")
+        return param_labels
 
     def execute(self) -> None:
         """
@@ -132,7 +146,8 @@ class ConfigExecutor(BaseStageExecutor):
             chain_idcs (List[int]): The indices of the WMAP chain to use.
             split (Split): The split for which to make the configurations.
         """
-        wmap_params = pull_params_from_file(wmap_chain_path=self.wmap_chains_dir,
+        wmap_chains_dir = self.in_wmap_chains.path
+        wmap_params = pull_params_from_file(wmap_chain_path=wmap_chains_dir,
                                             chain_idcs=chain_idcs,
                                             params_to_get=self.wmap_param_labels,
                                             wmap_chain_length=self.wmap_chain_length)

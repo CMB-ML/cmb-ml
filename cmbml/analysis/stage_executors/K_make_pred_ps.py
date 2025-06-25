@@ -147,15 +147,15 @@ class MakePredPowerSpectrumExecutor(BaseStageExecutor):
         self.out_auto_pred.write(data=ps.value)
 
 
-class PyILCMakePSExecutor(MakePredPowerSpectrumExecutor):
-    def __init__(self, cfg: DictConfig) -> None:
-        super().__init__(cfg, "beam_pyilc")
+# class PyILCMakePSExecutor(MakePredPowerSpectrumExecutor):
+#     def __init__(self, cfg: DictConfig) -> None:
+#         super().__init__(cfg, "beam_pyilc")
 
 
-class CMBNNCSMakePSExecutor(MakePredPowerSpectrumExecutor):
-    def __init__(self, cfg: DictConfig) -> None:
-        super().__init__(cfg, "beam_cmbnncs")
+# class CMBNNCSMakePSExecutor(MakePredPowerSpectrumExecutor):
+#     def __init__(self, cfg: DictConfig) -> None:
+#         super().__init__(cfg, "beam_cmbnncs")
 
-class NNMakePowerSpectrumExecutor(MakePredPowerSpectrumExecutor):
-    def __init__(self, cfg: DictConfig) -> None:
-        super().__init__(cfg, "beam_nn")
+# class NNMakePowerSpectrumExecutor(MakePredPowerSpectrumExecutor):
+#     def __init__(self, cfg: DictConfig) -> None:
+#         super().__init__(cfg, "beam_nn")

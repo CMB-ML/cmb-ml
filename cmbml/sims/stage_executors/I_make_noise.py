@@ -71,7 +71,7 @@ class NoiseMapCreatorExecutor(BaseStageExecutor):
         det_info = in_det_table.read()
         self.instrument: Instrument = make_instrument(cfg=cfg, det_info=det_info)
 
-        self.noise_seed_factory   = SeedFactory(cfg, cfg.model.sim.noise.seed_template)
+        self.noise_seed_factory   = SeedFactory(cfg.model.sim.noise.seed_template)
         NoiseMaker                = get_noise_class(cfg.model.sim.noise.noise_type)
         self.noise_maker          = NoiseMaker(cfg, self.name_tracker, self.in_noise_cache)
 

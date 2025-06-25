@@ -46,8 +46,6 @@ def pull_params_from_file(wmap_chain_path, chain_idcs, params_to_get, wmap_chain
                 param_vals[param][orig_pos] = float(random_draw)
         for i in range(n_vals):
             assert param_vals[param][i] is not None, "Error while drawing values"
-        if param == 'a002':
-            param_vals[param] = [v / 1e9 for v in param_vals[param]]
     param_vals['chain_idx'] = chain_idcs
     return param_vals
 

@@ -30,10 +30,7 @@ class SeedFactory:
         string_to_seed: Convert a string to a seed.
     """
     def __init__(self, 
-                 cfg: DictConfig, 
                  seed_template: str) -> None:
-        # self.base: str = cfg.model.sim.seed_base_string
-        # self.str_num_digits = cfg.file_system.sim_str_num_digits
         self.seed_template: str = seed_template
 
     # def sim_num_str(self, sim: int) -> str:

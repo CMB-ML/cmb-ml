@@ -11,6 +11,7 @@ class Namer:
         self._working_dir: str = cfg.get("working_dir", "")
         self.sim_folder_prefix: str = cfg.file_system.sim_folder_prefix
         self.sim_str_num_digits: int = cfg.file_system.sim_str_num_digits
+        self.fig_type: str = cfg.get("fig_type", "png")
         self.src_root: str = cfg.local_system.assets_dir
         self.context: Dict[str, str] = {}
 
@@ -51,6 +52,7 @@ class Namer:
         self.context['working'] = self._working_dir
         self.context['root'] = str(self._root)
         self.context['src_root'] = self.src_root
+        self.context['fig_type'] = self.fig_type
 
     @contextmanager
     def set_context(self, level, value):

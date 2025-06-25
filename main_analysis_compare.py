@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 
 @hydra.main(version_base=None, config_path="cfg", config_name="config_comp_models")
-def run_pyilc_analysis(cfg):
+def main(cfg):
     logger.debug(f"Running {__name__} in {__file__}")
 
     log_maker = LogMaker(cfg)
@@ -45,5 +45,4 @@ def run_pyilc_analysis(cfg):
 
 
 if __name__ == "__main__":
-    validate_environment_variable("CMB_ML_LOCAL_SYSTEM")
-    run_pyilc_analysis()
+    main()

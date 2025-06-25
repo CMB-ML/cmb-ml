@@ -11,14 +11,14 @@ from cmbml.get_data.utils.download import extract_file
 logger = logging.getLogger(__name__)
 
 
-def get_wmap_chains_ext(assets_directory, mnu=True, progress=False):
+def get_wmap_chains_ext(assets_directory, chain_version, progress=False):
     url_template_maps = "https://lambda.gsfc.nasa.gov/data/map/dr5/dcp/chains/{fn}"
-    if mnu:
-        fn = "wmap_lcdm_mnu_wmap9_chains_v5.tar.gz"
+    if chain_version == "wmap_lcdm_mnu_wmap9_chains_v5":
         file_size = 382  # MB
-    else:
-        fn = "wmap_lcdm_wmap9_chains_v5.tar.gz"
+    elif chain_version == "wmap_lcdm_wmap9_chains_v5":
         file_size = 784  # MB
+
+    fn = chain_version + ".tar.gz"
 
     dest_path = Path(assets_directory) / fn
     if progress:

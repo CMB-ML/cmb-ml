@@ -1,0 +1,24 @@
+cmb_type           : lensed
+param_set_name     : planck_best_fit
+use_chains         : false # When pulling from the WMAP9 chains, we need to convert the
+                           #    WMAP9 parameter names to CAMB parameter names.
+                           #    This is not needed for best_fit methods, which draw
+                           #    parameters from simple normal distributions.
+camb_params :
+    # Commented out values will not be pulled from the chain and put into the config.
+    # Setting a value to null will get the value from the chain, but not use it when
+    #    making a CMB power spectrum.
+    # H0:        {camb: H0}
+    ombh2:    {mean: 0.02237, std: 0.00015}
+    omch2:    {mean: 0.1200,  std: 0.0012}
+    tau:      {mean: 0.0544,  std: 0.0073}
+    ln1010as: {mean: 3.044,   std: 0.014}
+    ns:       {mean: 0.9649,  std: 0.0042}
+    H0:       {mean: 67.36,   std: 0.54}
+ell_max            : 8150  # Testing shows no change above ~3.5*nside
+                           # We use 8150 as a default incase we do resolution 2048 maps.
+                           # TODO: Reduce this to 3.5 x nside or exchange with factor parameter
+seed_template      : "{split}_{sim}_cmb"
+make_ps_if_absent  : true
+
+seed               : 8675309

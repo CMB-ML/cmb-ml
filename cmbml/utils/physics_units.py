@@ -47,6 +47,7 @@ def convert_field_str_to_Unit(unit_str):
             'Kcmb': u.K_CMB,
             'K_CMB': u.K_CMB,
             'MJy/sr': u.MJy / u.sr,
+            'MJY/SR': u.MJy / u.sr,  # Used in foreground-only R2.00 maps
             'Kcmb^2': u.K_CMB**2,
             '(K_CMB)^2': u.K_CMB**2,
             # 'K_CMB^2': u.K_CMB**2,

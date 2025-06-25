@@ -15,6 +15,7 @@ Example usage:
 
 import logging
 import hydra
+from omegaconf import OmegaConf
 from cmbml.core import PipelineContext, LogMaker
 from cmbml.core.A_check_hydra_configs import HydraConfigCheckerExecutor
 from cmbml.sims import (
@@ -24,7 +25,8 @@ from cmbml.sims import (
     MakePlanckAverageNoiseExecutor,
     MakePlanckNoiseModelExecutor,
     DownloadNoiseModelExecutor,
-    ConfigExecutor,
+    ChainsConfigExecutor,
+    ParamConfigExecutor,
     TheoryPSExecutor,
     ObsCreatorExecutor,
     NoiseMapCreatorExecutor,
@@ -34,7 +36,7 @@ from cmbml.sims import (
 logger = logging.getLogger(__name__)
 
 
-@hydra.main(version_base=None, config_path="cfg", config_name="config_sim")
+@hydra.main(version_base=None, config_name="config_sim")
 def run_simulations(cfg):
     """
     Runs the simulation pipeline.
@@ -46,6 +48,8 @@ def run_simulations(cfg):
         Exception: If an exception occurs during the pipeline execution.
     """
     logger.debug(f"Running {__name__} in {__file__}")
+
+    print(OmegaConf.to_yaml(cfg))
 
     log_maker = LogMaker(cfg)
     log_maker.log_procedure_to_hydra(source_script=__file__)
@@ -85,7 +89,10 @@ def run_simulations(cfg):
     ############################
 
     # Needed for all:
-    pipeline_context.add_pipe(ConfigExecutor)
+    if cfg.model.sim.cmb.use_chains:
+        pipeline_context.add_pipe(ChainsConfigExecutor)
+    else:
+        pipeline_context.add_pipe(ParamConfigExecutor)
     pipeline_context.add_pipe(TheoryPSExecutor)
     pipeline_context.add_pipe(ObsCreatorExecutor)
     pipeline_context.add_pipe(NoiseMapCreatorExecutor)

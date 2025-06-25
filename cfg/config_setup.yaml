@@ -1,5 +1,0 @@
-defaults:
-  - local_system: ${oc.env:CMB_ML_LOCAL_SYSTEM}
-  - file_system : common_fs
-  - override hydra/job_logging: custom_log
-  - _self_

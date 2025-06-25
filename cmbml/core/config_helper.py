@@ -120,13 +120,19 @@ def get_assets_in(cfg: DictConfig, stage_str: str, name_tracker: Namer) -> Dict[
     assets_in = {}
     if assets_in_info:
         for asset_name, details in assets_in_info.items():
-            source_stage = details['stage']
-            orig_name = details.get('orig_name', asset_name)
+            details = dict(details)
+            source_stage = details.pop('stage')
+
+            # Allow for the case where the asset name is not the same as the original name
+            orig_name = details.pop('orig_name', asset_name)
+
             assets_out_at_source_info = config_handler.get_stage_element("assets_out", source_stage)
             if orig_name in assets_out_at_source_info:
                 assets_in[asset_name] = get_assets(cfg, source_stage, name_tracker, "in")[orig_name]
             else:
                 raise ValueError(f"Asset '{orig_name}' not found in stage '{source_stage}' outputs.")
+
+            assets_in[asset_name].path_overrides = details
     return assets_in
 
 
@@ -144,8 +150,9 @@ def get_applicable_splits(cfg: DictConfig, stage_str: str) -> List[Split]:
     if splits_scope is None:
         return []
 
-    # Use regex to search for all matching Test# in all_splits
-    patterns = [re.compile(f"^{kind}\\d*$", re.IGNORECASE) for kind in splits_scope]
+    # Use regex to search for all matching Test# / Test@# in all_splits 
+    #    (where @ is a singleletter and # is a number with up to 4 digits)
+    patterns = [re.compile(f"^{kind}(?:[A-Z])?(?:\\d{{1,4}})?$", re.IGNORECASE) for kind in splits_scope]
     filtered_names = [name for name in splits_all if any(pattern.match(name) for pattern in patterns)]
 
     # Create a Split object for each of the splits we found

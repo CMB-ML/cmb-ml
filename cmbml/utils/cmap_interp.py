@@ -1,7 +1,7 @@
 import numpy as np
 from scipy.interpolate import interp1d
 
-from matplotlib.colors import SymLogNorm, ListedColormap
+from matplotlib.colors import SymLogNorm, Normalize, ListedColormap
 
 
 def get_cmap_interp(colors, num_points=1000):
@@ -91,3 +91,73 @@ def get_symlog_cmap(o_cmap, norm, total_points=2000):
     interp_cmap = ListedColormap(interp_cmap)
 
     return interp_cmap
+
+
+def get_log_cmap(o_cmap, norm, total_points=2000):
+    """
+    Warps the upper half of a symmetric colormap for use with LogNorm.
+    """
+    # Sample the upper half of the original colormap
+    try:
+        base_vals = np.linspace(0.5, 1.0, total_points)
+        colors = o_cmap(base_vals)
+    except AttributeError:
+        raise ValueError("Expected a Colormap object")
+
+    # Warp the color positions logarithmically
+    log_vals = np.logspace(np.log10(norm.vmin), np.log10(norm.vmax), total_points)
+    norm_vals = norm(log_vals)  # These are values between 0 and 1
+    warped_colors = o_cmap(0.5 + norm_vals * 0.5)  # Scale to [0.5, 1.0] range
+
+    interp_colors = get_cmap_interp(warped_colors, num_points=total_points)
+    return ListedColormap(interp_colors)
+
+
+def get_linear_cmap(o_cmap, norm: Normalize, total_points=2000):
+    """
+    Create a linear colormap with more detail near zero, using a Normalize object.
+    
+    Parameters
+    ----------
+    o_cmap : Colormap
+        Original colormap (e.g., from plt.cm).
+    norm : Normalize
+        Normalize instance with vmin/vmax defining the range.
+    total_points : int
+        Number of output color points.
+
+    Returns
+    -------
+    ListedColormap
+        The final interpolated colormap with enhanced resolution near zero.
+    """
+    # UNTESTED. Sorry :(
+
+    loc_0 = norm(0.0)
+
+    if loc_0 <= 0:
+        # All data is positive: use top half of colormap
+        sample_vals = np.linspace(0.5, 1.0, total_points)
+        colors = o_cmap(sample_vals)
+    elif loc_0 >= 1:
+        # All data is negative: use bottom half of colormap
+        sample_vals = np.linspace(0.0, 0.5, total_points)
+        colors = o_cmap(sample_vals)
+    else:
+        # Allocate samples based on position of zero
+        n_low = int(loc_0 * total_points)
+        n_high = total_points - n_low
+
+        # Sample in data space, then normalize to [0, 1]
+        vals_low = np.linspace(norm.vmin, 0, n_low, endpoint=False)
+        vals_high = np.linspace(0, norm.vmax, n_high)
+        sample_vals = np.concatenate([vals_low, vals_high])
+        normed_vals = norm(sample_vals)
+
+        colors = o_cmap(normed_vals)
+
+    # Ensure shape is (N, 3)
+    colors = np.asarray(colors)[:, :3]
+
+    interp_colors = get_cmap_interp(colors, num_points=total_points)
+    return ListedColormap(interp_colors)

@@ -15,7 +15,7 @@ from cmbml.get_data.stage_executors.A_get_assets import GetAssetsExecutor
 logger = logging.getLogger(__name__)
 
 
-@hydra.main(version_base=None, config_path="../cfg", config_name="config_sim")
+@hydra.main(version_base=None, config_name="config_sim")
 def main(cfg):
     """
     Gets assets.

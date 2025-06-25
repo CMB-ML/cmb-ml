@@ -12,8 +12,9 @@ from .pd_csv_handler import PandasCsvHandler
 from .psmaker_handler import NumpyPowerSpectrum
 from .psmaker_handler import TextPowerSpectrum
 from .psmaker_handler import CambPowerSpectrum
-from .pytorch_model_handler import PyTorchModel
+# from .pytorch_model_handler import PyTorchModel
 from .qtable_handler import QTableHandler
 from .txt_handler import TextHandler
 from .appending_csv_handler import AppendingCsvHandler
 from .figure_handler import Figure
+from .figure_handler import MPLFigure

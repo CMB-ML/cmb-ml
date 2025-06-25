@@ -3,6 +3,8 @@ from dataclasses import dataclass
 from pathlib import Path
 import logging
 
+from omegaconf.errors import InterpolationKeyError
+
 from pysm3.units import Unit
 
 from cmbml.utils.physics_units import convert_field_str_to_Unit
@@ -18,9 +20,52 @@ class Detector:
     cen_freq: Optional[float] = None
     fwhm: Optional[float] = None
 
+
+class DetsDict(dict):
+    """
+    A dictionary that maps detector frequencies to Detector objects.
+    Raises an error if accessed while empty.
+    """
+
+    def _raise_if_empty(self, context: str = "access"):
+        if not self:
+            raise ValueError(f"The instrument has no detectors. "
+                             f"Attempted to {context}. Ensure the "
+                              "configuration has 'scenario.detector_freqs' "
+                              "(or top-level 'detectors').")
+
+    def __getitem__(self, key):
+        self._raise_if_empty("access a detector")
+        return super().__getitem__(key)
+
+    def __iter__(self):
+        self._raise_if_empty("iterate over detectors")
+        return super().__iter__()
+
+    def items(self):
+        self._raise_if_empty("access 'dets.items()'")
+        return super().items()
+
+    def keys(self):
+        self._raise_if_empty("access 'dets.keys()'")
+        return super().keys()
+
+    def values(self):
+        self._raise_if_empty("access 'dets.values()'")
+        return super().values()
+
+    def get(self, key, default=None):
+        self._raise_if_empty("use 'dets.get()'")
+        return super().get(key, default)
+
+    def __contains__(self, key):
+        self._raise_if_empty("check if a key is in dets")
+        return super().__contains__(key)
+
+
 @dataclass(frozen=True)
 class Instrument:
-    dets: Dict[int, Detector]
+    dets: DetsDict[int, Detector]
     map_fields: str
 
 
@@ -60,7 +105,14 @@ def make_instrument(cfg, det_info=None):
     scen_fields = cfg.scenario.map_fields
     full_instrument = cfg.scenario.full_instrument
     instrument_dets = {}
-    for freq in cfg.scenario.detector_freqs:
+
+    # Allow for no specification of detectors, either in top-level or in scenario
+    try:
+        detector_freqs = cfg.scenario.detector_freqs
+    except (KeyError, AttributeError, InterpolationKeyError) as e:
+        detector_freqs = []
+
+    for freq in detector_freqs:
         available_fields = full_instrument[freq]
         selected_fields = ''.join([field for field in available_fields if field in scen_fields])
         assert len(selected_fields) > 0, f"No fields were found for {freq} detector. Available fields: {available_fields}, Scenario fields: {scen_fields}."
@@ -69,4 +121,4 @@ def make_instrument(cfg, det_info=None):
         else:
             det = Detector(nom_freq=freq, fields=selected_fields)  #, unit=get_detector_unit(freq))
         instrument_dets[freq] = det
-    return Instrument(dets=instrument_dets, map_fields=scen_fields)
+    return Instrument(dets=DetsDict(instrument_dets), map_fields=scen_fields)

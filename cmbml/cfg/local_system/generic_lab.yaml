@@ -1,0 +1,2 @@
+datasets_root    : "${oc.env:CMB_ML_DATA}/Datasets/"
+assets_dir       : "${oc.env:CMB_ML_DATA}/Assets/"

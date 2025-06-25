@@ -1,8 +1,0 @@
-unet_to_make: unet5
-max_filters: 512
-kernels_size: [4,4,4,4,4,4,4,4,4,2]
-strides: [2,2,2,2,2,2,2,2,2,2]
-mainActive: 'prelu'
-finalActive: 'prelu'
-finalBN: false
-model_precision  : float
