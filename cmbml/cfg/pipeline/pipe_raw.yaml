@@ -1,5 +1,8 @@
 raw:
   assets_out:
+    planck_deltabandpass:
+      handler: QTable
+      path_template: "{src_root}/Planck/planck_deltabandpass.tbl"
     deltabandpass:
       handler: QTable
       # path_template: "{src_root}/Planck/deltabandpass.tbl"
@@ -15,6 +18,14 @@ raw:
       handler: HealpyMap
       use_fields: 3  # Healpy indices are 0-based. We are using Healpy. FITS file indices are 1-based. If you inspect the FITS file, this may lead to confusion.
       file_size: 1610  # Slightly smaller so we don't trigger re-download in get_assets.py
+
+raw_in:  # A convenience for use in notebooks
+  assets_in:
+    planck_deltabandpass: {stage: raw}
+    deltabandpass: {stage: raw}
+    noise_src_varmaps: {stage: raw}
+    wmap_chains: {stage: raw}
+    mask_src_map: {stage: raw}
 
 download_sims_reference:
   assets_out:
