@@ -14,7 +14,7 @@ from cmbml.utils.planck_instrument import make_instrument, Instrument
 from cmbml.get_data.utils.get_planck_data_ext import get_planck_noise_fn
 from cmbml.utils.physics_mask import simple_galactic_mask
 from cmbml.utils.physics_ps import get_autopower
-from cmbml.utils.physics_downgrade_by_alm import downgrade_by_alm
+from cmbml.utils.physics_downgrade_by_alm import downgrade_noise_by_alm
 
 from cmbml.core.asset_handlers.healpy_map_handler import HealpyMap
 from cmbml.core.asset_handlers.qtable_handler import QTableHandler
@@ -154,7 +154,7 @@ class MakePlanckNoiseModelExecutor(BaseStageExecutor):
                 #       but it's only ~5s. This will make noise model generation take longer, but may be faster
                 #       when creating the simulations. Downside: need to get autopower beyond bandwidth limit. HM. 
                 if self.save_512_avg_for_reviewers:
-                    noise_map = downgrade_by_alm(noise_map, target_nside=512)
+                    noise_map = downgrade_noise_by_alm(noise_map, target_nside=512)
 
                 # This is the slow part
                 noise_map = noise_map - avg_noise_map

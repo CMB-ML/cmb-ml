@@ -14,7 +14,7 @@ from cmbml.get_data.utils.get_planck_data_ext import get_planck_noise_fn
 
 from cmbml.core.asset_handlers.healpy_map_handler import HealpyMap
 from cmbml.core.asset_handlers.qtable_handler import QTableHandler
-from cmbml.utils.physics_downgrade_by_alm import downgrade_by_alm
+from cmbml.utils.physics_downgrade_by_alm import downgrade_noise_by_alm
 
 
 logger = logging.getLogger(__name__)
@@ -95,7 +95,7 @@ class MakePlanckAverageNoiseExecutor(BaseStageExecutor):
                 outer_bar.update(1)
 
         if self.save_512_avg_for_reviewers:
-            avg_noise_map = downgrade_by_alm(avg_noise_map, target_nside=512)
+            avg_noise_map = downgrade_noise_by_alm(avg_noise_map, target_nside=512)
 
         # Prepare FITS header information & save maps
         column_names = [f"STOKES_{x}" for x in det.fields]

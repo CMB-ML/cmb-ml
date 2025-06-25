@@ -7,7 +7,7 @@ from astropy.units import Quantity
 
 from cmbml.utils.planck_instrument import Detector
 from cmbml.sims.physics_instrument.physics_scale_cache_maker import ScaleCacheMaker, make_random_noise_map
-from cmbml.utils.physics_downgrade_by_alm import downgrade_by_alm
+from cmbml.utils.physics_downgrade_by_alm import downgrade_noise_by_alm
 from cmbml.core.config_helper import ConfigHelper
 
 
@@ -45,7 +45,7 @@ class SpatialCorrNoise:
         context = dict(fields=self.map_fields)
         with self.name_tracker.set_contexts(context):
             full_res_avg_map = self.in_noise_avg.read(map_field_strs=self.map_fields)
-        self.avg_maps[freq] = downgrade_by_alm(full_res_avg_map, self.nside_out)
+        self.avg_maps[freq] = downgrade_noise_by_alm(full_res_avg_map, self.nside_out)
 
     def get_noise_map(self, detector: Detector, noise_seed):
         """

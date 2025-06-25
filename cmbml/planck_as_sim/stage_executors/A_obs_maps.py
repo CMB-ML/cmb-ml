@@ -18,6 +18,7 @@ from cmbml.utils.planck_instrument import make_instrument, Instrument
 import cmbml.utils.fits_inspection as fits_inspect
 from cmbml.utils.physics_units import convert_field_str_to_Unit
 from cmbml.utils.fits_inspection import get_num_all_fields_in_hdr
+from cmbml.utils.physics_downgrade_by_alm import pysm3_downgrade_T_by_alm
 
 
 logger = logging.getLogger(__name__)
@@ -105,42 +106,10 @@ class ObsMapsConvertExecutor(BaseStageExecutor):
 
         source_map = hp.read_map(src_path, hdu=self.hdu, field=field_idcs)
 
-        nside_src = hp.get_nside(source_map)
-        if nside_src == self.nside_out:
-            lmax = int(2.5 * self.nside_out)
-        elif self.nside_out > nside_src:
-            lmax = int(2.5 * nside_src)
-        elif self.nside_out < nside_src:
-            lmax = int(1.5 * nside_src)
-        logger.info("Setting lmax to %d", lmax)
+        src_beam_fwhm = self.planck_instrument.dets[freq].fwhm
+        tgt_beam_fwhm = detector.fwhm
 
-        src_beam_size_arcmin = self.planck_instrument.dets[freq].fwhm
-        src_beam_size_rad = src_beam_size_arcmin.to(u.rad).value
-        src_beam = hp.gauss_beam(fwhm=src_beam_size_rad, lmax=lmax)
-        
-        tgt_beam_size_arcmin = detector.fwhm
-        tgt_beam_size_rad = tgt_beam_size_arcmin.to(u.rad).value
-        tgt_beam = hp.gauss_beam(fwhm=tgt_beam_size_rad, lmax=lmax)
-
-        beam_ratio = tgt_beam / src_beam
-
-        # Another bug in PySM3; it supports beam window only for maps that include
-        #    polarization. Instead, I just duplicate relevant portion of their code here.
-        # smoothed_map = pysm3.apply_smoothing_and_coord_transform(
-        #     input_map=source_map,
-        #     fwhm=None,  # Not used when beam_window is provided
-        #     beam_window=beam_ratio,
-        #     output_nside=self.nside_out,
-        #     lmax=self.lmax,
-        #     return_healpix=True
-        # )
-
-        alm = pysm3.map2alm(input_map=source_map,
-                            nside=self.nside_out,
-                            lmax=lmax,
-                            map2alm_lsq_maxiter=0)
-        hp.smoothalm(alm, beam_window=beam_ratio, inplace=True)
-        smoothed_map = hp.alm2map(alm, nside=self.nside_out, pixwin=False)
+        smoothed_map = pysm3_downgrade_T_by_alm(source_map, self.nside_out, src_beam_fwhm, tgt_beam_fwhm)
 
         smoothed_map *= src_unit
         smoothed_map = smoothed_map.to(self.out_unit, 
