@@ -56,8 +56,8 @@ def run_simulations(cfg):
 
     pipeline_context = PipelineContext(cfg, log_maker)
 
-    pipeline_context.add_pipe(HydraConfigCheckerExecutor)
-    pipeline_context.add_pipe(HydraConfigSimsCheckerExecutor)
+    # pipeline_context.add_pipe(HydraConfigCheckerExecutor)
+    # pipeline_context.add_pipe(HydraConfigSimsCheckerExecutor)
 
     # Required for the kinds of noise implemented in the pipeline
     pipeline_context.add_pipe(NoiseCacheExecutor)

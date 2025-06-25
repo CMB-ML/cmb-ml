@@ -1,0 +1,83 @@
+convert_obs:
+  assets_out:
+    obs_maps:
+      handler: HealpyMap
+      path_template: &obs_map_path "{root}/{dataset}/{stage}/{split}/{sim}/obs_{freq}.fits"
+  assets_in:
+    deltabandpass: {stage: raw}
+    # If we need to use the original beams
+    # deltabandpass: {stage: raw, orig_name: planck_deltabandpass}
+    planck_deltabandpass: {stage: raw}
+    obs_maps: {stage: raw, orig_name: noise_src_varmaps}
+  splits:
+    -test
+  dir_name: &planck_maps_dir PlanckMaps
+
+convert_cmb:
+  assets_out:
+    cmb_map:
+      handler: HealpyMap
+      path_template: &cmb_map_path "{root}/{dataset}/{stage}/{split}/{sim}/cmb_map.fits"
+  assets_in:
+    deltabandpass: {stage: raw}
+    # If we need to use the original beams
+    # deltabandpass: {stage: raw, orig_name: planck_deltabandpass}
+    planck_deltabandpass: {stage: raw}
+    cmb_map: {stage: raw, orig_name: mask_src_map}
+  splits:
+    -test
+  dir_name: *planck_maps_dir
+
+convert_ps_raw:
+  assets_out:
+    cmb_ps:
+      handler: TextHandler
+      path_template: &cmb_ps_path "{src_root}/Planck/COM_PowerSpect_CMB-base-plikHM-TTTEEE-lowl-lowE-lensing-minimum-theory_R3.01.txt"
+
+convert_ps:
+  assets_out:
+    cmb_ps:
+      handler: TextHandler
+      path_template: &ps_path "{root}/{dataset}/{stage}/{split}/{sim}/cmb_ps.txt"
+  assets_in:
+    cmb_ps: {stage: convert_ps_raw}
+  splits:
+    -test
+  dir_name: &planck_ps_dir C_PlanckPS
+
+# Emulating the normal simulation pipeline so other stages can be used without modification
+make_theory_ps:
+  assets_out:
+    cmb_ps:
+      handler: CambPowerSpectrum
+      path_template: *cmb_ps_path
+      path_template_alt: *cmb_ps_path
+  dir_name: *planck_ps_dir
+
+make_sims:
+  assets_out:
+    cmb_map:
+      handler: HealpyMap
+      path_template: *cmb_map_path
+    obs_maps:
+      handler: HealpyMap
+      path_template: *obs_map_path
+  dir_name: *planck_maps_dir
+
+
+
+# Filler to match pipe_sim. I don't like this but ... it's a patch for now.
+check_hydra_configs:
+# Empty deliberately
+
+make_mask:
+  assets_out:
+    mask:
+      handler: HealpyMap
+      path_template: "{root}/{dataset}/{stage}/mask.fits"
+    mask_sm:
+      handler: HealpyMap
+      path_template: "{root}/{dataset}/{stage}/mask_sm.fits"
+  assets_in:
+    mask: {stage: raw, orig_name: mask_src_map}
+  dir_name: Simulation_Mask
