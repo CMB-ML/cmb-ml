@@ -34,11 +34,13 @@ class HealpyMap(GenericHandler):
              map_field_strs=None, 
              precision=None, 
              read_to_nest:bool=None):
+
         if map_fields is None:
             if map_field_strs is None:
                 map_fields = 0
             else:
                 map_fields = field_strs_to_ints(map_field_strs)
+
         if precision is None:
             # Get and use the data type from the FITS file
             with fits.open(path) as hdul:
@@ -50,9 +52,18 @@ class HealpyMap(GenericHandler):
                 dtype = dtype.base.type
         else:
             dtype = precision
+
         path = Path(path)
         if read_to_nest is None:
             read_to_nest = False
+
+        # Check this and crash early instead of after waiting to read the map
+        map_units = get_fields_units_from_fits(path, map_fields)
+        for map_unit in map_units:
+            if map_unit != map_units[0]:
+                raise ValueError("All fields in a map must have the same units.")
+        map_unit = map_units[0]
+
         try:
             this_map: np.ndarray = hp.read_map(path, field=map_fields, nest=read_to_nest, dtype=dtype)
         except IndexError as e:
@@ -68,15 +79,11 @@ class HealpyMap(GenericHandler):
             # else:
         except FileNotFoundError as e:
             raise FileNotFoundError(f"This map file cannot be found: {path}")
+
         # If a single field was requested, healpy.read_map with produce it as a 1D array
         #    for consistency, we want a 2D array
         if len(this_map.shape) == 1:
             this_map = this_map.reshape(1, -1)
-        map_units = get_fields_units_from_fits(path, map_fields)
-        for map_unit in map_units:
-            if map_unit != map_units[0]:
-                raise ValueError("All fields in a map must have the same units.")
-        map_unit = map_units[0]
         # If the map is not a unitless map, convert it to the correct unit
         #   We check because otherwise the conversion will produce a 64 bit map regardless of the original type
         if not map_unit.is_equivalent(u.dimensionless_unscaled):
