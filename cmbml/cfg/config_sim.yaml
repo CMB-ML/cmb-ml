@@ -13,10 +13,6 @@ defaults:
 dataset_name: "${map_fields}_${scenario.nside}_${splits.name}"
 working_dir : "Simulation_Working/"
 hydra:
-  mode: MULTIRUN
-  sweeper:
-    params:
-      model/sim/cmb: wmap9_standard, wmap_best_fit, planck_best_fit
   run:
     dir        : Logs/${now:%Y-%m-%d-%H-%M-%S}
   sweep:
