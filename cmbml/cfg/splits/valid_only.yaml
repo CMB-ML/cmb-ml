@@ -1,0 +1,5 @@
+name: "valid_250"
+Valid:
+  n_sims: 250
+  n_sims_cap: ${n_infer_cap}
+run_inference_on: ${run_inference_on}

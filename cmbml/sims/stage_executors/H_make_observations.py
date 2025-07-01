@@ -122,10 +122,10 @@ class ObsCreatorExecutor(BaseStageExecutor):
         Thus, components from preset strings are created here, once, for all simulations
         """
         logger.debug(f"Running {self.__class__.__name__} execute() method")
-        placeholder = pysm3.Model(nside=self.nside_sky, max_nside=self.nside_sky)
+        # placeholder = pysm3.Model(nside=self.nside_sky, max_nside=self.nside_sky)
         logger.debug('Creating PySM3 Sky object')
         self.sky = pysm3.Sky(nside=self.nside_sky,
-                             component_objects=[placeholder],
+                            #  component_objects=[placeholder],
                              preset_strings=self.preset_strings,
                              output_unit=self.output_units)
         logger.debug('Done creating PySM3 Sky object')
@@ -164,7 +164,7 @@ class ObsCreatorExecutor(BaseStageExecutor):
         cmb = self.cmb_factory.make_cmb(cmb_seed, ps_path)
 
         # Replace placeholder CMB (or previous simulation's CMB) with new CMB
-        self.sky.components[0] = cmb
+        # self.sky.components[0] = cmb
 
         # Track minimum FWHM; this will be used for the CMB map
         min_fwhm = 0 * u.arcmin
@@ -204,7 +204,7 @@ class ObsCreatorExecutor(BaseStageExecutor):
                 #     self.out_noise_maps.write(data=noise_map, column_names=column_names)
             logger.debug(f"For {split.name}:{sim_name}, {freq} GHz: done with channel")
 
-        self.save_cmb_map_realization(cmb, min_fwhm)
+        # self.save_cmb_map_realization(cmb, min_fwhm)
         logger.debug(f"For {split.name}:{sim_name}, done with simulation")
 
     def save_cmb_map_realization(self, cmb: CMBLensed, min_fwhm):
