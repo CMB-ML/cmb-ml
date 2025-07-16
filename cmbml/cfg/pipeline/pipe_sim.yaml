@@ -15,10 +15,10 @@ make_sim_configs:
     split_configs:
       handler: Config
       path_template: "{root}/{dataset}/{working}{stage}/{split}/split_config.yaml"
-    cosmo_config:
+    components_config:
       handler: Config
-      path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/wmap_params.yaml"
-      path_template_alt: "{root}/{dataset}/{working}{stage}/{split}/wmap_params.yaml"
+      path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/component_params.yaml"
+      path_template_alt: "{root}/{dataset}/{working}{stage}/{split}/component_params.yaml"
   assets_in:
     wmap_chains: {stage: raw}
   splits: &all_splits
@@ -35,7 +35,7 @@ make_theory_ps:
       path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/cmb_ps_fid.txt"
       path_template_alt: "{root}/{dataset}/{working}{stage}/{split}/cmb_ps_fid.txt"
   assets_in:
-    cosmo_config: {stage: make_sim_configs}
+    components_config: {stage: make_cosmo_configs}
   splits: *all_splits
   dir_name: Simulation_CMB_Power_Spectra
   make_stage_log: True

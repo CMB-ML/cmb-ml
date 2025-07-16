@@ -44,7 +44,7 @@ class ParamConfigExecutor(BaseStageExecutor):
     """
     def __init__(self, cfg: DictConfig) -> None:
         # The following stage_str must match the pipeline yaml
-        super().__init__(cfg, stage_str="make_sim_configs")
+        super().__init__(cfg, stage_str="make_cosmo_configs")
 
         self.out_wmap_config: AssetWithPathAlts = self.assets_out['cosmo_config']
         out_wmap_config_handler: Config

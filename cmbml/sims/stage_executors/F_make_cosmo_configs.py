@@ -44,7 +44,7 @@ class ChainsConfigExecutor(BaseStageExecutor):
     """
     def __init__(self, cfg: DictConfig) -> None:
         # The following stage_str must match the pipeline yaml
-        super().__init__(cfg, stage_str="make_sim_configs")
+        super().__init__(cfg, stage_str="make_cosmo_configs")
 
         self.in_wmap_chains: Asset = self.assets_in['wmap_chains']
 
