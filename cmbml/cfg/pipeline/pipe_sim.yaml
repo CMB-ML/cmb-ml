@@ -17,8 +17,8 @@ make_cosmo_configs:
       path_template: "{root}/{dataset}/{working}{stage}/{split}/split_config.yaml"
     components_config:
       handler: Config
-      path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/component_params.yaml"
-      path_template_alt: "{root}/{dataset}/{working}{stage}/{split}/component_params.yaml"
+      path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/cosmo_params.yaml"
+      path_template_alt: "{root}/{dataset}/{working}{stage}/{split}/cosmo_params.yaml"
   assets_in:
     wmap_chains: {stage: raw}
   splits: &all_splits
