@@ -10,7 +10,7 @@ make_noise_cache:
     noise_src_varmaps: {stage: raw}
   dir_name: Simulation_B_NoiseCache
 
-make_sim_configs:
+make_cosmo_configs:
   assets_out:
     split_configs:
       handler: Config
