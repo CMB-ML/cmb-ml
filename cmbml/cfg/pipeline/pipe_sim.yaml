@@ -15,7 +15,7 @@ make_cosmo_configs:
     split_configs:
       handler: Config
       path_template: "{root}/{dataset}/{working}{stage}/{split}/split_config.yaml"
-    components_config:
+    cosmo_config:
       handler: Config
       path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/cosmo_params.yaml"
       path_template_alt: "{root}/{dataset}/{working}{stage}/{split}/cosmo_params.yaml"
@@ -35,7 +35,7 @@ make_theory_ps:
       path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/cmb_ps_fid.txt"
       path_template_alt: "{root}/{dataset}/{working}{stage}/{split}/cmb_ps_fid.txt"
   assets_in:
-    components_config: {stage: make_cosmo_configs}
+    cosmo_config: {stage: make_cosmo_configs}
   splits: *all_splits
   dir_name: Simulation_CMB_Power_Spectra
   make_stage_log: True
