@@ -22,21 +22,21 @@
 #   dir_name: Analysis_1_Render_Simulation_Maps
 #   make_stage_log: False
 
-working_dir_issue_theory_ps:  # Because this is run from the sims set of executors, it has a different working directory
-                              #    than the rest of the analysis pipeline. This is a workaround.  
-  assets_out:
-    cmb_ps:
-      handler: CambPowerSpectrum
-      path_template: "{root}/{dataset}/Simulation_Working/{stage}/{split}/{sim}/cmb_ps_fid.txt"
-      path_template_alt: "{root}/{dataset}/Simulation_Working/{stage}/cmb_ps_fid.txt"
-  assets_in:
-    cosmo_config: {stage: make_sim_configs}
-  splits: &all_splits
-    - train
-    - test
-    - valid
-  dir_name: Simulation_CMB_Power_Spectra
-  make_stage_log: False
+# working_dir_issue_theory_ps:  # Because this is run from the sims set of executors, it has a different working directory
+#                               #    than the rest of the analysis pipeline. This is a workaround.  
+#   assets_out:
+#     cmb_ps:
+#       handler: CambPowerSpectrum
+#       path_template: "{root}/{dataset}/Simulation_Working/{stage}/{split}/{sim}/cmb_ps_fid.txt"
+#       path_template_alt: "{root}/{dataset}/Simulation_Working/{stage}/cmb_ps_fid.txt"
+#   assets_in:
+#     cosmo_config: {stage: make_sim_configs}
+#   splits: &all_splits
+#     - train
+#     - test
+#     - valid
+#   dir_name: Simulation_CMB_Power_Spectra
+#   make_stage_log: False
 
 convert_theory_ps:
   assets_out:
@@ -47,7 +47,7 @@ convert_theory_ps:
       path_template: "{root}/{dataset}/Sims_Analysis/{stage}/{split}/{sim}/theory_ps.npy"
       handler: NumpyPowerSpectrum
   assets_in:
-    theory_ps: {stage: working_dir_issue_theory_ps, orig_name: "cmb_ps"}
+    theory_ps: {stage: make_theory_ps, orig_name: "cmb_ps", working: "Simulation_Working/"}
   splits:
     - train
     - test
