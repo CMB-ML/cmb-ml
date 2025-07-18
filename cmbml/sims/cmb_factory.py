@@ -1,3 +1,4 @@
+from pathlib import Path
 import logging
 
 import healpy as hp
@@ -48,6 +49,8 @@ class CMBFactory:
             raise ConfigAttributeError("cmb_type", cfg.model.sim.cmb.cmb_type)
 
     def make_basic_cmb(self, seed, cmb_ps_fid_path) -> CMBMap:
+        if not Path(cmb_ps_fid_path).exists():
+            raise ValueError(f"Could not find theory spectrum at {cmb_ps_fid_path}")
         return BasicCMB(nside=self.nside,
                         cmb_spectra=cmb_ps_fid_path,
                         cmb_seed=seed,
@@ -63,6 +66,8 @@ class CMBFactory:
 
 
     def make_cmb_lensed(self, seed, cmb_ps_fid_path) -> CMBLensed:
+        if not Path(cmb_ps_fid_path).exists():
+            raise ValueError(f"Could not find theory spectrum at {cmb_ps_fid_path}")
         return CMBLensed(nside=self.nside,
                          cmb_spectra=cmb_ps_fid_path,
                          cmb_seed=seed,
