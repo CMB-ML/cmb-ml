@@ -28,6 +28,15 @@ make_cosmo_configs:
   dir_name: Simulation_C_Configs
   make_stage_log: True
 
+make_fg_configs:
+  assets_out:
+    fg_config:
+      handler: Config
+      path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/fg_params.yaml"
+  splits: *all_splits
+  dir_name: Simulation_C_Configs
+  make_stage_log: False
+
 make_theory_ps:
   assets_out:
     cmb_ps:
@@ -55,6 +64,7 @@ make_obs_no_noise:
     deltabandpass: {stage: raw}
     # scale_cache: {stage: make_noise_cache}
     cmb_ps: {stage: make_theory_ps}
+    fg_config: {stage: make_fg_configs}
   splits: *all_splits
   dir_name: Simulation_D_Sky_Emission
   make_stage_log: True

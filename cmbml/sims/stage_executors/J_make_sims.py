@@ -59,6 +59,7 @@ class SimCreatorExecutor(BaseStageExecutor):
 
         det_info = in_det_table.read()
         self.instrument: Instrument = make_instrument(cfg=cfg, det_info=det_info)
+        self.include_cmb = cfg.model.sim.get("include_cmb", True)
 
     def execute(self) -> None:
         """
@@ -109,6 +110,7 @@ class SimCreatorExecutor(BaseStageExecutor):
             logger.debug(f"For {split.name}:{sim_name}, {freq} GHz: done with channel")
 
         # Copy CMB map from input asset path to output asset path
-        cmb_in_path  = self.in_cmb.path
-        cmb_out_path = self.out_cmb.path
-        shutil.copy(cmb_in_path, cmb_out_path)
+        if self.include_cmb:
+            cmb_in_path  = self.in_cmb.path
+            cmb_out_path = self.out_cmb.path
+            shutil.copy(cmb_in_path, cmb_out_path)

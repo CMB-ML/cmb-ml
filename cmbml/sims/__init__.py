@@ -4,10 +4,12 @@ from .stage_executors.C_get_planck_sims import GetPlanckNoiseSimsExecutor
 from .stage_executors.D_make_average_map import MakePlanckAverageNoiseExecutor
 from .stage_executors.E_make_noise_models import MakePlanckNoiseModelExecutor
 from .stage_executors.E2_download_noise_model import DownloadNoiseModelExecutor
-from .stage_executors.F_make_sim_configs_best_fit import ParamConfigExecutor
-from .stage_executors.F_make_sim_configs import ChainsConfigExecutor
+from .stage_executors.F_make_cosmo_configs_best_fit import ParamConfigExecutor
+from .stage_executors.F_make_cosmo_configs import ChainsConfigExecutor
+from .stage_executors.F_make_fg_configs import ForegroundConfigExecutor
 from .stage_executors.G_make_power_spectra import TheoryPSExecutor
 from .stage_executors.H_make_observations import ObsCreatorExecutor
+from .stage_executors.H_make_observations_flex_fg import FlexObsCreatorExecutor
 from .stage_executors.I_make_noise import NoiseMapCreatorExecutor
 from .stage_executors.J_make_sims import SimCreatorExecutor
 
