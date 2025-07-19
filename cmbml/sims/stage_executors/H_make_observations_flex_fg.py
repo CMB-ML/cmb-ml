@@ -3,7 +3,7 @@ from pathlib import Path
 import logging
 
 import hydra
-from omegaconf import DictConfig
+from omegaconf import DictConfig, OmegaConf
 
 import numpy as np
 from astropy.units import Quantity
@@ -91,7 +91,12 @@ class FlexObsCreatorExecutor(BaseStageExecutor):
         logger.info(f"Simulations will be output at nside_out = {self.nside_out}")
         self.output_units = cfg.scenario.units
         logger.info(f"Output units are {self.output_units}")
-        self.preset_strings = list(dict(cfg.model.sim.fgs).keys())
+
+        # if "preset_strings" in cfg.model.sim:
+        #     raise NotImplementedError("Use of preset strings is disabled for this executor while testing.")
+        self.component_config = OmegaConf.to_container(cfg.model.sim.fgs, resolve=True)
+        logger.info(f"Component configs are {list(dict(cfg.model.sim.fgs).keys())}")
+        self.preset_strings = OmegaConf.to_container(cfg.model.sim.preset_strings, resolve=True)
         logger.info(f"Preset strings are {self.preset_strings}")
 
         # The instrument object contains both
@@ -107,14 +112,6 @@ class FlexObsCreatorExecutor(BaseStageExecutor):
         self.include_cmb = cfg.model.sim.get("include_cmb", True)
         self.cmb_seed_factory = SeedFactory(cfg.model.sim.cmb.seed_template)
         self.cmb_factory = CMBFactory(cfg)
-
-        # self.noise_seed_factory     = FreqLevelSeedFactory(cfg, 'noise')
-        # # self.noise_seed_factory     = FreqLevelSeedFactory(cfg, cfg.model.sim.noise.seed_string)
-        # NoiseMaker                  = get_noise_class(cfg.model.sim.noise.noise_type)
-        # self.noise_maker            = NoiseMaker(cfg, self.name_tracker, self.in_noise_cache)
-
-        # Saving noise is optional here; noise may be generated and added in another method
-        # self.save_noise             = cfg.model.sim.noise.save_noise
 
         # Do not create the Sky object here, it takes too long and will slow down initial checks
         self.sky = None
@@ -135,10 +132,21 @@ class FlexObsCreatorExecutor(BaseStageExecutor):
         else:
             placeholder = None
             placeholder_label = None
+        
+        # Remove "dist" key from foreground configurations 
+        #   (including hypothetical 2-level fgs like a1 and d4)
+        for comp_dict in self.component_config.values():
+            if "dist" in comp_dict:
+                del comp_dict["dist"]
+            for v in comp_dict.values():
+                if isinstance(v, dict) and "dist" in v:
+                    del v["dist"]
+
         logger.debug('Creating Flexible Sky object')
         self.sky = FlexSky(nside=self.nside_sky,
                            component_objects=placeholder,
                            component_object_names=placeholder_label,
+                           component_config=self.component_config,
                            preset_strings=self.preset_strings,
                            output_unit=self.output_units)
         logger.debug('Done creating PySM3 Sky object')
@@ -202,10 +210,6 @@ class FlexObsCreatorExecutor(BaseStageExecutor):
                 skymaps = skymaps[0]
             # else:  # There may be other cases, but none come to mind.
             #     pass
-
-            # One noise realization per frequency
-            # noise_seed = self.noise_seed_factory.get_seed(split.name, sim_num, freq)
-            # noise_map = self.noise_maker.get_noise_map(freq, noise_seed)
 
             # Use pysm3.apply_smoothing... to convolve the map with the planck detector beam
             map_smoothed = pysm3.apply_smoothing_and_coord_transform(skymaps,

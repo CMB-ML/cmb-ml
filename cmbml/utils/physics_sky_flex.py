@@ -8,6 +8,10 @@ except ImportError:
 import pysm3.data as pysm3_data
 import toml
 from copy import deepcopy
+import logging
+
+
+logger = logging.getLogger(__name__)
 
 
 class FlexSky(pysm3.Sky):
@@ -43,6 +47,8 @@ class FlexSky(pysm3.Sky):
             if not isinstance(component_config, dict):
                 component_config = toml.load(component_config)
             for k, v in component_config.items():
+                if k in self.comps_dict:
+                    logger.warning(f"The preset string {k} was already loaded. Replacing it with the full config.")
                 new_component = self.create_component_from_config(v)
                 self.comps_dict[k] = new_component
 
