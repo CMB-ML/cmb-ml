@@ -108,5 +108,5 @@ def make_url_from_shared_link(box_info_dict: dict) -> str:
 
 
 def make_url(box_id, token):
-    url = f"https://removed.app.box.com/index.php?rm=box_download_shared_file&shared_name={token}&file_id=f_{box_id}"
+    url = f"https://utdallas.app.box.com/index.php?rm=box_download_shared_file&shared_name={token}&file_id=f_{box_id}"
     return url

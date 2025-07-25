@@ -140,7 +140,7 @@ Setting up the repository:
 - Download CMB_ML_512_1450
   - [Use the downloading script](./get_data/get_dataset.py)
   - `python ./get_data/get_dataset.py`
-  - Files are visible at this [Box link for CMB_ML_512_1450](https://removed.box.com/v/cmb-ml-512-1450)
+  - Files are visible at this [Box link for CMB_ML_512_1450](https://utdallas.box.com/v/cmb-ml-512-1450)
   - Alternatively, to generate simulations, use `python main_sims.py`
 - To train, predict, and run analysis with the demonstration UNet model
   - `python main_patch_nn.py`
@@ -160,7 +160,7 @@ This will run more quickly than the higher resolution.
 - Download CMB_ML_128_1450:
   - [Use the downloading script](./get_data/get_box_CMB_ML_128_1450.py)
     - Change [cfg/pipeline/pipe_sim.yaml](../cfg/pipeline/pipe_sim.yaml) to use the correct set of shared links. In this yaml, look for `download_sims_reference` and change the `path_template` (replace '512' with '128').
-  - Files are visible at this [Box link for CMB_ML_128_1450](https://removed.box.com/v/cmb-ml-128-1450)
+  - Files are visible at this [Box link for CMB_ML_128_1450](https://utdallas.box.com/v/cmb-ml-128-1450)
   - Alternatively, to generate simulations, use `python main_sims.py dataset_name=CMB_ML_128_1450 nside=128`
 - Run CMBNNCS on CMB_ML_128_1450 (the smaller UNet5 must be used):
     - `python main_cmbnncs.py dataset_name=CMB_ML_128_1450 working_dir=CMBNNCS_UNet5/ nside=128 num_epochs=2 use_epochs=[2] model/cmbnncs/network=unet5`
@@ -281,20 +281,20 @@ We provide links to the various data used. Alternatives to get this data are in 
         - Simply move the CMB-ML directory contained in assets/delta_bandpasses to your assets folder (as defined in e.g., [your local_system config](cfg/local_system/generic_lab.yaml))
       - [Downloading script](./get_data/get_assets.py)
   - On Box: 
-    - [All Science Assets](https://removed.box.com/v/cmb-ml-science-assets)
+    - [All Science Assets](https://utdallas.box.com/v/cmb-ml-science-assets)
     - Script to be replaced if needed. Please send a message if so.
     <!-- - [Downloading script](./get_data/get_assets.py) -->
 
 - Datasets
   - CMB_ML_512_1450
-    - Individual files: [Box Link, CMB_ML_512_1450](https://removed.box.com/v/cmb-ml-512-1450)
+    - Individual files: [Box Link, CMB_ML_512_1450](https://utdallas.box.com/v/cmb-ml-512-1450)
       - Each simulation instance is in its own tar file and will need to be extracted before use
       - The power spectra and cosmological parameters are in Simulation_Working.tar.gz
       - Log files, including the exact code used to generate simulations, are in Logs.tar.gz. No changes of substance have been made to the code in this archive.
       - A script for these download is available [here](./get_data/get_dataset.py)
   - CMB_ML_128_1450
     - Lower resolution simulations ($\text{N}_\text{side}=128$), for use when testing code and models
-    - Individual instance files: [Box Link, CMB_ML_128_1450](https://removed.box.com/v/cmb-ml-128-1450)
+    - Individual instance files: [Box Link, CMB_ML_128_1450](https://utdallas.box.com/v/cmb-ml-128-1450)
     - A script for these download is available [here](./get_data/get_box_CMB_ML_128_1450.py)
     - Change [cfg/pipeline/pipe_sim.yaml](./cfg/pipeline/pipe_sim.yaml) to use the correct set of shared links. In this yaml, look for download_sims_reference and change the path_template (replace '512' with '128').
 
@@ -322,4 +322,4 @@ We provide links to the various data used. Alternatives to get this data are in 
 
 - Trained models
   - CMBNNCS
-    - [UNet8 trained on CMB_ML_512_1450, at various epochs](https://removed.box.com/v/ml-cmb-UNet8-IQU-512-1450-bl)
+    - [UNet8 trained on CMB_ML_512_1450, at various epochs](https://utdallas.box.com/v/ml-cmb-UNet8-IQU-512-1450-bl)
