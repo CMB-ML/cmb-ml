@@ -159,7 +159,7 @@ class ObsCreatorExecutor(BaseStageExecutor):
 
         # One CMB seed per simulation - constant for all frequencies
         cmb_seed = self.cmb_seed_factory.get_seed(split=split,
-                                                  sim=sim_name)
+                                                  sim=f"{sim_num:04}")  # Needed to duplicate seed integers
         ps_path = self.in_cmb_ps.path_alt if split.ps_fidu_fixed else self.in_cmb_ps.path
         cmb = self.cmb_factory.make_cmb(cmb_seed, ps_path)
 

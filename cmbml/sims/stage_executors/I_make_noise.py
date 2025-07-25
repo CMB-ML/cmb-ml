@@ -111,7 +111,7 @@ class NoiseMapCreatorExecutor(BaseStageExecutor):
         logger.debug(f"Creating simulation {split.name}:{sim_name}")
         for freq, detector in self.instrument.dets.items():
             noise_seed   = self.noise_seed_factory.get_seed(split=split.name, 
-                                                            sim=sim_name, 
+                                                            sim=f"{sim_num:04}",  # Needed to duplicate seed integers
                                                             freq=freq)
             noise_map    = self.noise_maker.get_noise_map(detector, noise_seed)
             column_names = [f"{stokes}_STOKES" for stokes in detector.fields]

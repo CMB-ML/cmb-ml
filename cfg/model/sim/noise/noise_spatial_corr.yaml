@@ -9,7 +9,8 @@ src_files:
   353: "HFI_SkyMap_353-psb_2048_R3.01_full.fits"
   545: "HFI_SkyMap_545_2048_R3.01_full.fits"
   857: "HFI_SkyMap_857_2048_R3.01_full.fits"
-seed_template      : "{split}_{sim}_{freq}_noise"
+# seed_template      : "{split}_{sim}_{freq}_noise"  # It should be this, but to get the seed integers to line up:
+seed_template      : "${scenario.map_fields}-${scenario.nside}-1450_{split}_{sim}_{freq}_noise"
 do_cache: true    # Needed for this method. TODO: Consider moving this to the python
 save_noise: true  # Save noise if generating it in a separate executor as is done for the current implementation
 lmax_ratio_out_noise : 2.9999
