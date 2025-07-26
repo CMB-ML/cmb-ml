@@ -1,0 +1,35 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below. message: Includes derived data from ESA Planck mission and code from PySM3. See LICENSE, LICENSE.data, and third-party licenses for details."
+authors:
+  - family-names: Amato
+    given-names: James
+    orcid: https://orcid.org/0009-0006-4435-6078
+  - family-names: Aljerwi
+    given-names: Ammar
+  - family-names: McCutcheon
+    given-names: Adam
+  - family-names: Medina-Varela
+    given-names: Leonel
+    orcid: https://orcid.org/0009-0006-5625-3121
+  - family-names: Xie
+    given-names: Yunan
+    orcid: https://orcid.org/0000-0001-6201-0771
+  - family-names: Rippentrop
+    given-names: Seth
+    orcid: https://orcid.org/0009-0005-4601-7160
+  - family-names: Gonzalez
+    given-names: Kristian
+    orcid: https://orcid.org/0009-0004-4033-1653
+  - family-names: Ishak
+    given-names: Mustapha
+    orcid: https://orcid.org/0000-0002-6024-466X
+  - family-names: Ruozzi
+    given-names: Nicholas
+    orcid: https://orcid.org/0000-0002-4262-2698
+title: "CMB-ML: A Cosmic Microwave Background Radiation Dataset for Machine Learning"
+version: 0.1.1
+license: MIT
+identifiers:
+  - type: doi
+    value: placeholder
+date-released: 2025-07-26
