@@ -2,9 +2,7 @@
 
 ZENODO (DOI) BADGE HERE
 
-This is an old version of the CMB-ML repository. It reflects the state of the code at the time of the writing of the work to be presented at ICCV 2025 and is preserved for visibility. The blind version of the repository provided to reviewers is available at [https://github.com/CMB-ML/cmb-ml-ICCV2025](https://github.com/CMB-ML/cmb-ml-ICCV2025). The blind version matches the commit in this branch ending in `fffae92`. The blind version of the repository containing the notebooks used to produce figures in the paper is available at [https://github.com/CMB-ML/paper_figures-ICCV2025](https://github.com/CMB-ML/paper_figures-ICCV2025).
-
-We suggest using the code as it appears on the `main` branch.
+Paper information here.
 
 Contents:
 - [Quick Start](#quick-start)
@@ -85,9 +83,11 @@ As an alternative, see the cmbNNCS [top-level script](main_cmbnncs.py). The exec
 
 # Installation
 
-See the next section if you don't want to install CMB-ML and instead just want the dataset.
+See next section if you don't want to install CMB-ML, and just want the dataset.
 
-Installation of CMB-ML requires setting up the repository, then getting the data assets for the portion you want to run. Demonstrations are available with practical examples. The early ones cover how to set up CMB-ML to run on your system.
+Running CMB-ML requires setting up the repository then getting the data assets for the portion you want to run. Demonstrations are available with practical examples. The early ones cover how to set up CMB-ML to run on your system.
+
+This version of the code is not installed; it is simply a pile of scripts.
 
 Setting up the repository:
 - Clone this repository
@@ -333,3 +333,18 @@ We provide links to the various data used. Alternatives to get this data are in 
 - Trained models
   - CMBNNCS
     - [UNet8 trained on CMB_ML_512_1450, at various epochs](https://utdallas.box.com/v/ml-cmb-UNet8-IQU-512-1450-bl)
+
+
+## Notices
+
+Code is licensed under the [MIT License](LICENSE)
+
+The code includes portions of PySM3, the license for which is included in [third-party/PySM3.license](third-party/PySM3.license).
+
+The derived datasets are licensed under the [CC-BY-4.0](LICENSE.data)
+
+We acknowledge the use of ESA Planck data obtained from the [Planck Legacy Archive](https://pla.esac.esa.int/pla).
+
+Planck data is © ESA and used under the terms described at [https://www.cosmos.esa.int/web/planck/pla](https://www.cosmos.esa.int/web/planck/pla).
+
+The Planck Collaboration and ESA bear no responsibility for the further use or interpretation of this data.
