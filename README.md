@@ -1,8 +1,10 @@
 # CMB-ML: A Cosmic Microwave Background Radiation Dataset for Machine Learning
 
-**Due to double-blinding, download utilities that rely on Box hav been disabled.** See [Blinding Notes](#blinding-notes) for more information.
-
 ZENODO (DOI) BADGE HERE
+
+This is an old version of the CMB-ML repository. It reflects the state of the code at the time of the writing of the work to be presented at ICCV 2025 and is preserved for visibility. The blind version of the repository provided to reviewers is available at [https://github.com/CMB-ML/cmb-ml-ICCV2025](https://github.com/CMB-ML/cmb-ml-ICCV2025). The blind version matches the commit in this branch ending in `fffae92`. The blind version of the repository containing the notebooks used to produce figures in the paper is available at [https://github.com/CMB-ML/paper_figures-ICCV2025](https://github.com/CMB-ML/paper_figures-ICCV2025).
+
+We suggest using the code as it appears on the `main` branch.
 
 Contents:
 - [Quick Start](#quick-start)
@@ -34,7 +36,7 @@ See [Installation](#installation) and [Demonstrations](#Demonstrations) for more
 
 ![CMB Radiation Example](assets/readme_imgs/cmb.png)
 
-The Cosmic Microwave Background radiation (CMB) signal is one of the cornerstones upon which modern cosmologists understand the universe. The signal must be separated out from these other natural phenomena which either emit microwave signals or change the CMB signal itself. Modern machine learning and computer vision algorithms are seemingly perfect for the task, but generation of the data is cumbersome and no standard public datasets are available. Models and algorithms created for the task are seldom compared outside the largest collaborations. 
+The Cosmic Microwave Background radiation (CMB) signal is one of the cornerstones upon which modern cosmologists understand the universe. The signal must be separated out from other natural phenomena which either emit microwave signals or change the CMB signal itself. Modern machine learning and computer vision algorithms are seemingly perfect for the task, but generation of the data is cumbersome and no standard public datasets are available. Models and algorithms created for the task are seldom compared outside the largest collaborations. 
 
 The CMB-ML dataset bridges the gap between astrophysics and machine learning. It handles simulation, modeling, and analysis.
 
@@ -44,7 +46,7 @@ Other portions of the pipeline may also be changed. Simulated foregrounds can be
 
 A goal of this project has been to encapsulate the various stages of the pipeline separately from the operational parameters. It is our hope that this enables you to easily compare your results with other methods.
 
-Several tools enable this work. [Hydra](https://hydra.cc/) is used to manage manage a pipeline so that coherent configurations are applied consistently. It uses the [PySM3](https://pysm3.readthedocs.io/en/latest/) simulation library in conjunction with [CAMB](https://camb.info/), [astropy](https://www.astropy.org/), and [Healpy](https://healpy.readthedocs.io/en/latest/) to handle much of the astrophysics. Three baselines are implemented, with more to follow. One baseline comes from astrophysics: [PyILC](https://github.com/jcolinhill/pyilc)'s implementation of the CNILC method. Another baseline uses machine learning: [cmbNNCS](https://github.com/Guo-Jian-Wang/cmbnncs)'s UNet8. A third is a simple [PyTorch](https://pytorch.org/) UNet implementation intended to serve as a template. The analysis portion of the pipeline uses a few simple metrics from [scikit-learn](https://scikit-learn.org/stable/) along with the astrophysics tools.
+Several tools enable this work. [Hydra](https://hydra.cc/) is used to manage manage a pipeline so that coherent configurations are applied consistently. It uses the [PySM3](https://pysm3.readthedocs.io/en/latest/) simulation library in conjunction with [CAMB](https://camb.info/), [astropy](https://www.astropy.org/), and [Healpy](https://healpy.readthedocs.io/en/latest/) to handle much of the astrophysics. Three baselines are implemented, with more to follow. One baseline comes from astrophysics: [PyILC](https://github.com/jcolinhill/pyilc)'s implementation of the CNILC method. Another baseline uses machine learning: [cmbNNCS](https://github.com/Guo-Jian-Wang/cmbnncs)'s UNet8. A third is a simple [PyTorch](https://pytorch.org/) UNet implementation (intended to serve as a template for others). The analysis portion of the pipeline uses a few simple metrics from [scikit-learn](https://scikit-learn.org/stable/) along with the astrophysics tools.
 
 ## Simulation
 
@@ -54,42 +56,28 @@ The real CMB signal is observed at several microwave wavelengths. To mimic this,
 
 ## Cleaning
 
-Two models are included as baselines in this repository. One is a classic astrophysics algorithm, a flavor of **i**nternal **l**inear **c**ombination methods, which employs **c**osine **n**eedlets (CNILC). The other is a machine learning method (a UNet) implemented and published in the astrophysics domain, CMBNNCS. 
+Three models are included as baselines in this repository. One is a classic astrophysics algorithm, a flavor of **i**nternal **l**inear **c**ombination methods, which employs **c**osine **n**eedlets (CNILC). Another is a machine learning method (a UNet) implemented and published in the astrophysics domain, CMBNNCS. The third is a simple PyTorch implementation of a UNet, written to adhere more closely to typical design patterns.
 
 The CNILC method was implemented by [PyILC](https://github.com/jcolinhill/pyilc), and is described in [this paper](https://arxiv.org/abs/2307.01043).
 
 The cmbNNCS method was implemented by [cmbNNCS](https://github.com/Guo-Jian-Wang/cmbnncs), and is described in [this paper](https://iopscience.iop.org/article/10.3847/1538-4365/ac5f4a).
 
-The third method, the [PyTorch](https://pytorch.org/) implementation of a UNet, is very similar to cmbNNCS and many other published models. Unlike cmbNNCS, it operates on small patches of maps instead of the full sky.
+A third method, a [PyTorch](https://pytorch.org/) implementation of a UNet, is very similar to cmbNNCS and many other published models. Unlike cmbNNCS, it operates on small patches of maps instead of the full sky. This model is not discussed in the dataset paper.
 
 ## Analysis
 
-We can compare the CMB predictions to the ground truths in order to determine how well the model works. However, because the models operate in fundamentally different ways, care is needed to ensure that they are compared in a consistent way. We first mask each prediction where the signal is often to bright to get meaningful predictions. We then remove effects of instrumentation from the predictions. The pipeline set up to run each method is then used in a slightly different way, to pull results from each method and produce output which directly compares them. The following figures were produced automatically by the pipeline, for quick review.
+We can compare the CMB predictions to the ground truths in order to determine how well the model works. However, because the models operate in fundamentally different ways, care is needed to ensure that they are compared in a consistent way. We first mask each prediction where the signal is often too bright to get meaningful predictions. We then remove effects of instrumentation from the predictions. The pipeline set up to run each method is then used in a slightly different way, to pull results from each method and produce output which directly compares them. The following figures were produced automatically by the pipeline, for quick review.
 
 ![Map Cleaning Example](assets/readme_imgs/CNILC_px_comp_sim_0005_I.png)
 ![Power Spectrum Example](assets/readme_imgs/CNILC_ps_comp_sim_0005_I.png)
 
 Other figures are produced of summary statistics, but these are far more boring (for now!).
 
-# Blinding Notes for Reviewers
-
-If you have somehow stumbled upon this and are not a reviewer, please contact us through GitHub and we will gladly redirect you to the fully functional repository being actively developed.
-
-Download utilities for the dataset have been disabled. Download utilities for external science assets still function. Generation of noise relies on either enabling (in main_sims.py) the noise model creation, or downloading the noise model files from [this anonymized Google Drive](https://drive.google.com/drive/folders/1Tx8r7A4RXmTAVIlwAFAo_C28Br2ofwOL?usp=drive_link) and putting them into the target Datasets/CMB-ML_512_1450/NoiseModel directory. We've checked that download of these files cannot be known to the authors. Nevertheless, logging out of active Google accounts is recommended.
-
-This repository has one set of simulations in the assets folder (not present in this commit due to file size). These can be placed in Datasets/CMB-ML_512_1450/Simulations/Test for confirming the function of PyILC.
-
-More simulations and both the initial and final cmbNNCS model are in the anonymous Google Drive. Simulations obtained from here need to be placed in Datasets/CMB-ML_512_1450/Simulations/Test. Final cmbNNCS model should be placed in Datasets/CMB-ML_512_1450/CMBNNCS_UNet8/CMBNNCS_D_Model.
-
-We apologize for the inconvenience.
-
-The rest of the README is largely unchanged from the main repository.
-
 # New Methods
 
 We encourage you to first familiarize yourself with the content of the tutorial notebooks and Hydra. Afterwards, you may want to follow either the patterns set in either the [classic method](cmbml/demo_external_method) or [ML method](cmbml/demo_patch_nn/) demonstrations. The main difference between these is the amount of stuff you want to do within CMB-ML's pipeline; if you already have code that can take input parameters, the patterns for classic methods may be more appropriate.
 
-At this time, the classic method patterns are non-functional suggestions. To see operational code, the PyILC method works (very well!). Please excuse any confusion caused by the hoops which enable us to run it on many simulations at once. Start with the [first top-level script](main_pyilc_predict.py), which gets the pipeline through the cleaning process. Then the [second top-level script](main_pyilc_analysis.py) must be run to finish the process. Both of these scripts use the same configuration file, there is simply a conflict in execution due to settings of `matplotlib`.
+At this time, the classic method patterns are non-functional suggestions. To see operational code, the PyILC method should suffice. Please excuse any confusion caused by the hoops which enable us to run it on many simulations at once. Start with the [first top-level script](main_pyilc_predict.py), which gets the pipeline through the cleaning process. Then the [second top-level script](main_pyilc_analysis.py) must be run to finish the process. Both of these scripts use the same configuration file, there is simply a conflict in execution due to settings of `matplotlib`.
 
 All of the ML patterns are functional. We suggest using the demonstration network as a prototype. The pipeline overview is in the [top-level script](main_patch_nn.py). This network operates on patches of sky maps, cut directly from the HEALPix arrangement. Some preprocessing stages are needed to enable fast training. The training and prediction executors follow common PyTorch design patterns ([train](cmbml/demo_patch_nn/stage_executors/E_train.py) and [predict](cmbml/demo_patch_nn/stage_executors/F_predict.py)). Both training and prediction use subclasses of a PyTorch [Dataset](https://pytorch.org/tutorials/beginner/basics/data_tutorial.html).
 
@@ -97,7 +85,7 @@ As an alternative, see the cmbNNCS [top-level script](main_cmbnncs.py). The exec
 
 # Installation
 
-See next section if you don't want to install CMB-ML, and just want the dataset.
+See the next section if you don't want to install CMB-ML and instead just want the dataset.
 
 Installation of CMB-ML requires setting up the repository, then getting the data assets for the portion you want to run. Demonstrations are available with practical examples. The early ones cover how to set up CMB-ML to run on your system.
 
@@ -220,11 +208,26 @@ We list below the datasets and model's aggregated (across the Test split) perfor
 
 ### Pixel Space Performance
 
-| Model   | MAE                    | RMSE                  | NRMSE                    | PSNR                  |
-|---------|------------------------|-----------------------|--------------------------|-----------------------|
-| CMBNNCS | $\bf{25.25 \pm 0.29}$  | $\bf{31.69 \pm 0.36}$ | $\bf{0.3039 \pm 0.0040}$ | $\bf{30.25 \pm 0.33}$ |
-| CNILC   | $32.28 \pm 0.44$       | $40.52 \pm 0.55$      | $0.3885 \pm 0.0043$      | $28.89 \pm 0.60$      |
+Operating on Deconvolved maps:
 
+| Model   | MAE                   | RMSE                  | NRMSE                    | PSNR                  |
+|---------|-----------------------|-----------------------|--------------------------|-----------------------|
+| CMBNNCS | $\bf{18.50 \pm 0.19}$ | $\bf{23.26 \pm 0.23}$ | $\bf{0.2280 \pm 0.0030}$ | $\bf{32.72 \pm 0.36}$ |
+| CNILC   | $59.83 \pm 0.12$      | $76.45 \pm 0.15$      | $0.7492 \pm 0.0138$      | $33.29 \pm 0.26$      |
+
+Operating on maps convolved to 20.6 arcmin beam:
+
+| Model   | MAE                    | RMSE                   | NRMSE                     | PSNR                  |
+|---------|------------------------|------------------------|---------------------------|-----------------------|
+| CMBNNCS | $\bf{3.314 \pm 0.017}$ | $\bf{4.235 \pm 0.023}$ | $\bf{0.04920 \pm 0.0009}$ | $\bf{45.71 \pm 0.41}$ |
+| CNILC   | $6.391 \pm 0.420$      | $8.686 \pm 0.555$      | $0.1009  \pm 0.0062$      | $41.42 \pm 0.77$      |
+
+Operating on maps convolved to 1 degree beam:
+
+| Model   | MAE                    | RMSE                   | NRMSE                      | PSNR                  |
+|---------|------------------------|------------------------|----------------------------|-----------------------|
+| CMBNNCS | $\bf{0.594 \pm 0.005}$ | $\bf{0.788 \pm 0.008}$ | $\bf{0.01265 \pm 0.00037}$ | $\bf{56.81 \pm 0.48}$ |
+| CNILC   | $3.870 \pm 0.63$       | $5.887 \pm 0.777$      | $0.09439 \pm 0.01168$      | $39.43 \pm 1.12$      |
 
 # Outside Works
 
@@ -235,6 +238,17 @@ CMB-ML was built in the hopes that researchers can compare on this as a standard
 None so far!
 
 # Errata
+
+Unchanged, but of note as of July 2025:
+- This code produces maps like those in the dataset downloaded.
+- The set of cosmological parameters used is a modified standard model. This has been fixed in the main repository. This branch uses the sum of neutrino masses, does not include an amplitude parameter, and uses a scalar pivot which does not match those used by the WMAP group for generating the WMAP9 chains (this code used the CAMB default of 0.05, when the matching value should have been 0.002).
+
+July 2025:
+- This version reflects what was provided to reviewers; it is versioned so that a DOI can be issued. It reflects the state of the code at the time of the writing of the work to be presented at ICCV 2025 and is preserved for visibility. Some corrections have been made, either re-enabling functionality (blinding necessitated removal of links to university assets) or fixing bugs caught after-the-fact.
+- Minor changes were made to get the seed values used to match those in the dataset. This was due to the generating code using longer strings (including the full dataset name) for the hash. The main branch uses shorter strings (for reproducability when making multiple datasets).
+- Results in paper (and above) used a method for common beam convolution. This method is included in [this branch](https://github.com/CMB-ML/cmb-ml/tree/archive-iccv2025-convolution-fix) (or [this tag](https://github.com/CMB-ML/cmb-ml/releases/tag/archive-iccv-2025-analysis-beam-fix)).
+  - To duplicate results, change the `target_beam` in the [analysis model](cfg/model/analysis/basic_analysis.yaml) configuration. Use either `_target_` "cmbml.utils.physics_beam.GaussianBeam" with a `beam_fwhm` or, for deconvolved results, use ""cmbml.utils.physics_beam.NoBeam"
+  - There is no need to retrain models; simply remove those from the pipeline in the top-level script.
 
 February 2025: 
 - The repository history was edited to reduce the `.git` size.
@@ -251,8 +265,6 @@ November 2024: New dataset released:
 - Because the work is still unpublished and we do not know of anyone else using it, references to previous datasets have been updated. The original dataset will be removed June 30, 2025, unless we're made aware of anyone using it.
 
 # Data File Links
-
-**Due to double-blinding, links to CMB-ML files are disabled. Simulations must be recreated. See top of README for more information.**
 
 We provide links to the various data used. Alternatives to get this data are in `get_data` and the `Demonstrations`. "Science assets" refers to data created by long-standing cosmological surveys.
 
@@ -282,8 +294,6 @@ We provide links to the various data used. Alternatives to get this data are in 
       - [Downloading script](./get_data/get_assets.py)
   - On Box: 
     - [All Science Assets](https://utdallas.box.com/v/cmb-ml-science-assets)
-    - Script to be replaced if needed. Please send a message if so.
-    <!-- - [Downloading script](./get_data/get_assets.py) -->
 
 - Datasets
   - CMB_ML_512_1450
@@ -296,7 +306,7 @@ We provide links to the various data used. Alternatives to get this data are in 
     - Lower resolution simulations ($\text{N}_\text{side}=128$), for use when testing code and models
     - Individual instance files: [Box Link, CMB_ML_128_1450](https://utdallas.box.com/v/cmb-ml-128-1450)
     - A script for these download is available [here](./get_data/get_box_CMB_ML_128_1450.py)
-    - Change [cfg/pipeline/pipe_sim.yaml](./cfg/pipeline/pipe_sim.yaml) to use the correct set of shared links. In this yaml, look for download_sims_reference and change the path_template (replace '512' with '128').
+      - Change [cfg/pipeline/pipe_sim.yaml](./cfg/pipeline/pipe_sim.yaml) to use the correct set of shared links. In this yaml, look for download_sims_reference and change the path_template (replace '512' with '128').
 
   - Files are expected to be in the following folder structure, any other structure requires changes to the pipeline yaml's:
 ```
