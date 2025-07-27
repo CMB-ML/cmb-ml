@@ -1,8 +1,10 @@
 # CMB-ML: A Cosmic Microwave Background Radiation Dataset for Machine Learning
 
-ZENODO (DOI) BADGE HERE
+https://zenodo.org/badge/DOI/10.5281/zenodo.16510258.svg
 
-Paper information here.
+This is an archive version of the repository. Please see the [main branch](https://github.com/CMB-ML/cmb-ml) for the most up-to-date information.
+
+Citation information to be added when the work appears (hopefully) at ICCV 2025.
 
 Contents:
 - [Quick Start](#quick-start)

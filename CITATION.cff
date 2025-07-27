@@ -1,5 +1,5 @@
 cff-version: 1.2.0
-message: "If you use this software, please cite it as below. message: Includes derived data from ESA Planck mission and code from PySM3. See LICENSE, LICENSE.data, and third-party licenses for details."
+message: "If you use this software, please cite it as below. Includes derived data from ESA Planck mission and code from PySM3. See LICENSE, LICENSE.data, and third-party licenses for details."
 authors:
   - family-names: Amato
     given-names: James
