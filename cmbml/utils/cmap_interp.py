@@ -131,8 +131,6 @@ def get_linear_cmap(o_cmap, norm: Normalize, total_points=2000):
     ListedColormap
         The final interpolated colormap with enhanced resolution near zero.
     """
-    # UNTESTED. Sorry :(
-
     loc_0 = norm(0.0)
 
     if loc_0 <= 0:
@@ -144,15 +142,19 @@ def get_linear_cmap(o_cmap, norm: Normalize, total_points=2000):
         sample_vals = np.linspace(0.0, 0.5, total_points)
         colors = o_cmap(sample_vals)
     else:
-        # Allocate samples based on position of zero
+        # Mixed-sign data: split around 0, ensuring that 0 maps to cmap(0.5)
         n_low = int(loc_0 * total_points)
         n_high = total_points - n_low
 
-        # Sample in data space, then normalize to [0, 1]
+        # Ensure zero at center
         vals_low = np.linspace(norm.vmin, 0, n_low, endpoint=False)
         vals_high = np.linspace(0, norm.vmax, n_high)
         sample_vals = np.concatenate([vals_low, vals_high])
         normed_vals = norm(sample_vals)
+
+        # Shift normed_vals so that norm(0) maps to 0.5
+        shift = 0.5 - norm(0.0)
+        normed_vals = np.clip(normed_vals + shift, 0.0, 1.0)
 
         colors = o_cmap(normed_vals)
 
