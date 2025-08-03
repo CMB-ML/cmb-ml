@@ -18,16 +18,26 @@ import hydra
 from omegaconf import OmegaConf
 from cmbml.core import PipelineContext, LogMaker
 from cmbml.core.A_check_hydra_configs import HydraConfigCheckerExecutor
-from cmbml.planck_as_sim import (
-    ObsMapsConvertExecutor,
-    CMBMapConvertExecutor,
-    CMBPSConvertExecutor,
+from cmbml.sims import (
+    HydraConfigSimsCheckerExecutor,
+    NoiseCacheExecutor,
+    GetPlanckNoiseSimsExecutor,
+    MakePlanckAverageNoiseExecutor,
+    MakePlanckNoiseModelExecutor,
+    DownloadNoiseModelExecutor,
+    ChainsConfigExecutor,
+    ParamConfigExecutor,
+    TheoryPSExecutor,
+    ObsCreatorPlFGsExecutor,
+    PrepForegroundsExecutor,
+    NoiseMapCreatorExecutor,
+    SimCreatorExecutor
 )
 
 logger = logging.getLogger(__name__)
 
 
-@hydra.main(version_base=None, config_name="config_planck_as_sim")
+@hydra.main(version_base=None, config_name="config_sim_pl_fgs")
 def run_simulations(cfg):
     """
     Runs the simulation pipeline.
@@ -47,9 +57,18 @@ def run_simulations(cfg):
 
     pipeline_context = PipelineContext(cfg, log_maker)
 
-    pipeline_context.add_pipe(ObsMapsConvertExecutor)
-    pipeline_context.add_pipe(CMBMapConvertExecutor)  # Does not use min_beam size currently
-    pipeline_context.add_pipe(CMBPSConvertExecutor)
+    # pipeline_context.add_pipe(NoiseCacheExecutor)
+    # pipeline_context.add_pipe(DownloadNoiseModelExecutor)
+
+    # if cfg.model.sim.cmb.use_chains:
+    #     pipeline_context.add_pipe(ChainsConfigExecutor)
+    # else:
+    #     pipeline_context.add_pipe(ParamConfigExecutor)
+    pipeline_context.add_pipe(PrepForegroundsExecutor)
+    # pipeline_context.add_pipe(TheoryPSExecutor)
+    pipeline_context.add_pipe(ObsCreatorPlFGsExecutor)
+    pipeline_context.add_pipe(NoiseMapCreatorExecutor)
+    pipeline_context.add_pipe(SimCreatorExecutor)
 
     pipeline_context.prerun_pipeline()
 

@@ -1,0 +1,4 @@
+defaults:
+  - noise: noise_variance  # Needed for Planck observation file names. TODO: Reorganize this stuff.
+
+min_obs_beam   : ${out_cmb_beam_fwhm}  # Arcmin.

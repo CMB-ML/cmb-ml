@@ -25,7 +25,7 @@ class ScaleCacheMaker:
         self.out_scale_cache = out_scale_cache
         self.output_units = u.Unit(cfg.scenario.units)
 
-    def get_src_path(self, detector: int):
+    def get_src_path(self, freq: int):
         """
         Get the path for the source noise file based on the hydra configs.
 
@@ -35,7 +35,7 @@ class ScaleCacheMaker:
         Returns:
         str: The path for the fits file containing the noise.
         """
-        fn       = self.cfg.model.sim.noise.src_files[detector]
+        fn       = self.cfg.model.sim.noise.src_files[freq]
         src_root = self.cfg.local_system.assets_dir
         contexts_dict = dict(src_root=src_root, filename=fn)
         with self.name_tracker.set_contexts(contexts_dict):

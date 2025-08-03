@@ -29,6 +29,7 @@ from cmbml.sims import (
     ParamConfigExecutor,
     TheoryPSExecutor,
     ObsCreatorExecutor,
+    PrepForegroundsExecutor,
     NoiseMapCreatorExecutor,
     SimCreatorExecutor
 )
@@ -56,50 +57,19 @@ def run_simulations(cfg):
 
     pipeline_context = PipelineContext(cfg, log_maker)
 
-    # pipeline_context.add_pipe(HydraConfigCheckerExecutor)
-    # pipeline_context.add_pipe(HydraConfigSimsCheckerExecutor)
+    # pipeline_context.add_pipe(NoiseCacheExecutor)
+    # pipeline_context.add_pipe(DownloadNoiseModelExecutor)
 
-    # Required for the kinds of noise implemented in the pipeline
-    pipeline_context.add_pipe(NoiseCacheExecutor)
+    # if cfg.model.sim.cmb.use_chains:
+    #     pipeline_context.add_pipe(ChainsConfigExecutor)
+    # else:
+    #     pipeline_context.add_pipe(ParamConfigExecutor)
+    # pipeline_context.add_pipe(TheoryPSExecutor)
+    # pipeline_context.add_pipe(ObsCreatorExecutor)
+    # pipeline_context.add_pipe(NoiseMapCreatorExecutor)
+    # pipeline_context.add_pipe(SimCreatorExecutor)
 
-    ############################
-    # Noise model creation
-    ############################
-    # If using spatially correlated noise, either recreate or download the noise model
-    # Recreation requires GetPlanckNoiseSimsExecutor, MakePlanckAverageNoiseExecutor, and MakePlanckNoiseModelExecutor
-    # Downloading requires DownloadNoiseModelExecutor only
-
-    # Recreate the noise model (slow)
-    # Download the number of noise sims defined in noise_spatial_corr.yaml (if not present already)
-    # pipeline_context.add_pipe(GetPlanckNoiseSimsExecutor)  # Full resolution! Lots of maps!
-    # Average the noise sims (slow); produces a single noise map per frequency
-    # pipeline_context.add_pipe(MakePlanckAverageNoiseExecutor)
-    # Create the noise model, requiring SHT of each map (slow)
-    # pipeline_context.add_pipe(MakePlanckNoiseModelExecutor)
-
-    # Download the noise model (much faster)
-    # The noise model is a summary of 100 Planck noise maps in the form of
-    # an average noise map, a power spectrum, and a noise covariance matrix
-    # for each detector frequency. It's much smaller than the original data
-    # (processed above in commented out Executors)
-    pipeline_context.add_pipe(DownloadNoiseModelExecutor)
-
-    ############################
-    # Simulation creation
-    ############################
-
-    # Needed for all:
-    if cfg.model.sim.cmb.use_chains:
-        pipeline_context.add_pipe(ChainsConfigExecutor)
-    else:
-        pipeline_context.add_pipe(ParamConfigExecutor)
-    pipeline_context.add_pipe(TheoryPSExecutor)
-    pipeline_context.add_pipe(ObsCreatorExecutor)
-    pipeline_context.add_pipe(NoiseMapCreatorExecutor)
-    pipeline_context.add_pipe(SimCreatorExecutor)
-
-    # # TODO: Put this back in the pipeline yaml; fix/make executor
-    # # pipeline_context.add_pipe(ShowSimsExecutor)  # Out of date, do not use.
+    # pipeline_context.add_pipe(PrepForegroundsExecutor)
 
     pipeline_context.prerun_pipeline()
 

@@ -1,3 +1,8 @@
+# Making simulations using "foreground only" maps
+#    We take Planck's observations and subtract out Planck's predicted CMB. 
+#    This is a stopgap measure to reduce the difference between sims and Planck.
+#    NEEDS to have "min_obs_beam" for working with Nside=128
+
 defaults:
   - cmb:   wmap_cosmo_means
   # - noise: noise_corr_aniso_nonstat
@@ -13,9 +18,16 @@ nside_sky            : ${nside_sky}
 nside_sky_factor     : null
 pysm_beam_lmax_ratio : 2.99999  # This will evaluate as 3 * nside - 1 for nsides up to 2048 (maybe further)
 
-# See https://galsci.github.io/blog/2022/common-fiducial-sky/ and https://galsci.github.io/blog/2022/common-fiducial-extragalactic-cmb/ for more suggestions
+# For making foreground-only maps
+min_obs_beam         : ${min_obs_beam}
+alm_max_iter         : 50
+planck_lmax_ratio    : 2.5
+cmb_beam_fwhm        : 5
+sky_unit             : K_RJ
+inpaint_iters        : 10
+beam_eps             : 1e-10
+
 # Moved to top level for now
-preset_strings   : ${preset_strings}
 component_objects:
   - cmb
   - noise
