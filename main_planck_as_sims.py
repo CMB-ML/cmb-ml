@@ -48,7 +48,7 @@ def run_simulations(cfg):
     pipeline_context = PipelineContext(cfg, log_maker)
 
     pipeline_context.add_pipe(ObsMapsConvertExecutor)
-    pipeline_context.add_pipe(CMBMapConvertExecutor)
+    pipeline_context.add_pipe(CMBMapConvertExecutor)  # Does not use min_beam size currently
     pipeline_context.add_pipe(CMBPSConvertExecutor)
 
     pipeline_context.prerun_pipeline()
