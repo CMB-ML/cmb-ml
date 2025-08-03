@@ -69,7 +69,7 @@ def run_simulations(cfg):
     # pipeline_context.add_pipe(NoiseMapCreatorExecutor)
     # pipeline_context.add_pipe(SimCreatorExecutor)
 
-    pipeline_context.add_pipe(PrepForegroundsExecutor)
+    # pipeline_context.add_pipe(PrepForegroundsExecutor)
 
     pipeline_context.prerun_pipeline()
 

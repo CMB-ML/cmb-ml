@@ -40,18 +40,6 @@ make_theory_ps:
   dir_name: Simulation_CMB_Power_Spectra
   make_stage_log: True
 
-make_fgs:
-  assets_out:
-    fg_maps:
-      handler: HealpyMap
-      path_template: "{root}/{dataset}/{stage}/fg_map_{freq}.fits" 
-  assets_in:
-    planck_deltabandpass: {stage: raw}
-    src_obs_maps: {stage: raw, orig_name: noise_src_varmaps}
-    src_cmb_map: {stage: raw, orig_name: mask_src_map}
-  dir_name: Simulation_DA_Foregrounds
-  make_stage_log: True
-
 make_obs_no_noise:
   assets_out:
     cmb_map:
