@@ -1,0 +1,36 @@
+make_fgs:
+  assets_out:
+    fg_maps:
+      handler: HealpyMap
+      path_template: "{root}/{dataset}/{stage}/fg_map_{freq}.fits" 
+  assets_in:
+    planck_deltabandpass: {stage: raw}
+    sim_deltabandpass: {stage: raw, orig_name: deltabandpass}
+    src_obs_maps: {stage: raw, orig_name: noise_src_varmaps}
+    src_cmb_map: {stage: raw, orig_name: mask_src_map}
+  dir_name: Simulation_DA_Foregrounds
+  make_stage_log: True
+
+make_obs_no_noise_pl_fgs:
+  assets_out:
+    cmb_map:
+      handler: HealpyMap
+      path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/cmb_map_fid.fits"  # Changed for working dir while using separate noise
+    sky_no_noise_maps:
+      handler: HealpyMap
+      path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/sky_{freq}_no_noise_map.fits"  # Changed for working dir while using separate noise
+    # noise_maps:  # Optional; see model.sim.noise.save_noise for flag to enable this. Removed for separate noise generation.
+    #   handler: HealpyMap
+    #   path_template: "{root}/{dataset}/{stage}/{split}/{sim}/noise_{freq}_map.fits"
+  assets_in:
+    deltabandpass: {stage: raw}
+    # scale_cache: {stage: make_noise_cache}
+    cmb_ps: {stage: make_theory_ps}
+    fg_maps: {stage: make_fgs}
+  splits: &all_splits
+    - train
+    - valid
+    - test
+  dir_name: Simulation_D_Sky_Emission
+  make_stage_log: True
+  # top_level_working: True

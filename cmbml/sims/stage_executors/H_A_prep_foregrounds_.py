@@ -3,7 +3,6 @@ import logging
 
 from omegaconf import DictConfig
 import healpy as hp
-import numpy as np
 import pysm3
 import pysm3.units as u
 
@@ -47,7 +46,7 @@ class PrepForegroundsExecutor(BaseStageExecutor):
         sim_det_info = in_sim_det_table.read()
         self.sim_instrument: Instrument = make_instrument(cfg=cfg, det_info=sim_det_info)
         
-        self.sky_unit       = u.Unit(cfg.model.sim.sky_unit)
+        self.sky_unit           = u.Unit(cfg.model.sim.sky_unit)
         self.cmb_beam_fwhm  = cfg.model.sim.cmb_beam_fwhm * u.arcmin
         self.sky_nside      = cfg.model.sim.nside_sky
 
@@ -59,7 +58,6 @@ class PrepForegroundsExecutor(BaseStageExecutor):
         self.alm_max_iter   = cfg.model.sim.alm_max_iter
         self.min_beam       = cfg.model.sim.min_obs_beam * u.arcmin
         self.beam_eps       = cfg.model.sim.beam_eps  # avoid instability with wide beam
-        self.alm_tol_iter   = 1e-7
 
         # self.cmb_map        = None
 
@@ -121,6 +119,18 @@ class PrepForegroundsExecutor(BaseStageExecutor):
         src_det:Detector = self.pl_instrument.dets[freq]
         sky_det:Detector = self.sim_instrument.dets[freq]
 
+        # Get observation map and parameters
+        obs_map = self.in_obs_maps.read()[0]
+        obs_nside = hp.get_nside(obs_map)
+        obs_lmax = int(lmax_ratio * obs_nside)
+
+        obs_map = inpaint_with_neighbor_mean(obs_map, inpaint_iter)
+        obs_map = obs_map.to(sky_unit,
+                             equivalencies=u.cmb_equivalencies(src_det.cen_freq))
+        obs_beam_fwhm = src_det.fwhm.to(u.rad).value
+        obs_beam = hp.gauss_beam(obs_beam_fwhm, obs_lmax)
+        obs_pixwin = hp.pixwin(nside=obs_nside, lmax=obs_lmax, pol=False)
+
         # Get cmb map and parameters
         cmb_map = self.in_cmb_map.read()[0]
         cmb_map = cmb_map.to(sky_unit,
@@ -129,21 +139,8 @@ class PrepForegroundsExecutor(BaseStageExecutor):
         cmb_lmax = int(lmax_ratio * cmb_nside)
         # Note: use obs_lmax in next lines; this makes array sizes match
         cmb_beam_fwhm = self.cmb_beam_fwhm.to(u.rad).value
-        cmb_beam = hp.gauss_beam(cmb_beam_fwhm, lmax=cmb_lmax)
-        cmb_pixwin = hp.pixwin(cmb_nside, lmax=cmb_lmax, pol=False)
-
-        # Get observation map and parameters
-        obs_map = self.in_obs_maps.read()[0]
-        obs_nside = hp.get_nside(obs_map)
-        obs_lmax = int(lmax_ratio * obs_nside)
-
-        obs_map = inpaint_with_neighbor_mean(obs_map, inpaint_iter)  # Fix (single) UNSEEN pixel in 100GHz map with average of neighbors
-        obs_map = obs_map.to(sky_unit,
-                             equivalencies=u.cmb_equivalencies(src_det.cen_freq))
-        obs_beam_fwhm = src_det.fwhm.to(u.rad).value
-        obs_beam = hp.gauss_beam(obs_beam_fwhm, obs_lmax)
-        obs_pixwin = np.zeros_like(cmb_pixwin)
-        obs_pixwin[:obs_lmax+1] = hp.pixwin(nside=obs_nside, lmax=obs_lmax, pol=False)
+        cmb_beam = hp.gauss_beam(cmb_beam_fwhm, lmax=obs_lmax)
+        cmb_pixwin = hp.pixwin(cmb_nside, lmax=obs_lmax, pol=False)
 
         # Sky prep
         sky_nside = self.sky_nside
@@ -154,79 +151,42 @@ class PrepForegroundsExecutor(BaseStageExecutor):
         else:
             sky_beam_fwhm = sky_det.fwhm
         sky_beam_fwhm = sky_beam_fwhm.to(u.rad).value
-        sky_beam = hp.gauss_beam(sky_beam_fwhm, cmb_lmax)
+        sky_beam = hp.gauss_beam(sky_beam_fwhm, obs_lmax)
 
-        # Process CMB map: operate at CMB lmax (alm space)
-        #                  beam             : cmb -> sky
-        #                  pixwin           : obs -> cmb
-        #                  output resolution: cmb -> obs
-        zero_ells = np.ones_like(cmb_beam)
-        zero_ells[obs_lmax+1:] = 0
-        cmb_fl = (zero_ells * sky_beam * obs_pixwin) / (cmb_beam * cmb_pixwin)
-        cmb_map_bmd = self.apply_fl_in_sht(cmb_map, cmb_fl, obs_nside)
-        logger.info(f"Made rebeamed CMB map for {freq} GHz.")
+        # Process CMB map: remove CMB beam and pixwin, apply sky beam and obs pixwin
+        cmb_fl = (sky_beam * obs_pixwin) / (cmb_beam * cmb_pixwin)
+        cmb_alms = pysm3.map2alm(input_map=cmb_map,
+                                 nside=None,
+                                 lmax=cmb_lmax,
+                                 map2alm_lsq_maxiter=alm_max_iter)
+        cmb_alms_bmd = hp.almxfl(cmb_alms, cmb_fl)
+        cmb_map_bmd = hp.alm2map(alms=cmb_alms_bmd,
+                                 nside=obs_nside)
 
-        # Process obs map: operate at Obs lmax (alm space)
-        #                  beam             : obs -> sky
-        #                  pixwin           : obs -> obs (no change)
-        #                  output resolution: obs -> obs (no change)
-        obs_fl = obs_beam / (obs_beam**2 + beam_eps)  # safe way to handle wide (e.g., 30GHz) obs beams
-        obs_fl = obs_fl * sky_beam[:obs_lmax+1]
-        obs_map_bmd = self.apply_fl_in_sht(obs_map, obs_fl, obs_nside)
-        logger.info(f"Made rebeamed Obs map for {freq} GHz.")
+        # Process obs map: convolve to sky beam
+        obs_fl = obs_beam / (obs_beam**2 + beam_eps)  # safe way to handle wide (30GHz) obs beams
+        obs_fl = obs_fl * sky_beam
+        obs_alms = pysm3.map2alm(input_map=obs_map,
+                                 nside=None,
+                                 lmax=obs_lmax,
+                                 map2alm_lsq_maxiter=alm_max_iter)
+        obs_alms_bmd = hp.almxfl(obs_alms, obs_fl)
+        obs_map_bmd = hp.alm2map(alms=obs_alms_bmd,
+                                 nside=obs_nside)
         
         diff_map_hr = obs_map_bmd - cmb_map_bmd  # hr = high resolution (obs not sky)
 
-        # Process diff map: operate at Obs lmax (alm space)
-        #                   beam             : sky -> sky (no change)
-        #                   pixwin           : obs -> sky
-        #                   output resolution: obs -> sky
-        diff_fl = np.zeros_like(obs_beam)
-        diff_fl[:sky_lmax+1] = sky_pixwin / obs_pixwin[:sky_lmax+1]
-        diff_map = self.apply_fl_in_sht(diff_map_hr, diff_fl, sky_nside)
+        diff_fl = sky_pixwin / obs_pixwin[:sky_lmax+1]
 
+        diff_alms = pysm3.map2alm(input_map=diff_map_hr,
+                                  nside=None,
+                                  lmax=sky_lmax,
+                                  map2alm_lsq_maxiter=alm_max_iter)
+        diff_alms_bmd = hp.almxfl(diff_alms, diff_fl)
+        diff_map = hp.alm2map(alms=diff_alms_bmd,
+                              nside=sky_nside)
         diff_map = u.Quantity(diff_map, self.sky_unit)
         return diff_map
-
-    def apply_fl_in_sht(self, in_map, fl, out_nside):
-        in_nside = hp.get_nside(in_map)
-        in_lmax = fl.shape[0]
-        if in_lmax != in_nside * self.lmax_ratio + 1:
-            raise ValueError(f"in_lmax: {in_lmax}, expected {in_nside * self.lmax_ratio} in_nside: {in_nside}, ratio: {self.lmax_ratio}")
-        out_lmax = int(out_nside * self.lmax_ratio + 1)
-        alms = self.map2alm(in_map, in_lmax)
-        alms_bmd = hp.almxfl(alms, fl)
-        alms_bmd = hp.resize_alm(alms_bmd, lmax=in_lmax, mmax=in_lmax, lmax_out=out_lmax, mmax_out=out_lmax)
-        map_bmd = hp.alm2map(alms_bmd, out_nside, out_lmax)
-        return map_bmd
-
-    def map2alm(self, in_map, lmax):
-        if self.alm_max_iter == 0:
-            logger.info("Using map2alm without weights and no iterations.")
-            alms = hp.map2alm(in_map, lmax=lmax, iter=self.alm_max_iter, pol=False)
-        else:
-            alms, error, n_iter = hp.map2alm_lsq(
-                maps=in_map,
-                lmax=lmax,
-                mmax=lmax,
-                tol=self.alm_tol_iter,
-                maxiter=self.alm_max_iter
-            )
-            if n_iter == self.alm_max_iter:
-                logger.warning(
-                    "hp.map2alm_lsq did not converge in %d iterations,"
-                    + " residual relative error is %.2g",
-                    n_iter,
-                    error,
-                )
-            else:
-                logger.info(
-                    "Used map2alm_lsq, converged in %d iterations,"
-                    + "residual relative error %.2g",  # I do not know why the observation maps "converge" after some iterations with error greater than alm_tol_iter
-                    n_iter,
-                    error,
-                )
-        return alms
 
     def process_freq_highres_sky(self, freq: int):
         lmax_ratio = self.lmax_ratio

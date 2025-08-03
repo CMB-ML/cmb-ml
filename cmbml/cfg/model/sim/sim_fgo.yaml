@@ -1,0 +1,35 @@
+# Making simulations using "foreground only" maps
+#    We take Planck's observations and subtract out Planck's predicted CMB. 
+#    This is a stopgap measure to reduce the difference between sims and Planck.
+#    NEEDS to have "min_obs_beam" for working with Nside=128
+
+defaults:
+  - cmb:   wmap_cosmo_means
+  # - noise: noise_corr_aniso_nonstat
+  - noise: noise_spatial_corr
+  # - noise: noise_variance
+# PySM needs to run internal calculations at a resolution greater than the output nside (output nside set in experiment.yaml)
+
+# PySM3 recommends either nside_sky=2048 for output_nside <= 1024; otherwise double it
+#    While debugging code, it is often convenient to use lower resolution nside_sky
+#    Only one of the two should be set. The other should be "null". Setting both may given unexpected results.
+# Moved to top level for now
+nside_sky            : ${nside_sky}
+nside_sky_factor     : null
+pysm_beam_lmax_ratio : 2.99999  # This will evaluate as 3 * nside - 1 for nsides up to 2048 (maybe further)
+
+# For making foreground-only maps
+min_obs_beam         : ${min_obs_beam}
+alm_max_iter         : 50
+planck_lmax_ratio    : 2.5
+cmb_beam_fwhm        : 5
+sky_unit             : K_RJ
+inpaint_iters        : 10
+beam_eps             : 1e-10
+
+# Moved to top level for now
+component_objects:
+  - cmb
+  - noise
+seed_base_string: cmb_ml
+# seed_base_string: ${dataset_name}
