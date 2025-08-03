@@ -1,4 +1,4 @@
-noise_type: spatial_corr
+noise_type: corr_aniso_nonstat
 src_files:
   30: "LFI_SkyMap_030-BPassCorrected_1024_R3.00_full.fits"
   44: "LFI_SkyMap_044-BPassCorrected_1024_R3.00_full.fits"

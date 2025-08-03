@@ -1,5 +1,6 @@
 defaults:
   - cmb:   wmap_cosmo_means
+  # - noise: noise_corr_aniso_nonstat
   - noise: noise_spatial_corr
   # - noise: noise_variance
 # PySM needs to run internal calculations at a resolution greater than the output nside (output nside set in experiment.yaml)
