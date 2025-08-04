@@ -14,6 +14,7 @@ class QTableHandler(GenericHandler):
     def read(self, path: Path) -> Dict:
         logger.debug(f"Reading QTable from '{path}'")
         try:
+            # Note that QTable automatically applies astropy units.
             planck_beam_info = QTable.read(path, format="ascii.ipac")
         except TypeError as e:
             # When the file is not found, astropy raises a TypeError. This may also happen if the file is not in the correct format.
