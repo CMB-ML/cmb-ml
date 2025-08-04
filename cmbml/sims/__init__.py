@@ -10,7 +10,7 @@ from .stage_executors.F_make_fg_configs import ForegroundConfigExecutor
 from .stage_executors.G_make_power_spectra import TheoryPSExecutor
 from .stage_executors.H_make_observations import ObsCreatorExecutor
 from .stage_executors.H_make_observations_flex_fg import FlexObsCreatorExecutor
-from .stage_executors.H_A_prep_foregrounds_ import PrepForegroundsExecutor
+from .stage_executors.H_A_prep_foregrounds import PrepForegroundsExecutor
 from .stage_executors.H_B_make_observations_with_pl_fgs import ObsCreatorPlFGsExecutor
 from .stage_executors.I_make_noise import NoiseMapCreatorExecutor
 from .stage_executors.J_make_sims import SimCreatorExecutor

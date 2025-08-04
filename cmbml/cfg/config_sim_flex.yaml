@@ -3,15 +3,13 @@ defaults:
   - file_system    : common_fs
   - pipeline       : assembly_sim
   - scenario       : scenario
-  - splits         : "3-3"
-  # - splits         : valid_only
-  # - splits         : three_fixed
+  - splits         : valid_only
   - model/sim      : sim_flex_fgs
   - model/analysis : basic_analysis
   - override hydra/job_logging: custom_log
   - _self_
 
-dataset_name: "${map_fields}_${scenario.nside}_${splits.name}_flex_test"
+dataset_name: "${map_fields}_${scenario.nside}_${splits.name}"
 working_dir : "Simulation_Working/"
 hydra:
   run:
@@ -27,10 +25,9 @@ hydra:
 # They are picked up from here and MAY be used elsewhere in the yamls.
 # In the scenario yaml
 nside          : 128
-detectors      : [30, 100, 545]
-# detectors      : [30, 44, 70, 100, 143, 217, 353, 545, 857]
+detectors      : [30, 44, 70, 100, 143, 217, 353, 545, 857]
 map_fields     : "I"
 
 # In the simulation yaml (only relevant to the simulation portion of the pipeline)
 nside_sky      : 256
-min_obs_beam   : 82.5  # This is 3 * hp.nside2resol(128)
+min_obs_beam   : 82.5

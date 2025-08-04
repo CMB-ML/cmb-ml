@@ -90,8 +90,6 @@ class ObsCreatorPlFGsExecutor(BaseStageExecutor):
         logger.info(f"Simulations will be output at nside_out = {self.nside_out}")
         self.output_units = cfg.scenario.units
         logger.info(f"Output units are {self.output_units}")
-        # self.preset_strings = None if cfg.model.sim.preset_strings is None else list(cfg.model.sim.preset_strings)
-        # logger.info(f"Preset strings are {self.preset_strings}")
 
         # The instrument object contains both
         #   - information about physical detector parameters
@@ -189,6 +187,8 @@ class ObsCreatorPlFGsExecutor(BaseStageExecutor):
             with self.name_tracker.set_contexts(dict(freq=freq)):
                 self.out_sky_maps.write(data=final_map, column_names=column_names)
             logger.debug(f"For {split.name}:{sim_name}, {freq} GHz: done with channel")
+            if sim_num == 0:
+                logger.info(f"For {split.name}:{sim_name}, {freq} GHz: done with channel. Beam: {detector.fwhm}")
 
         self.save_cmb_map_realization(cmb, min_fwhm)
         logger.debug(f"For {split.name}:{sim_name}, done with simulation")
