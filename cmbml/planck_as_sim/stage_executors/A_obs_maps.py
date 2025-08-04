@@ -77,7 +77,6 @@ class ObsMapsConvertExecutor(BaseStageExecutor):
         self.out_unit = cfg.scenario.units
         self.inpaint_iter = 10  # We know there's just the 100 GHz map with the single UNSEEN pixel; hardcoding is ok?
 
-        self.min_beam_size = cfg.model.sim.min_obs_beam * u.arcmin
         self.lmax_ratio = 2.5
         self.alm_max_iter = 0
         self.alm_tol_iter = 1e-7
@@ -133,8 +132,6 @@ class ObsMapsConvertExecutor(BaseStageExecutor):
 
         out_lmax = int(self.lmax_ratio * self.out_nside)
         out_beam_fwhm = out_det.fwhm
-        if out_beam_fwhm < self.min_beam_size:
-            out_beam_fwhm = self.min_beam_size  # e.g., when using 128 test maps
         out_beam_fwhm = out_beam_fwhm.to(u.rad).value
         out_beam = np.zeros_like(obs_beam)
         out_beam[:out_lmax+1] = hp.gauss_beam(out_beam_fwhm, out_lmax)

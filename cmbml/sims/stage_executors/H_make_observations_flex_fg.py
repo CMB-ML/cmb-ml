@@ -92,22 +92,17 @@ class FlexObsCreatorExecutor(BaseStageExecutor):
         self.output_units = cfg.scenario.units
         logger.info(f"Output units are {self.output_units}")
 
-        # if "preset_strings" in cfg.model.sim:
-        #     raise NotImplementedError("Use of preset strings is disabled for this executor while testing.")
         self.component_config = OmegaConf.to_container(cfg.model.sim.fgs, resolve=True)
         logger.info(f"Component configs are {list(dict(cfg.model.sim.fgs).keys())}")
-        self.preset_strings = OmegaConf.to_container(cfg.model.sim.preset_strings, resolve=True)
+        cfg_preset_strings = cfg.model.sim.get("preset_strings", None)
+        if cfg_preset_strings is not None:
+            self.preset_strings = OmegaConf.to_container(cfg_preset_strings, resolve=True)
+        else:
+            self.preset_strings = None
         logger.info(f"Preset strings are {self.preset_strings}")
 
-        # The instrument object contains both
-        #   - information about physical detector parameters
-        #   - information about configurations, (such as fields to use)
         det_info = in_det_table.read()
         self.instrument: Instrument = make_instrument(cfg=cfg, det_info=det_info)
-        self.min_beam = cfg.model.sim.min_obs_beam * u.arcmin
-        for freq, det in self.instrument.dets.items():
-            if det.fwhm < self.min_beam:
-                logger.info(f"Detector for {det.nom_freq} GHz beam was {det.fwhm:.2f}, changed to {self.min_beam}")
 
         self.include_cmb = cfg.model.sim.get("include_cmb", True)
         self.cmb_seed_factory = SeedFactory(cfg.model.sim.cmb.seed_template)
@@ -149,7 +144,7 @@ class FlexObsCreatorExecutor(BaseStageExecutor):
                            component_config=self.component_config,
                            preset_strings=self.preset_strings,
                            output_unit=self.output_units)
-        logger.debug('Done creating PySM3 Sky object')
+        logger.debug('Done creating Flexible Sky object')
         self.default_execute()
 
     def process_split(self, split: Split) -> None:
@@ -194,12 +189,10 @@ class FlexObsCreatorExecutor(BaseStageExecutor):
         # Track minimum FWHM; this will be used for the CMB map
         # DISABLED, per CS advisor suggestion that model should find the true realization...
         #           physics: if this is wrong, please explain it to CS advisor.
-        min_beam = 0 * u.arcmin
+        min_fwhm = 0 * u.arcmin
 
         for freq, detector in self.instrument.dets.items():
             skymaps = self.sky.get_emission(detector.cen_freq)
-            this_beam = max(self.min_beam, detector.fwhm)
-            # Optionally, min_fwhm = min(this_beam, min_fwhm)
 
             n_fields_sky = skymaps.shape[0]
             n_fields_det = len(detector.fields)
@@ -213,7 +206,7 @@ class FlexObsCreatorExecutor(BaseStageExecutor):
 
             # Use pysm3.apply_smoothing... to convolve the map with the planck detector beam
             map_smoothed = pysm3.apply_smoothing_and_coord_transform(skymaps,
-                                                                     this_beam,
+                                                                     detector.fwhm,
                                                                      # let PySM3 decide the lmax. This is appropriate 
                                                                      #    as long as the Nside_sky >= 2*Nside_out 
                                                                      #  lmax=self.lmax_beam,
@@ -228,9 +221,11 @@ class FlexObsCreatorExecutor(BaseStageExecutor):
                 # if self.save_noise:
                 #     self.out_noise_maps.write(data=noise_map, column_names=column_names)
             logger.debug(f"For {split.name}:{sim_name}, {freq} GHz: done with channel")
+            if sim_num == 0:
+                logger.info(f"For {split.name}:{sim_name}, {freq} GHz: done with channel. Beam: {detector.fwhm}")
 
         if self.include_cmb:
-            self.save_cmb_map_realization(cmb, min_beam)
+            self.save_cmb_map_realization(cmb, min_fwhm)
         logger.debug(f"For {split.name}:{sim_name}, done with simulation")
 
     def save_cmb_map_realization(self, cmb: CMBLensed, min_fwhm):

@@ -12,6 +12,7 @@ defaults:
 nside_sky            : ${nside_sky}
 nside_sky_factor     : null
 pysm_beam_lmax_ratio : 2.99999  # This will evaluate as 3 * nside - 1 for nsides up to 2048 (maybe further)
+min_obs_beam         : ${min_obs_beam}
 
 # See https://galsci.github.io/blog/2022/common-fiducial-sky/ and https://galsci.github.io/blog/2022/common-fiducial-extragalactic-cmb/ for more suggestions
 # Moved to top level for now

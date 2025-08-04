@@ -48,6 +48,13 @@ class HydraConfigSimsCheckerExecutor(BaseStageExecutor):
             raise ValueError("Conflicts found in hydra configs.")
         logger.debug("No conflict in Hydra Configs found.")
 
+    def check_instrument_beam_min(self) -> None:
+        # TODO: Verify this works. The Hydra Config Checker hasn't been tested in a while... ymmv.
+        if self.nside >= 512:
+            min_obs_beam = self.cfg.sim.model.get("min_obs_beam", None)
+            if min_obs_beam:
+                logger.warning(f"Beam set to use {min_obs_beam}, are you sure this is what you want?")
+
     def check_noise_yaml(self) -> None:
         """
         Ensure all detectors' noise files are in the simulation.noise yaml.

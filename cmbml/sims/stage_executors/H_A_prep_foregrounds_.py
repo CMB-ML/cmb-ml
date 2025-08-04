@@ -56,7 +56,6 @@ class PrepForegroundsExecutor(BaseStageExecutor):
         self.lmax_ratio     = cfg.model.sim.planck_lmax_ratio
         self.inpaint_iter   = cfg.model.sim.inpaint_iters
         self.alm_max_iter   = cfg.model.sim.alm_max_iter
-        self.min_beam       = cfg.model.sim.min_obs_beam * u.arcmin
         self.beam_eps       = cfg.model.sim.beam_eps  # avoid instability with wide beam
 
         # self.cmb_map        = None
@@ -114,7 +113,6 @@ class PrepForegroundsExecutor(BaseStageExecutor):
         inpaint_iter = self.inpaint_iter
         beam_eps = self.beam_eps
         sky_unit = self.sky_unit
-        min_beam = self.min_beam
 
         src_det:Detector = self.pl_instrument.dets[freq]
         sky_det:Detector = self.sim_instrument.dets[freq]
@@ -146,10 +144,7 @@ class PrepForegroundsExecutor(BaseStageExecutor):
         sky_nside = self.sky_nside
         sky_lmax = int(lmax_ratio * sky_nside)
         sky_pixwin = hp.pixwin(nside=sky_nside, lmax=sky_lmax)
-        if min_beam > sky_det.fwhm:
-            sky_beam_fwhm = min_beam
-        else:
-            sky_beam_fwhm = sky_det.fwhm
+
         sky_beam_fwhm = sky_beam_fwhm.to(u.rad).value
         sky_beam = hp.gauss_beam(sky_beam_fwhm, obs_lmax)
 
@@ -194,7 +189,6 @@ class PrepForegroundsExecutor(BaseStageExecutor):
         inpaint_iter = self.inpaint_iter
         beam_eps = self.beam_eps
         sky_unit = self.sky_unit
-        min_beam = self.min_beam
         src_det:Detector = self.pl_instrument.dets[freq]
         sky_det:Detector = self.sim_instrument.dets[freq]
 

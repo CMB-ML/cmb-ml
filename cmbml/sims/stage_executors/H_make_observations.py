@@ -101,14 +101,6 @@ class ObsCreatorExecutor(BaseStageExecutor):
         self.cmb_seed_factory = SeedFactory(cfg.model.sim.cmb.seed_template)
         self.cmb_factory = CMBFactory(cfg)
 
-        # self.noise_seed_factory     = FreqLevelSeedFactory(cfg, 'noise')
-        # # self.noise_seed_factory     = FreqLevelSeedFactory(cfg, cfg.model.sim.noise.seed_string)
-        # NoiseMaker                  = get_noise_class(cfg.model.sim.noise.noise_type)
-        # self.noise_maker            = NoiseMaker(cfg, self.name_tracker, self.in_noise_cache)
-
-        # Saving noise is optional here; noise may be generated and added in another method
-        # self.save_noise             = cfg.model.sim.noise.save_noise
-
         # Do not create the Sky object here, it takes too long and will slow down initial checks
         self.sky = None
 
@@ -203,6 +195,8 @@ class ObsCreatorExecutor(BaseStageExecutor):
                 # if self.save_noise:
                 #     self.out_noise_maps.write(data=noise_map, column_names=column_names)
             logger.debug(f"For {split.name}:{sim_name}, {freq} GHz: done with channel")
+            if sim_num == 0:
+                logger.info(f"For {split.name}:{sim_name}, {freq} GHz: done with channel. Beam: {detector.fwhm}")
 
         self.save_cmb_map_realization(cmb, min_fwhm)
         logger.debug(f"For {split.name}:{sim_name}, done with simulation")
