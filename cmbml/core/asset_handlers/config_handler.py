@@ -60,6 +60,8 @@ class Config(GenericHandler):
             return {key: Config._convert_obj(value) for key, value in obj.items()}
         elif isinstance(obj, list):
             return [Config._convert_obj(item) for item in obj]
+        elif isinstance(obj, tuple):
+            return list(Config._convert_obj(item) for item in obj)
         else:
             return obj
 
