@@ -2,14 +2,14 @@ from typing import Dict
 import pysm3
 import logging
 
-import hydra
 from omegaconf import DictConfig
 from pathlib import Path
+import numpy as np
 import healpy as hp
 import pysm3
 import pysm3.units as u
 
-from cmbml.core import BaseStageExecutor, Asset
+from cmbml.core import BaseStageExecutor, Asset, HealpyMap
 from cmbml.utils.planck_instrument import make_instrument, Instrument
 # from cmbml.sims.physics_instrument import get_noise_class
 
@@ -18,6 +18,7 @@ from cmbml.utils.planck_instrument import make_instrument, Instrument
 import cmbml.utils.fits_inspection as fits_inspect
 from cmbml.utils.physics_units import convert_field_str_to_Unit
 from cmbml.utils.fits_inspection import get_num_all_fields_in_hdr
+from cmbml.utils.physics_mean_inpaint import inpaint_with_neighbor_mean
 
 
 logger = logging.getLogger(__name__)
@@ -58,8 +59,8 @@ class CMBMapConvertExecutor(BaseStageExecutor):
         
         # Default beam size for CMB maps
         # https://wiki.cosmos.esa.int/planck-legacy-archive/index.php/CMB_maps
-        self.in_beam_fwhm = cfg.in_cmb_beam_fwhm * u.arcmin
-        self.out_beam_fwhm = cfg.out_cmb_beam_fwhm * u.arcmin
+        self.in_beam_fwhm = cfg.model.sim.in_cmb_beam_fwhm * u.arcmin
+        self.out_beam_fwhm = cfg.model.sim.out_cmb_beam_fwhm * u.arcmin
 
         self.hdu = self.cfg.model.sim.noise.hdu_n
         # Hard-coding for temperature only maps.
@@ -67,7 +68,12 @@ class CMBMapConvertExecutor(BaseStageExecutor):
         self.nside_out = cfg.scenario.nside
         # Use fixed value; we are downgrading the Planck maps.
         self.out_unit = cfg.scenario.units
-        self.lmax_ratio = 1.5
+        self.lmax_ratio = cfg.planck_lmax_ratio
+
+        self.inpaint_iter   = cfg.model.sim.inpaint_iters
+        self.lmax_ratio     = cfg.model.sim.planck_lmax_ratio
+        self.alm_iter_max   = cfg.model.sim.alm_iter_max
+        self.alm_iter_tol   = cfg.model.sim.alm_iter_tol
 
     def execute(self) -> None:
         """
@@ -81,44 +87,71 @@ class CMBMapConvertExecutor(BaseStageExecutor):
             self.out_cmb_map.write(data=smoothed_map)
     
     def process_map(self):
-        src_path = self.in_cmb_map.path
         field_idcs = [self.get_field_idx(field_str) for field_str in self.map_fields]
+        if len(field_idcs) > 1:
+            raise NotImplementedError("Can't handle polarization.")
 
-        src_unit = fits_inspect.get_field_unit_str(src_path, field_idcs[0], hdu=self.hdu)
-        src_unit = convert_field_str_to_Unit(src_unit)
+        src_path = self.in_cmb_map.path
+        h = HealpyMap()
+        # source_map = hp.read_map(src_path, hdu=self.hdu, field=field_idcs)
+        src_map = h.read(src_path)
+        src_unit = src_map.unit
+        src_nside = hp.get_nside(src_map)
+        src_lmax = int(self.lmax_ratio * src_nside)
 
-        source_map = hp.read_map(src_path, hdu=self.hdu, field=field_idcs)
+        out_nside = self.nside_out
+        out_lmax = int(self.lmax_ratio * out_nside)
 
-        nside_src = hp.get_nside(source_map)
-        if nside_src == self.nside_out:
-            lmax = int(2.5 * self.nside_out)
-        elif self.nside_out > nside_src:
-            lmax = int(2.5 * nside_src)
-        elif self.nside_out < nside_src:
-            lmax = int(1.5 * nside_src)
-        logger.info("Setting lmax to %d", lmax)
+        src_map = inpaint_with_neighbor_mean(src_map, self.inpaint_iter)
+        src_map = src_map.to(self.sky_unit)  # Assume it's K_CMB or uK_CMB
 
-        src_beam_size_arcmin = self.in_beam_fwhm
-        src_beam_size_rad = src_beam_size_arcmin.to(u.rad).value
-        src_beam = hp.gauss_beam(fwhm=src_beam_size_rad, lmax=lmax)
+        src_beam_size_rad = self.in_beam_fwhm.to(u.rad).value
+        src_beam = hp.gauss_beam(fwhm=src_beam_size_rad, lmax=src_lmax)
+        src_pxwn = hp.pixwin(nside=src_nside, lmax=src_lmax, pol=False)
 
-        tgt_beam_size_arcmin = self.out_beam_fwhm
-        tgt_beam_size_rad = tgt_beam_size_arcmin.to(u.rad).value
-        tgt_beam = hp.gauss_beam(fwhm=tgt_beam_size_rad, lmax=lmax)
+        out_beam_size_rad = self.out_beam_fwhm.to(u.rad).value
+        out_beam = np.zeros_like(src_beam)
+        out_beam[:out_lmax+1] = hp.gauss_beam(fwhm=out_beam_size_rad, lmax=src_lmax)
+        out_pxwn = np.zeros_like(src_pxwn)
+        out_pxwn[:out_lmax+1] = hp.pixwin(nside=out_nside, lmax=out_lmax, pol=False)
 
-        beam_ratio = tgt_beam / src_beam
+        beam_ratio = out_beam * out_pxwn / (src_beam * src_pxwn)
 
-        alm = pysm3.map2alm(input_map=source_map,
-                            nside=self.nside_out,
-                            lmax=lmax,
-                            map2alm_lsq_maxiter=0)
-        hp.smoothalm(alm, beam_window=beam_ratio, inplace=True)
-        smoothed_map = hp.alm2map(alm, nside=self.nside_out, pixwin=False)
+        # From PySM3 map2alm (copied due to issues and troubleshooting)
+        # TODO: Return to using pysm3.map2alm()
+        if self.alm_iter_max == 0:
+            logger.info("Using map2alm without weights and no iterations.")
+            in_alms = hp.map2alm(src_map, lmax=src_lmax, iter=self.alm_iter_max, pol=False)
+        else:
+            in_alms, error, n_iter = hp.map2alm_lsq(
+                maps=src_map,
+                lmax=src_lmax,
+                mmax=src_lmax,
+                tol=self.alm_iter_tol,
+                max_iter=self.alm_iter_max
+            )
+            if n_iter == self.alm_iter_max:
+                logger.warning(
+                    "hp.map2alm_lsq did not converge in %d iterations,"
+                    + " residual relative error is %.2g",
+                    n_iter,
+                    error,
+                )
+            else:
+                logger.info(
+                    "Used map2alm_lsq, converged in %d iterations,"
+                    + "residual relative error %.2g",
+                    n_iter,
+                    error,
+                )
 
-        smoothed_map *= src_unit
-        smoothed_map = smoothed_map.to(self.out_unit)
+        out_alms = hp.almxfl(in_alms, beam_ratio)
+        out_map = hp.alm2map(out_alms, nside=self.nside_out)
 
-        return smoothed_map
+        out_map = u.Quantity(out_map, src_unit)
+        out_map = out_map.to(self.out_unit)
+
+        return out_map
 
     def get_field_idx(self, field_str) -> int:
         field_idcs_dict = {

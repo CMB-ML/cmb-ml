@@ -12,14 +12,8 @@ import pysm3.units as u
 
 from cmbml.core import BaseStageExecutor, Asset
 from cmbml.utils.planck_instrument import make_instrument, Instrument, Detector
-# from cmbml.sims.physics_instrument import get_noise_class
 
 from cmbml.core.asset_handlers.healpy_map_handler import HealpyMap
-# from cmbml.core.asset_handlers.qtable_handler import QTableHandler
-import cmbml.utils.fits_inspection as fits_inspect
-from cmbml.utils.physics_units import convert_field_str_to_Unit
-from cmbml.utils.fits_inspection import get_num_all_fields_in_hdr
-from cmbml.utils.physics_downgrade_by_alm import pysm3_downgrade_T_by_alm
 from cmbml.utils.physics_mean_inpaint import inpaint_with_neighbor_mean
 
 
@@ -75,12 +69,12 @@ class ObsMapsConvertExecutor(BaseStageExecutor):
         # Use fixed value; we are downgrading the Planck maps.
         self.sky_unit = u.K_RJ
         self.out_unit = cfg.scenario.units
-        self.inpaint_iter = 10  # We know there's just the 100 GHz map with the single UNSEEN pixel; hardcoding is ok?
 
-        self.lmax_ratio = 2.5
-        self.alm_max_iter = 0
-        self.alm_tol_iter = 1e-7
-        self.beam_eps = 1e-10
+        self.inpaint_iter   = cfg.model.sim.inpaint_iters
+        self.lmax_ratio     = cfg.model.sim.planck_lmax_ratio
+        self.alm_iter_max   = cfg.model.sim.alm_iter_max
+        self.alm_iter_tol   = cfg.model.sim.alm_iter_tol
+        self.beam_eps       = cfg.model.sim.beam_eps  # avoid instability with wide beam
 
     def execute(self) -> None:
         """
@@ -131,8 +125,9 @@ class ObsMapsConvertExecutor(BaseStageExecutor):
         obs_pxwn = hp.pixwin(nside=obs_nside, lmax=obs_lmax, pol=False)
 
         out_lmax = int(self.lmax_ratio * self.out_nside)
-        out_beam_fwhm = out_det.fwhm
-        out_beam_fwhm = out_beam_fwhm.to(u.rad).value
+        out_beam_fwhm = out_det.fwhm.to(u.rad).value
+
+        # Bandwidth limit
         out_beam = np.zeros_like(obs_beam)
         out_beam[:out_lmax+1] = hp.gauss_beam(out_beam_fwhm, out_lmax)
         out_pxwn = np.zeros_like(obs_pxwn)
@@ -140,18 +135,18 @@ class ObsMapsConvertExecutor(BaseStageExecutor):
 
         # From PySM3 map2alm (copied due to issues and troubleshooting)
         # TODO: Return to using pysm3.map2alm()
-        if self.alm_max_iter == 0:
+        if self.alm_iter_max == 0:
             logger.info("Using map2alm without weights and no iterations.")
-            obs_alms = hp.map2alm(obs_map, lmax=obs_lmax, iter=self.alm_max_iter, pol=False)
+            obs_alms = hp.map2alm(obs_map, lmax=obs_lmax, iter=self.alm_iter_max, pol=False)
         else:
             obs_alms, error, n_iter = hp.map2alm_lsq(
                 maps=obs_map,
                 lmax=obs_lmax,
                 mmax=obs_lmax,
-                tol=1e-7,
-                max_iter=self.alm_max_iter
+                tol=self.alm_iter_tol,
+                max_iter=self.alm_iter_max
             )
-            if n_iter == self.alm_max_iter:
+            if n_iter == self.alm_iter_max:
                 logger.warning(
                     "hp.map2alm_lsq did not converge in %d iterations,"
                     + " residual relative error is %.2g",
@@ -176,21 +171,3 @@ class ObsMapsConvertExecutor(BaseStageExecutor):
                              equivalencies=u.cmb_equivalencies(plk_det.cen_freq))
 
         return out_map
-
-    # def get_field_idx(self, src_path, field_str) -> int:
-    #     """
-    #     Looks at fits file to determine field_idx corresponding to field_str
-
-    #     Parameters:
-    #     src_path (str): The path to the fits file.
-    #     field_str (str): The field string to look up.
-
-    #     Returns:
-    #     int: The field index corresponding to the field string.
-    #     """
-    #     field_idcs_dict = dict(self.field_idcs)
-    #     # Get number of fields in map
-    #     n_map_fields = get_num_all_fields_in_hdr(fits_fn=src_path, hdu=self.hdu)
-    #     # Lookup field index based on config file
-    #     field_idx = field_idcs_dict[n_map_fields][field_str]
-    #     return field_idx
