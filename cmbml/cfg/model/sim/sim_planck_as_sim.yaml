@@ -1,9 +1,10 @@
 defaults:
   - noise: noise_variance  # Needed for Planck observation file names. TODO: Reorganize this stuff.
 
-min_obs_beam   : ${out_cmb_beam_fwhm}  # Arcmin.
+min_obs_beam         : ${min_obs_beam_fwhm}  # Arcmin.
 
 sky_unit             : K_RJ
+cmb_unit             : uK_CMB
 in_cmb_beam_fwhm     : ${in_cmb_beam_fwhm}
 out_cmb_beam_fwhm    : ${out_cmb_beam_fwhm}
 

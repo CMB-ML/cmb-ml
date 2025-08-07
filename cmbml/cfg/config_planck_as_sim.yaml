@@ -19,6 +19,7 @@ hydra:
 in_cmb_beam_fwhm: 5.0
 # out_cmb_beam_fwhm  : 20.6    # arcmin, matching narrowest beam for CMB-ML beams at 512
 out_cmb_beam_fwhm  : 82.5  # arcmin for Nside=128
+min_obs_beam_fwhm  : ${out_cmb_beam_fwhm}
 
 # Settings below this point are used for interpolation.
 # These are not to be used directly in the python

@@ -56,7 +56,7 @@ class ObsMapsConvertExecutor(BaseStageExecutor):
             cfg=cfg, det_info=det_info
             )
         self.planck_instrument: Instrument = make_instrument(
-            cfg=cfg, det_info=planck_det_info
+            cfg=cfg, det_info=planck_det_info, use_min_fwhm=False
             )
 
         # Most of the code here is pulled from the NoiseCacheExecutor, which
@@ -67,7 +67,7 @@ class ObsMapsConvertExecutor(BaseStageExecutor):
         # self.field_idcs = {3: {'I': 0}, 10: {'I': 0, 'Q': 1, 'U': 2}}
         self.out_nside = cfg.scenario.nside
         # Use fixed value; we are downgrading the Planck maps.
-        self.sky_unit = u.K_RJ
+        self.sky_unit = u.Unit(cfg.model.sim.sky_unit)
         self.out_unit = cfg.scenario.units
 
         self.inpaint_iter   = cfg.model.sim.inpaint_iters
@@ -144,7 +144,7 @@ class ObsMapsConvertExecutor(BaseStageExecutor):
                 lmax=obs_lmax,
                 mmax=obs_lmax,
                 tol=self.alm_iter_tol,
-                max_iter=self.alm_iter_max
+                maxiter=self.alm_iter_max
             )
             if n_iter == self.alm_iter_max:
                 logger.warning(

@@ -83,13 +83,13 @@ def make_detector(det_info, band, fields, min_fwhm):
     return Detector(nom_freq=band, cen_freq=center_frequency, fwhm=fwhm, fields=fields)
 
 
-def make_instrument(cfg, det_info=None, min_fwhm_override=None):
+def make_instrument(cfg, det_info=None, min_fwhm_override=None, use_min_fwhm=True):
     """
     Args:
         cfg: the hydra config object
         det_info: the planck_bandpasstable
         min_fwhm_override: for use with hydraConfigChecker; not recommended elsewhere
-        
+        use_min_fwhm: (bool) allows disabling min_fwhm (e.g., when downgrading using Planck instrument)
     returns a frozen dataclass containing
             detector_freqs x map_fields
             which are a subset of the full_instrument
@@ -99,6 +99,8 @@ def make_instrument(cfg, det_info=None, min_fwhm_override=None):
     full_instrument = cfg.scenario.full_instrument
     min_fwhm = cfg.model.sim.get("min_obs_beam", 0) if min_fwhm_override is None else min_fwhm_override
     if min_fwhm is None:  # Handle user putting "null" in config yaml
+        min_fwhm = 0
+    if not use_min_fwhm:
         min_fwhm = 0
     min_fwhm = min_fwhm * u.arcmin
 

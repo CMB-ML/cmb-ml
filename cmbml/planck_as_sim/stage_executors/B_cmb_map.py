@@ -67,13 +67,15 @@ class CMBMapConvertExecutor(BaseStageExecutor):
         self.field_idx = 0
         self.nside_out = cfg.scenario.nside
         # Use fixed value; we are downgrading the Planck maps.
-        self.out_unit = cfg.scenario.units
-        self.lmax_ratio = cfg.planck_lmax_ratio
+        self.out_unit       = cfg.scenario.units
+        self.lmax_ratio     = cfg.model.sim.planck_lmax_ratio
 
         self.inpaint_iter   = cfg.model.sim.inpaint_iters
         self.lmax_ratio     = cfg.model.sim.planck_lmax_ratio
         self.alm_iter_max   = cfg.model.sim.alm_iter_max
         self.alm_iter_tol   = cfg.model.sim.alm_iter_tol
+
+        self.cmb_unit       = u.Unit(cfg.model.sim.cmb_unit)
 
     def execute(self) -> None:
         """
@@ -103,7 +105,7 @@ class CMBMapConvertExecutor(BaseStageExecutor):
         out_lmax = int(self.lmax_ratio * out_nside)
 
         src_map = inpaint_with_neighbor_mean(src_map, self.inpaint_iter)
-        src_map = src_map.to(self.sky_unit)  # Assume it's K_CMB or uK_CMB
+        src_map = src_map.to(self.cmb_unit)  # Assume it's K_CMB or uK_CMB
 
         src_beam_size_rad = self.in_beam_fwhm.to(u.rad).value
         src_beam = hp.gauss_beam(fwhm=src_beam_size_rad, lmax=src_lmax)
@@ -111,7 +113,7 @@ class CMBMapConvertExecutor(BaseStageExecutor):
 
         out_beam_size_rad = self.out_beam_fwhm.to(u.rad).value
         out_beam = np.zeros_like(src_beam)
-        out_beam[:out_lmax+1] = hp.gauss_beam(fwhm=out_beam_size_rad, lmax=src_lmax)
+        out_beam[:out_lmax+1] = hp.gauss_beam(fwhm=out_beam_size_rad, lmax=out_lmax)
         out_pxwn = np.zeros_like(src_pxwn)
         out_pxwn[:out_lmax+1] = hp.pixwin(nside=out_nside, lmax=out_lmax, pol=False)
 
@@ -128,7 +130,7 @@ class CMBMapConvertExecutor(BaseStageExecutor):
                 lmax=src_lmax,
                 mmax=src_lmax,
                 tol=self.alm_iter_tol,
-                max_iter=self.alm_iter_max
+                maxiter=self.alm_iter_max
             )
             if n_iter == self.alm_iter_max:
                 logger.warning(
