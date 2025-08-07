@@ -93,13 +93,26 @@ class PrepForegroundsExecutor(BaseStageExecutor):
         if self.sky_nside == 256:
             logger.info(f"Downgrading inputs to output at {self.sky_nside}")
             self.process_order = self.process_freq_lowres_sky
+        elif self.sky_nside == 1024:
+            logger.info(f"Downgrading inputs to output at {self.sky_nside}")
+            self.process_order = self.process_freq_2048_1024_sky
         elif self.sky_nside == 2048:
             logger.info(f"Downgrading inputs to output at {self.sky_nside}")
-            self.process_order = self.process_freq_highres_sky
+            self.process_order = self.process_freq_2048_1024_sky
         else:
             raise NotImplementedError("This is an untested case.")
 
     def process_freq_lowres_sky(self, freq: int):
+        """
+        Sequentially processes maps in alm space with maximal appropriate SHT
+        To be used when resolution of CMB >= Obs > Sky.
+        E.g., when making simulations at 128:
+                         CMB prediction at 2048, 
+                         Observations at either 2048 or 1024, 
+                         Sky at 256 
+                         (simulations at 128, downgraded in subsequent executor)
+        May apply to other cases.
+        """
 
         # "Convolve" means deconvolve from some source beam and reconvolve
         # Get maps and associated parameters & beams
@@ -111,7 +124,6 @@ class PrepForegroundsExecutor(BaseStageExecutor):
         # Remove difference map pixwin; downgrade to sky resolution
 
         lmax_ratio = self.lmax_ratio
-        alm_max_iter = self.alm_max_iter
         inpaint_iter = self.inpaint_iter
         beam_eps = self.beam_eps
         sky_unit = self.sky_unit
@@ -148,12 +160,13 @@ class PrepForegroundsExecutor(BaseStageExecutor):
         sky_lmax = int(lmax_ratio * sky_nside)
         sky_pixwin = hp.pixwin(nside=sky_nside, lmax=sky_lmax)
 
+        sky_beam_fwhm = sky_det.fwhm
         sky_beam_fwhm = sky_beam_fwhm.to(u.rad).value
         sky_beam = hp.gauss_beam(sky_beam_fwhm, cmb_lmax)
 
-        # Process CMB map: operate at CMB lmax (alm space)
+        # Process CMB map: operate at CMB lmax (alm space) (highest resolution)
         #                  beam             : cmb -> sky
-        #                  pixwin           : obs -> cmb
+        #                  pixwin           : cmb -> obs
         #                  output resolution: cmb -> obs
         zero_ells = np.ones_like(cmb_beam)
         zero_ells[obs_lmax+1:] = 0
@@ -161,7 +174,7 @@ class PrepForegroundsExecutor(BaseStageExecutor):
         cmb_map_bmd = self.apply_fl_in_sht(cmb_map, cmb_fl, obs_nside)
         logger.info(f"Made rebeamed CMB map for {freq} GHz.")
 
-        # Process obs map: operate at Obs lmax (alm space)
+        # Process obs map: operate at Obs lmax (alm space) (possibly lower resolution, e.g. LFI)
         #                  beam             : obs -> sky
         #                  pixwin           : obs -> obs (no change)
         #                  output resolution: obs -> obs (no change)
@@ -172,7 +185,7 @@ class PrepForegroundsExecutor(BaseStageExecutor):
         
         diff_map_hr = obs_map_bmd - cmb_map_bmd  # hr = high resolution (obs not sky)
 
-        # Process diff map: operate at Obs lmax (alm space)
+        # Process diff map: operate at Obs lmax (alm space) (lowest resolution)
         #                   beam             : sky -> sky (no change)
         #                   pixwin           : obs -> sky
         #                   output resolution: obs -> sky
@@ -196,6 +209,9 @@ class PrepForegroundsExecutor(BaseStageExecutor):
         return map_bmd
 
     def map2alm(self, in_map, lmax):
+        """
+        Here for clarity. Based on PySM3 (copied? possibly modified.)
+        """
         if self.alm_max_iter == 0:
             logger.info("Using map2alm without weights and no iterations.")
             alms = hp.map2alm(in_map, lmax=lmax, iter=self.alm_max_iter, pol=False)
@@ -223,7 +239,112 @@ class PrepForegroundsExecutor(BaseStageExecutor):
                 )
         return alms
 
-    def process_freq_highres_sky(self, freq: int):
+    def process_freq_2048_1024_sky(self, freq: int):
+        """
+        Sequentially processes maps in alm space with maximal appropriate SHT
+        Assume CMB at 2048; 
+               sky at 2048; 
+               NO ~~~~sky at either 1024 or 2048; ~~~
+               observations at either 1024 or 2048
+        To be used when resolution of CMB >= Sky >= Obs.
+        E.g., when making simulations at 512:
+                         CMB prediction at 2048, 
+                         Observations at either 2048 or 1024, 
+                         Sky at 2048 
+                         (simulations at 512, downgraded in other Executor)
+        May apply to other cases.
+        """
+
+        lmax_ratio = self.lmax_ratio
+        alm_max_iter = self.alm_max_iter
+        inpaint_iter = self.inpaint_iter
+        beam_eps = self.beam_eps
+        sky_unit = self.sky_unit
+
+        src_det:Detector = self.pl_instrument.dets[freq]
+        sky_det:Detector = self.sim_instrument.dets[freq]
+
+        # Get cmb map and parameters
+        cmb_map = self.in_cmb_map.read()[0]
+        cmb_map = cmb_map.to(sky_unit,
+                             equivalencies=u.cmb_equivalencies(src_det.cen_freq))
+        cmb_nside = hp.get_nside(cmb_map)
+        cmb_lmax = int(lmax_ratio * cmb_nside)
+        cmb_beam_fwhm = self.cmb_beam_fwhm
+        cmb_beam = hp.gauss_beam(cmb_beam_fwhm.to(u.rad).value, lmax=cmb_lmax)
+        cmb_pixwin = hp.pixwin(cmb_nside, lmax=cmb_lmax, pol=False)
+
+        # Sky prep (Don't need to worry about minimum beam size)
+        sky_lmax       = int(self.lmax_ratio * self.sky_nside)
+        sky_beam_fwhm  = sky_det.fwhm.to(u.rad).value
+        sky_beam       = hp.gauss_beam(sky_beam_fwhm, lmax=cmb_lmax)
+        sky_pxwn     = hp.pixwin(nside=self.sky_nside, lmax=cmb_lmax, pol=False)
+
+        # Get observation map and parameters (Use CMB lmax)
+        obs_map = self.in_obs_maps.read()[0]
+        obs_nside = hp.get_nside(obs_map)
+        obs_lmax = int(lmax_ratio * obs_nside)
+
+        obs_map = inpaint_with_neighbor_mean(obs_map, inpaint_iter)
+        obs_map = obs_map.to(sky_unit,
+                             equivalencies=u.cmb_equivalencies(src_det.cen_freq))
+        obs_beam_fwhm = src_det.fwhm.to(u.rad).value
+        obs_beam = hp.gauss_beam(obs_beam_fwhm, cmb_lmax)
+        obs_pixwin = hp.pixwin(nside=obs_nside, lmax=cmb_lmax, pol=False)
+
+        # Process CMB map: operate at CMB lmax (alm space) (highest resolution)
+        #                  Note: need to exclude high frequency information to match obs (?)
+        #                  beam             : cmb -> sky
+        #                  pixwin           : cmb -> cmb (no change)
+        #                  output resolution: cmb -> cmb (no change)
+        cmb_alms = pysm3.map2alm(input_map=cmb_map,
+                                 nside=None,
+                                 lmax=cmb_lmax,
+                                 map2alm_lsq_maxiter=alm_max_iter)
+
+        # For excluding (muting) high-ell information between obs_lmax and cmb_lmax
+        mute_fl = np.zeros(cmb_lmax)
+        mute_fl[:obs_lmax+1] = 1
+
+        cmb_fl = mute_fl * sky_beam / cmb_beam
+        cmb_alms_bmd = hp.almxfl(cmb_alms, cmb_fl)
+        cmb_map_bmd = hp.alm2map(cmb_alms_bmd, nside=cmb_nside)
+
+        # Process obs map: operate at Obs lmax (alm space) (possibly lower resolution, e.g. LFI)
+        #                  beam             : obs -> sky
+        #                  pixwin           : obs -> cmb
+        #                  output resolution: obs -> cmb
+        obs_alms = pysm3.map2alm(input_map=obs_map,
+                                 nside=None,
+                                 lmax=obs_lmax,
+                                 map2alm_lsq_maxiter=alm_max_iter)
+        sky_beam_l_obs = sky_beam[:obs_lmax+1]    # sky beam with length of obs_lmax
+        cmb_pxwn_l_obs = cmb_pixwin[:obs_lmax+1]  # cmb pixel window with length of obs_lmax
+        # Build obs fl in two steps; 
+        #   Step 1 produces a safe beam that doesn't explode due to small values
+        obs_fl = obs_beam / (obs_beam**2 + beam_eps)
+        obs_fl = sky_beam_l_obs * cmb_pxwn_l_obs * obs_fl / obs_pixwin
+        obs_alms_bmd = hp.almxfl(obs_alms, obs_fl)
+        obs_map_bmd = hp.alm2map(obs_alms_bmd, nside=cmb_nside)
+
+        diff_map = obs_map_bmd - cmb_map_bmd
+
+        # Process diff map: operate at CMB lmax (alm space) (lowest resolution)
+        #                   beam             : sky -> sky (no change)
+        #                   pixwin           : cmb -> sky
+        #                   output resolution: cmb -> sky
+        diff_alms = pysm3.map2alm(input_map=diff_map,
+                                  nside=None,
+                                  lmax=cmb_lmax,
+                                  map2alm_lsq_maxiter=alm_max_iter)
+        diff_fl = sky_pxwn / cmb_pixwin
+        diff_alms_bmd = hp.almxfl(diff_alms, diff_fl)
+        diff_map_bmd = hp.alm2map(diff_alms_bmd, nside=self.sky_nside)
+
+        diff_map_bmd = u.Quantity(diff_map, self.sky_unit)
+        return diff_map_bmd
+
+    def process_freq_highres_sky_OLD(self, freq: int):
         lmax_ratio = self.lmax_ratio
         alm_max_iter = self.alm_max_iter
         inpaint_iter = self.inpaint_iter
