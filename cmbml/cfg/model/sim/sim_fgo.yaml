@@ -19,11 +19,12 @@ pysm_beam_lmax_ratio : 2.99999  # This will evaluate as 3 * nside - 1 for nsides
 min_obs_beam         : ${min_obs_beam}
 
 # For making foreground-only maps
-alm_max_iter         : 50
-planck_lmax_ratio    : 2.5
-cmb_beam_fwhm        : 5
 sky_unit             : K_RJ
 inpaint_iters        : 10
+planck_lmax_ratio    : 2.5
+alm_iter_max         : 50
+alm_iter_tol         : 1e-7
+cmb_beam_fwhm        : 5
 beam_eps             : 1e-10
 
 # Moved to top level for now
