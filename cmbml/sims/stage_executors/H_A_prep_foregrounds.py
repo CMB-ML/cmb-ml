@@ -289,8 +289,8 @@ class PrepForegroundsExecutor(BaseStageExecutor):
         obs_map = obs_map.to(sky_unit,
                              equivalencies=u.cmb_equivalencies(src_det.cen_freq))
         obs_beam_fwhm = src_det.fwhm.to(u.rad).value
-        obs_beam = hp.gauss_beam(obs_beam_fwhm, cmb_lmax)
-        obs_pixwin = hp.pixwin(nside=obs_nside, lmax=cmb_lmax, pol=False)
+        obs_beam = hp.gauss_beam(obs_beam_fwhm, obs_lmax)
+        obs_pixwin = hp.pixwin(nside=obs_nside, lmax=obs_lmax, pol=False)
 
         # Process CMB map: operate at CMB lmax (alm space) (highest resolution)
         #                  Note: need to exclude high frequency information to match obs (?)
@@ -301,9 +301,10 @@ class PrepForegroundsExecutor(BaseStageExecutor):
                                  nside=None,
                                  lmax=cmb_lmax,
                                  map2alm_lsq_maxiter=alm_max_iter)
+        logger.info(f"Made rebeamed CMB map for {freq} GHz.")
 
         # For excluding (muting) high-ell information between obs_lmax and cmb_lmax
-        mute_fl = np.zeros(cmb_lmax)
+        mute_fl = np.zeros(cmb_lmax+1)
         mute_fl[:obs_lmax+1] = 1
 
         cmb_fl = mute_fl * sky_beam / cmb_beam
@@ -326,6 +327,7 @@ class PrepForegroundsExecutor(BaseStageExecutor):
         obs_fl = sky_beam_l_obs * cmb_pxwn_l_obs * obs_fl / obs_pixwin
         obs_alms_bmd = hp.almxfl(obs_alms, obs_fl)
         obs_map_bmd = hp.alm2map(obs_alms_bmd, nside=cmb_nside)
+        logger.info(f"Made rebeamed Obs map for {freq} GHz.")
 
         diff_map = obs_map_bmd - cmb_map_bmd
 
