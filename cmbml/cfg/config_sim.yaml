@@ -9,7 +9,7 @@ defaults:
   - override hydra/job_logging: custom_log
   - _self_
 
-dataset_name: "${map_fields}_${scenario.nside}_${splits.name}_d1"
+dataset_name: "${map_fields}_${scenario.nside}_${splits.name}_base"
 working_dir : "Simulation_Working/"
 hydra:
   run:
@@ -31,6 +31,6 @@ map_fields     : "I"
 # In the simulation yaml (only relevant to the simulation portion of the pipeline)
 nside_sky      : 256
 # preset_strings : ["d9", "s4", "f1", "a1", "cib1", "ksz1", "tsz1"]
-preset_strings : ["d1", "s4", "f1", "a1", "cib1", "ksz1", "tsz1", "rg1"]
+preset_strings : ["d9", "s4", "f1", "a1", "cib1", "ksz1", "tsz1", "rg1"]
 # preset_strings : ["d9", "s4", "f1", "a1", "co1", "cib1", "ksz1", "tsz1", "rg1"]
 min_obs_beam   : 82.5
