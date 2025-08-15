@@ -9,7 +9,7 @@ defaults:
   - override hydra/job_logging: custom_log
   - _self_
 
-dataset_name: "${map_fields}_${scenario.nside}_${splits.name}"
+dataset_name: "${map_fields}_${scenario.nside}_${splits.name}_flex"
 working_dir : "Simulation_Working/"
 hydra:
   run:
