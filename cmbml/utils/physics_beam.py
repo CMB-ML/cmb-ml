@@ -1,5 +1,6 @@
 import healpy as hp
 from astropy.io import fits
+import pysm3.units as u
 
 import numpy as np
 
@@ -20,7 +21,10 @@ class Beam:
     """
 
     def __init__(self, beam) -> None:
-        self.beam = beam
+        arr = np.asarray(beam, dtype=float)
+        if arr.ndim != 1:
+            raise ValueError(f"Beam must be 1D, got shape {arr.shape}")
+        self.beam = arr
 
     def conv1(self, ps):
         """
@@ -86,8 +90,6 @@ class Beam:
         Returns:
             np.ndarray: The power spectrum with the squared beam effect removed.
         """
-        # TODO: Implement deconvolution with squared beam
-        pass
         # TODO: Handle zeros in beam
         ps_applied = ps / (self.beam ** 2)
 
@@ -109,7 +111,10 @@ class GaussianBeam(Beam):
     """
     def __init__(self, beam_fwhm, lmax) -> None:
         # Convert fwhm from arcmin to radians
-        self.fwhm = beam_fwhm * np.pi / (180*60)
+        try:
+            self.fwhm = beam_fwhm.to(u.rad).value
+        except:
+            self.fwhm = beam_fwhm * np.pi / (180*60)
         self.lmax = lmax
         beam = hp.gauss_beam(self.fwhm, lmax=lmax)
         super().__init__(beam)
@@ -158,3 +163,24 @@ def get_planck_beam(planck_path, lmax):
     hdul = fits.open(planck_path)
     beam = hdul[2].data['INT_BEAM']
     return Beam(beam[:lmax+1])
+
+
+def ensure_beam(obj, *, lmax=None, on_none="identity"):
+    """
+    Accepts Beam | array-like | None → returns Beam.
+    - If obj is Beam, return as-is.
+    - If obj is None and on_none == 'identity', require lmax and return NoBeam(lmax).
+    - Else, coerce to array and wrap as Beam.
+    """
+    if isinstance(obj, Beam):
+        return obj
+    if obj is None:
+        if on_none == "identity":
+            if lmax is None:
+                raise ValueError("lmax required to construct NoBeam when beam=None")
+            return NoBeam(lmax)
+        raise ValueError("beam=None not allowed here")
+    arr = np.asarray(obj, dtype=float)
+    if lmax is not None and arr.shape[0] < lmax + 1:
+        raise ValueError(f"Beam array too short for lmax={lmax}: len={arr.shape[0]}")
+    return Beam(arr if lmax is None else arr[:lmax+1])

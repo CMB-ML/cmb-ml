@@ -6,7 +6,7 @@ import healpy as hp
 
 import pysm3.units as u
 
-from cmbml.utils.physics_beam import Beam, NoBeam
+from cmbml.utils.physics_beam import Beam, NoBeam, ensure_beam
 
 
 logger = logging.getLogger(__name__)
@@ -173,9 +173,8 @@ def get_auto_ps_result(map_, lmax, is_convolved=False, beam=None, mask=None, nam
     """
     if isinstance(map_, u.Quantity):
         unit = map_.unit
-        map_ = map_.to_value()
-    if beam is None:
-        beam = NoBeam(lmax)
+        map_ = map_.value
+    beam = ensure_beam(beam, lmax=lmax)
     cl = get_autopower(map_, mask, lmax)
     ells = np.arange(lmax + 1)
     cl = cl * (unit ** 2)
