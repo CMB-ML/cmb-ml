@@ -378,8 +378,14 @@ class PrepForegroundsExecutor(BaseStageExecutor):
         # Sky prep (Don't need to worry about minimum beam size)
         sky_lmax       = int(self.lmax_ratio * self.sky_nside)
         sky_beam_fwhm  = sky_det.fwhm.to(u.rad).value
-        sky_beam       = hp.gauss_beam(sky_beam_fwhm, lmax=sky_lmax)
-        sky_pixwin     = hp.pixwin(nside=self.sky_nside, lmax=sky_lmax, pol=False)
+        # While running a cross-check with physics, I needed to confirm that my changes to this method (above)
+        #   didn't alter output maps. Assumptions made caused sky stuff to have different vector shape; this fixes it
+        #   Note that it's different from original, but original was broken. 
+        #   Eventually both this old version and the true one (commented out below) will be deleted.
+        sky_beam                = hp.gauss_beam(sky_beam_fwhm, lmax=cmb_lmax)
+        sky_beam[sky_lmax+1:]   = 0
+        sky_pixwin              = np.zeros_like(cmb_pixwin)
+        sky_pixwin[:sky_lmax+1] = hp.pixwin(nside=self.sky_nside, lmax=sky_lmax, pol=False)
 
         # Get observations at sky beam and cmb Nside (assumes reso_obs <= reso_cmb)
         obs_alms = pysm3.map2alm(input_map=obs_map,
@@ -419,3 +425,80 @@ class PrepForegroundsExecutor(BaseStageExecutor):
 
         diff_map_bmd = u.Quantity(diff_map, self.sky_unit)
         return diff_map_bmd
+
+    # True original
+    # def process_freq_highres_sky_OLD(self, freq: int):
+    #     lmax_ratio = self.lmax_ratio
+    #     alm_max_iter = self.alm_iter_max
+    #     inpaint_iter = self.inpaint_iter
+    #     beam_eps = self.beam_eps
+    #     sky_unit = self.sky_unit
+    #     src_det:Detector = self.pl_instrument.dets[freq]
+    #     sky_det:Detector = self.sim_instrument.dets[freq]
+
+    #     # Get observation map and parameters
+    #     obs_map = self.in_obs_maps.read()[0]
+    #     obs_nside = hp.get_nside(obs_map)
+    #     obs_lmax = int(lmax_ratio * obs_nside)
+
+    #     obs_map = inpaint_with_neighbor_mean(obs_map, inpaint_iter)
+    #     obs_map = obs_map.to(sky_unit,
+    #                          equivalencies=u.cmb_equivalencies(src_det.cen_freq))
+    #     obs_beam_fwhm = src_det.fwhm.to(u.rad).value
+    #     obs_beam = hp.gauss_beam(obs_beam_fwhm, obs_lmax)
+    #     obs_pixwin = hp.pixwin(nside=obs_nside, lmax=obs_lmax, pol=False)
+
+    #     # Get cmb map and parameters (USE lmax for CMB!)
+    #     cmb_map = self.in_cmb_map.read()[0]
+    #     cmb_map = cmb_map.to(sky_unit,
+    #                          equivalencies=u.cmb_equivalencies(src_det.cen_freq))
+    #     cmb_nside = hp.get_nside(cmb_map)
+    #     cmb_lmax = int(lmax_ratio * cmb_nside)
+    #     cmb_beam_fwhm = self.cmb_beam_fwhm
+    #     cmb_beam = hp.gauss_beam(cmb_beam_fwhm.to(u.rad).value, lmax=cmb_lmax)
+    #     cmb_pixwin = hp.pixwin(cmb_nside, lmax=cmb_lmax, pol=False)
+
+    #     # Sky prep (Don't need to worry about minimum beam size)
+    #     sky_lmax       = int(self.lmax_ratio * self.sky_nside)
+    #     sky_beam_fwhm  = sky_det.fwhm.to(u.rad).value
+    #     sky_beam       = hp.gauss_beam(sky_beam_fwhm, lmax=sky_lmax)
+    #     sky_pixwin     = hp.pixwin(nside=self.sky_nside, lmax=sky_lmax, pol=False)
+
+    #     # Get observations at sky beam and cmb Nside (assumes reso_obs <= reso_cmb)
+    #     obs_alms = pysm3.map2alm(input_map=obs_map,
+    #                              nside=None,
+    #                              lmax=obs_lmax,
+    #                              map2alm_lsq_maxiter=alm_max_iter)
+    #     sky_beam_l_obs = sky_beam[:obs_lmax+1]
+    #     cmb_pxwn_l_obs = cmb_pixwin[:obs_lmax+1]
+    #     # Build obs fl in two steps; 
+    #     #   Step 1 produces a safe beam that doesn't explode due to small values
+    #     obs_fl = obs_beam / (obs_beam**2 + beam_eps)
+    #     obs_fl = sky_beam_l_obs * cmb_pxwn_l_obs * obs_fl / obs_pixwin
+    #     obs_alms_bmd = hp.almxfl(obs_alms, obs_fl)
+    #     obs_map_bmd = hp.alm2map(obs_alms_bmd, nside=cmb_nside)
+
+    #     # Get cmb at sky beam (and cmb nside)
+    #     cmb_alms = pysm3.map2alm(input_map=cmb_map,
+    #                              nside=None,
+    #                              lmax=cmb_lmax,
+    #                              map2alm_lsq_maxiter=alm_max_iter)
+    #     sky_beam_l_cmb = sky_beam[:cmb_lmax+1]
+    #     cmb_fl = sky_beam_l_cmb / cmb_beam
+    #     cmb_alms_bmd = hp.almxfl(cmb_alms, cmb_fl)
+    #     cmb_map_bmd = hp.alm2map(cmb_alms_bmd, nside=cmb_nside)
+
+    #     diff_map = obs_map_bmd - cmb_map_bmd
+
+    #     # Convert diff to sky nside
+    #     diff_alms = pysm3.map2alm(input_map=diff_map,
+    #                               nside=None,
+    #                               lmax=cmb_lmax,
+    #                               map2alm_lsq_maxiter=alm_max_iter)
+    #     sky_pxwn_l_cmb = sky_pixwin[:cmb_lmax+1]
+    #     diff_fl = sky_pxwn_l_cmb / cmb_pixwin
+    #     diff_alms_bmd = hp.almxfl(diff_alms, diff_fl)
+    #     diff_map_bmd = hp.alm2map(diff_alms_bmd, nside=self.sky_nside)
+
+    #     diff_map_bmd = u.Quantity(diff_map, self.sky_unit)
+    #     return diff_map_bmd
