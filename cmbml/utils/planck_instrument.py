@@ -143,9 +143,12 @@ def make_instrument(
         detector_freqs = []
 
     # Pull min beam from cfg unless override provided
-    min_obs_beam = (
-        cfg.model.sim.get("min_obs_beam", 0) if min_fwhm_override is None else min_fwhm_override
-    )
+    try:
+        min_obs_beam = (
+            cfg.model.sim.get("min_obs_beam", 0) if min_fwhm_override is None else min_fwhm_override
+        )
+    except (KeyError, AttributeError, InterpolationKeyError):
+        min_obs_beam = 0
     # Normalize None/"null" to 0
     min_obs_beam = 0 if min_obs_beam is None else float(min_obs_beam)
 
