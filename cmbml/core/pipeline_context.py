@@ -87,4 +87,4 @@ class PipelineContext:
                 if self.log_maker is not None:
                     self.log_maker.copy_hydra_run_to_stage_log(stage_dir, top_level_working)
             else:
-                logger.warning(f"Skipping stage logs for stage {stage.__name__}.")
+                logger.info(f"Skipping stage logs for stage {stage.__name__}.")
