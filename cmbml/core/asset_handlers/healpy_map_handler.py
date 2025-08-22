@@ -35,6 +35,9 @@ class HealpyMap(GenericHandler):
              precision=None, 
              read_to_nest:bool=None):
 
+        if not Path(path).exists():
+            raise FileNotFoundError(f'No such file as "{path}"')
+
         if map_fields is None:
             if map_field_strs is None:
                 map_fields = 0
