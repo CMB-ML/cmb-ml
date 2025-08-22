@@ -2,7 +2,7 @@ convert_obs:
   assets_out:
     obs_maps:
       handler: HealpyMap
-      path_template: &obs_map_path "{root}/{dataset}/{stage}/{split}/{sim}/obs_{freq}.fits"
+      path_template: &obs_map_path "{root}/{dataset}/{stage}/{split}/{sim}/obs_{freq}_map.fits"
   assets_in:
     deltabandpass: {stage: raw}
     # If we need to use the original beams
@@ -11,7 +11,7 @@ convert_obs:
     obs_maps: {stage: raw, orig_name: noise_src_varmaps}
   splits:
     -test
-  dir_name: &planck_maps_dir PlanckMaps
+  dir_name: &planck_maps_dir Simulation
 
 convert_cmb:
   assets_out:
