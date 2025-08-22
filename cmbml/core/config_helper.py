@@ -2,12 +2,7 @@ from typing import Any, Dict, List, Optional
 from omegaconf import DictConfig, OmegaConf
 from omegaconf import errors as OmegaErrors
 import re
-
-# import hydra
-
-# import numpy as np
-
-# import torch
+from difflib import get_close_matches
 
 from cmbml.core.asset import Asset, AssetWithPathAlts
 from cmbml.core.namers import Namer
@@ -121,7 +116,22 @@ def get_assets_in(cfg: DictConfig, stage_str: str, name_tracker: Namer) -> Dict[
     if assets_in_info:
         for asset_name, details in assets_in_info.items():
             details = dict(details)
-            source_stage = details.pop('stage')
+            try:
+                source_stage = details.pop('stage')
+            except KeyError:
+                keys = list(OmegaConf.to_container(assets_in_info).keys())
+                keys.remove(asset_name)
+                hint = ""
+                close = get_close_matches(asset_name, keys, n=1)
+                if close:
+                    hint = f" Did you mean '{close[0]}'?"
+
+                raise KeyError(
+                    "Configuration error for asset "
+                    f"'{asset_name}': missing key 'stage'. "
+                    f"This asset only has keys: {keys}. "
+                    f"Other possible assets: {assets_in_info.keys()}.{hint}"
+                ) from None
 
             # Allow for the case where the asset name is not the same as the original name
             orig_name = details.pop('orig_name', asset_name)
