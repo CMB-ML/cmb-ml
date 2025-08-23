@@ -86,6 +86,19 @@ def format_mean_std(mean, std, sig_digs=4, latex=False):
     return f"${val_str}$" if latex else val_str
 
 
+def float_to_latex(x, precision=2):
+    """
+    Convert a float to LaTeX scientific notation string (no $ delimiters).
+    Example: 22500 -> '2.25 \\times 10^{4}'
+    """
+    if x == 0:
+        return "0"
+    s = f"{x:.{precision}e}"  # e.g. '2.25e+04'
+    base, exp = s.split("e")
+    exp = int(exp)
+    return f"{base} \\times 10^{{{exp}}}"
+
+
 if __name__ == "__main__":
     try_combos = [
         (12345, 12345),
