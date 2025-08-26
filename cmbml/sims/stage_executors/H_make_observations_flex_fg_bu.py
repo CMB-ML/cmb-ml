@@ -30,8 +30,6 @@ from cmbml.utils.map_formats import convert_pysm3_to_hp
 from cmbml.sims.physics_instrument import get_noise_class
 from cmbml.utils.physics_sky_flex import FlexSky
 
-from cmbml.utils.physics_custom_dust import FunkyDust
-
 import healpy as hp
 
 
@@ -110,9 +108,6 @@ class FlexObsCreatorExecutor(BaseStageExecutor):
         self.cmb_seed_factory = SeedFactory(cfg.model.sim.cmb.seed_template)
         self.cmb_factory = CMBFactory(cfg)
 
-        self.dust_scale = cfg.model.sim.dust_scale
-        self.dust_params = cfg.model.sim.funky_dust
-
         # Do not create the Sky object here, it takes too long and will slow down initial checks
         self.sky = None
 
@@ -133,13 +128,6 @@ class FlexObsCreatorExecutor(BaseStageExecutor):
             placeholder = None
             placeholder_label = None
         
-        dust_params = OmegaConf.to_container(self.dust_params)
-        dust_params["scale_fix"] = self.dust_scale
-        dust_params["nside"] = self.nside_sky
-        d = FunkyDust(**dust_params)
-        placeholder.append(d)
-        placeholder_label.append("dust")
-
         # Remove "dist" key from foreground configurations 
         #   (including hypothetical 2-level fgs like a1 and d4)
         for comp_dict in self.component_config.values():
@@ -153,7 +141,7 @@ class FlexObsCreatorExecutor(BaseStageExecutor):
         self.sky = FlexSky(nside=self.nside_sky,
                            component_objects=placeholder,
                            component_object_names=placeholder_label,
-                        #    component_config=self.component_config,
+                           component_config=self.component_config,
                            preset_strings=self.preset_strings,
                            output_unit=self.output_units)
         logger.debug('Done creating Flexible Sky object')
@@ -194,9 +182,9 @@ class FlexObsCreatorExecutor(BaseStageExecutor):
             self.sky.replace_component('cmb', cmb)
 
         # Get updated foreground parameters
-        # all_fg_params = self.in_fg_config.read()
-        # for fg, fg_params in all_fg_params.items():
-        #     self.sky.update_component(fg, fg_params)
+        all_fg_params = self.in_fg_config.read()
+        for fg, fg_params in all_fg_params.items():
+            self.sky.update_component(fg, fg_params)
 
         # Track minimum FWHM; this will be used for the CMB map
         # DISABLED, per CS advisor suggestion that model should find the true realization...

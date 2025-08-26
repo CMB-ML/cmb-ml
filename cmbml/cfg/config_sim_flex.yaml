@@ -4,12 +4,13 @@ defaults:
   - pipeline       : assembly_sim
   - scenario       : scenario
   - splits         : three_fixed
-  - model/sim      : sim_flex_fgs
+  - model/sim      : sim_custom_dust
+  # - model/sim      : sim_flex_fgs
   - model/analysis : basic_analysis
   - override hydra/job_logging: custom_log
   - _self_
 
-dataset_name: "${map_fields}_${scenario.nside}_${splits.name}_flex"
+dataset_name: "${map_fields}_${scenario.nside}_${splits.name}_flex_funky_dust"
 working_dir : "Simulation_Working/"
 hydra:
   run:
