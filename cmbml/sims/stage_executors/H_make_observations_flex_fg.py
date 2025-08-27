@@ -153,7 +153,7 @@ class FlexObsCreatorExecutor(BaseStageExecutor):
         self.sky = FlexSky(nside=self.nside_sky,
                            component_objects=placeholder,
                            component_object_names=placeholder_label,
-                        #    component_config=self.component_config,
+                           component_config=self.component_config,
                            preset_strings=self.preset_strings,
                            output_unit=self.output_units)
         logger.debug('Done creating Flexible Sky object')
