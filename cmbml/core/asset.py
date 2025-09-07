@@ -36,7 +36,7 @@ class Asset:
         if in_or_out == "out":
             self.can_write = True
 
-        handler: GenericHandler = get_handler(asset_info)
+        handler: GenericHandler = get_handler(asset_info, source_stage)
         self.handler = handler()
         try:
             self.path_template = asset_info.get('path_template', None)
