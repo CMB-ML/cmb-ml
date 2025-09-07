@@ -6,13 +6,19 @@ from tqdm import tqdm
 from cmbml.core import (
     BaseStageExecutor,
     Split,
-    AssetWithPathAlts
+    AssetWithPathAlts,
+    Asset
 )
 
 from cmbml.sims.physics_cmb import make_camb_ps
 
-from cmbml.core.asset_handlers.psmaker_handler import CambPowerSpectrum # Import to register handler
+from cmbml.core.asset_handlers.ps_handler import (
+    CambPowerSpectrum, # Import to register handler
+    PandasCAMBPowerSpectrum
+)
+
 from cmbml.core.asset_handlers import Config
+from cmbml.utils.planck_ps_pd_aug import add_missing_multipoles, add_PT_PE_and_reorder
 
 
 logger = logging.getLogger(__name__)
@@ -46,7 +52,9 @@ class TheoryPSExecutor(BaseStageExecutor):
         self.cosmo_params = cfg.model.sim.cmb.camb_params
 
         self.out_cmb_ps: AssetWithPathAlts = self.assets_out['cmb_ps']
+        self.out_cmb_ps_planck: AssetWithPathAlts = self.assets_out['cmb_ps_planck']
         self.in_cosmo_config: AssetWithPathAlts = self.assets_in['cosmo_config']
+        self.in_planck_ps: Asset = self.assets_in.get('planck_ps', None)
 
         self.need_xl = cfg.model.sim.cmb.get('use_chains', False)
 
@@ -67,9 +75,10 @@ class TheoryPSExecutor(BaseStageExecutor):
         Args:
             split (Split): The split to process.
         """
-        if split.ps_fidu_fixed:
-            for _ in tqdm(range(1)):
-                self.make_ps(self.in_cosmo_config, self.out_cmb_ps, use_alt_path=True)
+        if split.ps_fidu_planck:
+            self.get_planck_ps(self.out_cmb_ps_planck, use_alt_path=True)
+        elif split.ps_fidu_fixed:
+            self.make_ps(self.in_cosmo_config, self.out_cmb_ps, use_alt_path=True)
         else:
             for sim in tqdm(split.iter_sims()):
                 with self.name_tracker.set_context("sim_num", sim):
@@ -135,3 +144,12 @@ class TheoryPSExecutor(BaseStageExecutor):
         #         new_v = xl_dict['value']
         #     out_params[new_k] = new_v
         # return out_params
+
+    def get_planck_ps(self,
+                       ps_asset,
+                       use_alt_path):
+        df = self.in_planck_ps.read()
+        df = add_missing_multipoles(df, max_ell=self.max_ell_for_camb)
+        df = add_PT_PE_and_reorder(df, self.in_planck_ps.path)
+
+        ps_asset.write(use_alt_path=use_alt_path, data=df)

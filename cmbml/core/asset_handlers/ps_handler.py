@@ -9,7 +9,7 @@ from .asset_handlers_base import (
     GenericHandler, 
     register_handler, 
     make_directories)
-from cmbml.utils.planck_ps_text_add_l01 import add_l01
+from cmbml.utils.planck_ps_text_add_l01 import add_missing_multipoles
 
 import logging
 
@@ -42,7 +42,7 @@ class CambPowerSpectrum(GenericHandler):
                          skiprows=1, 
                          names=header_line)
 
-        df = add_l01(df, path.name)
+        df = add_missing_multipoles(df, path.name)
 
         TT = df['TT'].to_numpy()
         # EE = df['EE'].to_numpy()
@@ -82,12 +82,36 @@ class PandasCAMBPowerSpectrum(GenericHandler):
                          header=None, 
                          skiprows=1, 
                          names=header_line)
-        df = add_l01(df, path.name)
-        
         return df
 
-    def write(self, path: Path, data: camb.CAMBdata, lmax: int) -> None:
-        raise NotImplementedError("OOOOOOOOPS! TODO")
+    def write(self, path: Path, data: pd.DataFrame) -> None:
+        data_str = df_to_camb_text(data)
+
+        make_directories(path)
+        with open(path, "w") as f:
+            f.write(data_str)
+
+
+def df_to_camb_text(df: pd.DataFrame) -> str:
+    # Build header line
+    header = "#"
+    if df.columns[0] != "L":
+        raise ValueError("First column in output spectra is not L.")
+    header += f"{'L':>3s} "  # L right-aligned in 5, then one space
+    for col in df.columns[1:]:
+        header += f"{col:<14s}"  # names left-aligned in width 14
+
+    # Build rows
+    lines = []
+    for _, row in df.iterrows():
+        # L as integer, width 4
+        l_str = f"{int(row['L']):4d}"
+
+        # Rest as 7-decimal scientific notation
+        vals_str = "".join(f"{val: .7e}" for val in row.drop('L'))
+        lines.append(f"{l_str}{vals_str}")
+
+    return "\n".join([header] + lines)
 
 
 class NumpyPowerSpectrum(GenericHandler):
@@ -111,3 +135,4 @@ class TextPowerSpectrum(GenericHandler):
 register_handler("CambPowerSpectrum", CambPowerSpectrum)
 register_handler("NumpyPowerSpectrum", NumpyPowerSpectrum)
 register_handler("TextPowerSpectrum", TextPowerSpectrum)
+register_handler("PandasCAMBPowerSpectrum", PandasCAMBPowerSpectrum)

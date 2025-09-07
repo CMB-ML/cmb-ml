@@ -42,9 +42,14 @@ make_theory_ps:
     cmb_ps:
       handler: CambPowerSpectrum
       path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/cmb_ps_fid.txt"
-      path_template_alt: "{root}/{dataset}/{working}{stage}/{split}/cmb_ps_fid.txt"
+      path_template_alt: &pta "{root}/{dataset}/{working}{stage}/{split}/cmb_ps_fid.txt"
+    cmb_ps_planck:
+      handler: PandasCAMBPowerSpectrum
+      path_template: *pta
+      path_template_alt: *pta
   assets_in:
     cosmo_config: {stage: make_cosmo_configs}
+    planck_ps: {stage: raw, orig_name: planck_ps_pandas_camb}
   splits: *all_splits
   dir_name: Simulation_CMB_Power_Spectra
   make_stage_log: True

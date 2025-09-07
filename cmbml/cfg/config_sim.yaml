@@ -3,13 +3,13 @@ defaults:
   - file_system    : common_fs
   - pipeline       : assembly_sim
   - scenario       : scenario
-  - splits         : valid_only
+  - splits         : planck_only
   - model/sim      : sim
   - model/analysis : basic_analysis
   - override hydra/job_logging: custom_log
   - _self_
 
-dataset_name: "${map_fields}_${scenario.nside}_${splits.name}_base"
+dataset_name: "${map_fields}_${scenario.nside}_${splits.name}_base_planck_only"
 working_dir : "Simulation_Working/"
 hydra:
   run:

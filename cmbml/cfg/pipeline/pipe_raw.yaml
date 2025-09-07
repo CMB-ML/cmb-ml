@@ -17,6 +17,12 @@ raw:
       handler: HealpyMap
       use_fields: 3  # Healpy indices are 0-based. We are using Healpy. FITS file indices are 1-based. If you inspect the FITS file, this may lead to confusion.
       file_size: 1610  # Slightly smaller so we don't trigger re-download in get_assets.py
+    planck_ps_txt:
+      handler: TextHandler
+      path_template: &pl_ps_fp "{src_root}/Planck/COM_PowerSpect_CMB-base-plikHM-TTTEEE-lowl-lowE-lensing-minimum-theory_R3.01.txt"
+    planck_ps_pandas_camb:
+      handler: PandasCAMBPowerSpectrum
+      path_template: *pl_ps_fp
 
 raw_in:  # A convenience for use in notebooks
   assets_in:
@@ -25,6 +31,8 @@ raw_in:  # A convenience for use in notebooks
     noise_src_varmaps: {stage: raw}
     wmap_chains: {stage: raw}
     mask_src_map: {stage: raw}
+    planck_ps_txt: {stage: raw}
+    planck_ps_pandas_camb: {stage: raw}
 
 download_sims_reference:
   assets_out:

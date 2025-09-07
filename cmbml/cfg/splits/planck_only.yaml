@@ -1,0 +1,7 @@
+name: "PlanckPSThryOnly"
+TestFP:
+  n_sims: 3
+  n_sims_cap: ${n_infer_cap}
+  ps_fidu_fixed: true
+  ps_fidu_planck: true
+run_inference_on: ${run_inference_on}

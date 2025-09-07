@@ -14,6 +14,11 @@ class Split:
             # This happens when n_sims_cap is set to null
             self.n_sims = split_cfg.n_sims
         self.ps_fidu_fixed = split_cfg.get("ps_fidu_fixed", None)
+        self.ps_fidu_planck = split_cfg.get("ps_fidu_planck", None)
+        if self.ps_fidu_planck and self.ps_fidu_fixed is None:
+            self.ps_fidu_fixed = True
+        if self.ps_fidu_planck and not self.ps_fidu_fixed:
+            raise ValueError("Split cannot have ps_fidu_fixed=False and ps_fidu_planck=True.")
 
     def __str__(self):
         return self.name
