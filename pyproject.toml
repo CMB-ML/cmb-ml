@@ -23,4 +23,4 @@ cmbml = ["cfg/**/*.yaml", "utils/planck_colormap.txt"]
 version = { attr = "cmbml.__version__" }
 
 [project.entry-points."hydra.searchpath_plugin"]
-cmbml = "hydra_plugins.cmbml_searchpath_plugin.CMBMLSearchPathPlugin"
+cmbml = "hydra_plugins.cmbml_searchpath_plugin.CMBMLSearchPathPlugin"  
