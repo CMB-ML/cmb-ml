@@ -13,7 +13,7 @@ from cmbml.core import (
     Asset
     )
 # from src.analysis.make_ps import get_power as _get_power
-from cmbml.core.asset_handlers.psmaker_handler import NumpyPowerSpectrum
+from cmbml.core.asset_handlers.ps_handler import NumpyPowerSpectrum
 from cmbml.core.asset_handlers.healpy_map_handler import HealpyMap # Import for typing hint
 from cmbml.utils.physics_ps import get_auto_ps_result
 from cmbml.utils.physics_beam import NoBeam

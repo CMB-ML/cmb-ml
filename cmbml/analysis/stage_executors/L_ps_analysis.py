@@ -13,7 +13,7 @@ from cmbml.core import BaseStageExecutor, Asset, AssetWithPathAlts, GenericHandl
 from cmbml.analysis.px_statistics import get_func
 from cmbml.core.asset_handlers.pd_csv_handler import PandasCsvHandler # Import for typing hint
 from cmbml.core.asset_handlers.healpy_map_handler import HealpyMap # Import for typing hint
-from cmbml.core.asset_handlers.psmaker_handler import NumpyPowerSpectrum
+from cmbml.core.asset_handlers.ps_handler import NumpyPowerSpectrum
 
 logger = logging.getLogger(__name__)
 

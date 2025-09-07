@@ -8,7 +8,7 @@ from tqdm import tqdm
 
 from cmbml.core import BaseStageExecutor, Split, Asset
 from cmbml.core.asset_handlers.qtable_handler import QTableHandler # Import to register handler
-from cmbml.core.asset_handlers.psmaker_handler import NumpyPowerSpectrum # Import for typing hint
+from cmbml.core.asset_handlers.ps_handler import NumpyPowerSpectrum # Import for typing hint
 from cmbml.core.asset_handlers.healpy_map_handler import HealpyMap # Import for VS Code hints
 
 from cmbml.sims.random_seed_manager import SeedFactory

@@ -17,7 +17,7 @@ from cmbml.core import (
     AssetWithPathAlts
     )
 # from ..make_ps import get_power as _get_power
-from cmbml.core.asset_handlers.psmaker_handler import CambPowerSpectrum, NumpyPowerSpectrum
+from cmbml.core.asset_handlers.ps_handler import CambPowerSpectrum, NumpyPowerSpectrum
 
 
 logger = logging.getLogger(__name__)

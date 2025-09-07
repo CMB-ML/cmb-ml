@@ -19,7 +19,7 @@ from cmbml.core import (
     )
 
 from cmbml.core.asset_handlers.asset_handlers_base import EmptyHandler # Import for typing hint
-from cmbml.core.asset_handlers.psmaker_handler import NumpyPowerSpectrum
+from cmbml.core.asset_handlers.ps_handler import NumpyPowerSpectrum
 
 
 logger = logging.getLogger(__name__)

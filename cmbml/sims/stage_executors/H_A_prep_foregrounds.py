@@ -14,7 +14,7 @@ from cmbml.core import (
 )
 
 from cmbml.core.asset_handlers.qtable_handler import QTableHandler # Import to register handler
-from cmbml.core.asset_handlers.psmaker_handler import CambPowerSpectrum, NumpyPowerSpectrum # Import for typing hint
+from cmbml.core.asset_handlers.ps_handler import CambPowerSpectrum, NumpyPowerSpectrum # Import for typing hint
 from cmbml.core.asset_handlers.healpy_map_handler import HealpyMap # Import for VS Code hints
 
 from cmbml.utils.planck_instrument import make_instrument, Instrument, Detector
