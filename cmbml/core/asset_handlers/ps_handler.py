@@ -97,9 +97,9 @@ def df_to_camb_text(df: pd.DataFrame) -> str:
     header = "#"
     if df.columns[0] != "L":
         raise ValueError("First column in output spectra is not L.")
-    header += f"{'L':>3s} "  # L right-aligned in 5, then one space
+    header += f"{'L':>3s}  "  # L right-aligned in 5, then one space
     for col in df.columns[1:]:
-        header += f"{col:<14s}"  # names left-aligned in width 14
+        header += f"{col:<15s}"  # names left-aligned in width 14
 
     # Build rows
     lines = []
@@ -108,8 +108,8 @@ def df_to_camb_text(df: pd.DataFrame) -> str:
         l_str = f"{int(row['L']):4d}"
 
         # Rest as 7-decimal scientific notation
-        vals_str = "".join(f"{val: .7e}" for val in row.drop('L'))
-        lines.append(f"{l_str}{vals_str}")
+        vals_str = " ".join(f"{val:< .7e}" for val in row.drop('L'))
+        lines.append(f"{l_str} {vals_str}")
 
     return "\n".join([header] + lines)
 
