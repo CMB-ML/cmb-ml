@@ -148,23 +148,17 @@ def get_assets_in(cfg: DictConfig, stage_str: str, name_tracker: Namer) -> Dict[
 
 def get_applicable_splits(cfg: DictConfig, stage_str: str) -> List[Split]:
     config_helper = ConfigHelper(cfg)
-    # All splits are defined in the splits yaml
     splits_all_cfg = cfg.splits
     splits_all     = [k for k in splits_all_cfg.keys() if k != 'name']
-    
-    # In a stage in a pipeline yaml, we may specify which splits to work on
-    #    This is generic, e.g. for all {Test0, Test1}, we may list just "test"
-    splits_scope = config_helper.get_stage_elem_silent("splits", stage_str)
 
-    # If no splits are listed for a stage, bail out
+    splits_scope = config_helper.get_stage_elem_silent("splits", stage_str)
     if splits_scope is None:
         return []
 
-    # Use regex to search for all matching Test# / Test@# in all_splits 
-    #    (where @ is a singleletter and # is a number with up to 4 digits)
-    patterns = [re.compile(f"^{kind}(?:[A-Z])?(?:\\d{{1,4}})?$", re.IGNORECASE) for kind in splits_scope]
-    filtered_names = [name for name in splits_all if any(pattern.match(name) for pattern in patterns)]
+    filtered_names = [
+        name
+        for name in splits_all
+        if any(name.lower().startswith(kind.lower()) for kind in splits_scope)
+    ]
 
-    # Create a Split object for each of the splits we found
-    applicable_splits = [Split(name, splits_all_cfg[name]) for name in filtered_names]
-    return applicable_splits
+    return [Split(name, splits_all_cfg[name]) for name in filtered_names]
