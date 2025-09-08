@@ -17,7 +17,7 @@ from cmbml.core import (
     Asset,
     GenericHandler
     )
-from cmbml.analysis.px_statistics import get_func
+from cmbml.analysis.statistics import get_func
 from cmbml.core.asset_handlers import Config
 from cmbml.core.asset_handlers.healpy_map_handler import HealpyMap # Import for typing hint
 
