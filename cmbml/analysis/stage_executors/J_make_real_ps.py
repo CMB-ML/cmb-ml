@@ -39,7 +39,9 @@ class MakeRealPowerSpectrumExecutor(BaseStageExecutor):
 
         # Basic parameters
         self.nside_out = self.cfg.scenario.nside
-        self.lmax = int(cfg.model.analysis.lmax_ratio * self.nside_out)
+        # self.lmax = int(cfg.model.analysis.lmax_ratio * self.nside_out)
+        self.lmax = 1280  #TODO FIX THIS
+        logger.warning("HEY - GET RID OF THE HARDCODED 1280")
 
         # Prepare to load mask (in execute())
         self.mask_threshold = self.cfg.model.analysis.mask_threshold

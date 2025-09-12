@@ -156,7 +156,7 @@ make_ps: &make_ps  # Used for all power spectrum stages
       handler: NumpyPowerSpectrum
   assets_in:
     cmb_map_real: {stage: make_sims, orig_name: cmb_map}
-    cmb_map_post: {stage: final_infer, orig_name: cmb_map}
+    # cmb_map_post: {stage: final_infer, orig_name: cmb_map}
     mask:    {stage: make_mask}  # Remove or set to null for no masking;
                                  #   set stage: to make_mask for the common mask
                                  #   set stage: to mask_in for the original mask (will be downgraded)

@@ -46,7 +46,7 @@ class CommonPostExecutor(BaseStageExecutor):
         self.mask_b4_remove_dipole = cfg.model.analysis.post_map_mask_b4_remove_dipole
         self.do_remove_dipole      = cfg.model.analysis.post_map_remove_dipole
 
-        self.beam_cfg = cfg.model.beam
+        # self.beam_cfg = cfg.model.beam
 
         # Prepare to load beam and mask in execute()
         self.beam = None
@@ -154,6 +154,9 @@ class CommonRealPostExecutor(CommonPostExecutor):
         No-op because the realization map was never convolved
         """
         return data
+
+    def get_beam(self):
+        pass
 
 
 class CommonPredPostExecutor(CommonPostExecutor):
