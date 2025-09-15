@@ -18,17 +18,18 @@ class AppendingCsvHandler(GenericHandler):
 
     def start(self,
               path: Union[Path, str], 
+              newline: str=''
               ) -> None:
         self.destination = path
+        self.newline = newline
 
     def write(self, 
               path: Union[Path, str], 
               data: Union[tuple, list],
               newline: str=''
               ) -> None:
-        self.start(path)
+        self.start(path, newline)
         make_directories(path)
-        self.newline = newline
 
         if path.exists():
             logger.warning(f"Overwriting existing file: {path}")
