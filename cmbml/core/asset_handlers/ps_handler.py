@@ -9,7 +9,7 @@ from .asset_handlers_base import (
     GenericHandler, 
     register_handler, 
     make_directories)
-from cmbml.utils.planck_ps_text_add_l01 import add_missing_multipoles
+from cmbml.utils.planck_ps_pd_aug import add_missing_multipoles
 
 import logging
 
