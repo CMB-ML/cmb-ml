@@ -16,12 +16,17 @@ class AppendingCsvHandler(GenericHandler):
     def read(self, path: Union[Path, str]):
         raise NotImplementedError("This method is not implemented yet.")
 
+    def start(self,
+              path: Union[Path, str], 
+              ) -> None:
+        self.destination = path
+
     def write(self, 
               path: Union[Path, str], 
               data: Union[tuple, list],
               newline: str=''
               ) -> None:
-        self.destination = path
+        self.start(path)
         make_directories(path)
         self.newline = newline
 
