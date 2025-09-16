@@ -1,6 +1,5 @@
 import logging
 
-from hydra.utils import instantiate
 import numpy as np
 from tqdm import tqdm
 import healpy as hp
@@ -12,14 +11,12 @@ from cmbml.core import (
     Split,
     Asset
     )
-# from src.analysis.make_ps import get_power as _get_power
 from cmbml.core.asset_handlers.ps_handler import NumpyPowerSpectrum
 from cmbml.core.asset_handlers.healpy_map_handler import HealpyMap # Import for typing hint
 from cmbml.utils.physics_ps import get_auto_ps_result
 from cmbml.utils.physics_beam import NoBeam
 from cmbml.utils.physics_mask import downgrade_mask
 
-# import matplotlib.pyplot as plt
 
 logger = logging.getLogger(__name__)
 
@@ -27,7 +24,7 @@ logger = logging.getLogger(__name__)
 class MakeRealPowerSpectrumExecutor(BaseStageExecutor):
     def __init__(self, cfg: DictConfig) -> None:
         # The following string must match the pipeline yaml
-        super().__init__(cfg, stage_str="make_ps")
+        super().__init__(cfg, stage_str="make_real_ps")
 
         self.out_auto_real: Asset = self.assets_out.get("auto_real", None)
         out_ps_handler: NumpyPowerSpectrum
@@ -39,9 +36,10 @@ class MakeRealPowerSpectrumExecutor(BaseStageExecutor):
 
         # Basic parameters
         self.nside_out = self.cfg.scenario.nside
-        # self.lmax = int(cfg.model.analysis.lmax_ratio * self.nside_out)
-        self.lmax = 1280  #TODO FIX THIS
-        logger.warning("HEY - GET RID OF THE HARDCODED 1280")
+
+        self.lmax = cfg.model.get("lmax", None)
+        if self.lmax is None:
+            self.lmax = int(cfg.model.analysis.lmax_ratio * self.nside_out)
 
         # Prepare to load mask (in execute())
         self.mask_threshold = self.cfg.model.analysis.mask_threshold
