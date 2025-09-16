@@ -136,37 +136,35 @@ pixel_summary_figs:
   epochs: ${use_epochs_map_stats}
   dir_name: Analysis_4_Pixel_Summary_Figs
 
-make_ps: &make_ps  # Used for all power spectrum stages
+make_real_ps:
   assets_out:
     # Autocorrelation for realization (target)
     auto_real:
       path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/ps_real.npy"
       handler: NumpyPowerSpectrum
-    # Autocorrelation for prediction
-    auto_pred:
-      path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/ps_pred_{epoch}.npy"
-      handler: NumpyPowerSpectrum
-    # Cross-correlation for realization x prediction
-    x_real_pred:
-      path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/ps_x_{epoch}.npy"
-      handler: NumpyPowerSpectrum
-    # Autocorrelation for the map containing the difference between realization - prediction
-    diff_real_pred:
-      path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/ps_diff_{epoch}.npy"
-      handler: NumpyPowerSpectrum
   assets_in:
     cmb_map_real: {stage: make_sims, orig_name: cmb_map}
-    # cmb_map_post: {stage: final_infer, orig_name: cmb_map}
-    mask:    {stage: make_mask}  # Remove or set to null for no masking;
-                                 #   set stage: to make_mask for the common mask
-                                 #   set stage: to mask_in for the original mask (will be downgraded)
-    mask_sm: {stage: make_mask}  # Remove or set to null for no masking;
+    mask:    {stage: make_mask}
+    mask_sm: {stage: make_mask}
   splits:
     - ${splits.run_inference_on}
   epochs: ${use_epochs_ps_stats}
   dir_name: Analysis_K_Power_Spectra
 
-make_pred_ps: *make_ps
+make_pred_ps:
+  assets_out:
+    # Autocorrelation for prediction
+    auto_pred:
+      path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/ps_pred_{epoch}.npy"
+      handler: NumpyPowerSpectrum
+  assets_in:
+    cmb_map_post: {stage: final_infer, orig_name: cmb_map}
+    mask:    {stage: make_mask}
+    mask_sm: {stage: make_mask}
+  splits:
+    - ${splits.run_inference_on}
+  epochs: ${use_epochs_ps_stats}
+  dir_name: Analysis_K_Power_Spectra
 
 one_ps_fig:  # Produce a power spectrum without needing the rest of the spectra from the training set
   assets_out:
