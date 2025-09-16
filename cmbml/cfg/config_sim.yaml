@@ -9,7 +9,7 @@ defaults:
   - override hydra/job_logging: custom_log
   - _self_
 
-dataset_name: "${map_fields}_${scenario.nside}_${splits.name}_base_planck_only"
+dataset_name: "${map_fields}_${scenario.nside}_${splits.name}"
 working_dir : "Simulation_Working/"
 hydra:
   run:
@@ -24,13 +24,13 @@ hydra:
 # These are not to be used directly in the python
 # They are picked up from here and MAY be used elsewhere in the yamls.
 # In the scenario yaml
-nside          : 128
+nside          : 512
 detectors      : [30, 44, 70, 100, 143, 217, 353, 545, 857]
 map_fields     : "I"
 
 # In the simulation yaml (only relevant to the simulation portion of the pipeline)
-nside_sky      : 256
-# preset_strings : ["d9", "s4", "f1", "a1", "cib1", "ksz1", "tsz1"]
-preset_strings : ["d9", "s4", "f1", "a1", "cib1", "ksz1", "tsz1", "rg1"]
+nside_sky      : 2048
+preset_strings : ["d1", "s4", "f1", "a1", "cib1", "ksz1", "tsz1"]
+# preset_strings : ["d9", "s4", "f1", "a1", "cib1", "ksz1", "tsz1", "rg1"]
 # preset_strings : ["d9", "s4", "f1", "a1", "co1", "cib1", "ksz1", "tsz1", "rg1"]
-min_obs_beam   : 82.5
+min_obs_beam   : 0

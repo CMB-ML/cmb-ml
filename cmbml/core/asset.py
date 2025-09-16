@@ -75,6 +75,16 @@ class Asset:
             logger.exception("The calling .read() method must be given keyword arguments only.", exc_info=e)
             raise e
 
+    def start(self, **kwargs):
+        if not self.can_write:
+            raise AttributeError("This asset is not set up to write.")
+        try:
+            if self.can_write:
+                return self.handler.start(self.path, **kwargs)
+        except TypeError as e:
+            logger.exception("The calling .write() method must be given keyword arguments only.", exc_info=e)
+            raise e
+
     def write(self, **kwargs):
         if not self.can_write:
             raise AttributeError("This asset is not set up to write.")
