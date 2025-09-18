@@ -1,7 +1,9 @@
-defaults:
-  - _self_
-  - pipe_raw
-  - pipe_sim
-  - pipe_noise_model
-  - pipe_sim_analysis
-  - pipe_model_analysis
+# OLD: Developed as a surrogate for running PyILC for the e-d2ps project
+
+# defaults:
+#   - _self_
+#   - pipe_raw
+#   - pipe_sim
+#   - pipe_noise_model
+#   - pipe_sim_analysis
+#   - pipe_model_analysis
