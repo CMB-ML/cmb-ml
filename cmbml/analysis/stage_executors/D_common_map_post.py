@@ -35,7 +35,9 @@ class CommonPostExecutor(BaseStageExecutor):
 
         # Basic parameters
         self.nside_out = cfg.scenario.nside
-        self.lmax = int(cfg.model.analysis.lmax_ratio * self.nside_out)
+        self.lmax = cfg.model.get("lmax", None)
+        if self.lmax is None:
+            self.lmax = int(cfg.model.analysis.lmax_ratio * self.nside_out)
 
         # Prepare to load mask (in execute())
         self.mask_threshold = cfg.model.analysis.mask_threshold
