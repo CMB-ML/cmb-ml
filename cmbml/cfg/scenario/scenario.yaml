@@ -6,13 +6,41 @@ map_fields       : ${map_fields}
 precision        : float  # Is this used? No.
 units            : uK_CMB  # Used in many places (search for cfg.scenario.units)
 
-full_instrument:
-  30 : IQU
-  44 : IQU
-  70 : IQU
-  100: IQU
-  143: IQU
-  217: IQU
-  353: IQU
-  545: I
-  857: I
+ref_data_release:
+  hdu_n: 1
+  "30":
+    fields: IQU
+    nside: 1024
+    file: "LFI_SkyMap_030-BPassCorrected_1024_R3.00_full.fits"
+  "44":
+    fields: IQU
+    nside: 1024
+    file: "LFI_SkyMap_044-BPassCorrected_1024_R3.00_full.fits"
+  "70":
+    fields: IQU
+    nside: 1024
+    file: "LFI_SkyMap_070-BPassCorrected_1024_R3.00_full.fits"
+  "100":
+    fields: IQU
+    nside: 2048
+    file: "HFI_SkyMap_100_2048_R3.01_full.fits"
+  "143":
+    fields: IQU
+    nside: 2048
+    file: "HFI_SkyMap_143_2048_R3.01_full.fits"
+  "217":
+    fields: IQU
+    nside: 2048
+    file: "HFI_SkyMap_217_2048_R3.01_full.fits"
+  "353":
+    fields: IQU
+    nside: 2048
+    file: "HFI_SkyMap_353-psb_2048_R3.01_full.fits"
+  "545":
+    fields: I
+    nside: 2048
+    file: "HFI_SkyMap_545_2048_R3.01_full.fits"
+  "857":
+    fields: I
+    nside: 2048
+    file: "HFI_SkyMap_857_2048_R3.01_full.fits"

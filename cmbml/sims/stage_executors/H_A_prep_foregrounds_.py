@@ -50,7 +50,8 @@ class PrepForegroundsExecutor(BaseStageExecutor):
         self.cmb_beam_fwhm  = cfg.model.sim.cmb_beam_fwhm * u.arcmin
         self.sky_nside      = cfg.model.sim.nside_sky
 
-        self.src_files_dict = cfg.model.sim.noise.src_files
+        self.src_files_dict = {int(freq): v["file"] for freq, v in cfg.scenario.ref_data_release.items()}
+        # self.src_files_dict = cfg.model.sim.noise.src_files
         self.assets_dir     = cfg.local_system.assets_dir
 
         self.lmax_ratio     = cfg.model.sim.planck_lmax_ratio

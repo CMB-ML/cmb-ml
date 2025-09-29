@@ -51,7 +51,7 @@ class PrepForegroundsExecutor(BaseStageExecutor):
         self.cmb_beam_fwhm  = cfg.model.sim.cmb_beam_fwhm * u.arcmin
         self.sky_nside      = cfg.model.sim.nside_sky
 
-        self.src_files_dict = cfg.model.sim.noise.src_files
+        self.src_files_dict = {int(freq): v["file"] for freq, v in cfg.scenario.ref_data_release.items()}
         self.assets_dir     = cfg.local_system.assets_dir
 
         self.inpaint_iter   = cfg.model.sim.inpaint_iters

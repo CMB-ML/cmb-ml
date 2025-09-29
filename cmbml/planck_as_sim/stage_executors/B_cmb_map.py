@@ -62,7 +62,7 @@ class CMBMapConvertExecutor(BaseStageExecutor):
         self.in_beam_fwhm = cfg.model.sim.in_cmb_beam_fwhm * u.arcmin
         self.out_beam_fwhm = cfg.model.sim.out_cmb_beam_fwhm * u.arcmin
 
-        self.hdu = self.cfg.model.sim.noise.hdu_n
+        self.hdu = self.cfg.scenario.ref_data_release.hdu_n
         # Hard-coding for temperature only maps.
         self.field_idx = 0
         self.nside_out = cfg.scenario.nside

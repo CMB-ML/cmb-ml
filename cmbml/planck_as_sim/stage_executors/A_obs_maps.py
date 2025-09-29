@@ -59,11 +59,14 @@ class ObsMapsConvertExecutor(BaseStageExecutor):
             cfg=cfg, det_info=planck_det_info, use_min_fwhm=False
             )
 
-        # Most of the code here is pulled from the NoiseCacheExecutor, which
-        #   uses the same maps. TODO: Generalize this.
-        self.obs_files = cfg.model.sim.noise.src_files
+        self.obs_files = {
+            int(freq): v["file"]
+            for freq, v in cfg.scenario.ref_data_release.items()
+            if freq.isdigit()
+        }
+
         self.obs_root = cfg.local_system.assets_dir
-        self.hdu = self.cfg.model.sim.noise.hdu_n
+        self.hdu = self.cfg.scenario.ref_data_release.hdu_n
         # self.field_idcs = {3: {'I': 0}, 10: {'I': 0, 'Q': 1, 'U': 2}}
         self.out_nside = cfg.scenario.nside
         # Use fixed value; we are downgrading the Planck maps.

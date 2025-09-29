@@ -135,7 +135,13 @@ def make_instrument(
     """
     # Safely read from cfg; tolerate absent keys & interpolations
     scen_fields = cfg.scenario.map_fields
-    full_instrument = cfg.scenario.full_instrument
+    # full_instrument = cfg.scenario.full_instrument
+
+    full_instrument = {
+        int(freq): v["fields"]
+        for freq, v in cfg.scenario.ref_data_release.items()
+        if freq.isdigit()
+    }
 
     try:
         detector_freqs = cfg.scenario.detector_freqs
