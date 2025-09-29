@@ -14,14 +14,17 @@ Functions:
     show_all_maps: Display all maps in each HDU of a FITS file.
     show_one_map: Display a specific map from a FITS file.
     get_map_dtype: Get the data type of a map in a format compatible with numba and mpi4py.
-
+    get_field_index_by_name:
+    find_field_across_hdus:
+    
 Author: 
 Date: June 11, 2024
 Version: 0.1.0
 
 Edits: Sept 16, 2024 - Added documentation
+        Sept 29, 2025 - Added functions for finding a particular field in a fits file
 """
-from typing import Dict
+from typing import Dict, Union
 
 import numpy as np
 import healpy as hp
@@ -297,4 +300,73 @@ def get_map_dtype(m: np.ndarray):
         dtype = np.dtype(np.float64)
     # End of used portion
     return dtype
-    
+
+
+def get_field_index_by_name(
+    fits_fn: str,
+    field_name: str,
+    hdu: int = 1,
+    case_sensitive: bool = False,
+    match: str = "exact",  # "exact" | "prefix" | "contains"
+) -> Union[int, None]:
+    """
+    Find the zero-based field index within a given HDU whose TTYPE matches `field_name`.
+
+    Args:
+        fits_fn (str): Path to the FITS file.
+        field_name (str): Column/field name to look for (e.g., "II_COV").
+        hdu (int, optional): HDU index to search (default: 1).
+        case_sensitive (bool, optional): Whether to match case-sensitively (default: False).
+        match (str, optional): Name matching mode:
+            - "exact": names must match exactly
+            - "prefix": column name must start with `field_name`
+            - "contains": column name must contain `field_name` as a substring
+
+    Returns:
+        int | None: Zero-based field index if found, else None.
+    """
+    names = get_field_types_from_fits(fits_fn, hdu=hdu)  # uses TTYPEn
+    # Normalize
+    def norm(s: str) -> str:
+        return s.strip() if case_sensitive else s.strip().lower()
+
+    target = norm(field_name)
+    candidates = [norm(n or "") for n in names]
+
+    for i, nm in enumerate(candidates):
+        if match == "exact" and nm == target:
+            return i
+        elif match == "prefix" and nm.startswith(target):
+            return i
+        elif match == "contains" and target in nm:
+            return i
+    return None
+
+
+def find_field_across_hdus(
+    fits_fn: str,
+    field_name: str,
+    case_sensitive: bool = False,
+    match: str = "exact",
+) -> list[tuple[int, int]]:
+    """
+    Search all non-primary HDUs for a field name and return the locations.
+
+    Args:
+        fits_fn (str): Path to the FITS file.
+        field_name (str): Column/field name to look for.
+        case_sensitive (bool, optional): Case sensitivity toggle.
+        match (str, optional): "exact" | "prefix" | "contains"
+
+    Returns:
+        list[tuple[int, int]]: A list of (hdu_index, zero_based_field_index) matches.
+    """
+    results = []
+    n_fields_per_hdu = get_num_fields(fits_fn)  # {hdu_idx: n_fields}
+    for hdu in n_fields_per_hdu.keys():
+        idx = get_field_index_by_name(
+            fits_fn, field_name, hdu=hdu, case_sensitive=case_sensitive, match=match
+        )
+        if idx is not None:
+            results.append((hdu, idx))
+    return results
