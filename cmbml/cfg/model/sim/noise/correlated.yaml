@@ -1,4 +1,4 @@
-noise_type: spatial_corr
+noise_type: correlated
 src_files:
   30: "LFI_SkyMap_030-BPassCorrected_1024_R3.00_full.fits"
   44: "LFI_SkyMap_044-BPassCorrected_1024_R3.00_full.fits"
@@ -10,7 +10,6 @@ src_files:
   545: "HFI_SkyMap_545_2048_R3.01_full.fits"
   857: "HFI_SkyMap_857_2048_R3.01_full.fits"
 seed_template      : "{split}_{sim}_{freq}_noise"
-do_cache: true    # Needed for this method. TODO: Consider moving this to the python
 save_noise: true  # Save noise if generating it in a separate executor as is done for the current implementation
 lmax_ratio_out_noise : 2.9999
 
@@ -41,3 +40,37 @@ lmax_ratio_planck_noise : 2
 mask_galactic_size      : 10
 # Smoothing (degrees) of the simple galactic plane mask
 mask_galactic_smooth    : 1
+
+
+# src_files:
+#   30 : ${scenario.ref_data_release[30].file}
+#   44 : ${scenario.ref_data_release[44].file}
+#   70 : ${scenario.ref_data_release[70].file}
+#   100: ${scenario.ref_data_release[100].file}
+#   143: ${scenario.ref_data_release[143].file}
+#   217: ${scenario.ref_data_release[217].file}
+#   353: ${scenario.ref_data_release[353].file}
+#   545: ${scenario.ref_data_release[545].file}
+#   857: ${scenario.ref_data_release[857].file}
+
+# seed_template      : "{split}_{sim}_{freq}_noise"
+# save_noise: true  # Save noise if generating it in a separate executor as is done for the current implementation
+# lmax_ratio_out_noise : 2.9999
+
+# hdu_n: 1      # Consistent for these map files
+# field_idcs:
+#   3: {I: 2}   # If the hdu has 3 fields, the I map will be at index 2
+#   10: {I: 4, Q: 7, U: 9}
+
+# # Resolution of map files as released by Planck
+# src_nside_lookup:
+#   30 : ${scenario.ref_data_release[30].nside}
+#   44 : ${scenario.ref_data_release[44].nside}
+#   70 : ${scenario.ref_data_release[70].nside}
+#   100: ${scenario.ref_data_release[100].nside}
+#   143: ${scenario.ref_data_release[143].nside}
+#   217: ${scenario.ref_data_release[217].nside}
+#   353: ${scenario.ref_data_release[353].nside}
+#   545: ${scenario.ref_data_release[545].nside}
+#   857: ${scenario.ref_data_release[857].nside}
+
