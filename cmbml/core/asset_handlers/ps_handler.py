@@ -31,6 +31,7 @@ class CambPowerSpectrum(GenericHandler):
            a PySM3 method. We simply provide it with the filepath.
         """
         # Read header line, remove the leading "#"
+        path = Path(path)  # ensure path is a path
         with open(path, 'r') as file:
             header_line = file.readline().strip().lstrip('#').split()
 
