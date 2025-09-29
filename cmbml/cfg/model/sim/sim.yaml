@@ -2,8 +2,8 @@ defaults:
   - cmb:   wmap_cosmo_means
   # - noise: noise_empty  # Array of zeros
   # - noise: anisotropic  # "Variance"
-  # - noise: correlated   # "Variance with induced correlations"
-  - noise: stationary   # "Variance with induced correlations and stationary stuff"
+  - noise: correlated   # "Variance with induced correlations"
+  # - noise: stationary   # "Variance with induced correlations and stationary stuff"
 
 # PySM needs to run internal calculations at a resolution greater than the output nside (output nside set in experiment.yaml)
 # PySM3 recommends either nside_sky=2048 for output_nside <= 1024; otherwise double it

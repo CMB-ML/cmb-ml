@@ -1,5 +1,8 @@
-defaults:
-  - noise: noise_variance  # Needed for Planck observation file names. TODO: Reorganize this stuff.
+# defaults:
+#   # - noise: noise_empty  # Array of zeros
+#   # - noise: anisotropic  # "Variance"
+#   - noise: correlated   # "Variance with induced correlations"
+#   # - noise: stationary   # "Variance with induced correlations and stationary stuff"
 
 min_obs_beam         : ${min_obs_beam_fwhm}  # Arcmin.
 
