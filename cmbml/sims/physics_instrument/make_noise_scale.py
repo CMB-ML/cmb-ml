@@ -5,8 +5,7 @@ from astropy.units import Quantity, Unit
 import healpy as hp
 import pysm3.units as u
 
-import cmbml.utils.fits_inspection as fits_inspect
-from cmbml.utils.fits_inspection import get_num_all_fields_in_hdr
+from cmbml.utils.fits_inspection import get_num_all_fields_in_hdr, get_field_index_by_name, get_field_unit_str, get_map_dtype
 from cmbml.utils.physics_units import convert_field_str_to_Unit
 
 
@@ -48,18 +47,22 @@ class ScaleCacheMaker:
 
         Parameters:
         src_path (str): The path to the fits file.
-        field_str (str): The field string to look up.
+        field_str (str): The field string to look up. Should be a single character
 
         Returns:
         int: The field index corresponding to the field string.
         """
         hdu = self.cfg.model.sim.noise.hdu_n
-        field_idcs_dict = dict(self.cfg.model.sim.noise.field_idcs)
-        # Get number of fields in map
-        n_map_fields = get_num_all_fields_in_hdr(fits_fn=src_path, hdu=hdu)
-        # Lookup field index based on config file
-        field_idx = field_idcs_dict[n_map_fields][field_str]
-        return field_idx
+
+        # TODO: An idealized future noise method will incorporate off-diagonal values
+        use_fields = {
+            "I": "II_COV",
+            "Q": "QQ_COV",
+            "U": "UU_COV"
+        }
+
+        idx = get_field_index_by_name(src_path, use_fields[field_str], hdu=hdu)
+        return idx
     
     def make_cache_for_freq(self, freq, detector, hdu):
         """
@@ -141,7 +144,7 @@ def planck_result_to_sd_map(nside_out, fits_fn, hdu, field_idx):
     Returns:
         np.ndarray: The standard deviation map in with same units as source map.
     """
-    src_unit = fits_inspect.get_field_unit_str(fits_fn, field_idx[0], hdu=hdu)
+    src_unit = get_field_unit_str(fits_fn, field_idx[0], hdu=hdu)
     src_unit = convert_field_str_to_Unit(src_unit)
 
     source_skymap = hp.read_map(fits_fn, hdu=hdu, field=field_idx)
@@ -157,7 +160,7 @@ def change_variance_map_resolution(m, nside_out):
     power = 2
 
     # From PySM3 template.py's read_map function, with minimal alteration (added 'power'):
-    m_dtype = fits_inspect.get_map_dtype(m)
+    m_dtype = get_map_dtype(m)
     nside_in = hp.get_nside(m)
     if nside_out < nside_in:  # do downgrading in double precision
         m = hp.ud_grade(m.astype(np.float64), power=power, nside_out=nside_out)
