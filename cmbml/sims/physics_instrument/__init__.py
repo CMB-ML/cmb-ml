@@ -1,17 +1,7 @@
-from .physics_instrument_noise_empty import EmptyNoise
-from .physics_instrument_noise_variance import VarianceNoise
-from .physics_instrument_noise_spatial_corr import SpatialCorrNoise
-from .physics_instrument_noise_corr_aniso_nonstat import CorrAnisoNoise
+# Export registry API
+from cmbml.sims.physics_instrument.registry_noise import get_noise_class, list_noise_types, register_noise
 
-
-def get_noise_class(label):
-    if label == 'empty':
-        return EmptyNoise
-    elif label == 'variance':
-        return VarianceNoise
-    elif label == 'spatial_corr':
-        return SpatialCorrNoise
-    elif label == 'corr_aniso_nonstat':
-        return CorrAnisoNoise
-    else:
-        raise ValueError(f"Unsupported noise type: {label}")
+# Import noise modules so their @register_noise decorators run
+from . import noise_empty
+from . import noise_anisotropic
+from . import noise_correlated

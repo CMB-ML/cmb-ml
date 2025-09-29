@@ -2,19 +2,22 @@ import logging
 
 import numpy as np
 import healpy as hp
-import pysm3.units as u
+# import pysm3.units as u
 from astropy.units import Quantity
 
 from cmbml.utils.planck_instrument import Detector
-from cmbml.sims.physics_instrument.physics_scale_cache_maker import ScaleCacheMaker, make_random_noise_map
-from cmbml.utils.physics_downgrade_by_alm import downgrade_noise_by_alm
+from cmbml.sims.physics_instrument.make_noise_scale import (
+    ScaleCacheMaker, 
+    make_random_noise_map
+    )
+# from cmbml.utils.physics_downgrade_by_alm import downgrade_noise_by_alm
 from cmbml.core.config_helper import ConfigHelper
 
 
 logger = logging.getLogger(__name__)
 
 
-class SpatialCorrNoise:
+class CorrAnisoNoise:
     do_cache = True
     cache_maker = ScaleCacheMaker
     def __init__(self, cfg, name_tracker, scale_cache):
@@ -38,14 +41,14 @@ class SpatialCorrNoise:
         self.avg_maps = {}
         self.n_planck_noise_sims = cfg.model.sim.noise.n_planck_noise_sims
 
-    def load_avg_maps(self, freq):
-        if freq in self.avg_maps:
-            return
-        logger.info(f"Downgrading average map for frequency {freq}, this may take a moment (once per frequency).")
-        context = dict(fields=self.map_fields)
-        with self.name_tracker.set_contexts(context):
-            full_res_avg_map = self.in_noise_avg.read(map_field_strs=self.map_fields)
-        self.avg_maps[freq] = downgrade_noise_by_alm(full_res_avg_map, self.nside_out)
+    # def load_avg_maps(self, freq):
+    #     if freq in self.avg_maps:
+    #         return
+    #     logger.info(f"Downgrading average map for frequency {freq}, this may take a moment (once per frequency).")
+    #     context = dict(fields=self.map_fields)
+    #     with self.name_tracker.set_contexts(context):
+    #         full_res_avg_map = self.in_noise_avg.read(map_field_strs=self.map_fields)
+    #     self.avg_maps[freq] = downgrade_noise_by_alm(full_res_avg_map, self.nside_out)
 
     def get_noise_map(self, detector: Detector, noise_seed):
         """
@@ -59,7 +62,7 @@ class SpatialCorrNoise:
         freq = detector.nom_freq
         context = dict(freq=freq, n_sims=self.n_planck_noise_sims)
         with self.name_tracker.set_contexts(context):
-            self.load_avg_maps(freq)
+            # self.load_avg_maps(freq)
             map_fn = self.in_scale_cache.path
             sd_map = self.in_scale_cache.read()
             target_cl, tgt_unit = self.get_noise_ps_and_unit(noise_seed)
@@ -73,7 +76,7 @@ class SpatialCorrNoise:
                                         nside=self.nside_out, 
                                         lmax=self.lmax_out)
             noise_map = remove_monopole(noise_map)
-            noise_map = add_average_map(noise_map, self.avg_maps[freq])
+            # noise_map = add_average_map(noise_map, self.avg_maps[freq])
 
             return noise_map
 
@@ -144,5 +147,5 @@ def correlate_noise(white_map, target_cl, nside, lmax):
 def remove_monopole(noise_map):
     return noise_map - np.mean(noise_map)
 
-def add_average_map(noise_map, avg_map):
-    return noise_map + avg_map
+# def add_average_map(noise_map, avg_map):
+#     return noise_map + avg_map

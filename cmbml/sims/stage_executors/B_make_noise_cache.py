@@ -8,7 +8,7 @@ from pathlib import Path
 
 from cmbml.core import BaseStageExecutor, Asset
 from cmbml.utils.planck_instrument import make_instrument, Instrument
-from cmbml.sims.physics_instrument import get_noise_class
+from cmbml.sims.physics_instrument.registry_noise import get_noise_class
 
 from cmbml.core.asset_handlers.healpy_map_handler import HealpyMap
 from cmbml.core.asset_handlers.qtable_handler import QTableHandler
@@ -46,7 +46,7 @@ class NoiseCacheExecutor(BaseStageExecutor):
 
         # For most kinds of noise, we need to cache some values which describe
         # the noise properties. For a few, we do not. `do_cache` indicates this.
-        self.do_cache = NoiseClass.do_cache
+        self.do_cache = hasattr(NoiseClass, "cache_maker") 
 
         if self.do_cache is False:
             self.out_scale_cache: Asset = None
@@ -62,8 +62,7 @@ class NoiseCacheExecutor(BaseStageExecutor):
             in_det_table_handler: QTableHandler
 
         self.noise_maker = NoiseClass(cfg=cfg, 
-                                      name_tracker=self.name_tracker,
-                                      scale_cache=self.out_scale_cache)
+                                      name_tracker=self.name_tracker)
 
         if self.do_cache is False:
             return

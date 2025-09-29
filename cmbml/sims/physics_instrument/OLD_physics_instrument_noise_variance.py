@@ -1,6 +1,6 @@
 import logging
 
-from cmbml.sims.physics_instrument.physics_scale_cache_maker import (
+from cmbml.sims.physics_instrument.make_noise_scale import (
     ScaleCacheMaker, 
     make_random_noise_map
     )

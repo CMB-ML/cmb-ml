@@ -13,7 +13,7 @@ from cmbml.core.asset_handlers.healpy_map_handler import HealpyMap # Import for 
 
 from cmbml.sims.random_seed_manager import SeedFactory
 from cmbml.utils.planck_instrument import make_instrument, Instrument
-from cmbml.sims.physics_instrument import get_noise_class
+from cmbml.sims.physics_instrument.registry_noise import get_noise_class
 
 
 logger = logging.getLogger(__name__)
@@ -73,7 +73,7 @@ class NoiseMapCreatorExecutor(BaseStageExecutor):
 
         self.noise_seed_factory   = SeedFactory(cfg.model.sim.noise.seed_template)
         NoiseMaker                = get_noise_class(cfg.model.sim.noise.noise_type)
-        self.noise_maker          = NoiseMaker(cfg, self.name_tracker, self.in_noise_cache)
+        self.noise_maker          = NoiseMaker(cfg, self.name_tracker)
 
     def execute(self) -> None:
         """

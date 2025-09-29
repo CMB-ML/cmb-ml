@@ -27,7 +27,6 @@ from cmbml.core.asset_handlers.ps_handler import CambPowerSpectrum, NumpyPowerSp
 from cmbml.core.asset_handlers.healpy_map_handler import HealpyMap # Import for VS Code hints
 
 from cmbml.utils.map_formats import convert_pysm3_to_hp
-from cmbml.sims.physics_instrument import get_noise_class
 from cmbml.utils.physics_sky_flex import FlexSky
 
 import healpy as hp
