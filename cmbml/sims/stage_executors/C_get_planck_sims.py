@@ -37,7 +37,7 @@ class GetPlanckNoiseSimsExecutor(BaseStageExecutor):
 
     def execute(self) -> None:
         """
-        Executes the noise cache generation process.
+        Get noise sims (if not already downloaded).
         """
         logger.debug(f"Running {self.__class__.__name__} execute() method.")
         combos = [(det, sim_num) for det in self.instrument.dets for sim_num in range(self.n_sims)]

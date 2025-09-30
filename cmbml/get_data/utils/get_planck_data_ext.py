@@ -84,8 +84,7 @@ def get_planck_hm_data_ext(detector, assets_directory, progress=False, download=
     return hm_1_fn, hm_2_fn
 
 
-def get_planck_noise_fn(detector, realization):
-    ring_cut = "full"
+def get_planck_noise_fn(detector, realization, ring_cut):
     planck_noise_fn_template = "ffp10_noise_{frequency}_{ring_cut}_map_mc_{realization}.fits"
 
     fn = planck_noise_fn_template.format(frequency=format_freq(detector), 
@@ -94,7 +93,7 @@ def get_planck_noise_fn(detector, realization):
     return fn
 
 
-def get_planck_noise_data_ext(detector, assets_directory, realization=0, progress=False, download=True):
+def get_planck_noise_data_ext(detector, assets_directory, ring_cut="full", realization=0, progress=False, download=True):
     """
     Get the filepath for the Planck noise data, downloading it if necessary.
 
@@ -111,7 +110,7 @@ def get_planck_noise_data_ext(detector, assets_directory, realization=0, progres
     else:                # 100, 143, 217, 353
         file_size = 603  # IQU maps at nside=2048
 
-    fn = Path(assets_directory) / get_planck_noise_fn(detector, realization)
+    fn = Path(assets_directory) / get_planck_noise_fn(detector, realization, ring_cut)
     url_template_sims = "http://pla.esac.esa.int/pla/aio/product-action?SIMULATED_MAP.FILE_ID={fn}"
 
     if not download:
