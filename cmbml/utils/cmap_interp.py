@@ -76,7 +76,7 @@ def get_symlog_cmap(o_cmap, norm, total_points=2000):
     len_cmap = len(colors)
     half_len = len_cmap // 2 + 1
 
-    loc_zero = norm(0)
+    loc_zero = min(max(norm(0), 0),1)
 
     n_low = int(loc_zero * total_points)
     n_high = total_points - n_low
