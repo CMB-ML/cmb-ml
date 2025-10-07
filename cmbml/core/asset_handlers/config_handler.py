@@ -62,6 +62,8 @@ class Config(GenericHandler):
             return [Config._convert_obj(item) for item in obj]
         elif isinstance(obj, tuple):
             return list(Config._convert_obj(item) for item in obj)
+        elif isinstance(obj, np.ndarray):
+            return list(Config._convert_obj(item) for item in obj)
         else:
             return obj
 

@@ -1,3 +1,8 @@
+# This is a reimplementation of the pysm3.Sky object.
+#   It enables the user to replace components more easily,
+#   instead of recreating a Sky object and all the attendant
+#   baggage (run-time).
+
 from typing import Dict, List, Any, Union
 import pysm3
 import pysm3.units as u
@@ -5,6 +10,7 @@ try:
     import importlib.resources as pkg_resources
 except ImportError:
     import importlib_resources as pkg_resources
+import cmbml.utils.flexsky as flexsky
 import pysm3.data as pysm3_data
 import toml
 from copy import deepcopy
@@ -67,16 +73,27 @@ class FlexSky(pysm3.Sky):
     def create_component_from_config(self, config) -> Union[pysm3.Model, Dict[str, pysm3.Model]]:
         config = deepcopy(config)
         if "class" in config:
-            class_name = config.pop("class")
-            model_class = getattr(pysm3.models, class_name)
+            class_path = config.pop("class")
+            if "." in class_path:
+                module_name, class_name = class_path.rsplit(".", 1)
+                if module_name == "flexsky":
+                    module = flexsky
+                elif module_name in ["pysm3", "pysm3.models"]:
+                    module = pysm3.models
+                else:
+                    raise ValueError("Only 'flexsky' and 'PySM3' are handled.")
+            else:
+                module = pysm3.models
+                class_name = class_path
+            model_class = getattr(module, class_name)
             return model_class(**config, 
                                nside=self.nside, 
                                map_dist=self.map_dist)
         else:
             sub_components = {}
             for label, subconfig in config.items():
-                class_name = subconfig.pop("class")
-                model_class = getattr(pysm3.models, class_name)
+                class_path = subconfig.pop("class")
+                model_class = getattr(pysm3.models, class_path)
                 sub_components[label] = model_class(**subconfig,
                                                     nside=self.nside,
                                                     map_dist=self.map_dist)
@@ -154,6 +171,16 @@ class FlexSky(pysm3.Sky):
             value = settings["value"]
             unit = u.Unit(settings.get('unit', ''))
             setattr(component, fg_param, u.Quantity(value, unit))
+
+    def redraw_component(self, label: str, seeds, **kwargs) -> None:
+        if label not in ["d11", "s6"]:
+            raise NotImplementedError("This is only set up for .")
+
+        try:
+            component = self.comps_dict[label]
+        except KeyError:
+            raise KeyError(f"Component '{label}' not found in comps_dict.")
+        component.replace_draw(seeds, **kwargs)
 
     def get_component(self, label: str) -> pysm3.Model:
         """

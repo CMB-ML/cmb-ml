@@ -91,12 +91,14 @@ class ForegroundConfigExecutor(BaseStageExecutor):
                     if "unit" in param_settings:
                         unit = param_settings.pop("unit")
                     if distribution == "Uniform":
-                        use_class = rng.uniform
+                        draw = rng.uniform(**param_settings)
                     elif distribution == "Normal":
-                        use_class = rng.normal
+                        draw = rng.normal(**param_settings)
+                    elif distribution == "Seed":
+                        n_vals = param_settings['n']
+                        draw = rng.integers(0, 2**32, size=n_vals, dtype=np.uint32)
                     else:
-                        raise NotImplementedError("Only 'Uniform' and 'Normal' are currently implemented")
-                    draw = use_class(**param_settings)
+                        raise NotImplementedError("Only 'Uniform', 'Normal', and 'Seed' are currently implemented")
                     if unit is not None:
                         settings[fg][param] = {"value": draw, "unit": unit}
                     else:

@@ -27,7 +27,7 @@ from cmbml.core.asset_handlers.ps_handler import CambPowerSpectrum, NumpyPowerSp
 from cmbml.core.asset_handlers.healpy_map_handler import HealpyMap # Import for VS Code hints
 
 from cmbml.utils.map_formats import convert_pysm3_to_hp
-from cmbml.utils.physics_sky_flex import FlexSky
+from cmbml.utils.pysm_flex_sky import FlexSky
 
 import healpy as hp
 
@@ -172,6 +172,7 @@ class FlexObsCreatorExecutor(BaseStageExecutor):
         sim_name = self.name_tracker.sim_name()  # For logging and seed generation
         logger.debug(f"Creating simulation {split.name}:{sim_name}")
 
+        cmb = None
         if self.include_cmb:
             cmb_seed = self.cmb_seed_factory.get_seed(split=split,
                                                       sim=sim_name)
@@ -183,7 +184,12 @@ class FlexObsCreatorExecutor(BaseStageExecutor):
         # Get updated foreground parameters
         all_fg_params = self.in_fg_config.read()
         for fg, fg_params in all_fg_params.items():
-            self.sky.update_component(fg, fg_params)
+            is_seed = "seeds" in fg_params.keys()
+            if is_seed:  # Only applies to *Realization components
+                seeds = fg_params["seeds"]["value"]
+                self.sky.redraw_component(fg, seeds)
+            else:
+                self.sky.update_component(fg, fg_params)
 
         # Track minimum FWHM; this will be used for the CMB map
         # DISABLED, per CS advisor suggestion that model should find the true realization...
