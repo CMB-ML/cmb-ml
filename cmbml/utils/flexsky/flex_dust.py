@@ -6,16 +6,30 @@
 
 
 from pysm3.models import ModifiedBlackBodyRealization
+import warnings
+from contextlib import contextmanager
+
+
+@contextmanager
+def suppress_complex_warning():
+    with warnings.catch_warnings():
+        warnings.filterwarnings(
+            "ignore",
+            category=RuntimeWarning,
+            message=".*Casting complex values to real discards the imaginary part.*",
+        )
+        yield
 
 
 class FlexDust(ModifiedBlackBodyRealization):
     def replace_draw(self, 
                      seeds,
                      synalm_lmax:int = None):
-        (
-            self.I_ref,
-            self.Q_ref,
-            self.U_ref,
-            self.mbb_index,
-            self.mbb_temperature,
-        ) = self.draw_realization(synalm_lmax, seeds)
+        with suppress_complex_warning():
+            (
+                self.I_ref,
+                self.Q_ref,
+                self.U_ref,
+                self.mbb_index,
+                self.mbb_temperature,
+            ) = self.draw_realization(synalm_lmax, seeds)

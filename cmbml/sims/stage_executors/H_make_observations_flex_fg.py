@@ -78,6 +78,7 @@ class FlexObsCreatorExecutor(BaseStageExecutor):
         # self.in_noise_cache: Asset = self.assets_in['scale_cache']
         self.in_cmb_ps: AssetWithPathAlts = self.assets_in['cmb_ps']
         self.in_fg_config: Asset = self.assets_in['fg_config']
+        self.in_fixed_fg: Asset = self.assets_in['fg_maps']
         in_det_table: Asset = self.assets_in['deltabandpass']
         in_noise_cache_handler: Union[HealpyMap, NumpyPowerSpectrum]
         in_cmb_ps_handler: CambPowerSpectrum
@@ -89,6 +90,7 @@ class FlexObsCreatorExecutor(BaseStageExecutor):
         self.nside_out = cfg.scenario.nside
         logger.info(f"Simulations will be output at nside_out = {self.nside_out}")
         self.output_units = cfg.scenario.units
+        self.sky_unit = u.Unit(cfg.model.sim.sky_unit)
         logger.info(f"Output units are {self.output_units}")
 
         self.component_config = OmegaConf.to_container(cfg.model.sim.fgs, resolve=True)
@@ -107,8 +109,12 @@ class FlexObsCreatorExecutor(BaseStageExecutor):
         self.cmb_seed_factory = SeedFactory(cfg.model.sim.cmb.seed_template)
         self.cmb_factory = CMBFactory(cfg)
 
+        self.use_fixed_fg = cfg.model.sim.get("use_fixed_fg", None)
+
         # Do not create the Sky object here, it takes too long and will slow down initial checks
         self.sky = None
+        # Do not load maps until execute()
+        self.fixed_fg_maps = {}
 
     def execute(self) -> None:
         """
@@ -136,15 +142,28 @@ class FlexObsCreatorExecutor(BaseStageExecutor):
                 if isinstance(v, dict) and "dist" in v:
                     del v["dist"]
 
+        if self.use_fixed_fg:
+            preset_strings = None
+            pysm_out_unit = self.sky_unit
+            self.load_fixed_fg_maps()
+        else:
+            preset_strings = self.preset_strings
+            pysm_out_unit = self.output_units
+
         logger.debug('Creating Flexible Sky object')
         self.sky = FlexSky(nside=self.nside_sky,
                            component_objects=placeholder,
                            component_object_names=placeholder_label,
                            component_config=self.component_config,
-                           preset_strings=self.preset_strings,
-                           output_unit=self.output_units)
+                           preset_strings=preset_strings,
+                           output_unit=pysm_out_unit)
         logger.debug('Done creating Flexible Sky object')
         self.default_execute()
+
+    def load_fixed_fg_maps(self):
+        for det in self.instrument.dets.keys():
+            with self.name_tracker.set_context("freq", det):
+                self.fixed_fg_maps[det] = self.in_fixed_fg.read()
 
     def process_split(self, split: Split) -> None:
         """
@@ -208,6 +227,12 @@ class FlexObsCreatorExecutor(BaseStageExecutor):
                 skymaps = skymaps[0]
             # else:  # There may be other cases, but none come to mind.
             #     pass
+
+            if self.use_fixed_fg:
+                this_fg = self.fixed_fg_maps[freq]
+                skymaps = skymaps + this_fg
+                eq = u.cmb_equivalencies(detector.cen_freq)
+                skymaps = skymaps.to(self.output_units, equivalencies=eq)
 
             # Use pysm3.apply_smoothing... to convolve the map with the planck detector beam
             map_smoothed = pysm3.apply_smoothing_and_coord_transform(skymaps,

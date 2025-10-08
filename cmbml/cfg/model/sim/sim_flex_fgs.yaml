@@ -12,6 +12,8 @@ defaults:
 # Moved to top level for now
 nside_sky            : ${nside_sky}
 nside_sky_factor     : null
+sky_unit             : MJy/sr
+use_fixed_fg         : true
 pysm_beam_lmax_ratio : 2.99999  # This will evaluate as 3 * nside - 1 for nsides up to 2048 (maybe further)
 
 # Moved to top level for now
@@ -29,6 +31,7 @@ fg_seed_template: "{split}_{sim}_{fg_str}_{fg_param}"
 # See https://galsci.github.io/blog/2022/common-fiducial-sky/ and https://galsci.github.io/blog/2022/common-fiducial-extragalactic-cmb/ for more suggestions
 # These parameters are pulled directly from the PySM3 configs, with the exception of the "dist" sub-dicts, which enable replacing scalars with random draws.
 fgs:
+  # {}  # {} is used when no other entries are included. This is nice for testing.
   d11:
     class : "flexsky.FlexDust"
     amplitude_modulation_temp_alm : "dust_gnilc/raw/gnilc_dust_temperature_modulation_alms_lmax768.fits.gz"

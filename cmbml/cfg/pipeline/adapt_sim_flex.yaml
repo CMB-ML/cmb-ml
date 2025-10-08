@@ -1,0 +1,13 @@
+make_fixed_fg:
+  assets_out:
+    fg_maps:
+      handler: HealpyMap
+      path_template: "{root}/{dataset}/{working}{stage}/{freq}_fixed_fg.fits"
+  assets_in:
+    deltabandpass: {stage: raw}
+  dir_name: Simulation_B_FixedForegrounds
+
+make_obs_no_noise:
+  assets_in:
+    fg_config: {stage: make_fg_configs}
+    fg_maps: {stage: make_fixed_fg}

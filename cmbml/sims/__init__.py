@@ -1,5 +1,6 @@
 from .stage_executors.A_check_sims_hydra_configs import HydraConfigSimsCheckerExecutor
 from .stage_executors.B_make_noise_cache import NoiseCacheExecutor
+from .stage_executors.B2_make_fixed_fg_cache import FixedForegroundExecutor
 from .stage_executors.C_get_planck_sims import GetPlanckNoiseSimsExecutor
 from .stage_executors.D_make_average_map import MakePlanckAverageNoiseExecutor
 from .stage_executors.E_make_noise_models import MakePlanckNoiseModelExecutor
