@@ -38,7 +38,7 @@ class CambPowerSpectrum(GenericHandler):
         # Read the data into a DataFrame, setting the header manually.
         df = pd.read_csv(path, 
                          comment='#', 
-                         sep='\s+', 
+                         sep=r'\s+', 
                          header=None, 
                          skiprows=1, 
                          names=header_line)
@@ -79,7 +79,7 @@ class PandasCAMBPowerSpectrum(GenericHandler):
         # Read the data into a DataFrame, setting the header manually.
         df = pd.read_csv(path, 
                          comment='#', 
-                         sep='\s+', 
+                         sep=r'\s+', 
                          header=None, 
                          skiprows=1, 
                          names=header_line)

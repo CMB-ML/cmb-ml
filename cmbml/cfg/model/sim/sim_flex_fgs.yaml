@@ -23,7 +23,7 @@ component_objects:
 seed_base_string: cmb_ml
 # seed_base_string: ${dataset_name}
 min_obs_beam         : ${min_obs_beam}
-include_cmb    : False  # Defaults to true if not included. Will still produce power spectra, only affects making sky and observations.
+include_cmb    : True  # Defaults to true if not included. Will still produce power spectra, only affects making sky and observations.
 preset_strings: ["f1", "a1", "cib1", "ksz1", "tsz1"]
 
 fg_seed_template: "{split}_{sim}_{fg_str}_{fg_param}"

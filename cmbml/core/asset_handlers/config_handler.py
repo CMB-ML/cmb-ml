@@ -38,8 +38,8 @@ class Config(GenericHandler):
         # Patch to handle the yaml library not liking square brackets in entries
         #    addressing the config for input to the PyILC code
         yaml_string = yaml.dump(un_obj_data, default_flow_style=False)
-        if "\[" in yaml_string and "\]" in yaml_string:
-            yaml_string = yaml_string.replace("\[", "[").replace("\]", "]")
+        if r"\[" in yaml_string and r"\]" in yaml_string:
+            yaml_string = yaml_string.replace(r"\[", r"[").replace(r"\]", r"]")
         try:
             with open(path, 'w') as outfile:
                 outfile.write(yaml_string)
