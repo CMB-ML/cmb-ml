@@ -55,11 +55,9 @@ class NoiseCacheExecutor(BaseStageExecutor):
         else:
             self.out_scale_cache: Asset = self.assets_out['scale_cache']
             self.in_varmap_src: Asset = self.assets_in['noise_src_varmaps']
-            in_det_table: Asset = self.assets_in['deltabandpass']
             # For reference:
             out_noise_cache_handler: HealpyMap
             in_noise_src_handler: HealpyMap
-            in_det_table_handler: QTableHandler
 
         self.noise_maker = NoiseClass(cfg=cfg, 
                                       name_tracker=self.name_tracker)
@@ -67,9 +65,7 @@ class NoiseCacheExecutor(BaseStageExecutor):
         if self.do_cache is False:
             return
 
-        with self.name_tracker.set_context('src_root', cfg.local_system.assets_dir):
-            det_info = in_det_table.read()
-        self.instrument: Instrument = make_instrument(cfg=cfg, det_info=det_info)
+        self.instrument: Instrument = make_instrument(cfg=cfg)
         self.CacheMaker_class = NoiseClass.cache_maker
 
     def execute(self) -> None:

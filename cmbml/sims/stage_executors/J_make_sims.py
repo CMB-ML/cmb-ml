@@ -52,13 +52,9 @@ class SimCreatorExecutor(BaseStageExecutor):
         self.in_cmb  : Asset = self.assets_in['cmb_map']
         in_maps_handler: HealpyMap
 
-        in_det_table: Asset  = self.assets_in['deltabandpass']
-        in_det_table_handler: QTableHandler
-
         self.output_units = u.Unit(cfg.scenario.units)
 
-        det_info = in_det_table.read()
-        self.instrument: Instrument = make_instrument(cfg=cfg, det_info=det_info)
+        self.instrument: Instrument = make_instrument(cfg=cfg)
         self.include_cmb = cfg.model.sim.get("include_cmb", True)
 
     def execute(self) -> None:

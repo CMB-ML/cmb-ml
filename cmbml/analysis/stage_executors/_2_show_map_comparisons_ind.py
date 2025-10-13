@@ -37,10 +37,7 @@ class ShowSimsPostIndivExecutor(BaseStageExecutor):
         stage_str = "show_cmb_post_masked_ind"
         super().__init__(cfg, stage_str)
 
-        in_det_table: Asset  = self.assets_in['deltabandpass']
-        in_det_table_handler: QTableHandler
-        det_info = in_det_table.read()
-        self.instrument: Instrument = make_instrument(cfg=cfg, det_info=det_info)
+        self.instrument: Instrument = make_instrument(cfg=cfg)
 
         if self.override_sim_nums is None:
             logger.warning("No particular sim indices specified. Outputs will be produced for all. This is not recommended.")

@@ -48,14 +48,7 @@ class CMBMapConvertExecutor(BaseStageExecutor):
         super().__init__(cfg, stage_str='convert_cmb')
 
         self.out_cmb_map: Asset = self.assets_out['cmb_map']
-
-        in_det_table: Asset = self.assets_in['deltabandpass']
-        in_planck_det_table: Asset = self.assets_in['planck_deltabandpass']
         self.in_cmb_map: Asset = self.assets_in['cmb_map']
-
-        # with self.name_tracker.set_context('src_root', cfg.local_system.assets_dir):
-        #     det_info = in_det_table.read()
-        # self.instrument: Instrument = make_instrument(cfg=cfg, det_info=det_info)
         
         # Default beam size for CMB maps
         # https://wiki.cosmos.esa.int/planck-legacy-archive/index.php/CMB_maps

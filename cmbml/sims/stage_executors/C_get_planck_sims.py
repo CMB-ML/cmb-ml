@@ -24,14 +24,9 @@ class GetPlanckNoiseSimsExecutor(BaseStageExecutor):
         super().__init__(cfg, stage_str='get_planck_noise_sims')
 
         self.out_noise_sim: Asset = self.assets_out['noise_sims']
-        in_det_table: Asset = self.assets_in['deltabandpass']
-        # For reference:
         in_noise_sim: HealpyMap
-        in_det_table_handler: QTableHandler
 
-        with self.name_tracker.set_context('src_root', cfg.local_system.assets_dir):
-            det_info = in_det_table.read()
-        self.instrument: Instrument = make_instrument(cfg=cfg, det_info=det_info)
+        self.instrument: Instrument = make_instrument(cfg=cfg)
 
         self.n_sims = cfg.model.sim.noise.n_planck_noise_sims
 

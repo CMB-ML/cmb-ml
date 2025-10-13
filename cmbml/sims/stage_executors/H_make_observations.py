@@ -76,10 +76,8 @@ class ObsCreatorExecutor(BaseStageExecutor):
 
         # self.in_noise_cache: Asset = self.assets_in['scale_cache']
         self.in_cmb_ps: AssetWithPathAlts = self.assets_in['cmb_ps']
-        in_det_table: Asset = self.assets_in['deltabandpass']
         in_noise_cache_handler: Union[HealpyMap, NumpyPowerSpectrum]
         in_cmb_ps_handler: CambPowerSpectrum
-        in_det_table_handler: QTableHandler
 
         # Initialize constants from configs
         self.nside_sky = self.get_nside_sky()
@@ -94,8 +92,7 @@ class ObsCreatorExecutor(BaseStageExecutor):
         # The instrument object contains both
         #   - information about physical detector parameters
         #   - information about configurations, (such as fields to use)
-        det_info = in_det_table.read()
-        self.instrument: Instrument = make_instrument(cfg=cfg, det_info=det_info)
+        self.instrument: Instrument = make_instrument(cfg=cfg)
 
         self.cmb_seed_factory = SeedFactory(cfg.model.sim.cmb.seed_template)
         self.cmb_factory = CMBFactory(cfg)

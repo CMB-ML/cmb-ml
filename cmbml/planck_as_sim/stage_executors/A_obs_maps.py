@@ -45,19 +45,16 @@ class ObsMapsConvertExecutor(BaseStageExecutor):
 
         self.out_obs_maps: Asset = self.assets_out['obs_maps']
 
-        in_det_table: Asset = self.assets_in['deltabandpass']
         in_planck_det_table: Asset = self.assets_in['planck_deltabandpass']
         self.in_obs_maps: Asset = self.assets_in['obs_maps']
 
         with self.name_tracker.set_context('src_root', cfg.local_system.assets_dir):
-            det_info = in_det_table.read()
             planck_det_info = in_planck_det_table.read()
-        self.out_instrument: Instrument = make_instrument(
-            cfg=cfg, det_info=det_info
-            )
-        self.planck_instrument: Instrument = make_instrument(
-            cfg=cfg, det_info=planck_det_info, use_min_fwhm=False
-            )
+        self.out_instrument: Instrument = make_instrument(cfg=cfg)
+        raise NotImplementedError("Need to ensure instrument made for Planck makes sense.")
+        self.planck_instrument: Instrument = make_instrument(cfg=cfg, 
+                                                             det_info=planck_det_info, 
+                                                             use_min_fwhm=False)
 
         self.obs_files = {
             int(freq): v["file"]

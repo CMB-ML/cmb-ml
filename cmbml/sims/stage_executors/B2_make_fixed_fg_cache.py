@@ -25,11 +25,7 @@ class FixedForegroundExecutor(BaseStageExecutor):
         self.out_fg_map: Asset = self.assets_out['fg_maps']
         out_map_handler: HealpyMap
 
-        in_det_table: Asset = self.assets_in['deltabandpass']
-        in_det_table_handler: QTableHandler
-
-        det_info = in_det_table.read()
-        self.instrument: Instrument = make_instrument(cfg=cfg, det_info=det_info)
+        self.instrument: Instrument = make_instrument(cfg=cfg)
 
         self.nside_sky = self.get_nside_sky()
         sky_unit = cfg.model.sim.sky_unit  # Pretty sure it needs to be MJy/sr
@@ -45,7 +41,10 @@ class FixedForegroundExecutor(BaseStageExecutor):
                         output_unit=self.sky_unit)
         for det in self.instrument.dets.values():
             logger.info(f"Producing map for {det.nom_freq} GHz.")
-            skymap = sky.get_emission(det.cen_freq)
+            if self.instrument.bandpass_integration:
+                skymap = sky.get_emission(det.wn, det.tx)
+            else:
+                skymap = sky.get_emission(det.cen_freq)
 
             n_fields_sky = skymap.shape[0]
             n_fields_det = len(det.fields)

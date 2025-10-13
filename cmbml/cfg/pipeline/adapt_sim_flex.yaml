@@ -5,6 +5,8 @@ make_fixed_fg:
       path_template: "{root}/{dataset}/{working}{stage}/{freq}_fixed_fg.fits"
   assets_in:
     deltabandpass: {stage: raw}
+    lfi_rimo: {stage: raw}
+    hfi_rimo: {stage: raw}
   dir_name: Simulation_B_FixedForegrounds
 
 make_obs_no_noise:

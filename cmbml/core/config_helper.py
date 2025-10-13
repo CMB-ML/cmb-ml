@@ -9,7 +9,7 @@ from cmbml.core.namers import Namer
 from cmbml.core.split import Split
 
 # from core.dataset import LabelledCMBMapDataset
-from cmbml.utils.planck_instrument import make_instrument, Instrument
+# from cmbml.utils.planck_instrument import make_instrument, Instrument
 # from core.asset_handlers.healpy_map_handler import HealpyMap
 # from core.asset_handlers.pytorch_model_handler import PyTorchModel
 
@@ -50,8 +50,8 @@ class ConfigHelper:
         """
         return Namer(self.cfg)
 
-    def get_instrument(self):
-        return make_instrument(self.cfg)
+    # def get_instrument(self):
+    #     return make_instrument(self.cfg)
 
     def get_split(self, split_name):
         return Split(split_name, self.cfg.splits[split_name])

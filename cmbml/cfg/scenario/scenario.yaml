@@ -1,10 +1,16 @@
 # Moved to top level for now.
-nside            : ${nside}
-detector_freqs   : ${detectors}
-map_fields       : ${map_fields}
+nside              : ${nside}
+detector_freqs     : ${detectors}
+map_fields         : ${map_fields}
+ 
+precision          : float  # Is this used? No.
+units              : uK_CMB  # Used in many places (search for cfg.scenario.units)
 
-precision        : float  # Is this used? No.
-units            : uK_CMB  # Used in many places (search for cfg.scenario.units)
+use_rimo           : true
+use_rimo_cen_freq  : true
+rimo_trim_to_mass  : 0.999
+rimo_compress_to_n : 300
+rimo_compress_alpha: 0.5
 
 ref_data_release:
   hdu_n: 1

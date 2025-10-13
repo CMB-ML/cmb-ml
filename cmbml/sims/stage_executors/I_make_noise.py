@@ -58,9 +58,7 @@ class NoiseMapCreatorExecutor(BaseStageExecutor):
         out_noise_maps_handler: HealpyMap
 
         self.in_noise_cache: Asset = self.assets_in['scale_cache']
-        in_det_table: Asset = self.assets_in['deltabandpass']
         in_noise_cache_handler: Union[HealpyMap, NumpyPowerSpectrum]
-        in_det_table_handler: QTableHandler
 
         self.nside_out = cfg.scenario.nside
         logger.info(f"Noise will be created at nside_out = {self.nside_out}")
@@ -68,8 +66,7 @@ class NoiseMapCreatorExecutor(BaseStageExecutor):
         logger.info(f"Noise will have units of {self.units}")
         self.output_units = cfg.scenario.units
 
-        det_info = in_det_table.read()
-        self.instrument: Instrument = make_instrument(cfg=cfg, det_info=det_info)
+        self.instrument: Instrument = make_instrument(cfg=cfg)
 
         self.noise_seed_factory   = SeedFactory(cfg.model.sim.noise.seed_template)
         NoiseMaker                = get_noise_class(cfg.model.sim.noise.noise_type)

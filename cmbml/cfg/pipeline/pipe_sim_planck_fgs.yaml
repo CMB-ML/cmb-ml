@@ -23,7 +23,7 @@ make_obs_no_noise_pl_fgs:
     #   handler: HealpyMap
     #   path_template: "{root}/{dataset}/{stage}/{split}/{sim}/noise_{freq}_map.fits"
   assets_in:
-    deltabandpass: {stage: raw}
+    # deltabandpass: {stage: raw}
     # scale_cache: {stage: make_noise_cache}
     cmb_ps: {stage: make_theory_ps}
     fg_maps: {stage: make_fgs}

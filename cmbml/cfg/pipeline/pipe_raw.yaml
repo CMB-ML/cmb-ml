@@ -6,33 +6,42 @@ raw:
     deltabandpass:
       handler: QTable
       path_template: "{src_root}/CMB-ML/cmb-ml_deltabandpass.tbl"
-    noise_src_varmaps:
-      handler: HealpyMap
-      path_template: "{src_root}/Planck/{filename}"
+    lfi_rimo:
+      handler: RIMO
+      path_template: "{src_root}/Planck/LFI_RIMO_R3.31.fits"
+    hfi_rimo:
+      handler: RIMO
+      path_template: "{src_root}/Planck/HFI_RIMO_R3.00.fits"
     wmap_chains:
       handler: Mover
       path_template: "{src_root}/WMAP/${model.sim.cmb.wmap_chain_version}"
-    mask_src_map: 
-      path_template: "{src_root}/Planck/COM_CMB_IQU-nilc_2048_R3.00_full.fits"
-      handler: HealpyMap
-      use_fields: 3  # Healpy indices are 0-based. We are using Healpy. FITS file indices are 1-based. If you inspect the FITS file, this may lead to confusion.
-      file_size: 1610  # Slightly smaller so we don't trigger re-download in get_assets.py
     planck_ps_txt:
       handler: TextHandler
       path_template: &pl_ps_fp "{src_root}/Planck/COM_PowerSpect_CMB-base-plikHM-TTTEEE-lowl-lowE-lensing-minimum-theory_R3.01.txt"
     planck_ps_pandas_camb:
       handler: PandasCAMBPowerSpectrum
       path_template: *pl_ps_fp
+    mask_src_map: 
+      path_template: "{src_root}/Planck/COM_CMB_IQU-nilc_2048_R3.00_full.fits"
+      handler: HealpyMap
+      use_fields: 3  # Healpy indices are 0-based. We are using Healpy. FITS file indices are 1-based. If you inspect the FITS file, this may lead to confusion.
+      file_size: 1610  # Slightly smaller so we don't trigger re-download in get_assets.py
+    noise_src_varmaps:
+      handler: HealpyMap
+      path_template: "{src_root}/Planck/{filename}"
 
-raw_in:  # A convenience for use in notebooks
+raw_in:  # Allows creating assets in read mode, easily
   assets_in:
     planck_deltabandpass: {stage: raw}
     deltabandpass: {stage: raw}
-    noise_src_varmaps: {stage: raw}
+    lfi_rimo: {stage: raw}
+    hfi_rimo: {stage: raw}
     wmap_chains: {stage: raw}
-    mask_src_map: {stage: raw}
     planck_ps_txt: {stage: raw}
     planck_ps_pandas_camb: {stage: raw}
+    mask_src_map: {stage: raw}
+    noise_src_varmaps: {stage: raw}
+
 
 download_sims_reference:
   assets_out:

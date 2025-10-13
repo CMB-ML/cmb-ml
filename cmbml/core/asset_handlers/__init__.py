@@ -19,3 +19,4 @@ from .txt_handler import TextHandler
 from .appending_csv_handler import AppendingCsvHandler
 from .figure_handler import Figure
 from .figure_handler import MPLFigure
+from .rimo_handler import RIMO

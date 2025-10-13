@@ -35,14 +35,9 @@ class MakePlanckNoiseModelExecutor(BaseStageExecutor):
         
         self.in_sims: Asset = self.assets_in['noise_sims']
         self.in_sims_avg: Asset = self.assets_in['noise_avg']
-        in_det_table: Asset = self.assets_in['deltabandpass']
-        # For reference:
         in_sim: HealpyMap
-        in_det_table_handler: QTableHandler
 
-        with self.name_tracker.set_context('src_root', cfg.local_system.assets_dir):
-            det_info = in_det_table.read()
-        self.instrument: Instrument = make_instrument(cfg=cfg, det_info=det_info)
+        self.instrument: Instrument = make_instrument(cfg=cfg)
 
         # Check map fields - currently, this only supports Temperature analysis
         map_fields = cfg.scenario.map_fields

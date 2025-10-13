@@ -4,7 +4,7 @@ convert_obs:
       handler: HealpyMap
       path_template: &obs_map_path "{root}/{dataset}/{stage}/{split}/{sim}/obs_{freq}_map.fits"
   assets_in:
-    deltabandpass: {stage: raw}
+    # deltabandpass: {stage: raw}
     # If we need to use the original beams
     # deltabandpass: {stage: raw, orig_name: planck_deltabandpass}
     planck_deltabandpass: {stage: raw}
@@ -19,7 +19,7 @@ convert_cmb:
       handler: HealpyMap
       path_template: &cmb_map_path "{root}/{dataset}/{stage}/{split}/{sim}/cmb_map.fits"
   assets_in:
-    deltabandpass: {stage: raw}
+    # deltabandpass: {stage: raw}
     # If we need to use the original beams
     # deltabandpass: {stage: raw, orig_name: planck_deltabandpass}
     planck_deltabandpass: {stage: raw}

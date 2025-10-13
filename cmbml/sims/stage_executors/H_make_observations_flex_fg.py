@@ -79,10 +79,8 @@ class FlexObsCreatorExecutor(BaseStageExecutor):
         self.in_cmb_ps: AssetWithPathAlts = self.assets_in['cmb_ps']
         self.in_fg_config: Asset = self.assets_in['fg_config']
         self.in_fixed_fg: Asset = self.assets_in['fg_maps']
-        in_det_table: Asset = self.assets_in['deltabandpass']
         in_noise_cache_handler: Union[HealpyMap, NumpyPowerSpectrum]
         in_cmb_ps_handler: CambPowerSpectrum
-        in_det_table_handler: QTableHandler
 
         # Initialize constants from configs
         self.nside_sky = self.get_nside_sky()
@@ -102,8 +100,8 @@ class FlexObsCreatorExecutor(BaseStageExecutor):
             self.preset_strings = None
         logger.info(f"Preset strings are {self.preset_strings}")
 
-        det_info = in_det_table.read()
-        self.instrument: Instrument = make_instrument(cfg=cfg, det_info=det_info)
+        self.instrument: Instrument = make_instrument(cfg=cfg)
+        self.do_bandpass_integration_each_sim = cfg.model.sim.do_bandpass_int_each_sim
 
         self.include_cmb = cfg.model.sim.get("include_cmb", True)
         self.cmb_seed_factory = SeedFactory(cfg.model.sim.cmb.seed_template)
@@ -146,6 +144,7 @@ class FlexObsCreatorExecutor(BaseStageExecutor):
             preset_strings = None
             pysm_out_unit = self.sky_unit
             self.load_fixed_fg_maps()
+            logger.info("Using fixed foreground maps instead of preset strings per sim.")
         else:
             preset_strings = self.preset_strings
             pysm_out_unit = self.output_units
@@ -216,7 +215,10 @@ class FlexObsCreatorExecutor(BaseStageExecutor):
         min_fwhm = 0 * u.arcmin
 
         for freq, detector in self.instrument.dets.items():
-            skymaps = self.sky.get_emission(detector.cen_freq)
+            if self.instrument.bandpass_integration and self.do_bandpass_integration_each_sim:
+                skymaps = self.sky.get_emission(detector.wn, detector.tx)
+            else:
+                skymaps = self.sky.get_emission(detector.cen_freq)
 
             n_fields_sky = skymaps.shape[0]
             n_fields_det = len(detector.fields)
