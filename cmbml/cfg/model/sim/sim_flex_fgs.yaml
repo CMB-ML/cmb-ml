@@ -22,7 +22,7 @@ component_objects:
   - noise
 seed_base_string: cmb_ml
 # seed_base_string: ${dataset_name}
-do_bandpass_int_each_sim : False
+do_bandpass_int_each_sim : True
 min_obs_beam             : ${min_obs_beam}
 include_cmb              : True  # Defaults to true if not included. Will still produce power spectra, only affects making sky and observations.
 preset_strings           : ["f1", "a1", "co1", "cib1", "ksz1", "tsz1"]
