@@ -116,3 +116,73 @@ class NoiseMapCreatorExecutor(BaseStageExecutor):
             with self.name_tracker.set_contexts(dict(freq=freq)):
                 self.out_noise_maps.write(data=noise_map, column_names=column_names)
             logger.debug(f"For {split.name}:{sim_name}, {freq} GHz: done with channel")
+
+
+class HalfMissionNoiseExecutor(NoiseMapCreatorExecutor):
+    """
+    Create Half Mission noise by doubling the noise at the spectral level.
+
+    Only works with noise_correlated.py's noise makers. May be compatible 
+    with others; I simply haven't made the (minimal) changes needed to scale
+    by either 2 or sqrt(2) depending on the method that noise is produced.
+    """
+    def __init__(self, cfg: DictConfig) -> None:
+        # The following stage_str must match the pipeline yaml
+        BaseStageExecutor.__init__(self, cfg, stage_str='make_hm_noise')
+
+        self.out_noise_maps: Asset = self.assets_out['noise_maps']
+        out_noise_maps_handler: HealpyMap
+
+        self.in_noise_cache: Asset = self.assets_in['scale_cache']
+        in_noise_cache_handler: Union[HealpyMap, NumpyPowerSpectrum]
+
+        self.nside_out = cfg.scenario.nside
+        logger.info(f"Noise will be created at nside_out = {self.nside_out}")
+        self.units = cfg.scenario.units
+        logger.info(f"Noise will have units of {self.units}")
+        self.output_units = cfg.scenario.units
+
+        self.instrument: Instrument = make_instrument(cfg=cfg)
+
+        self.noise_seed_factory   = SeedFactory(cfg.model.sim.noise.seed_template)
+        NoiseMaker                = get_noise_class(cfg.model.sim.noise.noise_type)
+        try:
+            self.noise_maker          = NoiseMaker(cfg, 
+                                                   self.name_tracker, 
+                                                   half_mission=True)
+        except TypeError as e:
+            if "half_mission" in str(e):
+                raise NotImplementedError("This only works with a few classes of noise.")
+            else:
+                raise
+
+    def process_sim(self, split: Split, sim_num: int) -> None:
+        """
+        Produces a noise for a single simulation. Calls the noise maker to create the noise map.
+
+        Args:
+            split (Split): The split to process. Needed for some configuration information.
+            sim_num (int): The simulation number.
+        """
+        sim_name = self.name_tracker.sim_name()  # For logging and seed generation
+        logger.debug(f"Creating simulation {split.name}:{sim_name}")
+        for freq, detector in self.instrument.dets.items():
+            noise_seed   = self.noise_seed_factory.get_seed(split=split.name, 
+                                                            sim=sim_name + "_hm1", 
+                                                            freq=freq)
+            noise_map    = self.noise_maker.get_noise_map(detector, noise_seed)
+            column_names = [f"{stokes}_STOKES" for stokes in detector.fields]
+
+            with self.name_tracker.set_contexts(dict(freq=freq, hm=1)):
+                self.out_noise_maps.write(data=noise_map, column_names=column_names)
+
+            noise_seed   = self.noise_seed_factory.get_seed(split=split.name, 
+                                                            sim=sim_name + "_hm2", 
+                                                            freq=freq)
+            noise_map    = self.noise_maker.get_noise_map(detector, noise_seed)
+            column_names = [f"{stokes}_STOKES" for stokes in detector.fields]
+
+            with self.name_tracker.set_contexts(dict(freq=freq, hm=2)):
+                self.out_noise_maps.write(data=noise_map, column_names=column_names)
+
+            logger.debug(f"For {split.name}:{sim_name}, {freq} GHz: done with channel")

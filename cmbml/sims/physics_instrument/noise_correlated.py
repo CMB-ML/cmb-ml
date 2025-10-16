@@ -24,17 +24,22 @@ class NoiseCorrelatedCore:
     noise, it also requires avg_map to be provided.
     """
 
-    def __init__(self, nside_out: int, lmax_out: int, map_fields: list[str]):
+    def __init__(self, 
+                 nside_out: int, 
+                 lmax_out: int, 
+                 map_fields: list[str],
+                 half_mission: bool=False):
         self.nside_out = nside_out
         self.lmax_out = lmax_out
         self.map_fields = map_fields
+        self.half_mission  = half_mission
 
     def get_noise_map(
         self,
         seed: int,
         noise_model: dict,
         sd_map: u.Quantity,
-        avg_map: u.Quantity=None,
+        avg_map: u.Quantity=None
     ) -> u.Quantity:
         """
         Generate a correlated noise map.
@@ -67,6 +72,8 @@ class NoiseCorrelatedCore:
 
         # Sample target Cls
         target_cl, tgt_unit = self._sample_target_cls(noise_model, seed)
+        if self.half_mission:
+            target_cl *= 2
 
         # White noise map
         white_map = make_random_noise_map(sd_map, seed)
@@ -118,7 +125,10 @@ class NoiseStationary:
     """
     cache_maker = ScaleCacheMaker
 
-    def __init__(self, cfg, name_tracker):
+    def __init__(self, 
+                 cfg, 
+                 name_tracker, 
+                 half_mission:bool=False):
         """
         Parameters
         ----------
@@ -152,6 +162,7 @@ class NoiseStationary:
             nside_out=self.nside_out,
             lmax_out=self.lmax_out,
             map_fields=self.map_fields,
+            half_mission=half_mission
         )
 
     def _lazy_load_freq(self, detector: Detector):
@@ -229,7 +240,12 @@ class NoiseStationaryManual:
     all required data arrays explicitly on each call. Useful for testing,
     prototyping, and notebooks.
     """
-    def __init__(self, nside_out: int, lmax_out: int, map_fields: list[str]):
+    def __init__(self, 
+                 nside_out: int, 
+                 lmax_out: int, 
+                 map_fields: list[str],
+                 half_mission: bool=False
+                 ):
         """
         Parameters
         ----------
@@ -241,7 +257,7 @@ class NoiseStationaryManual:
             Fields of the map (e.g., ['I_STOKES'], ['Q_STOKES','U_STOKES']).
         """
         self.nside_out = nside_out
-        self.core = NoiseCorrelatedCore(nside_out, lmax_out, map_fields)
+        self.core = NoiseCorrelatedCore(nside_out, lmax_out, map_fields, half_mission=half_mission)
 
     def get_noise_map(self, 
                       seed: int, 
@@ -292,7 +308,7 @@ class NoiseCorrelated:
     """
     cache_maker = ScaleCacheMaker
 
-    def __init__(self, cfg, name_tracker):
+    def __init__(self, cfg, name_tracker, half_mission:bool=False):
         """
         Parameters
         ----------
@@ -323,6 +339,7 @@ class NoiseCorrelated:
             nside_out=self.nside_out,
             lmax_out=self.lmax_out,
             map_fields=self.map_fields,
+            half_mission=half_mission
         )
 
     def _lazy_load_freq(self, detector: Detector):
@@ -390,7 +407,7 @@ class NoiseCorrelatedManual:
     all required data arrays explicitly on each call. Useful for testing,
     prototyping, and notebooks.
     """
-    def __init__(self, nside_out: int, lmax_out: int, map_fields: list[str]):
+    def __init__(self, nside_out: int, lmax_out: int, map_fields: list[str], half_mission:bool=False):
         """
         Parameters
         ----------
@@ -401,7 +418,7 @@ class NoiseCorrelatedManual:
         map_fields : list of str
             Fields of the map (e.g., ['I_STOKES'], ['Q_STOKES','U_STOKES']).
         """
-        self.core = NoiseCorrelatedCore(nside_out, lmax_out, map_fields)
+        self.core = NoiseCorrelatedCore(nside_out, lmax_out, map_fields, half_mission=half_mission)
 
     def get_noise_map(self, seed: int, noise_model, sd_map):
         """
