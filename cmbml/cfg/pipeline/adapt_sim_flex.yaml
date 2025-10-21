@@ -16,7 +16,10 @@ make_varied_fgs:
       path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/sky_{freq}_d11_s6.fits"  # Changed for working dir while using separate noise
   assets_in:
     fg_config: {stage: make_fg_configs}
-  splits: *all_splits
+  splits:
+    - train
+    - valid
+    - test
   dir_name: Simulation_D2_Varied_FGs
   make_stage_log: True
 
