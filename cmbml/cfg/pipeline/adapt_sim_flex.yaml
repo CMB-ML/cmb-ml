@@ -9,6 +9,24 @@ make_fixed_fg:
     hfi_rimo: {stage: raw}
   dir_name: Simulation_B_FixedForegrounds
 
+make_varied_fgs:
+  assets_out:
+    varied_fgs:
+      handler: HealpyMap
+      path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/sky_{freq}_d11_s6.fits"  # Changed for working dir while using separate noise
+    # noise_maps:  # Optional; see model.sim.noise.save_noise for flag to enable this. Removed for separate noise generation.
+    #   handler: HealpyMap
+    #   path_template: "{root}/{dataset}/{stage}/{split}/{sim}/noise_{freq}_map.fits"
+  assets_in: {}
+    # deltabandpass: {stage: raw}
+    # scale_cache: {stage: make_noise_cache}
+    # cmb_ps: {stage: make_theory_ps}
+    fg_config: {stage: make_fg_configs}
+  splits: *all_splits
+  dir_name: Simulation_D2_Varied_FGs
+  make_stage_log: True
+  # top_level_working: True
+
 make_obs_no_noise:
   assets_in:
     fg_config: {stage: make_fg_configs}

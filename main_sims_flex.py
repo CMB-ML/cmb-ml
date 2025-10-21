@@ -31,6 +31,7 @@ from cmbml.sims import (
     ForegroundConfigExecutor,
     TheoryPSExecutor,
     ObsCreatorExecutor,
+    VariedFGsExecutor,
     FlexObsCreatorExecutor,
     NoiseMapCreatorExecutor,
     SimCreatorExecutor
@@ -63,8 +64,8 @@ def run_simulations(cfg):
     # # pipeline_context.add_pipe(HydraConfigSimsCheckerExecutor)
 
     # # Required for the kinds of noise implemented in the pipeline
-    pipeline_context.add_pipe(NoiseCacheExecutor)
-    pipeline_context.add_pipe(FixedForegroundExecutor)
+    # pipeline_context.add_pipe(NoiseCacheExecutor)
+    # pipeline_context.add_pipe(FixedForegroundExecutor)
 
     # ############################
     # # Noise model creation
@@ -86,22 +87,22 @@ def run_simulations(cfg):
     # # an average noise map, a power spectrum, and a noise covariance matrix
     # # for each detector frequency. It's much smaller than the original data
     # # (processed above in commented out Executors)
-    pipeline_context.add_pipe(DownloadNoiseModelExecutor)
+    # pipeline_context.add_pipe(DownloadNoiseModelExecutor)
 
     # ############################
     # # Simulation creation
     # ############################
 
     # # # Needed for all:
-    if cfg.model.sim.cmb.use_chains:
-        pipeline_context.add_pipe(ChainsConfigExecutor)
-    else:
-        pipeline_context.add_pipe(ParamConfigExecutor)
-    pipeline_context.add_pipe(TheoryPSExecutor)
+    # if cfg.model.sim.cmb.use_chains:
+    #     pipeline_context.add_pipe(ChainsConfigExecutor)
+    # else:
+    #     pipeline_context.add_pipe(ParamConfigExecutor)
+    # pipeline_context.add_pipe(TheoryPSExecutor)
     pipeline_context.add_pipe(ForegroundConfigExecutor)
-    pipeline_context.add_pipe(FlexObsCreatorExecutor)
-    pipeline_context.add_pipe(NoiseMapCreatorExecutor)
-    pipeline_context.add_pipe(SimCreatorExecutor)
+    pipeline_context.add_pipe(VariedFGsExecutor)
+    # pipeline_context.add_pipe(NoiseMapCreatorExecutor)
+    # pipeline_context.add_pipe(SimCreatorExecutor)
 
     # # TODO: Put this back in the pipeline yaml; fix/make executor
     # # pipeline_context.add_pipe(ShowSimsExecutor)  # Out of date, do not use.
