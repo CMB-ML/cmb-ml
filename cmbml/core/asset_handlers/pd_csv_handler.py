@@ -19,6 +19,10 @@ class PandasCsvHandler(GenericHandler):
         # Step 1: Read entire CSV without parsing headers
         df_raw = pd.read_csv(path, header=None)
 
+        # Not enough rows to do fancy detection → just use default header=0
+        if len(df_raw) < 3:
+            return pd.read_csv(path)
+
         # Step 2: Assume first row is header, and infer numeric columns from row 2+
         data_portion = df_raw.iloc[2:]
         is_numeric_col = data_portion.apply(
