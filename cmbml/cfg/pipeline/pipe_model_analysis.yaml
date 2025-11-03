@@ -181,22 +181,22 @@ one_ps_fig:  # Produce a power spectrum without needing the rest of the spectra 
   override_n_sims: ${n_show_cap}
   dir_name: Analysis_11_One_PS_Fig
 
-ps_analysis:
-  assets_out:
-    report:
-      fn: ""
-      path_template: "{root}/{dataset}/{working}{stage}/ps_report.csv"
-      handler: PandasCsvHandler
-  assets_in:
-    theory_ps: {stage: convert_theory_ps}
-    auto_real: {stage: make_pred_ps}
-    auto_pred: {stage: make_pred_ps}
-  splits:
-    - ${splits.run_inference_on}
-  epochs: ${use_epochs_ps_stats}
-  override_n_sims: ${n_test_cap}
-  wmap_n_ps: 50
-  dir_name: Analysis_L_PS_Report
+# ps_analysis:
+#   assets_out:
+#     report:
+#       fn: ""
+#       path_template: "{root}/{dataset}/{working}{stage}/ps_report.csv"
+#       handler: PandasCsvHandler
+#   assets_in:
+#     theory_ps: {stage: convert_theory_ps}
+#     auto_real: {stage: make_pred_ps}
+#     auto_pred: {stage: make_pred_ps}
+#   splits:
+#     - ${splits.run_inference_on}
+#   epochs: ${use_epochs_ps_stats}
+#   override_n_sims: ${n_test_cap}
+#   wmap_n_ps: 50
+#   dir_name: Analysis_L_PS_Report
 
 # ps_analysis:
 #   assets_out:
@@ -215,69 +215,69 @@ ps_analysis:
 #   wmap_n_ps: 50
 #   dir_name: Analysis_M_PS_Report
 
-ps_summary_tables:
-  assets_out:
-    epoch_stats:
-      path_template: "{root}/{dataset}/{working}{stage}/all_summaries.csv"
-      handler: PandasCsvHandler
-  assets_in:
-    report: {stage: ps_analysis}
-  splits:
-    - ${splits.run_inference_on}
-  epochs: ${use_epochs_ps_stats}
-  dir_name: Analysis_5_PS_Summary_Tables
+# ps_summary_tables:
+#   assets_out:
+#     epoch_stats:
+#       path_template: "{root}/{dataset}/{working}{stage}/all_summaries.csv"
+#       handler: PandasCsvHandler
+#   assets_in:
+#     report: {stage: ps_analysis}
+#   splits:
+#     - ${splits.run_inference_on}
+#   epochs: ${use_epochs_ps_stats}
+#   dir_name: Analysis_5_PS_Summary_Tables
 
-ps_summary_figs:
-  assets_out:
-    boxplots:
-      path_template: "{root}/{dataset}/{working}{stage}/epoch_{epoch}/{baseline}_boxplots.png"
-      handler: EmptyHandler
-    histogram:
-      path_template: "{root}/{dataset}/{working}{stage}/epoch_{epoch}/{baseline}_{metric}_histogram.png"
-      handler: EmptyHandler
-  assets_in:
-    report: {stage: ps_analysis}
-  splits:
-    - ${splits.run_inference_on}
-  epochs: ${use_epochs_ps_stats}
-  dir_name: Analysis_6_PS_Summary_Figs
+# ps_summary_figs:
+#   assets_out:
+#     boxplots:
+#       path_template: "{root}/{dataset}/{working}{stage}/epoch_{epoch}/{baseline}_boxplots.png"
+#       handler: EmptyHandler
+#     histogram:
+#       path_template: "{root}/{dataset}/{working}{stage}/epoch_{epoch}/{baseline}_{metric}_histogram.png"
+#       handler: EmptyHandler
+#   assets_in:
+#     report: {stage: ps_analysis}
+#   splits:
+#     - ${splits.run_inference_on}
+#   epochs: ${use_epochs_ps_stats}
+#   dir_name: Analysis_6_PS_Summary_Figs
 
-post_ps_fig:
-  assets_out:
-    ps_figure_theory:
-      path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/cmb_ps_figure_theory_{epoch}_{sim}_{model}.pdf"
-      handler: EmptyHandler
-    ps_figure_real:
-      path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/cmb_ps_figure_real_{epoch}_{sim}_{model}.pdf"
-      handler: EmptyHandler
-  assets_in:
-    theory_ps: {stage: convert_theory_ps}
-    auto_real: {stage: make_pred_ps}
-    auto_pred: {stage: make_pred_ps}
-    wmap_ave: {stage: ps_theory_stats}
-    wmap_std: {stage: ps_theory_stats}
-  splits:
-    - ${splits.run_inference_on}
-  epochs: ${use_epochs_ps_stats}
-  override_n_sims: ${n_show_cap}
-  dir_name: Analysis_7_F_Post_PS_Solo_Figs
+# post_ps_fig:
+#   assets_out:
+#     ps_figure_theory:
+#       path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/cmb_ps_figure_theory_{epoch}_{sim}_{model}.pdf"
+#       handler: EmptyHandler
+#     ps_figure_real:
+#       path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/cmb_ps_figure_real_{epoch}_{sim}_{model}.pdf"
+#       handler: EmptyHandler
+#   assets_in:
+#     theory_ps: {stage: convert_theory_ps}
+#     auto_real: {stage: make_pred_ps}
+#     auto_pred: {stage: make_pred_ps}
+#     wmap_ave: {stage: ps_theory_stats}
+#     wmap_std: {stage: ps_theory_stats}
+#   splits:
+#     - ${splits.run_inference_on}
+#   epochs: ${use_epochs_ps_stats}
+#   override_n_sims: ${n_show_cap}
+#   dir_name: Analysis_7_F_Post_PS_Solo_Figs
 
-post_post_ps_fig:
-  assets_out:
-    ps_figure_theory:
-      path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/cmb_ps_figure_theory.pdf"
-      handler: EmptyHandler
-    ps_figure_real:
-      path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/cmb_ps_figure_real.pdf"
-      handler: EmptyHandler
-  assets_in:
-    theory_ps: {stage: convert_theory_ps}
-    auto_real: {stage: make_pred_ps}
-    auto_pred: {stage: make_pred_ps}
-    wmap_ave: {stage: ps_theory_stats}
-    wmap_std: {stage: ps_theory_stats}
-  splits:
-    - ${splits.run_inference_on}
-  epochs: ${use_epochs_ps_stats}
-  override_n_sims: ${n_show_cap}
-  dir_name: Analysis_7_F_Post_PS_Solo_Figs
+# post_post_ps_fig:
+#   assets_out:
+#     ps_figure_theory:
+#       path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/cmb_ps_figure_theory.pdf"
+#       handler: EmptyHandler
+#     ps_figure_real:
+#       path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/cmb_ps_figure_real.pdf"
+#       handler: EmptyHandler
+#   assets_in:
+#     theory_ps: {stage: convert_theory_ps}
+#     auto_real: {stage: make_pred_ps}
+#     auto_pred: {stage: make_pred_ps}
+#     wmap_ave: {stage: ps_theory_stats}
+#     wmap_std: {stage: ps_theory_stats}
+#   splits:
+#     - ${splits.run_inference_on}
+#   epochs: ${use_epochs_ps_stats}
+#   override_n_sims: ${n_show_cap}
+#   dir_name: Analysis_7_F_Post_PS_Solo_Figs
