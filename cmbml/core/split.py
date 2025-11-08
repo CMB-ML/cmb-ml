@@ -22,6 +22,9 @@ class Split:
 
     def __str__(self):
         return self.name
+    
+    def __repr__(self):
+        return f"Split(name={self.name})"
 
     def iter_sims(self):
         return SplIterator(self)
@@ -45,3 +48,44 @@ class SplIterator:
 
     def __len__(self) -> int:
         return self.split.n_sims
+
+
+class Splits:
+    def __init__(self, splits, max_display: int = 10):
+        self._splits = list(splits)
+        self._by_name = {s.name.lower(): s for s in self._splits}
+        self._max_display = max_display
+
+    def __getitem__(self, key):
+        if isinstance(key, int):
+            return self._splits[key]
+        elif isinstance(key, str):
+            try:
+                return self._by_name[key.lower()]
+            except KeyError:
+                raise KeyError(f"Split with name '{key}' not found.")
+        else:
+            raise TypeError("Key must be an integer index or a string name.")
+    
+    def __len__(self):
+        return len(self._splits)
+    
+    def __iter__(self):
+        return iter(self._splits)
+    
+    def __repr__(self):
+        names = [s.name for s in self._splits]
+        total = len(names)
+        if total > self._max_display:
+            display  = names[:self._max_display] + [f"... {total - self._max_display} more ..."]
+        else:
+            display = names
+        return f"Splits({display})"
+    
+    __str__ = __repr__
+    
+    def names(self):
+        return list(self._by_name.keys())
+    
+    def get(self, name, default=None):
+        return self._by_name.get(name.lower(), default)

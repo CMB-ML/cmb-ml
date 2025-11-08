@@ -6,12 +6,15 @@ from difflib import get_close_matches
 
 from cmbml.core.asset import Asset, AssetWithPathAlts
 from cmbml.core.namers import Namer
-from cmbml.core.split import Split
+from cmbml.core.split import Split, Splits
 
 # from core.dataset import LabelledCMBMapDataset
 # from cmbml.utils.planck_instrument import make_instrument, Instrument
 # from core.asset_handlers.healpy_map_handler import HealpyMap
 # from core.asset_handlers.pytorch_model_handler import PyTorchModel
+
+import logging
+logger = logging.getLogger(__name__)
 
 
 class ConfigHelper:
@@ -153,12 +156,13 @@ def get_applicable_splits(cfg: DictConfig, stage_str: str) -> List[Split]:
 
     splits_scope = config_helper.get_stage_elem_silent("splits", stage_str)
     if splits_scope is None:
-        return []
+        return Splits([])
 
     filtered_names = [
         name
         for name in splits_all
         if any(name.lower().startswith(kind.lower()) for kind in splits_scope)
     ]
-
-    return [Split(name, splits_all_cfg[name]) for name in filtered_names]
+    splits = Splits([Split(name, splits_all_cfg[name]) for name in filtered_names])
+    logger.info(f"[DEBUG] Applicable {splits}")
+    return splits
