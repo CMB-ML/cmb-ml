@@ -171,6 +171,8 @@ def get_auto_ps_result(map_, lmax, is_convolved=False, beam=None, mask=None, nam
     """
     Returns an AutoSpectrum object with the power spectrum of the input map.
     """
+    unit = 1  # Safe default value, given how it is used in 8 lines
+              #   will be unaffected if map_ is not a Quantity
     if isinstance(map_, u.Quantity):
         unit = map_.unit
         map_ = map_.value

@@ -102,4 +102,8 @@ class MakePredPowerSpectrumExecutor(BaseStageExecutor):
                                           beam=self.beam_pred,
                                           is_convolved=True)
         ps = auto_pred_ps.deconv_dl
-        self.out_auto_pred.write(data=ps.value)
+        try:
+            ps = ps.value
+        except AttributeError:
+            pass
+        self.out_auto_pred.write(data=ps)
