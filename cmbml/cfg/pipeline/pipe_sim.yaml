@@ -120,6 +120,24 @@ make_sims:
   make_stage_log: True
   top_level_working: True
 
+make_sims_filter_noise:
+  assets_out:
+    obs_maps:
+      handler: HealpyMap
+      path_template: "{root}/{dataset}/{stage}/{split}/{sim}/obs_{freq}_map.fits"
+    cmb_map:
+      handler: HealpyMap
+      path_template: "{root}/{dataset}/{stage}/{split}/{sim}/cmb_map_fid.fits" 
+  assets_in:
+    planck_deltabandpass: {stage: raw}
+    noise_maps: {stage: make_noise}
+    sky_no_noise_maps: {stage: make_obs_no_noise}
+    cmb_map: {stage: make_obs_no_noise}
+  dir_name: Simulation_New
+  splits: *all_splits
+  make_stage_log: True
+  top_level_working: True
+
 make_mask:
   assets_out:
     mask:

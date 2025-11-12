@@ -16,5 +16,5 @@ from .stage_executors.H_A_prep_foregrounds import PrepForegroundsExecutor
 from .stage_executors.H_B_make_observations_with_pl_fgs import ObsCreatorPlFGsExecutor
 from .stage_executors.I_make_noise import NoiseMapCreatorExecutor, HalfMissionNoiseExecutor
 from .stage_executors.J_make_sims import SimCreatorExecutor
-
+from .stage_executors.J_make_sims_filter_noise import NoiseFilterSimCreatorExecutor
 from .stage_executors.L_make_mask import MaskCreatorExecutor
