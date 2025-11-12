@@ -162,7 +162,7 @@ def make_instrument(
         det_info = deltabandpass_asset.read()
         det_info = unpack_det_table(det_info)
     else:
-        det_info = det_info_override
+        det_info = unpack_det_table(det_info_override)
 
     # Determine minimum beam (FWHM) constraint
     if not use_min_fwhm:
