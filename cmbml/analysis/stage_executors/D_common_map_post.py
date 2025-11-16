@@ -167,7 +167,7 @@ class CommonPredPostExecutor(CommonPostExecutor):
     """
     def __init__(self, cfg: DictConfig) -> None:
         super().__init__(cfg, stage_str="common_post_map_pred")
-        self.beam_cfg = cfg.model.beam
+        self.beam_cfg = cfg.model.analysis.beam_type
 
 # class CommonCMBNNCSPredPostExecutor(CommonPostExecutor):
 #     """
