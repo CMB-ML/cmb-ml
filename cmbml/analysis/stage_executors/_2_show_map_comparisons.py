@@ -247,14 +247,14 @@ class ShowSimsPostExecutor(ShowSimsExecutor):
                 self.save_figure(self.suptitle, split, sim_n, field_str, out_asset)
 
 
-class CommonRealPostExecutor(ShowSimsPostExecutor):
-    def __init__(self, cfg: DictConfig) -> None:
-        stage_str = "show_cmb_post_masked"
-        super().__init__(cfg, stage_str=stage_str)
+# class CommonRealPostExecutor(ShowSimsPostExecutor):
+#     def __init__(self, cfg: DictConfig) -> None:
+#         stage_str = "show_cmb_post_masked"
+#         super().__init__(cfg, stage_str=stage_str)
 
 
-class CommonShowSimsPostExecutor(CommonRealPostExecutor):
-    def __init__(self, cfg: DictConfig) -> None:
-        super().__init__(cfg)
-        self.right_subplot_title = "NILC Predicted"
-        self.suptitle = cfg.fig_model_name
+# class CommonShowSimsPostExecutor(CommonRealPostExecutor):  # This is a confusing name. 
+#     def __init__(self, cfg: DictConfig) -> None:
+#         super().__init__(cfg)
+#         self.right_subplot_title = "NILC Predicted"
+#         self.suptitle = cfg.fig_model_name
