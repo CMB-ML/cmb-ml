@@ -181,6 +181,17 @@ one_ps_fig:  # Produce a power spectrum without needing the rest of the spectra 
   override_n_sims: ${n_show_cap}
   dir_name: Analysis_11_One_PS_Fig
 
+
+loss_plot:
+  assets_out:
+    fig:
+      handler: MPLFigure
+      path_template: "{root}/{dataset}/{working}{stage}/loss_plot.{fig_type}"
+  assets_in:
+    loss_record: {stage: train, orig_name: loss_record}
+  dir_name: Analysis_N_Loss_Plot
+  make_stage_log: False
+
 # ps_analysis:
 #   assets_out:
 #     report:
