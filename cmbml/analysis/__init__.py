@@ -28,6 +28,7 @@ from .stage_executors._3_pixel_summary_tables import PixelSummaryExecutor
 # from .stage_executors._13_pixel_compare_table import PixelCompareTableExecutor
 # from .stage_executors._14_post_ps_compare_fig import PostAnalysisPsCompareFigExecutor
 # from .stage_executors._15_ps_compare_table import PSCompareTableExecutor
+from .stage_executors._16_loss_plot import LossPlotExecutor
 
 # from .stage_executors.B_convert_ps_theory import ConvertTheoryPowerSpectrumExecutor
 # from .stage_executors.C_make_ps_theory_stats import MakeTheoryPSStats
