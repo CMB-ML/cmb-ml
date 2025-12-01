@@ -140,7 +140,7 @@ class NoiseFilterSimCreatorExecutor(BaseStageExecutor):
 
     def apply_filter(self, noise_maps, freq):
         unit = noise_maps.unit
-        alms = hp.map2alm(noise_maps)
+        alms = hp.map2alm(noise_maps)  # TOOD: Use lmax here
         fl = self.beam_filters[freq]
         hp.almxfl(alms, fl, inplace=True)
         out_map = hp.alm2map(alms, self.nside)
