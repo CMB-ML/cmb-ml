@@ -62,6 +62,7 @@ def run_simulations(cfg):
 
     pipeline_context = PipelineContext(cfg, log_maker)
 
+    pipeline_context.add_pipe(DownloadNoiseModelExecutor)
     pipeline_context.add_pipe(NoiseCacheExecutor)
     pipeline_context.add_pipe(FixedForegroundExecutor)
     if cfg.model.sim.cmb.use_chains:
