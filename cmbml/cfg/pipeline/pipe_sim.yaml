@@ -79,6 +79,7 @@ make_noise:
     noise_maps:  # Optional; see model.sim.noise.save_noise for flag to enable this
       handler: HealpyMap
       path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/noise_{freq}_map.fits"
+      path_template_alt: "{root}/{dataset}/{working}{stage}/{split}/noise_{freq}_map.fits"
   assets_in:
     # deltabandpass: {stage: raw}
     scale_cache: {stage: make_noise_cache}

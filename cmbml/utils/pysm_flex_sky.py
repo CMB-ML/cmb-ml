@@ -173,8 +173,9 @@ class FlexSky(pysm3.Sky):
             setattr(component, fg_param, u.Quantity(value, unit))
 
     def redraw_component(self, label: str, seeds, **kwargs) -> None:
-        if label not in ["d11", "s6"]:
-            raise NotImplementedError("This is only set up for .")
+        availabels = ["d11", "s6"]
+        if label not in availabels:
+            raise NotImplementedError(f"This is only set up for {availabels}.")
 
         try:
             component = self.comps_dict[label]

@@ -89,12 +89,15 @@ class NoiseMapCreatorExecutor(BaseStageExecutor):
             split (Split): The split to process.
         """
         logger.debug(f"Current time is{time.time()}")
-        with tqdm(total=split.n_sims, desc=f"{split.name}: ", leave=False) as pbar:
+        total = 1 if split.noise_fixed else split.n_sims
+        with tqdm(total=total, desc=f"{split.name}: ", leave=False) as pbar:
             for sim in split.iter_sims():
                 pbar.set_description(f"{split.name}: {sim:04d}")
                 with self.name_tracker.set_context("sim_num", sim):
                     self.process_sim(split, sim_num=sim)
                 pbar.update(1)
+                if split.noise_fixed:
+                    break
 
     def process_sim(self, split: Split, sim_num: int) -> None:
         """
@@ -114,7 +117,9 @@ class NoiseMapCreatorExecutor(BaseStageExecutor):
             column_names = [f"{stokes}_STOKES" for stokes in detector.fields]
 
             with self.name_tracker.set_contexts(dict(freq=freq)):
-                self.out_noise_maps.write(data=noise_map, column_names=column_names)
+                self.out_noise_maps.write(data=noise_map, 
+                                          column_names=column_names,
+                                          use_alt_path=split.noise_fixed)
             logger.debug(f"For {split.name}:{sim_name}, {freq} GHz: done with channel")
 
 
@@ -147,9 +152,9 @@ class HalfMissionNoiseExecutor(NoiseMapCreatorExecutor):
         self.noise_seed_factory   = SeedFactory(cfg.model.sim.noise.seed_template)
         NoiseMaker                = get_noise_class(cfg.model.sim.noise.noise_type)
         try:
-            self.noise_maker          = NoiseMaker(cfg, 
-                                                   self.name_tracker, 
-                                                   half_mission=True)
+            self.noise_maker      = NoiseMaker(cfg, 
+                                               self.name_tracker, 
+                                               half_mission=True)
         except TypeError as e:
             if "half_mission" in str(e):
                 raise NotImplementedError("This only works with a few classes of noise.")
