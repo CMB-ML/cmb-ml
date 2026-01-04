@@ -11,7 +11,7 @@ from .stage_executors.F2_make_fg_cache import PySMForegroundPrepExecutor
 from .stage_executors.G_make_power_spectra import TheoryPSExecutor
 from .stage_executors.H_make_observations import ObsCreatorExecutor
 from .stage_executors.H_make_observations_flex_fg import FlexObsCreatorExecutor
-from .stage_executors.H_make_observations_varied_fg_only import VariedFGsExecutor
+# from .stage_executors.H_make_observations_varied_fg_only import VariedFGsExecutor
 from .stage_executors.I_make_noise import NoiseMapCreatorExecutor, HalfMissionNoiseExecutor
 from .stage_executors.J_make_sims import SimCreatorExecutor
 from .stage_executors.J_make_sims_filter_noise import NoiseFilterSimCreatorExecutor
