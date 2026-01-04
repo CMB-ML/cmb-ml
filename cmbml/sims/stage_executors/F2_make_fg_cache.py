@@ -38,10 +38,6 @@ class PySMForegroundPrepExecutor(BaseStageExecutor):
         self.component_config = OmegaConf.to_container(cfg.model.sim.fgs, resolve=True)
         self.do_bandpass_integration_each_sim = cfg.model.sim.do_bandpass_int_each_sim
 
-        # A bit lazy here; I should make this two separate executors, but this way I can
-        #   simply load 
-        self.fixed_fg_maps = {}
-
     def execute(self) -> None:
         # Constant foregrounds are constant across all simulations, 
         #    regardless of split (e.g., same f1 in all sims)
@@ -50,10 +46,6 @@ class PySMForegroundPrepExecutor(BaseStageExecutor):
         # Fixed foregrounds are for a particular split 
         #    (e.g., d11 and s6 in the TestFFN)
         self.make_fixed_fgs()
-        self.purge_loaded_maps()
-
-    def purge_loaded_maps(self):
-        self.fixed_fg_maps = None
 
     def make_constant_fgs(self) -> None:
         logger.info("Making Sky for constant foreground map.")
@@ -77,14 +69,6 @@ class PySMForegroundPrepExecutor(BaseStageExecutor):
 
             with self.name_tracker.set_context("freq", det.nom_freq):
                 self.out_fg_map.write(data=skymap, use_alt_path=False)
-            
-            # Store maps now in case they're needed for fixed fgs
-            self.fixed_fg_maps[det.nom_freq] = skymap
-
-    def load_constant_fg_maps(self):
-        for det in self.instrument.dets.values():
-            with self.name_tracker.set_context("freq", det.nom_freq):
-                self.fixed_fg_maps[det.nom_freq] = self.in_fg_map.read(use_alt_path=False)
 
     def make_fixed_fgs(self) -> None:
         # If this split needs a single set of fixed foregrounds for all simulations...
@@ -108,7 +92,6 @@ class PySMForegroundPrepExecutor(BaseStageExecutor):
                 try:
                     # Crash here if fg_config asset isn't set up with path_alt.
                     #   Crash later if the file itself doesn't exist. 
-                    #   Hope this helps, future-me
                     self.in_fg_config.path_alt
                 except AttributeError:
                     raise NotImplementedError(f"fg_config not set in pipeline")
@@ -128,8 +111,8 @@ class PySMForegroundPrepExecutor(BaseStageExecutor):
                           preset_strings=None if self.use_constant_fg else self.preset_strings,
                           output_unit=self.sky_unit)
 
-            # Now update the parameters. This isn't used in the current CMB-ML, but
-            #   does change the SED-governing parameters as intended.
+            # Update SED parameters. This isn't used in the current CMB-ML
+            #   (but does change the SED-governing parameters if wanted)
             for fg, fg_params in all_fg_params.items():
                 is_seeds = "seeds" in fg_params.keys()
                 if not is_seeds:
@@ -152,9 +135,6 @@ class PySMForegroundPrepExecutor(BaseStageExecutor):
                     skymaps = skymaps[0]
                 # else:  # There may be other cases, but none come to mind.
                 #     pass
-
-                if self.use_constant_fg:
-                    skymaps = skymaps + self.fixed_fg_maps[freq]
 
                 column_names = []
                 for field_str in detector.fields:
