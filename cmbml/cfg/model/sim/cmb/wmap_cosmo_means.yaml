@@ -22,4 +22,4 @@ ell_max            : 8150  # Testing shows no change above ~3.5*nside
 seed_template      : "{split}_{sim}_cmb"
 make_ps_if_absent  : true
 
-seed               : 8675309
+# seed               : 8675309
