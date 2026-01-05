@@ -6,6 +6,9 @@ map_fields         : ${map_fields}
 precision          : float  # Is this used? No.
 units              : uK_CMB  # Used in many places (search for cfg.scenario.units)
 
+# If use_rimo, the transmission amounts per wavenumber from the RIMO are loaded
+#   this activates the use of bandpass integration! (Stop forgetting this, me!)
+# bandpass_integration = use_rimo! use_rimo = bandpass_integration!
 use_rimo           : true
 use_rimo_cen_freq  : true
 rimo_trim_to_mass  : 0.999
