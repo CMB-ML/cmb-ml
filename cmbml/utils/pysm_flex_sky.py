@@ -11,10 +11,13 @@ try:
 except ImportError:
     import importlib_resources as pkg_resources
 import cmbml.utils.flexsky as flexsky
+from cmbml.utils.flexsky.suppress_warning import suppress_complex_warning
 import pysm3.data as pysm3_data
 import toml
 from copy import deepcopy
 import logging
+import warnings
+from numpy import ComplexWarning
 
 
 logger = logging.getLogger(__name__)
@@ -38,7 +41,8 @@ class FlexSky(pysm3.Sky):
         self.validate_component_objects(component_objects, component_object_names)
         self.validate_preset_strings(preset_strings)
 
-        # This class will use a comps_dict, so each component can be changed later (without having to reload)
+        # This class will use a comps_dict, so each component can be changed later 
+        #    (without having to reload)
         if component_objects is None:
             self.comps_dict = {}
         else:
@@ -86,17 +90,20 @@ class FlexSky(pysm3.Sky):
                 module = pysm3.models
                 class_name = class_path
             model_class = getattr(module, class_name)
-            return model_class(**config, 
-                               nside=self.nside, 
-                               map_dist=self.map_dist)
+            with suppress_complex_warning():
+                new_component = model_class(**config, 
+                                            nside=self.nside, 
+                                            map_dist=self.map_dist)
+            return new_component
         else:
             sub_components = {}
             for label, subconfig in config.items():
                 class_path = subconfig.pop("class")
                 model_class = getattr(pysm3.models, class_path)
-                sub_components[label] = model_class(**subconfig,
-                                                    nside=self.nside,
-                                                    map_dist=self.map_dist)
+                with suppress_complex_warning():
+                    sub_components[label] = model_class(**subconfig,
+                                                        nside=self.nside,
+                                                        map_dist=self.map_dist)
             return sub_components
 
     def validate_component_objects(self, 
@@ -145,7 +152,8 @@ class FlexSky(pysm3.Sky):
 
     def update_component(self, label: str, update: Dict[str, Any]) -> None:
         """
-        Update attributes of a top-level component.
+        Update attributes of a top-level component. This is to be used for SED parameters.
+        For d11 and s6 (Realization*-type components), redraw them instead.
 
         Parameters
         ----------

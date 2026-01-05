@@ -6,19 +6,7 @@
 
 
 from pysm3.models import ModifiedBlackBodyRealization
-import warnings
-from contextlib import contextmanager
-
-
-@contextmanager
-def suppress_complex_warning():
-    with warnings.catch_warnings():
-        warnings.filterwarnings(
-            "ignore",
-            category=RuntimeWarning,
-            message=".*Casting complex values to real discards the imaginary part.*",
-        )
-        yield
+from cmbml.utils.flexsky.suppress_warning import suppress_complex_warning
 
 
 class FlexDust(ModifiedBlackBodyRealization):
