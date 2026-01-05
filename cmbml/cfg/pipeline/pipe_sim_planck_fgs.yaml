@@ -1,4 +1,5 @@
 make_fgs:
+  # For making foreground maps based on Planck observations (minus Planck predicted CMB map)
   assets_out:
     fg_maps:
       handler: HealpyMap
