@@ -49,7 +49,7 @@ class SimCreatorExecutor(BaseStageExecutor):
 
         self.in_noise: Asset = self.assets_in['noise_maps']
         self.in_sky  : Asset = self.assets_in['sky_no_noise_maps']
-        self.in_cmb  : Asset = self.assets_in['cmb_map']
+        self.in_cmb  : Asset = self.assets_in['cmb_map']  # Used for copying the map to the Simulations folder
         in_maps_handler: HealpyMap
 
         self.output_units = u.Unit(cfg.scenario.units)
