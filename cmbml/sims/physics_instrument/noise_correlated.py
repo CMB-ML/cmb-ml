@@ -6,6 +6,7 @@ import pysm3.units as u
 from cmbml.sims.physics_instrument.registry_noise import register_noise
 from cmbml.sims.physics_instrument.make_noise_scale import make_random_noise_map
 from cmbml.sims.physics_instrument.make_noise_scale import ScaleCacheMaker
+from cmbml.utils.planck_instrument import make_instrument, Instrument
 from cmbml.utils.physics_downgrade_by_alm import downgrade_noise_by_alm
 from cmbml.utils.planck_instrument import Detector
 from cmbml.core.config_helper import ConfigHelper
@@ -39,7 +40,8 @@ class NoiseCorrelatedCore:
         seed: int,
         noise_model: dict,
         sd_map: u.Quantity,
-        avg_map: u.Quantity=None
+        avg_map: u.Quantity=None,
+        beam_filter=None
     ) -> u.Quantity:
         """
         Generate a correlated noise map.
@@ -85,6 +87,8 @@ class NoiseCorrelatedCore:
         white_alms = hp.map2alm(white_map, lmax=self.lmax_out)
         white_cl = hp.alm2cl(white_alms)
         filt = np.sqrt(target_cl[: self.lmax_out + 1] / white_cl[: self.lmax_out + 1])
+        if beam_filter is not None:
+            filt *= beam_filter
         out_alms = hp.almxfl(white_alms, filt)
         out_map = hp.alm2map(out_alms, nside=self.nside_out)
         out_map = u.Quantity(out_map, unit=white_map.unit)
@@ -143,6 +147,7 @@ class NoiseStationary:
         self.map_fields = cfg.scenario.map_fields
         self.name_tracker = name_tracker
         self.n_planck_noise_sims = cfg.model.sim.noise.n_planck_noise_sims
+        self.do_beam_filter = cfg.model.sim.noise.do_beam_filter
 
         # Asset handlers
         _ch = ConfigHelper(cfg, "make_noise")
@@ -150,12 +155,20 @@ class NoiseStationary:
         self.in_noise_model = assets_in["noise_model"]
         self.in_scale_cache = assets_in["scale_cache"]
         self.in_noise_avg = assets_in["noise_avg"]
+        in_planck_bp_table = assets_in['planck_deltabandpass']
         in_map_handler = HealpyMap
 
         # Caches (to be lazy-loaded)
         self._noise_models: dict[int, dict] = {}
         self._sd_maps:  dict[int, u.Quantity] = {}
         self._avg_maps: dict[int, u.Quantity] = {}
+        self._beam_filters: dict[int, np.ndarray] = {}
+
+        # Instruments (needed for noise filtering)
+        self.instrument: Instrument = make_instrument(cfg=cfg)
+        planck_det_info = in_planck_bp_table.read()
+        self.planck_instrument: Instrument = make_instrument(cfg=cfg, 
+                                                             det_info_override=planck_det_info)
 
         # Core
         self.core = NoiseCorrelatedCore(
@@ -203,6 +216,18 @@ class NoiseStationary:
         self._sd_maps[detector.nom_freq] = sd_map
         self._avg_maps[detector.nom_freq] = avg_map
 
+        if self.do_beam_filter:
+            cmb_ml_fwhm = detector.fwhm
+            planck_fwhm = self.planck_instrument.dets[detector.nom_freq].fwhm
+            cmb_ml_beam = hp.gauss_beam(cmb_ml_fwhm.to(u.rad).value,
+                                        lmax=self.lmax_out)
+            planck_beam = hp.gauss_beam(planck_fwhm.to(u.rad).value,
+                                        lmax=self.lmax_out)
+            filter = cmb_ml_beam / planck_beam
+            self._beam_filters[detector.nom_freq] = filter
+        else:
+            self._beam_filters[detector.nom_freq] = None
+
     def get_noise_map(self, detector: Detector, seed: int):
         """
         Generate a noise map for a detector and seed, loading assets if needed.
@@ -222,12 +247,14 @@ class NoiseStationary:
         self._lazy_load_freq(detector)
         freq = detector.nom_freq
         with self.name_tracker.set_context("freq", freq):
-            return self.core.get_noise_map(
+            noise_map = self.core.get_noise_map(
                 seed,
                 self._noise_models[freq],
                 self._sd_maps[freq],
-                self._avg_maps[freq]
+                self._avg_maps[freq],
+                beam_filter = self._beam_filters[freq]
             )
+            return noise_map
 
 
 @register_noise("stationary_manual")
@@ -263,7 +290,8 @@ class NoiseStationaryManual:
                       seed: int, 
                       noise_model, 
                       sd_map, 
-                      avg_map):
+                      avg_map,
+                      beam_filter=None):
         """
         Generate a noise map directly from supplied arrays.
 
@@ -281,15 +309,23 @@ class NoiseStationaryManual:
             Standard-deviation map.
         avg_map : Quantity
             Average noise map, already downgraded to the target nside.
-
+        beam_filter : np.ndarray
+            Filter for the noise. Generally, gauss_beam(tgt_fwhm) / same(src_fwhm)
+            
         Returns
         -------
         Quantity
             Healpix map containing correlated noise in the appropriate units.
         """
+        if self.core.lmax_out > beam_filter.shape[0]:
+            logger.warning("Beam filter too small; padding with 0")
+            new_beam_filter = np.zeros(self.core.lmax_out)
+            new_beam_filter[:beam_filter.shape] = beam_filter
+            beam_filter = new_beam_filter
+        beam_filter = beam_filter[:self.core.lmax_out]
         if hp.get_nside(avg_map) != self.nside_out:
             avg_map = downgrade_noise_by_alm(avg_map, self.nside_out)
-        return self.core.get_noise_map(seed, noise_model, sd_map, avg_map)
+        return self.core.get_noise_map(seed, noise_model, sd_map, avg_map, beam_filter=beam_filter)
 
 
 @register_noise("correlated")
@@ -323,16 +359,25 @@ class NoiseCorrelated:
         self.map_fields = cfg.scenario.map_fields
         self.name_tracker = name_tracker
         self.n_planck_noise_sims = cfg.model.sim.noise.n_planck_noise_sims
+        self.do_beam_filter = cfg.model.sim.noise.do_beam_filter
 
         # Asset handlers
         _ch = ConfigHelper(cfg, "make_noise")
         assets_in = _ch.get_assets_in(name_tracker=self.name_tracker)
         self.in_noise_model = assets_in["noise_model"]
         self.in_scale_cache = assets_in["scale_cache"]
+        in_planck_bp_table = assets_in['planck_deltabandpass']
 
         # Caches (to be lazy-loaded)
         self._noise_models: dict[int, dict] = {}
         self._sd_maps:  dict[int, u.Quantity] = {}
+        self._beam_filters: dict[int, np.ndarray] = {}
+
+        # Instruments (needed for noise filtering)
+        self.instrument: Instrument = make_instrument(cfg=cfg)
+        planck_det_info = in_planck_bp_table.read()
+        self.planck_instrument: Instrument = make_instrument(cfg=cfg, 
+                                                             det_info_override=planck_det_info)
 
         # Core
         self.core = NoiseCorrelatedCore(
@@ -371,6 +416,19 @@ class NoiseCorrelated:
         self._noise_models[detector.nom_freq] = noise_model
         self._sd_maps[detector.nom_freq] = sd_map
 
+        if self.do_beam_filter:
+            cmb_ml_fwhm = detector.fwhm
+            planck_fwhm = self.planck_instrument.dets[detector.nom_freq].fwhm
+            cmb_ml_beam = hp.gauss_beam(cmb_ml_fwhm.to(u.rad).value,
+                                        lmax=self.lmax_out)
+            planck_beam = hp.gauss_beam(planck_fwhm.to(u.rad).value,
+                                        lmax=self.lmax_out)
+            filter = cmb_ml_beam / planck_beam
+            self._beam_filters[detector.nom_freq] = filter
+        else:
+            self._beam_filters[detector.nom_freq] = None
+
+
     def get_noise_map(self, detector: Detector, seed: int):
         """
         Generate a noise map for a detector and seed, loading assets if needed.
@@ -394,6 +452,7 @@ class NoiseCorrelated:
                 seed,
                 self._noise_models[freq],
                 self._sd_maps[freq],
+                beam_filter = self._beam_filters[freq]
             )
 
 
@@ -420,7 +479,7 @@ class NoiseCorrelatedManual:
         """
         self.core = NoiseCorrelatedCore(nside_out, lmax_out, map_fields, half_mission=half_mission)
 
-    def get_noise_map(self, seed: int, noise_model, sd_map):
+    def get_noise_map(self, seed: int, noise_model, sd_map, beam_filter=None):
         """
         Generate a noise map directly from supplied arrays.
 
@@ -436,10 +495,18 @@ class NoiseCorrelatedManual:
             - 'maps_unit'
         sd_map : Quantity
             Standard-deviation map.
+        beam_filter : np.ndarray
+            Filter for the noise. Generally, gauss_beam(tgt_fwhm) / same(src_fwhm)
 
         Returns
         -------
         Quantity
             Healpix map containing correlated noise in the appropriate units.
         """
-        return self.core.get_noise_map(seed, noise_model, sd_map)
+        if self.core.lmax_out > beam_filter.shape[0]:
+            logger.warning("Beam filter too small; padding with 0")
+            new_beam_filter = np.zeros(self.core.lmax_out)
+            new_beam_filter[:beam_filter.shape] = beam_filter
+            beam_filter = new_beam_filter
+        beam_filter = beam_filter[:self.core.lmax_out]
+        return self.core.get_noise_map(seed, noise_model, sd_map, beam_filter=beam_filter)

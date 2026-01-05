@@ -24,6 +24,7 @@ src_nside_lookup:
 seed_template      : "{split}_{sim}_{freq}_noise"
 save_noise: true  # Save noise if generating it in a separate executor as is done for the current implementation
 lmax_ratio_out_noise : 2.9999
+do_beam_filter: true
 
 hdu_n: ${scenario.ref_data_release.hdu_n}      # Consistent for these map files
 
