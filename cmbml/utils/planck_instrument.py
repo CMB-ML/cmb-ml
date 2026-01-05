@@ -91,7 +91,9 @@ class InstrumentCfg:
     txs: Optional[Iterable[np.ndarray]] = None
     # Instrument-level
     map_fields: str = "I"
-    bandpass_integration: bool = False  # Auto-set
+
+    # Bandpass integration is used when wns and txs are present (if RIMO is used)
+    bandpass_integration: bool = False
 
     def __post_init__(self):
         auto_flag = self.wns is not None and self.txs is not None
@@ -184,6 +186,8 @@ def make_instrument(
     fwhms = [max(det_info[f]["fwhm"], min_obs_beam) for f in nom_freqs]
 
     if use_rimo:
+        # If using the RIMO, then bandpass integration is used.
+        # the txs and wns (transmission levels [txs] per wavenumber [wns])
         rimo = {}
         for f in nom_freqs:
             if f in [30,44,70]:
