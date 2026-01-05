@@ -33,18 +33,6 @@ class SeedFactory:
                  seed_template: str) -> None:
         self.seed_template: str = seed_template
 
-    # def sim_num_str(self, sim: int) -> str:
-    #     """
-    #     Convert a simulation number to a string with a fixed number of digits.
-
-    #     Args:
-    #         sim (int): The simulation number.
-
-    #     Returns:
-    #         str: The simulation number as a string.
-    #     """
-    #     return f"{sim:0{self.str_num_digits}d}"
-
     def get_seed(self, **kwargs: Dict[str, str]) -> int:
         """
         Takes an arbitrary number of keyword arguments and returns a seed
