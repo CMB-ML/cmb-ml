@@ -78,7 +78,7 @@ class FlexObsCreatorExecutor(BaseStageExecutor):
         # self.in_noise_cache: Asset = self.assets_in['scale_cache']
         self.in_cmb_ps: AssetWithPathAlts = self.assets_in['cmb_ps']
         self.in_fg_config: Asset = self.assets_in['fg_config']
-        self.in_fixed_fg: Asset = self.assets_in['fg_maps']
+        self.in_fg_cache: Asset = self.assets_in['fg_maps']
         in_noise_cache_handler: Union[HealpyMap, NumpyPowerSpectrum]
         in_cmb_ps_handler: CambPowerSpectrum
 
@@ -88,7 +88,7 @@ class FlexObsCreatorExecutor(BaseStageExecutor):
         self.nside_out = cfg.scenario.nside
         logger.info(f"Simulations will be output at nside_out = {self.nside_out}")
         self.output_units = cfg.scenario.units
-        self.sky_unit = u.Unit(cfg.model.sim.sky_unit)
+        self.sky_flex_unit = u.Unit(cfg.model.sim.sky_unit)
         logger.info(f"Output units are {self.output_units}")
 
         self.component_config = OmegaConf.to_container(cfg.model.sim.fgs, resolve=True)
@@ -107,12 +107,14 @@ class FlexObsCreatorExecutor(BaseStageExecutor):
         self.cmb_seed_factory = SeedFactory(cfg.model.sim.cmb.seed_template)
         self.cmb_factory = CMBFactory(cfg)
 
-        self.use_fixed_fg = cfg.model.sim.get("use_fixed_fg", None)
+        self.use_constant_fg = cfg.model.sim.get("use_constant_fg", None)
 
         # Do not create the Sky object here, it takes too long and will slow down initial checks
-        self.sky = None
+        self.sky_flex = None
+        self.sky_cmb = None  # Only for use with split.fgs_fixed
         # Do not load maps until execute()
-        self.fixed_fg_maps = {}
+        self.fgs_const_maps = {}
+        self.fgs_fixed_maps = {}  # for use if a split needs these
 
     def execute(self) -> None:
         """
@@ -140,29 +142,76 @@ class FlexObsCreatorExecutor(BaseStageExecutor):
                 if isinstance(v, dict) and "dist" in v:
                     del v["dist"]
 
-        if self.use_fixed_fg:
+        if self.use_constant_fg:
             preset_strings = None
-            pysm_out_unit = self.sky_unit
-            self.load_fixed_fg_maps()
+            pysm_out_unit = self.sky_flex_unit
+            self.init_const_fg_maps()
             logger.info("Using fixed foreground maps instead of preset strings per sim.")
         else:
             preset_strings = self.preset_strings
             pysm_out_unit = self.output_units
 
         logger.debug('Creating Flexible Sky object')
-        self.sky = FlexSky(nside=self.nside_sky,
-                           component_objects=placeholder,
-                           component_object_names=placeholder_label,
-                           component_config=self.component_config,
-                           preset_strings=preset_strings,
-                           output_unit=pysm_out_unit)
+        self.sky_flex = FlexSky(nside=self.nside_sky,
+                                # CMB is the only placeholder used
+                                component_objects=placeholder,
+                                component_object_names=placeholder_label,
+                                # Create the to-be-changed (d11, s6) 
+                                #    components via component_config
+                                component_config=self.component_config,
+                                # Create static fgs via preset_strings
+                                #    (only if not using constant fgs)
+                                preset_strings=preset_strings,
+                                output_unit=pysm_out_unit)
         logger.debug('Done creating Flexible Sky object')
         self.default_execute()
+        self.purge_const_fg_maps()
 
-    def load_fixed_fg_maps(self):
+    def init_const_fg_maps(self):
+        # Constant foregrounds are the foregrounds constant across
+        #   all splits
+        if self.use_constant_fg:
+            for det in self.instrument.dets.keys():
+                with self.name_tracker.set_context("freq", det):
+                    # use_alt_path is false for the constant fgs
+                    self.fgs_const_maps[det] = self.in_fg_cache.read(use_alt_path=False)
+
+    def purge_const_fg_maps(self):
+        self.fgs_const_maps = {}
+
+    def init_fgs_fixed(self, split: Split):
+        # Fixed foregrounds are the foregrounds constant for one split
+        if not split.fgs_fixed:
+            return
         for det in self.instrument.dets.keys():
-            with self.name_tracker.set_context("freq", det):
-                self.fixed_fg_maps[det] = self.in_fixed_fg.read()
+            with self.name_tracker.set_contexts(dict(freq=det,
+                                                     split=split.name)):
+                # use_alt_path is true for the fixed fgs
+                self.fgs_fixed_maps[det] = self.in_fg_cache.read(use_alt_path=True)
+        
+        # Set up Sky object for this split
+        if self.include_cmb:
+            placeholder = [pysm3.Model(nside=self.nside_sky, max_nside=self.nside_sky)]
+            placeholder_label = ['cmb']
+        else:
+            # I don't know why this would be done, but sure, I'll keep it.
+            placeholder = None
+            placeholder_label = None
+
+        if self.use_constant_fg:
+            preset_strings = None
+        else:
+            preset_strings = self.preset_strings
+
+        logger.debug('Creating Flexible Sky object')
+        self.sky_cmb = FlexSky(nside=self.nside_sky,
+                               component_objects=placeholder,
+                               component_object_names=placeholder_label,
+                               preset_strings=preset_strings,
+                               output_unit=self.sky_flex_unit)
+
+    def purge_fgs_fixed(self):
+        self.fgs_fixed_maps = {}
 
     def process_split(self, split: Split) -> None:
         """
@@ -172,12 +221,14 @@ class FlexObsCreatorExecutor(BaseStageExecutor):
         Args:
             split (Split): The split to process.
         """
+        self.init_fgs_fixed(split)
         with tqdm(total=split.n_sims, desc=f"{split.name}: ", leave=False) as pbar:
             for sim in split.iter_sims():
                 pbar.set_description(f"{split.name}: {sim:04d}")
                 with self.name_tracker.set_context("sim_num", sim):
                     self.process_sim(split, sim_num=sim)
                 pbar.update(1)
+        self.purge_fgs_fixed()
 
     def process_sim(self, split: Split, sim_num: int) -> None:
         """
@@ -187,6 +238,7 @@ class FlexObsCreatorExecutor(BaseStageExecutor):
             split (Split): The split to process. Needed for some configuration information.
             sim_num (int): The simulation number.
         """
+        this_sky = self.sky_cmb if split.fgs_fixed else self.sky_flex
         sim_name = self.name_tracker.sim_name()  # For logging and seed generation
         logger.debug(f"Creating simulation {split.name}:{sim_name}")
 
@@ -197,17 +249,18 @@ class FlexObsCreatorExecutor(BaseStageExecutor):
             ps_path = self.in_cmb_ps.path_alt if split.ps_fidu_fixed else self.in_cmb_ps.path
             cmb = self.cmb_factory.make_cmb(cmb_seed, ps_path)
             # Replace placeholder CMB (or previous simulation's CMB) with new CMB
-            self.sky.replace_component('cmb', cmb)
+            this_sky.replace_component('cmb', cmb)
 
         # Get updated foreground parameters
-        all_fg_params = self.in_fg_config.read()
-        for fg, fg_params in all_fg_params.items():
-            is_seed = "seeds" in fg_params.keys()
-            if is_seed:  # Only applies to *Realization components
-                seeds = fg_params["seeds"]["value"]
-                self.sky.redraw_component(fg, seeds)
-            else:
-                self.sky.update_component(fg, fg_params)
+        if not split.fgs_fixed:
+            all_fg_params = self.in_fg_config.read(use_alt_path=False)
+            for fg, fg_params in all_fg_params.items():
+                is_seed = "seeds" in fg_params.keys()
+                if is_seed:  # Only applies to *Realization components
+                    seeds = fg_params["seeds"]["value"]
+                    this_sky.redraw_component(fg, seeds)
+                else:
+                    this_sky.update_component(fg, fg_params)
 
         # Track minimum FWHM; this will be used for the CMB map
         # DISABLED, per CS advisor suggestion that model should find the true realization...
@@ -216,9 +269,14 @@ class FlexObsCreatorExecutor(BaseStageExecutor):
 
         for freq, detector in self.instrument.dets.items():
             if self.instrument.bandpass_integration and self.do_bandpass_integration_each_sim:
-                skymaps = self.sky.get_emission(detector.wn, detector.tx)
+                skymaps = this_sky.get_emission(detector.wn, detector.tx)
             else:
-                skymaps = self.sky.get_emission(detector.cen_freq)
+                skymaps = this_sky.get_emission(detector.cen_freq)
+
+            if self.use_constant_fg:
+                skymaps += self.fgs_const_maps[freq]
+            if split.fgs_fixed:
+                skymaps += self.fgs_fixed_maps[freq]
 
             n_fields_sky = skymaps.shape[0]
             n_fields_det = len(detector.fields)
@@ -230,11 +288,8 @@ class FlexObsCreatorExecutor(BaseStageExecutor):
             # else:  # There may be other cases, but none come to mind.
             #     pass
 
-            if self.use_fixed_fg:
-                this_fg = self.fixed_fg_maps[freq]
-                skymaps = skymaps + this_fg
-                eq = u.cmb_equivalencies(detector.cen_freq)
-                skymaps = skymaps.to(self.output_units, equivalencies=eq)
+            eq = u.cmb_equivalencies(detector.cen_freq)
+            skymaps = skymaps.to(self.output_units, equivalencies=eq)
 
             # Use pysm3.apply_smoothing... to convolve the map with the planck detector beam
             map_smoothed = pysm3.apply_smoothing_and_coord_transform(skymaps,

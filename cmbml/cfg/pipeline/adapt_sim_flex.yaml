@@ -1,13 +1,21 @@
-make_fixed_fg:
+pysm_fg_prep:
   assets_out:
     fg_maps:
       handler: HealpyMap
-      path_template: "{root}/{dataset}/{working}{stage}/{freq}_fixed_fg.fits"
+      path_template: "{root}/{dataset}/{working}{stage}/{freq}_const_fg.fits"
+      # In this case, we use the path_template_alt for the simulations that are *only* for a particular split 
+      #    (and are otherwise common to all splits)
+      path_template_alt: "{root}/{dataset}/{working}{stage}/{split}/{freq}_fixed_fg.fits"
   assets_in:
+    fg_maps: {stage: pysm_fg_prep}
+    fg_config: {stage: make_fg_configs}
     deltabandpass: {stage: raw}
     lfi_rimo: {stage: raw}
     hfi_rimo: {stage: raw}
-  dir_name: Simulation_B_FixedForegrounds
+  splits:
+    # Only test may have different foregrounds
+    - test
+  dir_name: Simulation_F2_PySMForegroundPrep
 
 make_varied_fgs:
   assets_out:
@@ -26,4 +34,4 @@ make_varied_fgs:
 make_obs_no_noise:
   assets_in:
     fg_config: {stage: make_fg_configs}
-    fg_maps: {stage: make_fixed_fg}
+    fg_maps: {stage: pysm_fg_prep}

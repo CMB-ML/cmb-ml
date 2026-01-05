@@ -78,9 +78,6 @@ class PySMForegroundPrepExecutor(BaseStageExecutor):
 
             logger.info(f"Making Sky for fixed foreground map (split: {split.name})")
 
-            if len(self.fixed_fg_maps) == 0:
-                self.load_constant_fg_maps()
-
             for comp_dict in self.component_config.values():
                 if "dist" in comp_dict:
                     del comp_dict["dist"]

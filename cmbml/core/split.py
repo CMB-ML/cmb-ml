@@ -16,6 +16,7 @@ class Split:
         self.ps_fidu_fixed = split_cfg.get("ps_fidu_fixed", False)
         self.ps_fidu_planck = split_cfg.get("ps_fidu_planck", False)
         self.noise_fixed = split_cfg.get("noise_fixed", False)
+        self.fgs_fixed = split_cfg.get("fgs_fixed", False)
         if self.ps_fidu_planck and self.ps_fidu_fixed is None:
             self.ps_fidu_fixed = True
         if self.ps_fidu_planck and not self.ps_fidu_fixed:

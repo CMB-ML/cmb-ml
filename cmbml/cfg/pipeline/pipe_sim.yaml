@@ -32,6 +32,7 @@ make_fg_configs:
     fg_config:
       handler: Config
       path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/fg_params.yaml"
+      path_template_alt: "{root}/{dataset}/{working}{stage}/{split}/fg_params.yaml"
   splits: *all_splits
   dir_name: Simulation_C_Configs
   make_stage_log: False
@@ -81,7 +82,8 @@ make_noise:
       path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/noise_{freq}_map.fits"
       path_template_alt: "{root}/{dataset}/{working}{stage}/{split}/noise_{freq}_map.fits"
   assets_in:
-    # deltabandpass: {stage: raw}
+    deltabandpass: {stage: raw}
+    planck_deltabandpass: {stage: raw}
     scale_cache: {stage: make_noise_cache}
     noise_model: {stage: make_noise_models}
     noise_avg:   {stage: make_planck_noise_sims_avgs}

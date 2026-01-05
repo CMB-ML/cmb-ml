@@ -74,8 +74,10 @@ class ForegroundConfigExecutor(BaseStageExecutor):
         for sim in split.iter_sims():
             with self.name_tracker.set_context("sim_num", sim):
                 self.process_sim(split, sim)
+            if split.fgs_fixed:
+                break
 
-    def process_sim(self, split, sim):
+    def process_sim(self, split: Split, sim):
         settings = {}
         fg_distributions = deepcopy(self.fg_ranges)
         for fg, fg_settings in fg_distributions.items():
@@ -103,4 +105,4 @@ class ForegroundConfigExecutor(BaseStageExecutor):
                         settings[fg][param] = {"value": draw, "unit": unit}
                     else:
                         settings[fg][param] = {"value": draw}
-        self.out_fg_config.write(data=settings)
+        self.out_fg_config.write(data=settings, use_alt_path=split.fgs_fixed)
