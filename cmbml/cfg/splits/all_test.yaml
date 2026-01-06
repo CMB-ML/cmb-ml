@@ -1,20 +1,20 @@
-name: "1550"
-Test:
-  n_sims: 2  # 200
-  n_sims_cap: ${n_infer_cap}
+# name: "1550"
+# Test:
+#   n_sims: 2  # 200
+#   n_sims_cap: ${n_infer_cap}
 # TestFP:
 #   n_sims: 2  # 100
 #   n_sims_cap: ${n_infer_cap}
 #   ps_fidu_fixed: true
 #   ps_fidu_planck: true
-TestFFN:
-  n_sims: 2  # 100
-  n_sims_cap: ${n_infer_cap}
-  noise_fixed: true
-  fgs_fixed: true
+# TestFFN:
+#   n_sims: 2  # 100
+#   n_sims_cap: ${n_infer_cap}
+#   noise_fixed: true
+#   fgs_fixed: true
 # Train:
 #   n_sims: 2 # 1000
 # Valid:
 #   n_sims: 2  # 250
 #   n_sims_cap: ${n_infer_cap}
-run_inference_on: ${run_inference_on}
+# run_inference_on: ${run_inference_on}
