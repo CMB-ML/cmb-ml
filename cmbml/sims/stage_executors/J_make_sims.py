@@ -74,7 +74,7 @@ class SimCreatorExecutor(BaseStageExecutor):
             split (Split): The split to process.
         """
         logger.debug(f"Current time is{time.time()}")
-        with tqdm(total=split.n_sims, desc=f"{split.name}: ", leave=False) as pbar:
+        with tqdm(total=split.n_sims, desc=f"{split.name}: ", leave=True) as pbar:
             for sim in split.iter_sims():
                 pbar.set_description(f"{split.name}: {sim:04d}")
                 with self.name_tracker.set_context("sim_num", sim):
@@ -93,9 +93,9 @@ class SimCreatorExecutor(BaseStageExecutor):
         logger.debug(f"Creating simulation {split.name}:{sim_name}")
         for freq, detector in self.instrument.dets.items():
             with self.name_tracker.set_context("freq", freq):
-                noise_maps = self.in_noise.read(map_field_strs=detector.fields)
+                noise_maps = self.in_noise.read(map_field_strs=detector.fields, use_alt_path=split.noise_fixed)
                 sky_no_noise_maps = self.in_sky.read(map_field_strs=detector.fields)
-                column_names = get_field_types_from_fits(self.in_noise.path)  # path requires being in freq context
+                column_names = get_field_types_from_fits(self.in_sky.path)  # path requires being in freq context
 
             # Perform addition in-place 
             obs_maps = noise_maps.to(self.output_units, equivalencies=u.cmb_equivalencies(detector.cen_freq))
