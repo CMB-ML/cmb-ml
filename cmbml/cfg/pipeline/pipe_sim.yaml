@@ -77,7 +77,7 @@ make_obs_no_noise:
 
 make_noise:
   assets_out:
-    noise_maps:  # Optional; see model.sim.noise.save_noise for flag to enable this
+    noise_maps:
       handler: HealpyMap
       path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/noise_{freq}_map.fits"
       path_template_alt: "{root}/{dataset}/{working}{stage}/{split}/noise_{freq}_map.fits"
