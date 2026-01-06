@@ -87,15 +87,22 @@ class NoiseCorrelatedCore:
         white_alms = hp.map2alm(white_map, lmax=self.lmax_out)
         white_cl = hp.alm2cl(white_alms)
         filt = np.sqrt(target_cl[: self.lmax_out + 1] / white_cl[: self.lmax_out + 1])
-        if beam_filter is not None:
-            filt *= beam_filter
+        filt[:2] = 0  # Remove monopole and dipole
         out_alms = hp.almxfl(white_alms, filt)
         out_map = hp.alm2map(out_alms, nside=self.nside_out)
         out_map = u.Quantity(out_map, unit=white_map.unit)
 
         if avg_map is not None:
             # Mean-center and add average map
-            out_map = out_map - np.mean(out_map) + avg_map
+            out_map = out_map + avg_map
+
+        if beam_filter is not None:
+            # Need to hand beam effect filter *after* adding avg_map
+            out_alms = hp.map2alm(out_map, lmax=self.lmax_out)
+            out_alms = hp.almxfl(out_alms, beam_filter)
+            out_map = hp.alm2map(out_alms, nside=self.nside_out)
+            out_map = u.Quantity(out_map, unit=white_map.unit)
+
         return out_map
 
     def _sample_target_cls(self, noise_model: dict, seed: int):
