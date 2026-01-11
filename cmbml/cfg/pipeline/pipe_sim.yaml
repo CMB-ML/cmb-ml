@@ -100,9 +100,9 @@ make_hm_noise:
   assets_in:
     deltabandpass: {stage: raw}
     planck_deltabandpass: {stage: raw}
-    scale_cache: {stage: make_noise_cache, working: Simulation_Working}
-    noise_model: {stage: make_noise_models, working: Simulation_Working}
-    noise_avg:   {stage: make_planck_noise_sims_avgs, working: Simulation_Working}
+    scale_cache: {stage: make_noise_cache}
+    noise_model: {stage: make_noise_models}
+    noise_avg:   {stage: make_planck_noise_sims_avgs}
   dir_name: Simulation_E_Noise
   splits:
     - test
