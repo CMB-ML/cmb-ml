@@ -17,6 +17,11 @@ class Split:
         self.ps_fidu_planck = split_cfg.get("ps_fidu_planck", False)
         self.noise_fixed = split_cfg.get("noise_fixed", False)
         self.fgs_fixed = split_cfg.get("fgs_fixed", False)
+        self.resume_at = split_cfg.get("resume_at", 0)  # For use when, e.g., power goes out. 
+                                                        #   User needs to set all complete splits
+                                                        #   to "resume_at" the number of simulations
+                                                        #   and can then finish unfinished splits.
+                                                        #   Run only the interrupted stage!
         if self.ps_fidu_planck and self.ps_fidu_fixed is None:
             self.ps_fidu_fixed = True
         if self.ps_fidu_planck and not self.ps_fidu_fixed:
@@ -35,7 +40,7 @@ class Split:
 class SplIterator:
     def __init__(self, split):
         self.split = split
-        self.current_sim = 0
+        self.current_sim = split.resume_at
 
     def __iter__(self):
         return self
@@ -49,7 +54,7 @@ class SplIterator:
             raise StopIteration
 
     def __len__(self) -> int:
-        return self.split.n_sims
+        return self.split.n_sims - self.split.resume_at
 
 
 class Splits:
