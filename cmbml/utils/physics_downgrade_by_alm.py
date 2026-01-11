@@ -9,7 +9,7 @@ import pysm3
 logger = logging.getLogger(__name__)
 
 
-def downgrade_noise_by_alm(some_map, target_nside, lmax_target=None):
+def downgrade_noise_by_alm(some_map, target_nside, lmax_source=None, lmax_target=None):
     if hp.get_nside(some_map) == target_nside:
         logger.info("The map is already at the target nside.")
         return some_map
@@ -18,12 +18,16 @@ def downgrade_noise_by_alm(some_map, target_nside, lmax_target=None):
     except AttributeError:
         map_unit = None
     source_nside = hp.get_nside(some_map)
-    assert target_nside <= source_nside/2, "Target nside must be less than the source nside"
-    lmax_source = 3 * source_nside - 1
+    if target_nside > source_nside/2:
+        raise ValueError("Target nside must be less than the source nside")
+    if lmax_source is None:
+        lmax_source = int(3 * source_nside) - 1
+        logger.info(f"Downgrading noise by alm; using lmax_source={lmax_source}")
     alm = hp.map2alm(some_map, lmax=lmax_source)
 
     if lmax_target is None:
         lmax_target = int(3 * target_nside - 1)
+        logger.info(f"Downgrading noise by alm; using lmax_target={lmax_target}")
     alm_filter = np.zeros(lmax_source+1)
     alm_filter[:lmax_target+1] = 1
     alm_filtered = hp.almxfl(alm, alm_filter)
