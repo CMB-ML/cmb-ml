@@ -91,7 +91,7 @@ class NoiseMapCreatorExecutor(BaseStageExecutor):
         Args:
             split (Split): The split to process.
         """
-        logger.debug(f"Current time is{time.time()}")
+        # logger.debug(f"Current time is {time.time()}")
         total = 1 if split.noise_fixed else split.n_sims
         with tqdm(total=total, desc=f"{split.name}: ", leave=False) as pbar:
             for sim in split.iter_sims():

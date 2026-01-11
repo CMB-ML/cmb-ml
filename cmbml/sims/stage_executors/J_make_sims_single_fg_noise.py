@@ -104,7 +104,7 @@ class SingleNoiseSimCreatorExecutor(BaseStageExecutor):
             split (Split): The split to process.
         """
         self.load_fixed_split_maps()
-        logger.debug(f"Current time is{time.time()}")
+        # logger.debug(f"Current time is {time.time()}")
         with tqdm(total=split.n_sims, desc=f"{split.name}: ", leave=False) as pbar:
             for sim in split.iter_sims():
                 pbar.set_description(f"{split.name}: {sim:04d}")
