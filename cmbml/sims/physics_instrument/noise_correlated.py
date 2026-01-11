@@ -139,6 +139,7 @@ class NoiseStationary:
     def __init__(self, 
                  cfg, 
                  name_tracker, 
+                 stage_str=None,
                  half_mission:bool=False):
         """
         Parameters
@@ -156,8 +157,11 @@ class NoiseStationary:
         self.n_planck_noise_sims = cfg.model.sim.noise.n_planck_noise_sims
         self.do_beam_filter = cfg.model.sim.noise.do_beam_filter
 
+        if stage_str is None:
+            raise ValueError("Stage string must be specified.")
+
         # Asset handlers
-        _ch = ConfigHelper(cfg, "make_noise")
+        _ch = ConfigHelper(cfg, stage_str)
         assets_in = _ch.get_assets_in(name_tracker=self.name_tracker)
         self.in_noise_model = assets_in["noise_model"]
         self.in_scale_cache = assets_in["scale_cache"]
@@ -351,7 +355,7 @@ class NoiseCorrelated:
     """
     cache_maker = ScaleCacheMaker
 
-    def __init__(self, cfg, name_tracker, half_mission:bool=False):
+    def __init__(self, cfg, name_tracker, stage_str=None, half_mission:bool=False):
         """
         Parameters
         ----------
@@ -368,8 +372,11 @@ class NoiseCorrelated:
         self.n_planck_noise_sims = cfg.model.sim.noise.n_planck_noise_sims
         self.do_beam_filter = cfg.model.sim.noise.do_beam_filter
 
+        if stage_str is None:
+            raise ValueError("Stage string must be specified.")
+
         # Asset handlers
-        _ch = ConfigHelper(cfg, "make_noise")
+        _ch = ConfigHelper(cfg, stage_str)
         assets_in = _ch.get_assets_in(name_tracker=self.name_tracker)
         self.in_noise_model = assets_in["noise_model"]
         self.in_scale_cache = assets_in["scale_cache"]

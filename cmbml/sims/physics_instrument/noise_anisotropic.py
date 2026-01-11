@@ -49,7 +49,7 @@ class NoiseAnisotropic:
     """
     cache_maker = ScaleCacheMaker
 
-    def __init__(self, cfg, name_tracker):
+    def __init__(self, cfg, name_tracker, stage_str=None):
         """
         Parameters
         ----------

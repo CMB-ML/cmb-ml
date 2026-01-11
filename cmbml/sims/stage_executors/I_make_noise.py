@@ -52,7 +52,8 @@ class NoiseMapCreatorExecutor(BaseStageExecutor):
     """
     def __init__(self, cfg: DictConfig) -> None:
         # The following stage_str must match the pipeline yaml
-        super().__init__(cfg, stage_str='make_noise')
+        stage_str = 'make_noise'
+        super().__init__(cfg, stage_str=stage_str)
 
         self.out_noise_maps: Asset = self.assets_out['noise_maps']
         out_noise_maps_handler: HealpyMap
@@ -70,7 +71,9 @@ class NoiseMapCreatorExecutor(BaseStageExecutor):
 
         self.noise_seed_factory   = SeedFactory(cfg.model.sim.noise.seed_template)
         NoiseMaker                = get_noise_class(cfg.model.sim.noise.noise_type)
-        self.noise_maker          = NoiseMaker(cfg, self.name_tracker)
+        self.noise_maker          = NoiseMaker(cfg, 
+                                               self.name_tracker, 
+                                               stage_str=stage_str)
 
     def execute(self) -> None:
         """
@@ -133,7 +136,8 @@ class HalfMissionNoiseExecutor(NoiseMapCreatorExecutor):
     """
     def __init__(self, cfg: DictConfig) -> None:
         # The following stage_str must match the pipeline yaml
-        BaseStageExecutor.__init__(self, cfg, stage_str='make_hm_noise')
+        stage_str='make_hm_noise'
+        BaseStageExecutor.__init__(self, cfg, stage_str=stage_str)
 
         self.out_noise_maps: Asset = self.assets_out['noise_maps']
         out_noise_maps_handler: HealpyMap
@@ -154,6 +158,7 @@ class HalfMissionNoiseExecutor(NoiseMapCreatorExecutor):
         try:
             self.noise_maker      = NoiseMaker(cfg, 
                                                self.name_tracker, 
+                                               stage_str=stage_str,
                                                half_mission=True)
         except TypeError as e:
             if "half_mission" in str(e):

@@ -96,13 +96,16 @@ make_hm_noise:
     noise_maps:
       handler: HealpyMap
       path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/noise_{freq}_map_hm{hm}.fits"
+      path_template_alt: "{root}/{dataset}/{working}{stage}/{split}/noise_{freq}_map_hm{hm}.fits"
   assets_in:
-    # deltabandpass: {stage: raw}
-    scale_cache: {stage: make_noise_cache}
-    noise_model: {stage: make_noise_models}
-    noise_avg:   {stage: make_planck_noise_sims_avgs}
-  dir_name: Simulation_F_HalfMissionNoise
-  splits: *all_splits
+    deltabandpass: {stage: raw}
+    planck_deltabandpass: {stage: raw}
+    scale_cache: {stage: make_noise_cache, working: Simulation_Working}
+    noise_model: {stage: make_noise_models, working: Simulation_Working}
+    noise_avg:   {stage: make_planck_noise_sims_avgs, working: Simulation_Working}
+  dir_name: Simulation_E_Noise
+  splits:
+    - test
   make_stage_log: True
 
 make_sims:
@@ -123,23 +126,23 @@ make_sims:
   make_stage_log: True
   top_level_working: True
 
-make_sims_filter_noise:
-  assets_out:
-    obs_maps:
-      handler: HealpyMap
-      path_template: "{root}/{dataset}/{stage}/{split}/{sim}/obs_{freq}_map.fits"
-    cmb_map:
-      handler: HealpyMap
-      path_template: "{root}/{dataset}/{stage}/{split}/{sim}/cmb_map_fid.fits" 
-  assets_in:
-    planck_deltabandpass: {stage: raw}
-    noise_maps: {stage: make_noise}
-    sky_no_noise_maps: {stage: make_obs_no_noise}
-    cmb_map: {stage: make_obs_no_noise}
-  dir_name: Simulation_New
-  splits: *all_splits
-  make_stage_log: True
-  top_level_working: True
+# make_sims_filter_noise:
+#   assets_out:
+#     obs_maps:
+#       handler: HealpyMap
+#       path_template: "{root}/{dataset}/{stage}/{split}/{sim}/obs_{freq}_map.fits"
+#     cmb_map:
+#       handler: HealpyMap
+#       path_template: "{root}/{dataset}/{stage}/{split}/{sim}/cmb_map_fid.fits" 
+#   assets_in:
+#     planck_deltabandpass: {stage: raw}
+#     noise_maps: {stage: make_noise}
+#     sky_no_noise_maps: {stage: make_obs_no_noise}
+#     cmb_map: {stage: make_obs_no_noise}
+#   dir_name: Simulation_New
+#   splits: *all_splits
+#   make_stage_log: True
+#   top_level_working: True
 
 make_mask:
   assets_out:
