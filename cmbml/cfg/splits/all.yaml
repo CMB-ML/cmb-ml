@@ -2,22 +2,22 @@ name: "1850"
 Test:
   n_sims: 200
   n_sims_cap: ${n_infer_cap}
-  resume_at: 200
+  # resume_at: 200
 TestFP:
   n_sims: 200
   n_sims_cap: ${n_infer_cap}
   ps_fidu_fixed: true
   ps_fidu_planck: true
-  resume_at: 200
+  # resume_at: 200
 TestFFN:
   n_sims: 200
   n_sims_cap: ${n_infer_cap}
   noise_fixed: true
   fgs_fixed: true
-  resume_at: 200
+  # resume_at: 200
 Train:
   n_sims: 1000
-  resume_at: 613
+  # resume_at: 613
 Valid:
   n_sims: 250
   n_sims_cap: ${n_infer_cap}
