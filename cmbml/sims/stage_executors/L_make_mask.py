@@ -97,7 +97,7 @@ def use_namaster(mask, mask_apo_size, mask_apo_type):
 
 def use_hp_smoothing(mask, mask_apo_size):
     # Not recommended! This includes masked regions of the map in analysis!
-    mask_apo_size_rad = mask_apo_size.to(u.rad)
+    mask_apo_size_rad = mask_apo_size.to(u.rad).value
     apo_mask = hp.smoothing(mask, fwhm=mask_apo_size_rad)
     return apo_mask
 
