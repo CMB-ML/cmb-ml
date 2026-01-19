@@ -153,7 +153,7 @@ class MakePlanckNoiseModelExecutor(BaseStageExecutor):
 
                 # This is the slow part
                 noise_map = noise_map - avg_noise_map
-                noise_l = get_autopower(noise_map, use_mask, lmax)
+                noise_l = get_autopower(noise_map, use_mask, lmax, n_iter=3)  # n_iter hard-coded to hp default
                 noise_ls.append(noise_l)
 
                 if sim_num == 0:
