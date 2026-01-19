@@ -12,11 +12,11 @@ from cmbml.utils.physics_beam import Beam, NoBeam, ensure_beam
 logger = logging.getLogger(__name__)
 
 
-def get_autopower(map_, mask, lmax):
-    return get_xpower(map1=map_, map2=None, mask=mask, lmax=lmax)
+def get_autopower(map_, mask, lmax, n_iter):
+    return get_xpower(map1=map_, map2=None, mask=mask, lmax=lmax, n_iter=n_iter)
 
 
-def get_xpower(map1, map2, mask, lmax, use_pixel_weights=False):
+def get_xpower(map1, map2, mask, lmax, n_iter, use_pixel_weights=False):
     if mask is None:
         ps = hp.anafast(map1, map2, lmax=lmax, use_pixel_weights=use_pixel_weights)
     else:
@@ -31,6 +31,7 @@ def get_xpower(map1, map2, mask, lmax, use_pixel_weights=False):
         ps = hp.anafast(input1,
                         input2,
                         lmax=lmax,
+                        iter=n_iter,
                         use_pixel_weights=use_pixel_weights)
         ps = ps / fsky
     return ps
@@ -167,7 +168,7 @@ class CrossSpectrum(PowerSpectrum):
             logger.warning("CrossSpectrum is already deconvolved. No action taken.")
 
 
-def get_auto_ps_result(map_, lmax, is_convolved=False, beam=None, mask=None, name=None) -> PowerSpectrum:
+def get_auto_ps_result(map_, lmax, n_iter, is_convolved=False, beam=None, mask=None, name=None) -> PowerSpectrum:
     """
     Returns an AutoSpectrum object with the power spectrum of the input map.
     """
@@ -177,13 +178,25 @@ def get_auto_ps_result(map_, lmax, is_convolved=False, beam=None, mask=None, nam
         unit = map_.unit
         map_ = map_.value
     beam = ensure_beam(beam, lmax=lmax)
-    cl = get_autopower(map_, mask, lmax)
+    cl = get_autopower(map_, mask, lmax, n_iter)
     ells = np.arange(lmax + 1)
     cl = cl * (unit ** 2)
     return AutoSpectrum(name, cl, ells, beam, is_convolved)
 
 
-def get_x_ps_result(map1, map2, lmax, is_convolved=False, beam1=None, beam2=None, mask=None, name=None) -> PowerSpectrum:
+def get_x_ps_result(map1, map2, lmax, n_iter, is_convolved=False, beam1=None, beam2=None, mask=None, name=None) -> PowerSpectrum:
+    unit1 = 1
+    unit2 = 1
+    if isinstance(map1, u.Quantity):
+        unit1 = map1.unit
+        map1 = map1.value
+    if isinstance(map2, u.Quantity):
+        unit2 = map2.unit
+        map2 = map2.value
+    if unit1 != unit2:
+        raise NotImplementedError("Cannot handle maps with different units.")
+    unit = unit1
+
     if beam1 is None:
         beam1 = NoBeam(lmax)
     if beam2 is None:
@@ -192,6 +205,8 @@ def get_x_ps_result(map1, map2, lmax, is_convolved=False, beam1=None, beam2=None
     cl = get_xpower(map1=map1,
                     map2=map2,
                     mask=mask,
-                    lmax=lmax)
+                    lmax=lmax,
+                    n_iter=n_iter)
     ells = np.arange(lmax + 1)
+    cl = cl * (unit ** 2)
     return CrossSpectrum(name, cl, ells, beam1, beam2, is_convolved)
