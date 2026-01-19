@@ -69,10 +69,12 @@ class MakePredPowerSpectrumExecutor(BaseStageExecutor):
             logger.info(f"Using mask from {self.in_mask.path}")
             if self.use_sm_mask:
                 mask = self.in_mask_sm.read(map_fields=self.in_mask_sm.use_fields)[0]
+                if hp.npix2nside(mask.size) != self.nside_out:
+                    raise ValueError("Smooth mask loaded does not match Nside of maps for analysis.")
             else:
                 mask = self.in_mask.read(map_fields=self.in_mask.use_fields)[0]
-        if hp.npix2nside(mask.size) != self.nside_out:
-            mask = downgrade_mask(mask, self.nside_out, threshold=self.mask_threshold)
+                if hp.npix2nside(mask.size) != self.nside_out:
+                    mask = downgrade_mask(mask, self.nside_out, threshold=self.mask_threshold)
         return mask
 
     def get_pred_beam(self):
