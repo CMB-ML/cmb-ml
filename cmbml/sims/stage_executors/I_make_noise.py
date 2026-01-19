@@ -184,7 +184,7 @@ class HalfMissionNoiseExecutor(NoiseMapCreatorExecutor):
             column_names = [f"{stokes}_STOKES" for stokes in detector.fields]
 
             with self.name_tracker.set_contexts(dict(freq=freq, hm=1)):
-                self.out_noise_maps.write(data=noise_map, column_names=column_names)
+                self.out_noise_maps.write(data=noise_map, column_names=column_names, use_alt_path=split.noise_fixed)
 
             noise_seed   = self.noise_seed_factory.get_seed(split=split.name, 
                                                             sim=sim_name + "_hm2", 
@@ -193,6 +193,6 @@ class HalfMissionNoiseExecutor(NoiseMapCreatorExecutor):
             column_names = [f"{stokes}_STOKES" for stokes in detector.fields]
 
             with self.name_tracker.set_contexts(dict(freq=freq, hm=2)):
-                self.out_noise_maps.write(data=noise_map, column_names=column_names)
+                self.out_noise_maps.write(data=noise_map, column_names=column_names, use_alt_path=split.noise_fixed)
 
             logger.debug(f"For {split.name}:{sim_name}, {freq} GHz: done with channel")
