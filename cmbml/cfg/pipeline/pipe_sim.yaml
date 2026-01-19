@@ -58,16 +58,11 @@ make_obs_no_noise:
   assets_out:
     cmb_map:
       handler: HealpyMap
-      path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/cmb_map_fid.fits"  # Changed for working dir while using separate noise
+      path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/cmb_map_fid.fits"
     sky_no_noise_maps:
       handler: HealpyMap
-      path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/sky_{freq}_no_noise_map.fits"  # Changed for working dir while using separate noise
-    # noise_maps:  # Optional; see model.sim.noise.save_noise for flag to enable this. Removed for separate noise generation.
-    #   handler: HealpyMap
-    #   path_template: "{root}/{dataset}/{stage}/{split}/{sim}/noise_{freq}_map.fits"
+      path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/sky_{freq}_no_noise_map.fits"
   assets_in:
-    # deltabandpass: {stage: raw}
-    # scale_cache: {stage: make_noise_cache}
     cmb_ps: {stage: make_theory_ps}
     # fg_config: {stage: make_fg_configs}
   splits: *all_splits
@@ -91,23 +86,6 @@ make_noise:
   splits: *all_splits
   make_stage_log: True
 
-make_hm_noise:
-  assets_out:
-    noise_maps:
-      handler: HealpyMap
-      path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/noise_{freq}_map_hm{hm}.fits"
-      path_template_alt: "{root}/{dataset}/{working}{stage}/{split}/noise_{freq}_map_hm{hm}.fits"
-  assets_in:
-    deltabandpass: {stage: raw}
-    planck_deltabandpass: {stage: raw}
-    scale_cache: {stage: make_noise_cache}
-    noise_model: {stage: make_noise_models}
-    noise_avg:   {stage: make_planck_noise_sims_avgs}
-  dir_name: Simulation_E_Noise
-  splits:
-    - test
-  make_stage_log: True
-
 make_sims:
   assets_out:
     obs_maps:
@@ -124,6 +102,37 @@ make_sims:
   dir_name: Simulation
   splits: *all_splits
   make_stage_log: True
+  top_level_working: True
+
+make_hm_noise:
+  assets_out:
+    noise_maps:
+      handler: HealpyMap
+      path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/noise_{freq}_map_hm{hm}.fits"
+      path_template_alt: "{root}/{dataset}/{working}{stage}/{split}/noise_{freq}_map_hm{hm}.fits"
+  assets_in:
+    deltabandpass: {stage: raw}
+    planck_deltabandpass: {stage: raw}
+    scale_cache: {stage: make_noise_cache}
+    noise_model: {stage: make_noise_models}
+    noise_avg:   {stage: make_planck_noise_sims_avgs}
+  dir_name: Simulation_E2_HM_Noise
+  splits: &test
+    - test
+  make_stage_log: False
+
+make_hm_sims:
+  assets_out:
+    obs_maps:
+      handler: HealpyMap
+      path_template: "{root}/{dataset}/{stage}/{split}/{sim}/obs_{freq}_map_hm{hm}.fits"
+  assets_in:
+    noise_maps: {stage: make_hm_noise}
+    # sky_no_noise_maps: {stage: make_obs_no_noise, working: *sw}
+    sky_no_noise_maps: {stage: make_obs_no_noise}
+  dir_name: Simulation_HM_Maps
+  splits: *test
+  make_stage_log: False
   top_level_working: True
 
 # make_sims_filter_noise:
