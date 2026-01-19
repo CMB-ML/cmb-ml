@@ -102,6 +102,7 @@ class MakePredPowerSpectrumExecutor(BaseStageExecutor):
         auto_pred_ps = get_auto_ps_result(pred_map,
                                           mask=self.mask,
                                           lmax=self.lmax,
+                                          n_iter=self.anafast_iters,
                                           beam=self.beam_pred,
                                           is_convolved=True)
         ps = auto_pred_ps.deconv_dl
