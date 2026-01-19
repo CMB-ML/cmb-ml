@@ -96,3 +96,23 @@ class Splits:
     
     def get(self, name, default=None):
         return self._by_name.get(name.lower(), default)
+
+    _NO_DEFAULT = object()
+
+    def pop(self, name, default=_NO_DEFAULT):
+        key = name.lower()
+
+        if key not in self._by_name:
+            if default is self._NO_DEFAULT:
+                raise KeyError(f"Split with name '{name}' not found.")
+            return default
+
+        split = self._by_name.pop(key)
+
+        # remove from ordered list
+        for i, s in enumerate(self._splits):
+            if s is split:
+                self._splits.pop(i)
+                break
+
+        return split
