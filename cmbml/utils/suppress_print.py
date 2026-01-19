@@ -12,6 +12,19 @@ class SuppressPrint:
         sys.stdout = self._original_stdout
 
 
+class SuppressPrintErr:
+    def __enter__(self):
+        self._original_stdout = sys.stdout
+        self._original_stderr = sys.stderr
+        sys.stdout = io.StringIO()
+        sys.stderr = io.StringIO()
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        sys.stdout = self._original_stdout
+        sys.stderr = self._original_stderr
+
+
 if __name__ == "__main__":
     # Usage:
     with SuppressPrint():
