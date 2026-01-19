@@ -20,8 +20,8 @@ logger = logging.getLogger(__name__)
 
 
 class PySMForegroundPrepExecutor(BaseStageExecutor):
-    def __init__(self, cfg: DictConfig) -> None:
-        super().__init__(cfg, stage_str="pysm_fg_prep")
+    def __init__(self, cfg: DictConfig, stage_str="pysm_fg_prep") -> None:
+        super().__init__(cfg, stage_str=stage_str)
 
         self.out_fg_map: Asset = self.assets_out['fg_maps']
         out_map_handler: HealpyMap

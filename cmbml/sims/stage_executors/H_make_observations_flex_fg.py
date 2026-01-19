@@ -35,7 +35,7 @@ import healpy as hp
 logger = logging.getLogger(__name__)
 
 
-class FlexObsCreatorExecutor(BaseStageExecutor):
+class ObsCreatorExecutor(BaseStageExecutor):
     """
     SimCreatorExecutor is responsible for generating the simulated maps for a given simulation scenario.
 
@@ -65,18 +65,21 @@ class FlexObsCreatorExecutor(BaseStageExecutor):
         process_sim(split: Split, sim_num: int) -> None:
             Processes the given split and simulation number.
     """
-    def __init__(self, cfg: DictConfig) -> None:
+    def __init__(self, cfg: DictConfig, stage_str='make_obs_no_noise') -> None:
         # The following stage_str must match the pipeline yaml
-        super().__init__(cfg, stage_str='make_obs_no_noise')
+        super().__init__(cfg, stage_str=stage_str)
 
-        self.out_cmb_map: Asset = self.assets_out['cmb_map']
+        self.include_cmb = cfg.model.sim.get("include_cmb", True)
+        if self.include_cmb:
+            self.out_cmb_map: Asset = self.assets_out['cmb_map']
         self.out_sky_maps: Asset = self.assets_out['sky_no_noise_maps']
         # self.out_noise_maps: Asset = self.assets_out['noise_maps']
         out_cmb_map_handler: HealpyMap
         out_obs_maps_handler: HealpyMap
 
         # self.in_noise_cache: Asset = self.assets_in['scale_cache']
-        self.in_cmb_ps: AssetWithPathAlts = self.assets_in['cmb_ps']
+        if self.include_cmb:
+            self.in_cmb_ps: AssetWithPathAlts = self.assets_in['cmb_ps']
         self.in_fg_config: Asset = self.assets_in['fg_config']
         self.in_fg_cache: Asset = self.assets_in['fg_maps']
         in_noise_cache_handler: Union[HealpyMap, NumpyPowerSpectrum]
@@ -103,7 +106,6 @@ class FlexObsCreatorExecutor(BaseStageExecutor):
         self.instrument: Instrument = make_instrument(cfg=cfg)
         self.do_bandpass_integration_each_sim = cfg.model.sim.do_bandpass_int_each_sim
 
-        self.include_cmb = cfg.model.sim.get("include_cmb", True)
         self.cmb_seed_factory = SeedFactory(cfg.model.sim.cmb.seed_template)
         self.cmb_factory = CMBFactory(cfg)
 

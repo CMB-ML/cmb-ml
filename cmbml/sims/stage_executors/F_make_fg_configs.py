@@ -45,9 +45,9 @@ class ForegroundConfigExecutor(BaseStageExecutor):
         make_cosmo_param_configs(chain_idcs, split) -> None:
             Generates the cosmological parameter configurations for the given chain indices
     """
-    def __init__(self, cfg: DictConfig) -> None:
+    def __init__(self, cfg: DictConfig, stage_str="make_fg_configs") -> None:
         # The following stage_str must match the pipeline yaml
-        super().__init__(cfg, stage_str="make_fg_configs")
+        super().__init__(cfg, stage_str=stage_str)
 
         self.out_fg_config: Asset = self.assets_out['fg_config']
         out_fg_config_handler: Config
