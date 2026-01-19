@@ -10,7 +10,7 @@ defaults:
 #    While debugging code, it is often convenient to use lower resolution nside_sky
 #    Only one of the two should be set. The other should be "null". Setting both may given unexpected results.
 # Moved to top level for now
-nside_sky            : ${nside_sky}
+nside_sky            : 2048
 nside_sky_factor     : null
 sky_unit             : MJy/sr
 pysm_beam_lmax_ratio : 2.99999  # This will evaluate as 3 * nside - 1 for nsides up to 2048 (maybe further)
