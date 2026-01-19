@@ -40,13 +40,11 @@ class NoiseCacheExecutor(BaseStageExecutor):
         # The following stage_str must match the pipeline yaml
         super().__init__(cfg, stage_str='make_noise_cache')
 
-        NoiseClass = get_noise_class(cfg.model.sim.noise.noise_type)
-        # self.do_cache = cfg.model.sim.noise.do_cache
-        # raise NotImplementedError("Implement the above line.")
+        self.noise_maker = get_noise_class(cfg.model.sim.noise.noise_type)
 
         # For most kinds of noise, we need to cache some values which describe
         # the noise properties. For a few, we do not. `do_cache` indicates this.
-        self.do_cache = hasattr(NoiseClass, "cache_maker") 
+        self.do_cache = hasattr(self.noise_maker, "cache_maker") 
 
         if self.do_cache is False:
             self.out_scale_cache: Asset = None
@@ -59,14 +57,11 @@ class NoiseCacheExecutor(BaseStageExecutor):
             out_noise_cache_handler: HealpyMap
             in_noise_src_handler: HealpyMap
 
-        self.noise_maker = NoiseClass(cfg=cfg, 
-                                      name_tracker=self.name_tracker)
-
         if self.do_cache is False:
             return
 
         self.instrument: Instrument = make_instrument(cfg=cfg)
-        self.CacheMaker_class = NoiseClass.cache_maker
+        self.CacheMaker_class = self.noise_maker.cache_maker
 
     def execute(self) -> None:
         """
