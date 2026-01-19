@@ -40,7 +40,8 @@ class MakePredPowerSpectrumExecutor(BaseStageExecutor):
 
         # Basic parameters
         self.nside_out = self.cfg.scenario.nside
-        self.lmax = int(cfg.model.analysis.lmax_ratio * self.nside_out)
+        self.lmax = cfg.model.analysis.lmax
+        self.anafast_iters = cfg.model.analysis.get("ps_anafast_iters")
 
         # Prepare to load mask (in execute())
         self.mask_threshold = self.cfg.model.analysis.mask_threshold
