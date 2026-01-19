@@ -29,5 +29,5 @@ detectors      : [100, 143, 217, 353]
 map_fields     : "I"
 
 # In the simulation yaml (only relevant to the simulation portion of the pipeline)
-nside_sky      : 2048
+# nside_sky      : 2048  # Removed interpolation; this should be in the sim config, not here.
 min_obs_beam   : 0  # For use with nside_out < 512
