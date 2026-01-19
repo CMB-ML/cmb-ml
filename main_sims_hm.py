@@ -22,6 +22,7 @@ from cmbml.sims import (
     NoiseCacheExecutor,
     DownloadNoiseModelExecutor,
     HalfMissionNoiseExecutor,
+    SimHMCreatorExecutor
 )
 
 logger = logging.getLogger(__name__)
@@ -50,6 +51,8 @@ def run_simulations(cfg):
     # pipeline_context.add_pipe(NoiseCacheExecutor)
     # pipeline_context.add_pipe(DownloadNoiseModelExecutor)
     pipeline_context.add_pipe(HalfMissionNoiseExecutor)
+    pipeline_context.add_pipe(SimHMCreatorExecutor)
+
 
     # # TODO: Put this back in the pipeline yaml; fix/make executor
     # # pipeline_context.add_pipe(ShowSimsExecutor)  # Out of date, do not use.
