@@ -17,7 +17,8 @@ convert_cmb:
   assets_out:
     cmb_map:
       handler: HealpyMap
-      path_template: &cmb_map_path "{root}/{dataset}/{stage}/{split}/{sim}/cmb_map.fits"
+      # Misnamed (not "fiducial"), but I can't wrap my head around the proper way to do this.
+      path_template: &cmb_map_path "{root}/{dataset}/{stage}/{split}/{sim}/cmb_map_fid.fits"
   assets_in:
     # deltabandpass: {stage: raw}
     # If we need to use the original beams
