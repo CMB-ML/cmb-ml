@@ -63,10 +63,11 @@ class MakeRealPowerSpectrumExecutor(BaseStageExecutor):
     def get_masks(self):
         mask = None
         with self.name_tracker.set_context("src_root", self.cfg.local_system.assets_dir):
-            logger.info(f"Using mask from {self.in_mask.path}")
             if self.use_sm_mask:
+                logger.info(f"Using mask from {self.in_mask_sm.path}")
                 mask = self.in_mask_sm.read(map_fields=self.in_mask_sm.use_fields)[0]
             else:
+                logger.info(f"Using mask from {self.in_mask.path}")
                 mask = self.in_mask.read(map_fields=self.in_mask.use_fields)[0]
         if hp.npix2nside(mask.size) != self.nside_out:
             mask = downgrade_mask(mask, self.nside_out, threshold=self.mask_threshold)
