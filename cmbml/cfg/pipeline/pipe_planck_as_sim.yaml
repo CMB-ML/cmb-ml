@@ -10,7 +10,7 @@ convert_obs:
     planck_deltabandpass: {stage: raw}
     obs_maps: {stage: raw, orig_name: noise_src_varmaps}
   splits:
-    -test
+    - test
   dir_name: &planck_maps_dir Simulation
 
 convert_cmb:
@@ -26,7 +26,7 @@ convert_cmb:
     planck_deltabandpass: {stage: raw}
     cmb_map: {stage: raw, orig_name: mask_src_map}
   splits:
-    -test
+    - test
   dir_name: *planck_maps_dir
 
 convert_ps_raw:
@@ -43,7 +43,7 @@ convert_ps:
   assets_in:
     cmb_ps: {stage: convert_ps_raw}
   splits:
-    -test
+    - test
   dir_name: &planck_ps_dir C_PlanckPS
 
 # Emulating the normal simulation pipeline so other stages can be used without modification
