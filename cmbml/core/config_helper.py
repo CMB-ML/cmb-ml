@@ -164,5 +164,5 @@ def get_applicable_splits(cfg: DictConfig, stage_str: str) -> List[Split]:
         if any(name.lower().startswith(kind.lower()) for kind in splits_scope)
     ]
     splits = Splits([Split(name, splits_all_cfg[name]) for name in filtered_names])
-    logger.info(f"[DEBUG] Applicable {splits}")
+    logger.debug(f"Applicable splits: {splits}")
     return splits
