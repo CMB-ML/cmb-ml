@@ -40,6 +40,7 @@ class MakeRealPowerSpectrumExecutor(BaseStageExecutor):
         self.lmax = cfg.model.get("lmax", None)
         if self.lmax is None:
             self.lmax = int(cfg.model.analysis.lmax_ratio * self.nside_out)
+        self.anafast_iters = cfg.model.analysis.get("ps_anafast_iters")
 
         # Prepare to load mask (in execute())
         self.mask_threshold = self.cfg.model.analysis.mask_threshold
@@ -91,6 +92,7 @@ class MakeRealPowerSpectrumExecutor(BaseStageExecutor):
         auto_real_ps = get_auto_ps_result(real_map,
                                           mask=None,
                                           lmax=self.lmax,
+                                          n_iter=self.anafast_iters,
                                           beam=self.beam_real,
                                           is_convolved=False)
         ps = auto_real_ps.deconv_dl
