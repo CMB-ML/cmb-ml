@@ -143,7 +143,7 @@ class CMBMapConvertExecutor(BaseStageExecutor):
         out_alms = hp.almxfl(in_alms, beam_ratio)
         out_map = hp.alm2map(out_alms, nside=self.nside_out)
 
-        out_map = u.Quantity(out_map, src_unit)
+        out_map = u.Quantity(out_map, self.cmb_unit)
         out_map = out_map.to(self.out_unit)
 
         return out_map
