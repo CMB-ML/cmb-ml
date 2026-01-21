@@ -14,7 +14,7 @@ from cmbml.core import (
 from cmbml.core.asset_handlers.ps_handler import NumpyPowerSpectrum
 from cmbml.core.asset_handlers.healpy_map_handler import HealpyMap # Import for typing hint
 from cmbml.utils.physics_ps import get_auto_ps_result
-from cmbml.utils.physics_beam import NoBeam
+from cmbml.utils.physics_beam import NoBeam, GaussianBeam
 from cmbml.utils.physics_mask import downgrade_mask
 
 
@@ -42,6 +42,8 @@ class MakeRealPowerSpectrumExecutor(BaseStageExecutor):
             self.lmax = int(cfg.model.analysis.lmax_ratio * self.nside_out)
         self.anafast_iters = cfg.model.analysis.get("ps_anafast_iters")
 
+        self.cmb_beam = cfg.scenario.cmb_beam
+
         # Prepare to load mask (in execute())
         self.mask_threshold = self.cfg.model.analysis.mask_threshold
         self.mask = None
@@ -58,7 +60,12 @@ class MakeRealPowerSpectrumExecutor(BaseStageExecutor):
     def execute(self) -> None:
         logger.debug(f"Running {self.__class__.__name__} execute().")
         self.mask = self.get_masks()
-        self.beam_real = NoBeam(self.lmax)
+        if self.cmb_beam == "min":
+            raise NotImplementedError("Need to think through this option.")
+        elif self.cmb_beam == 0:
+            self.beam_real = NoBeam(self.lmax)
+        else:
+            self.beam_real = GaussianBeam(self.cmb_beam, self.lmax)
         self.default_execute()
 
     def get_masks(self):
