@@ -109,9 +109,9 @@ class ObsCreatorExecutor(BaseStageExecutor):
         self.cmb_seed_factory = SeedFactory(cfg.model.sim.cmb.seed_template)
         self.cmb_factory = CMBFactory(cfg)
 
-        self.cmb_beam = cfg.sim.cmb_beam  # 0: do not apply beam to cmb; 
-                                          # "min": apply lowest FWHM beam to cmb; 
-                                          # other float: beam in arcmin to apply to cmb
+        self.cmb_beam = cfg.scenario.cmb_beam  # 0: do not apply beam to cmb; 
+                                               # "min": apply lowest FWHM beam to cmb; 
+                                               # other float: beam in arcmin to apply to cmb
 
         self.use_constant_fg = cfg.model.sim.get("use_constant_fg", None)
 
