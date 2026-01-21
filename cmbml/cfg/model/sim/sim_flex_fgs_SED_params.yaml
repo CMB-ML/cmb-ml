@@ -24,6 +24,7 @@ seed_base_string: cmb_ml
 do_bandpass_int_each_sim : false
 min_obs_beam             : ${min_obs_beam}
 include_cmb              : true  # Defaults to true if not included. Will still produce power spectra, only affects making sky and observations.
+cmb_beam                 : 0     # 0: do not apply beam to cmb; "min": apply lowest FWHM beam to cmb; other float: beam in arcmin to apply to cmb
 
 # Use constant fg refers to the same fgs across all simulation splits
 use_constant_fg          : true

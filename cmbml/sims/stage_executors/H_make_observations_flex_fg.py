@@ -109,6 +109,10 @@ class ObsCreatorExecutor(BaseStageExecutor):
         self.cmb_seed_factory = SeedFactory(cfg.model.sim.cmb.seed_template)
         self.cmb_factory = CMBFactory(cfg)
 
+        self.cmb_beam = cfg.sim.cmb_beam  # 0: do not apply beam to cmb; 
+                                          # "min": apply lowest FWHM beam to cmb; 
+                                          # other float: beam in arcmin to apply to cmb
+
         self.use_constant_fg = cfg.model.sim.get("use_constant_fg", None)
 
         # Do not create the Sky object here, it takes too long and will slow down initial checks
@@ -264,12 +268,11 @@ class ObsCreatorExecutor(BaseStageExecutor):
                 else:
                     this_sky.update_component(fg, fg_params)
 
-        # Track minimum FWHM; this will be used for the CMB map
-        # DISABLED, per CS advisor suggestion that model should find the true realization...
-        #           physics: if this is wrong, please explain it to CS advisor.
-        min_fwhm = 0 * u.arcmin
+        # Track minimum FWHM; this may be used for the CMB map
+        min_fwhm = 21600 * u.arcmin
 
         for freq, detector in self.instrument.dets.items():
+            min_fwhm = min(min_fwhm, detector.fwhm)
             if self.instrument.bandpass_integration and self.do_bandpass_integration_each_sim:
                 skymaps = this_sky.get_emission(detector.wn, detector.tx)
             else:
@@ -329,8 +332,15 @@ class ObsCreatorExecutor(BaseStageExecutor):
         if self.instrument.map_fields == 'I':
             cmb_realization = cmb_realization[0]
 
+        if self.cmb_beam == "min":
+            use_fwhm = min_fwhm
+        elif self.cmb_beam is None:
+            use_fwhm = 0 * u.arcmin
+        else:
+            use_fwhm = self.cmb_beam
+
         scaled_map = pysm3.apply_smoothing_and_coord_transform(cmb_realization,
-                                                               fwhm=min_fwhm,  # Currently smoothing to 0 arcmin = no smoothing
+                                                               fwhm=use_fwhm,
                                                                # let PySM3 decide the lmax. This is appropriate
                                                                #    as long as the Nside_sky >= 2*Nside_out
                                                                #  lmax=self.lmax_beam,
