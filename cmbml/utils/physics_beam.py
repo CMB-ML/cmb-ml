@@ -114,7 +114,8 @@ class GaussianBeam(Beam):
         try:
             self.fwhm = beam_fwhm.to(u.rad).value
         except:
-            self.fwhm = beam_fwhm * np.pi / (180*60)
+            self.fwhm = u.Quantity(beam_fwhm, u.arcmin)
+            self.fwhm = beam_fwhm.to(u.rad).value
         self.lmax = lmax
         beam = hp.gauss_beam(self.fwhm, lmax=lmax)
         super().__init__(beam)
