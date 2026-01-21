@@ -14,7 +14,7 @@ use_rimo_cen_freq  : true
 rimo_trim_to_mass  : 0.999
 rimo_compress_to_n : 50
 rimo_compress_alpha: 0.5
-cmb_beam           : 0     # 0: do not apply beam to cmb; "min": apply lowest FWHM beam to cmb; other float: beam in arcmin to apply to cmb
+cmb_beam           : 0     # float: beam in arcmin to apply to cmb; 0: do not apply beam to cmb; "min": apply lowest FWHM beam to cmb
                            # Current setting because "model should learn"
 
 ref_data_release:
