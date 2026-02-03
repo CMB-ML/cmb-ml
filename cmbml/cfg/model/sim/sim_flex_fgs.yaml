@@ -22,7 +22,7 @@ component_objects:
 seed_base_string: cmb_ml
 # seed_base_string: ${dataset_name}
 do_bandpass_int_each_sim : false
-min_obs_beam             : ${min_obs_beam}
+min_obs_beam             : ${min_obs_beam_fwhm}
 include_cmb              : true  # Defaults to true if not included. Will still produce power spectra, only affects making sky and observations.
 
 # Use constant fg refers to the same fgs across all simulation splits
