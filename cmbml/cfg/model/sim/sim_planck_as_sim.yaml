@@ -6,7 +6,7 @@
 
 min_obs_beam         : ${min_obs_beam_fwhm}  # Arcmin.
 
-sky_unit             : K_RJ
+sky_unit             : MJy/sr
 cmb_unit             : uK_CMB
 in_cmb_beam_fwhm     : ${in_cmb_beam_fwhm}
 out_cmb_beam_fwhm    : ${out_cmb_beam_fwhm}
