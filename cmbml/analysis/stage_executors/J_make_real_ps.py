@@ -97,10 +97,10 @@ class MakeRealPowerSpectrumExecutor(BaseStageExecutor):
 
     def make_real_ps(self, real_map):
         auto_real_ps = get_auto_ps_result(real_map,
-                                          mask=None,
+                                          mask=self.mask,
                                           lmax=self.lmax,
                                           n_iter=self.anafast_iters,
                                           beam=self.beam_real,
-                                          is_convolved=False)
+                                          is_convolved=True)
         ps = auto_real_ps.deconv_dl
         self.out_auto_real.write(data=ps.value)
