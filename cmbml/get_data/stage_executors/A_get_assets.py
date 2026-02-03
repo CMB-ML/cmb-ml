@@ -8,7 +8,11 @@ from tqdm import tqdm
 from cmbml.core import BaseStageExecutor, Asset
 from cmbml.core.asset_handlers import HealpyMap, Mover, QTableHandler
 
-from cmbml.get_data.utils.get_planck_data_ext import get_planck_obs_data_ext, get_planck_pred_data_ext
+from cmbml.get_data.utils.get_planck_data_ext import (
+    get_planck_obs_data_ext, 
+    get_planck_pred_data_ext, 
+    get_planck_hm_data_ext
+    )
 from cmbml.get_data.utils.get_wmap_data_ext import get_wmap_chains_ext
 
 
@@ -33,8 +37,8 @@ class GetAssetsExecutor(BaseStageExecutor):
         in_mask_map: HealpyMap
         in_delta_bandpass: QTableHandler
 
-        self.detectors = list(cfg.scenario.full_instrument.keys())
-        self.wmap_chains_version = cfg.model.sim.cmb.wmap_chain_version
+        self.detectors = list(cfg.scenario.detector_freqs)
+        # self.wmap_chains_version = cfg.model.sim.cmb.wmap_chain_version
 
     def execute(self) -> None:
         """
@@ -42,21 +46,26 @@ class GetAssetsExecutor(BaseStageExecutor):
         """
         logger.debug(f"Running {self.__class__.__name__} execute() method.")
 
+        # # Optional Planck observations are needed if you will be producing simulations (noise maps)
+        # logger.info("Getting Planck observations.")
+        # self.get_planck_obs_full_data()
+
         # Optional Planck observations are needed if you will be producing simulations (noise maps)
-        logger.info("Getting Planck observations.")
-        self.get_noise_src_varmaps()
-        # Optional WMAP chains only needed if you will not be producing simulations (CMB maps)
-        logger.info("Getting WMAP chains.")
-        self.get_wmap_chains()
+        logger.info("Getting Planck halfmission observations.")
+        self.get_planck_obs_hm_data()
 
-        # Needed for analysis
-        logger.info("Getting Planck predicted data for the NILC mask.")  # TODO: Parameterize this
-        self.get_src_maskmap()
+        # # Optional WMAP chains only needed if you will not be producing simulations (CMB maps)
+        # logger.info("Getting WMAP chains.")
+        # self.get_wmap_chains()
 
-        # CMB-ML assets include the detector information (needed for all stages) and the file
-        #    information for the simulations (optional, but small, so it's lumped together)
-        logger.info("Getting CMB-ML assets.")
-        self.copy_cmb_ml_assets()
+        # # Needed for analysis
+        # logger.info("Getting Planck predicted data for the NILC mask.")  # TODO: Parameterize this
+        # self.get_planck_pred()
+
+        # # CMB-ML assets include the detector information (needed for all stages) and the file
+        # #    information for the simulations (optional, but small, so it's lumped together)
+        # logger.info("Getting CMB-ML assets.")
+        # self.copy_cmb_ml_assets()
 
     def get_wmap_chains(self):
         # Cheating a bit to use the name tracker; we don't have a filename but just need the parent directory
@@ -66,7 +75,7 @@ class GetAssetsExecutor(BaseStageExecutor):
         wmap_dir.mkdir(parents=True, exist_ok=True)
         get_wmap_chains_ext(assets_directory=wmap_dir, chain_version=self.wmap_chains_version, progress=True)
 
-    def get_noise_src_varmaps(self):
+    def get_planck_obs_full_data(self):
         # Cheating a bit to use the name tracker; we don't have a filename but just need the parent directory
         with self.name_tracker.set_context('filename', 'dummy_fn'):
             dummy_fp = self.noise_src_varmaps.path
@@ -75,7 +84,16 @@ class GetAssetsExecutor(BaseStageExecutor):
         for det in tqdm(self.detectors):
             get_planck_obs_data_ext(detector=det, assets_directory=noise_src_dir, progress=True)  # download the data if it doesn't exist
 
-    def get_src_maskmap(self):
+    def get_planck_obs_hm_data(self):
+        # Cheating a bit to use the name tracker; we don't have a filename but just need the parent directory
+        with self.name_tracker.set_context('filename', 'dummy_fn'):
+            dummy_fp = self.noise_src_varmaps.path
+        noise_src_dir = dummy_fp.parent
+        noise_src_dir.mkdir(parents=True, exist_ok=True)
+        for det in tqdm(self.detectors):
+            get_planck_hm_data_ext(detector=det, assets_directory=noise_src_dir, progress=True)  # download the data if it doesn't exist
+
+    def get_planck_pred(self):
         if self.mask_src_map is None:
             return
         fp = self.mask_src_map.path

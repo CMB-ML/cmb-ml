@@ -55,11 +55,26 @@ def get_planck_obs_data_ext(detector, assets_directory, progress=False, download
 def get_planck_hm_data_ext(detector, assets_directory, progress=False, download=True):
     hm_map_fn_template = "{instrument}_SkyMap_{freq}_2048_R3.01_halfmission-{hm}.fits"
     url_template_maps = "http://pla.esac.esa.int/pla/aio/product-action?MAP.MAP_ID={fn}"
-
+    
+    # Setup to get maps... this is all naming convention stuff
     if detector in [30, 44, 70]:
+        raise NotImplementedError("LFI Half-mission maps follow different conventions.")
         instrument = "LFI"
+        use_freq_str = format_freq(detector) + "-BPassCorrected"
+        rev = "R3.00"
+        obs_nside = 1024
     else:
         instrument = "HFI"
+        use_freq_str = format_freq(detector)
+        rev = "R3.01"
+        obs_nside = 2048
+    if detector == 353:
+        use_freq_str = format_freq(detector) + "-psb"
+
+    # if detector in [30, 44, 70]:
+    #     instrument = "LFI"
+    # else:
+    #     instrument = "HFI"
     hm_1_fn = hm_map_fn_template.format(instrument=instrument, freq=format_freq(detector), hm=1)
     hm_2_fn = hm_map_fn_template.format(instrument=instrument, freq=format_freq(detector), hm=2)
 
