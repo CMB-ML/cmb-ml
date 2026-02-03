@@ -20,6 +20,7 @@ from cmbml.core import PipelineContext, LogMaker
 from cmbml.core.A_check_hydra_configs import HydraConfigCheckerExecutor
 from cmbml.planck_as_sim import (
     ObsMapsConvertExecutor,
+    ObsHMMapsConvertExecutor,
     CMBMapConvertExecutor,
     CMBPSConvertExecutor,
 )
@@ -48,6 +49,7 @@ def run_simulations(cfg):
     pipeline_context = PipelineContext(cfg, log_maker)
 
     pipeline_context.add_pipe(ObsMapsConvertExecutor)
+    pipeline_context.add_pipe(ObsHMMapsConvertExecutor)    
     pipeline_context.add_pipe(CMBMapConvertExecutor)  # Does not use min_beam size currently
     pipeline_context.add_pipe(CMBPSConvertExecutor)
 

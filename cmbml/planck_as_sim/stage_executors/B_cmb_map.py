@@ -102,15 +102,15 @@ class CMBMapConvertExecutor(BaseStageExecutor):
 
         src_beam_size_rad = self.in_beam_fwhm.to(u.rad).value
         src_beam = hp.gauss_beam(fwhm=src_beam_size_rad, lmax=src_lmax)
-        src_pxwn = hp.pixwin(nside=src_nside, lmax=src_lmax, pol=False)
+        # src_pxwn = hp.pixwin(nside=src_nside, lmax=src_lmax, pol=False)
 
         out_beam_size_rad = self.out_beam_fwhm.to(u.rad).value
         out_beam = np.zeros_like(src_beam)
         out_beam[:out_lmax+1] = hp.gauss_beam(fwhm=out_beam_size_rad, lmax=out_lmax)
-        out_pxwn = np.zeros_like(src_pxwn)
-        out_pxwn[:out_lmax+1] = hp.pixwin(nside=out_nside, lmax=out_lmax, pol=False)
+        # out_pxwn = np.zeros_like(src_pxwn)
+        # out_pxwn[:out_lmax+1] = hp.pixwin(nside=out_nside, lmax=out_lmax, pol=False)
 
-        beam_ratio = out_beam * out_pxwn / (src_beam * src_pxwn)
+        beam_ratio = out_beam / src_beam
 
         # From PySM3 map2alm (copied due to issues and troubleshooting)
         # TODO: Return to using pysm3.map2alm()

@@ -39,9 +39,9 @@ class ObsMapsConvertExecutor(BaseStageExecutor):
         get_src_path(detector: int) -> str:
             Retrieves the path for the source noise file based on the configuration.
     """
-    def __init__(self, cfg: DictConfig) -> None:
+    def __init__(self, cfg: DictConfig, stage_str='convert_obs') -> None:
         # The following stage_str must match the pipeline yaml
-        super().__init__(cfg, stage_str='convert_obs')
+        super().__init__(cfg, stage_str=stage_str)
 
         self.out_obs_maps: Asset = self.assets_out['obs_maps']
 
@@ -51,9 +51,9 @@ class ObsMapsConvertExecutor(BaseStageExecutor):
         with self.name_tracker.set_context('src_root', cfg.local_system.assets_dir):
             planck_det_info = in_planck_det_table.read()
         self.out_instrument: Instrument = make_instrument(cfg=cfg)
-        raise NotImplementedError("Need to ensure instrument made for Planck makes sense.")
+        # raise NotImplementedError("Need to ensure instrument made for Planck makes sense.")
         self.planck_instrument: Instrument = make_instrument(cfg=cfg, 
-                                                             det_info=planck_det_info, 
+                                                             det_info_override=planck_det_info, 
                                                              use_min_fwhm=False)
 
         self.obs_files = {
@@ -61,6 +61,7 @@ class ObsMapsConvertExecutor(BaseStageExecutor):
             for freq, v in cfg.scenario.ref_data_release.items()
             if freq.isdigit()
         }
+        self.planck_files = cfg.scenario.ref_data_release
 
         self.obs_root = cfg.local_system.assets_dir
         self.hdu = self.cfg.scenario.ref_data_release.hdu_n
@@ -82,7 +83,7 @@ class ObsMapsConvertExecutor(BaseStageExecutor):
         """
         for freq, detector in self.out_instrument.dets.items():
             logger.info(f"Processing frequency {freq} GHz for Stokes {detector.fields}")
-            smoothed_map = self.process_freq(freq)
+            smoothed_map = self.process(freq)
 
             # Write the smoothed map to the output asset
             context = dict(
@@ -101,10 +102,14 @@ class ObsMapsConvertExecutor(BaseStageExecutor):
             src_path = self.in_obs_maps.path
         return src_path
     
-    def process_freq(self, freq):
+    def process(self, freq):
+        obs_path = self.get_obs_path(freq)
+        out_map = self.process_map(obs_path, freq)
+        return out_map
+
+    def process_map(self, obs_path, freq):
         plk_det: Detector = self.planck_instrument.dets[freq]
         out_det: Detector = self.out_instrument.dets[freq]
-        obs_path = self.get_obs_path(freq)
         # field_idcs = [self.get_field_idx(src_path, field_str) for field_str in detector.fields]
         # obs_unit = fits_inspect.get_field_unit_str(src_path, field_idcs[0], hdu=self.hdu)
         # obs_unit = convert_field_str_to_Unit(obs_unit)
@@ -122,7 +127,7 @@ class ObsMapsConvertExecutor(BaseStageExecutor):
                              equivalencies=u.cmb_equivalencies(plk_det.cen_freq))
         obs_beam_fwhm = plk_det.fwhm.to(u.rad).value
         obs_beam = hp.gauss_beam(obs_beam_fwhm, obs_lmax)
-        obs_pxwn = hp.pixwin(nside=obs_nside, lmax=obs_lmax, pol=False)
+        # obs_pxwn = hp.pixwin(nside=obs_nside, lmax=obs_lmax, pol=False)
 
         out_lmax = int(self.lmax_ratio * self.out_nside)
         out_beam_fwhm = out_det.fwhm.to(u.rad).value
@@ -130,8 +135,8 @@ class ObsMapsConvertExecutor(BaseStageExecutor):
         # Bandwidth limit
         out_beam = np.zeros_like(obs_beam)
         out_beam[:out_lmax+1] = hp.gauss_beam(out_beam_fwhm, out_lmax)
-        out_pxwn = np.zeros_like(obs_pxwn)
-        out_pxwn[:out_lmax+1] = hp.pixwin(nside=self.out_nside, lmax=out_lmax, pol=False)
+        # out_pxwn = np.zeros_like(obs_pxwn)
+        # out_pxwn[:out_lmax+1] = hp.pixwin(nside=self.out_nside, lmax=out_lmax, pol=False)
 
         # From PySM3 map2alm (copied due to issues and troubleshooting)
         # TODO: Return to using pysm3.map2alm()
@@ -162,7 +167,8 @@ class ObsMapsConvertExecutor(BaseStageExecutor):
                 )
 
         safe_debeam_fl = obs_beam / (obs_beam**2 + self.beam_eps)
-        fl = out_beam * out_pxwn * safe_debeam_fl / obs_pxwn
+        fl = out_beam * safe_debeam_fl
+        # fl = out_beam * out_pxwn * safe_debeam_fl / obs_pxwn
         out_alms = hp.almxfl(obs_alms, fl)
         out_map = hp.alm2map(out_alms, self.out_nside)
         out_map = u.Quantity(out_map, self.sky_unit)
@@ -170,4 +176,42 @@ class ObsMapsConvertExecutor(BaseStageExecutor):
         out_map = out_map.to(self.out_unit,
                              equivalencies=u.cmb_equivalencies(plk_det.cen_freq))
 
+        return out_map
+
+
+class ObsHMMapsConvertExecutor(ObsMapsConvertExecutor):
+    def __init__(self, cfg: DictConfig, stage_str='convert_hms') -> None:
+        super().__init__(cfg, stage_str=stage_str)
+
+    def execute(self) -> None:
+        """
+        Executes the noise cache generation process.
+        """
+        for freq, detector in self.out_instrument.dets.items():
+            for hm in [1,2]:
+                logger.info(f"Processing frequency {freq} GHz for Stokes {detector.fields}")
+                smoothed_map = self.process(freq, hm)
+
+                # Write the smoothed map to the output asset
+                context = dict(
+                    split='Test',
+                    sim_num=0,
+                    freq=freq,
+                    hm=hm
+                )
+                with self.name_tracker.set_contexts(context):
+                    self.out_obs_maps.write(data=smoothed_map)
+
+    def get_hm_path(self, freq, hm_num) -> Path:
+        fn_template = self.planck_files[str(freq)]["hm_file"]
+        fn = fn_template.format(num=hm_num)
+        obs_root = self.obs_root
+        context_dict = dict(src_root=obs_root, filename=fn)
+        with self.name_tracker.set_contexts(context_dict):
+            src_path = self.in_obs_maps.path
+        return src_path
+
+    def process(self, freq, hm_num):
+        some_path = self.get_hm_path(freq, hm_num=hm_num)
+        out_map = self.process_map(some_path, freq)
         return out_map

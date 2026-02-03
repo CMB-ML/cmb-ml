@@ -13,6 +13,18 @@ convert_obs:
     - test
   dir_name: &planck_maps_dir Simulation
 
+convert_hms:
+  assets_out:
+    obs_maps:
+      handler: HealpyMap
+      path_template: &hm_map_path "{root}/{dataset}/{stage}/{split}/{sim}/obs_{freq}_map_hm{hm}.fits"
+  assets_in:
+    planck_deltabandpass: {stage: raw}
+    obs_maps: {stage: raw, orig_name: noise_src_varmaps}
+  splits:
+    - test
+  dir_name: *planck_maps_dir
+
 convert_cmb:
   assets_out:
     cmb_map:
@@ -65,7 +77,15 @@ make_sims:
       path_template: *obs_map_path
   dir_name: *planck_maps_dir
 
-
+make_hm_sims:
+  assets_out:
+    obs_maps:
+      handler: HealpyMap
+      path_template: *hm_map_path
+  dir_name: *planck_maps_dir
+  splits:
+    - test
+  top_level_working: True
 
 # Filler to match pipe_sim. I don't like this but ... it's a patch for now.
 check_hydra_configs:
