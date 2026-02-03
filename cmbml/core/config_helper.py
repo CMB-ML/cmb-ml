@@ -1,5 +1,5 @@
 from typing import Any, Dict, List, Optional
-from omegaconf import DictConfig, OmegaConf
+from omegaconf import DictConfig, OmegaConf, open_dict
 from omegaconf import errors as OmegaErrors
 import re
 from difflib import get_close_matches
@@ -98,7 +98,9 @@ def create_asset_instance(asset_type: str, cfg: DictConfig, source_stage: str, a
 
 
 def get_assets(cfg: DictConfig, stage_str: str, name_tracker: Namer, in_or_out: str) -> Dict[str, Asset]:
-    config_handler = ConfigHelper(cfg)
+    cfg_copy = OmegaConf.create(OmegaConf.to_container(cfg, resolve=False))
+    
+    config_handler = ConfigHelper(cfg_copy)
     # In the pipeline yaml,  Asset Information is where an asset is created; we need "asset_out" in the next line
     assets_info = config_handler.get_stage_elem_silent("assets_out", stage_str)
     assets = {}
@@ -106,8 +108,21 @@ def get_assets(cfg: DictConfig, stage_str: str, name_tracker: Namer, in_or_out: 
         for asset_name, asset_details in assets_info.items():
             asset_type = 'path_template_alt' if 'path_template_alt' in asset_details else 'normal'
             assets[asset_name] = create_asset_instance(asset_type, cfg, stage_str, asset_name, name_tracker, in_or_out)
-    return assets
 
+            with open_dict(asset_details):
+                del asset_details["handler"]
+                del asset_details["path_template"]
+                if "path_template_alt" in asset_details:
+                    del asset_details["path_template_alt"]
+
+            try:
+                asset_details = OmegaConf.to_container(asset_details, resolve=True)
+            except OmegaErrors.InterpolationKeyError:
+                logger.warning(f"In {stage_str}, for {asset_name}, have {asset_details}")
+                asset_details = dict(asset_details)
+            
+            assets[asset_name].path_overrides = asset_details
+    return assets
 
 def get_assets_in(cfg: DictConfig, stage_str: str, name_tracker: Namer) -> Dict[str, Asset]:
     """
@@ -145,7 +160,7 @@ def get_assets_in(cfg: DictConfig, stage_str: str, name_tracker: Namer) -> Dict[
             else:
                 raise ValueError(f"Asset '{orig_name}' not found in stage '{source_stage}' outputs.")
 
-            assets_in[asset_name].path_overrides = details
+            assets_in[asset_name].path_overrides = {**assets_in[asset_name].path_overrides, **details}
     return assets_in
 
 
