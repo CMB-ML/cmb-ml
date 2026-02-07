@@ -63,7 +63,7 @@ class ParamConfigExecutor(BaseStageExecutor):
         ps_fidu_fixed = split.ps_fidu_fixed
 
         if ps_fidu_fixed:
-            these_params = self.get_cosmo_params(split, "fixed")
+            these_params = self.get_cosmo_params(split)
             self.out_wmap_config.write(use_alt_path=True, data=these_params)
             return
         
@@ -73,7 +73,10 @@ class ParamConfigExecutor(BaseStageExecutor):
                 self.out_wmap_config.write(use_alt_path=False, data=these_params)
 
     def get_cosmo_params(self, split) -> Dict[str, List[float]]:
-        sim_name = self.name_tracker.sim_name()
+        if split.ps_fidu_fixed:
+            sim_name = "fixed"
+        else:
+            sim_name = self.name_tracker.sim_name()
         seed = self.seed_factory.get_seed(
             split=split.name,
             sim=sim_name,
