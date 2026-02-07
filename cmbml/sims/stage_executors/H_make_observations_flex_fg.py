@@ -106,7 +106,7 @@ class ObsCreatorExecutor(BaseStageExecutor):
         self.instrument: Instrument = make_instrument(cfg=cfg)
         self.do_bandpass_integration_each_sim = cfg.model.sim.do_bandpass_int_each_sim
 
-        self.cmb_seed_factory = SeedFactory(cfg.model.sim.cmb.seed_template)
+        self.cmb_seed_factory = SeedFactory(cfg.model.sim.cmb.seed_template_map)
         self.cmb_factory = CMBFactory(cfg)
 
         self.cmb_beam = cfg.scenario.cmb_beam  # 0: do not apply beam to cmb; 
@@ -114,6 +114,7 @@ class ObsCreatorExecutor(BaseStageExecutor):
                                                # other float: beam in arcmin to apply to cmb
 
         self.use_constant_fg = cfg.model.sim.get("use_constant_fg", None)
+        self.downgrade_lmax = cfg.model.sim.downgrade_lmax
 
         # Do not create the Sky object here, it takes too long and will slow down initial checks
         self.sky_flex = None
@@ -269,7 +270,7 @@ class ObsCreatorExecutor(BaseStageExecutor):
                     this_sky.update_component(fg, fg_params)
 
         # Track minimum FWHM; this may be used for the CMB map
-        min_fwhm = 21600 * u.arcmin
+        min_fwhm = 21600 * u.arcmin  # Number of arcmin in full 360 degrees. Maybe could have used np.inf
 
         for freq, detector in self.instrument.dets.items():
             min_fwhm = min(min_fwhm, detector.fwhm)
@@ -299,9 +300,7 @@ class ObsCreatorExecutor(BaseStageExecutor):
             # Use pysm3.apply_smoothing... to convolve the map with the planck detector beam
             map_smoothed = pysm3.apply_smoothing_and_coord_transform(skymaps,
                                                                      detector.fwhm,
-                                                                     # let PySM3 decide the lmax. This is appropriate 
-                                                                     #    as long as the Nside_sky >= 2*Nside_out 
-                                                                     #  lmax=self.lmax_beam,
+                                                                     lmax=self.downgrade_lmax,
                                                                      output_nside=self.nside_out)
             final_map = map_smoothed  # + noise_map
 
@@ -341,9 +340,7 @@ class ObsCreatorExecutor(BaseStageExecutor):
 
         scaled_map = pysm3.apply_smoothing_and_coord_transform(cmb_realization,
                                                                fwhm=use_fwhm,
-                                                               # let PySM3 decide the lmax. This is appropriate
-                                                               #    as long as the Nside_sky >= 2*Nside_out
-                                                               #  lmax=self.lmax_beam,
+                                                               lmax=self.downgrade_lmax,
                                                                output_nside=self.nside_out)
         self.out_cmb_map.write(data=scaled_map)
 

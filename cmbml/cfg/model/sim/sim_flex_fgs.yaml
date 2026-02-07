@@ -13,7 +13,6 @@ defaults:
 nside_sky            : 2048
 nside_sky_factor     : null
 sky_unit             : MJy/sr
-pysm_beam_lmax_ratio : 2.99999  # This will evaluate as 3 * nside - 1 for nsides up to 2048 (maybe further)
 
 # Moved to top level for now
 component_objects:
@@ -24,6 +23,7 @@ seed_base_string: cmb_ml
 do_bandpass_int_each_sim : false
 min_obs_beam             : ${min_obs_beam_fwhm}
 include_cmb              : true  # Defaults to true if not included. Will still produce power spectra, only affects making sky and observations.
+downgrade_lmax           : 1280
 
 # Use constant fg refers to the same fgs across all simulation splits
 use_constant_fg          : true
