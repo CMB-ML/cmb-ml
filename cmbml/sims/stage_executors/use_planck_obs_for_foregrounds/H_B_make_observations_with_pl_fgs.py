@@ -90,7 +90,7 @@ class ObsCreatorPlFGsExecutor(BaseStageExecutor):
 
         self.instrument: Instrument = make_instrument(cfg=cfg)
 
-        self.cmb_seed_factory = SeedFactory(cfg.model.sim.cmb.seed_template)
+        self.cmb_seed_factory = SeedFactory(cfg.model.sim.cmb.seed_template_map)
         self.cmb_factory = CMBFactory(cfg)
 
         # self.noise_seed_factory     = FreqLevelSeedFactory(cfg, 'noise')

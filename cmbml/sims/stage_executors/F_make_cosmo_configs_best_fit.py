@@ -49,7 +49,7 @@ class ParamConfigExecutor(BaseStageExecutor):
         self.out_wmap_config: AssetWithPathAlts = self.assets_out['cosmo_config']
         out_wmap_config_handler: Config
 
-        self.seed_template = cfg.model.sim.cmb.seed_template
+        self.seed_template = cfg.model.sim.cmb.seed_template_ps
         self.params = cfg.model.sim.cmb.camb_params
         self.seed_factory = SeedFactory(self.seed_template)
 
@@ -69,13 +69,14 @@ class ParamConfigExecutor(BaseStageExecutor):
         
         for sim in split.iter_sims():
             with self.name_tracker.set_context("sim_num", sim):
-                these_params = self.get_cosmo_params(split, sim)
+                these_params = self.get_cosmo_params(split)
                 self.out_wmap_config.write(use_alt_path=False, data=these_params)
 
-    def get_cosmo_params(self, split, sim) -> Dict[str, List[float]]:
+    def get_cosmo_params(self, split) -> Dict[str, List[float]]:
+        sim_name = self.name_tracker.sim_name()
         seed = self.seed_factory.get_seed(
             split=split.name,
-            sim=sim,
+            sim=sim_name,
         )
 
         rng = np.random.default_rng(seed)

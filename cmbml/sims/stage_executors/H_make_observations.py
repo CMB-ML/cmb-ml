@@ -94,7 +94,7 @@
 #         #   - information about configurations, (such as fields to use)
 #         self.instrument: Instrument = make_instrument(cfg=cfg)
 
-#         self.cmb_seed_factory = SeedFactory(cfg.model.sim.cmb.seed_template)
+#         self.cmb_seed_factory = SeedFactory(cfg.model.sim.cmb.seed_template_map)
 #         self.cmb_factory = CMBFactory(cfg)
 
 #         # Do not create the Sky object here, it takes too long and will slow down initial checks
