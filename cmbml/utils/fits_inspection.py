@@ -115,6 +115,27 @@ def get_field_unit_str(fits_fn, field_idx, hdu=1):
     return unit
 
 
+def get_other_info(fits_fn, header_lbl, hdu=1):
+    """
+    Get the unit associated with a specific field from the header of the 
+    specified HDU (Header Data Unit) in a FITS file.
+
+    Args:
+        fits_fn (str): The filename of the FITS file.
+        hdu (int): The index of the HDU.
+        field_idx (int): The index of the field.
+
+    Returns:
+        str: The unit of the field.
+    """
+    with fits.open(fits_fn) as hdul:
+        try:
+            val = hdul[hdu].header[header_lbl]
+        except KeyError:
+            val = ""
+    return val
+
+
 def get_field_type_from_fits(fits_fn, field_idx, hdu):
     """
     Get the name of a specific field from the header of the specified HDU
