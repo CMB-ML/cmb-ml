@@ -113,6 +113,15 @@ class ObsCreatorExecutor(BaseStageExecutor):
                                                # "min": apply lowest FWHM beam to cmb; 
                                                # other float: beam in arcmin to apply to cmb
 
+        if self.cmb_beam == "min":
+            pass
+        elif self.cmb_beam is None:
+            self.cmb_beam = u.Quantity(0, u.arcmin)
+        elif self.cmb_beam == 0:
+            self.cmb_beam = u.Quantity(0, u.arcmin)
+        else:
+            self.cmb_beam = u.Quantity(self.cmb_beam, u.arcmin)
+
         self.use_constant_fg = cfg.model.sim.get("use_constant_fg", None)
         self.downgrade_lmax = cfg.model.sim.downgrade_lmax
 
@@ -333,8 +342,6 @@ class ObsCreatorExecutor(BaseStageExecutor):
 
         if self.cmb_beam == "min":
             use_fwhm = min_fwhm
-        elif self.cmb_beam is None:
-            use_fwhm = 0 * u.arcmin
         else:
             use_fwhm = self.cmb_beam
 
