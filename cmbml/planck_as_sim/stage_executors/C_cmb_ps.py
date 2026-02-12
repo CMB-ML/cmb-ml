@@ -36,4 +36,3 @@ class CMBPSConvertExecutor(BaseStageExecutor):
         )
         with self.name_tracker.set_contexts(context):
             self.out_cmb_ps.write(data=out_cmb_ps)
-
