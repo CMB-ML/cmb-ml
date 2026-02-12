@@ -48,7 +48,7 @@ class MakePlanckNoiseModelExecutor(BaseStageExecutor):
 
         noise_cfg = cfg.model.sim.noise
 
-        self.lmax_ratio = noise_cfg.lmax_ratio_planck_noise
+        self.lmax = noise_cfg.lmax_noise_model
         self.n_sims = noise_cfg.n_planck_noise_sims
         self.nside_lookup = noise_cfg.src_nside_lookup
 
@@ -123,7 +123,6 @@ class MakePlanckNoiseModelExecutor(BaseStageExecutor):
             nside = self.nside_lookup[freq]
         n_fields = len(det.fields)
         use_mask = self.masks[nside]
-        lmax = int(self.lmax_ratio * nside)
 
         if n_fields > 1:
             raise NotImplementedError("Only single field maps are supported for now.")
@@ -153,7 +152,7 @@ class MakePlanckNoiseModelExecutor(BaseStageExecutor):
 
                 # This is the slow part
                 noise_map = noise_map - avg_noise_map
-                noise_l = get_autopower(noise_map, use_mask, lmax, n_iter=3)  # n_iter hard-coded to hp default
+                noise_l = get_autopower(noise_map, use_mask, self.lmax, n_iter=3)  # n_iter hard-coded to hp default
                 noise_ls.append(noise_l)
 
                 if sim_num == 0:

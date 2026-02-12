@@ -151,7 +151,8 @@ class NoiseStationary:
         """
         self.nside_out = cfg.scenario.nside
         self.unit = u.Unit(cfg.scenario.units)
-        self.lmax_out = int(cfg.model.sim.noise.lmax_ratio_out_noise * cfg.scenario.nside)
+        self.lmax_in = cfg.model.sim.noise.lmax_in
+        self.lmax_out = cfg.model.sim.noise.lmax_out
         self.map_fields = cfg.scenario.map_fields
         self.name_tracker = name_tracker
         self.n_planck_noise_sims = cfg.model.sim.noise.n_planck_noise_sims
@@ -214,7 +215,10 @@ class NoiseStationary:
                 raise ValueError("Unit provided does not match noise model.")
             sd_map = self.in_scale_cache.read(map_field_strs=detector.fields)
             avg_map = self.in_noise_avg.read(map_field_strs=self.map_fields)
-            avg_map = downgrade_noise_by_alm(avg_map, self.nside_out)
+            avg_map = downgrade_noise_by_alm(avg_map, 
+                                             self.nside_out, 
+                                             lmax_source=self.lmax_in,
+                                             lmax_target=self.lmax_out)
 
         if isinstance(sd_map, u.Quantity) and sd_map.unit != self.unit:
             eq = u.cmb_equivalencies(detector.cen_freq)
