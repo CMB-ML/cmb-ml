@@ -24,7 +24,7 @@ Version: 0.1.0
 Edits: Sept 16, 2024 - Added documentation
         Sept 29, 2025 - Added functions for finding a particular field in a fits file
 """
-from typing import Dict, Union
+from typing import Dict, Union, Any
 
 import numpy as np
 import healpy as hp
@@ -117,7 +117,7 @@ def get_field_unit_str(fits_fn, field_idx, hdu=1):
 
 def get_other_info(fits_fn, header_lbl, hdu=1):
     """
-    Get the unit associated with a specific field from the header of the 
+    Get the content associated with a specific field from the header of the 
     specified HDU (Header Data Unit) in a FITS file.
 
     Args:
@@ -391,3 +391,102 @@ def find_field_across_hdus(
         if idx is not None:
             results.append((hdu, idx))
     return results
+
+
+def get_field_data(
+    fits_fn: Union[str, Path],
+    field: str,
+    hdu: Union[int, str] = 1,
+    *,
+    case_insensitive: bool = True,
+    memmap: bool = True,
+    squeeze: bool = True,
+    copy: bool = False,
+) -> Any:
+    """
+    Load a single column/field from a FITS table HDU.
+
+    Parameters
+    ----------
+    fits_fn
+        Path to the FITS file.
+    field
+        Column / field name in the table (e.g., 'TEMPERATURE', 'I', 'WEIGHT').
+    hdu
+        HDU index (int) or extension name (str). Default is 1 (common for tables).
+    case_insensitive
+        If True, match `field` ignoring case.
+    memmap
+        If True, allow memory-mapped reads (faster / lower RAM for big tables).
+    squeeze
+        If True, squeeze singleton dimensions (useful for scalar columns stored as (N,1)).
+    copy
+        If True, return a copy detached from the FITS memmap buffer.
+
+    Returns
+    -------
+    Any
+        Typically a NumPy array (for table columns). Could be a scalar type for single-row
+        tables or a structured dtype element depending on FITS content.
+
+    Raises
+    ------
+    FileNotFoundError
+        If the FITS file does not exist.
+    TypeError
+        If the selected HDU is not a table HDU.
+    KeyError
+        If the requested field is not present.
+    """
+    fits_fn = Path(fits_fn)
+    if not fits_fn.exists():
+        raise FileNotFoundError(f"No such FITS file: {fits_fn}")
+
+    with fits.open(fits_fn, memmap=memmap) as hdul:
+        h = hdul[hdu]
+
+        # Ensure it's a table HDU (BinTableHDU or TableHDU).
+        if not isinstance(h, (fits.BinTableHDU, fits.TableHDU)):
+            hdu_name = getattr(h, "name", "<unnamed>")
+            raise TypeError(
+                f"HDU {hdu!r} (name={hdu_name!r}) is type {type(h).__name__}, "
+                "not a table HDU (BinTableHDU/TableHDU)."
+            )
+
+        data = h.data
+        if data is None:
+            raise ValueError(f"HDU {hdu!r} has no data.")
+
+        # Determine available column names.
+        colnames = list(data.columns.names) if hasattr(data, "columns") else list(data.names)
+
+        # Find the requested column name.
+        if case_insensitive:
+            lookup = {c.lower(): c for c in colnames}
+            key = lookup.get(field.lower())
+        else:
+            key = field if field in colnames else None
+
+        if key is None:
+            raise KeyError(
+                f"Field {field!r} not found in HDU {hdu!r}. "
+                f"Available fields: {colnames}"
+            )
+
+        arr = data[key]  # typically a numpy array view
+
+        if squeeze:
+            # Squeeze only if it's array-like
+            try:
+                arr = np.asarray(arr).squeeze()
+            except Exception:
+                pass
+
+        if copy:
+            try:
+                arr = np.array(arr, copy=True)
+            except Exception:
+                # fallback for non-array returns
+                pass
+
+        return arr
