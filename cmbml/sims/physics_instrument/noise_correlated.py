@@ -151,7 +151,7 @@ class NoiseStationary:
         """
         self.nside_out = cfg.scenario.nside
         self.unit = u.Unit(cfg.scenario.units)
-        self.lmax_in = cfg.model.sim.noise.lmax_in
+        self.lmax_avg_map = cfg.model.sim.noise.lmax_avg_map
         self.lmax_out = cfg.model.sim.noise.lmax_out
         self.map_fields = cfg.scenario.map_fields
         self.name_tracker = name_tracker
@@ -217,7 +217,7 @@ class NoiseStationary:
             avg_map = self.in_noise_avg.read(map_field_strs=self.map_fields)
             avg_map = downgrade_noise_by_alm(avg_map, 
                                              self.nside_out, 
-                                             lmax_source=self.lmax_in,
+                                             lmax_source=self.lmax_avg_map,
                                              lmax_target=self.lmax_out)
 
         if isinstance(sd_map, u.Quantity) and sd_map.unit != self.unit:
