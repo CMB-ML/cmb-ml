@@ -23,8 +23,8 @@ src_nside_lookup:
 
 seed_template      : "{split}_{sim}_{freq}_noise"
 save_noise: true  # Save noise if generating it in a separate executor as is done for the current implementation
-lmax_avg_map: 1280
-lmax_out: 1280
+lmax_avg_map: 320
+lmax_out: 320
 do_beam_filter: true
 
 hdu_n: ${scenario.ref_data_release.hdu_n}      # Consistent for these map files
@@ -32,7 +32,7 @@ hdu_n: ${scenario.ref_data_release.hdu_n}      # Consistent for these map files
 # Number of Planck Noise simulations to use (max 300, bear in mind the download time!)
 n_planck_noise_sims     : 100
 # This is not a bandwidth limited scenario!
-lmax_noise_model : 6144
+lmax_noise_model : 320
 # Number of degrees total to mask around the galactic plane
 #    10, the default, will mask 5 degrees above and below the plane
 mask_galactic_size      : 10
