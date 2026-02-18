@@ -52,7 +52,10 @@ class Namer:
         self.context['working'] = self._working_dir
         self.context['root'] = str(self._root)
         self.context['src_root'] = self.src_root
-        self.context['fig_type'] = self.fig_type
+        if isinstance(self.fig_type, list):
+            self.context['fig_type'] = self.fig_type[0]
+        else:
+            self.context['fig_type'] = self.fig_type
 
     @contextmanager
     def set_context(self, level, value):

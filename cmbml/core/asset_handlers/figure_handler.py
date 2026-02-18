@@ -1,6 +1,7 @@
 import logging
 from pathlib import Path
 from typing import Union
+from omegaconf import OmegaConf
 import matplotlib.pyplot as plt
 # import shutil
 
@@ -29,9 +30,21 @@ class MPLFigure(GenericHandler):
         logger.debug(f"Creating parent directory at {path}")
         make_directories(path)
         logger.debug(f"Saving figure to {path}")
-        plt.savefig(path, **kwargs)
+        try:
+            for fig_type in self.fig_types:
+                plt.savefig(path.with_suffix(f".{fig_type.lstrip('.')}"), **kwargs)
+        except:
+            plt.savefig(path, **kwargs)
         plt.close(fig)
 
+    def set_fig_types(self, fig_types):
+        try:
+            fig_types = OmegaConf.to_container(fig_types)
+        except ValueError:
+            pass
+        if not isinstance(fig_types, list):
+            fig_types = [fig_types]
+        self.fig_types = fig_types
 
 register_handler("Figure", Figure)
 register_handler("MPLFigure", MPLFigure)
