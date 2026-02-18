@@ -15,8 +15,12 @@ class LossPlotExecutor(BaseStageExecutor):
         # self.skip_n_values = 10
 
         self.fig_label = cfg.fig_model_name
+        
+        self.fig_type = cfg.get("fig_type", None)
 
     def execute(self):
+        self.out_fig.handler.set_fig_types(self.fig_type)
+
         df = pd.read_csv(self.in_loss_csv.path)
         #skipping the first few rows if they are not needed
         # df = df[df["Epoch"] >= self.skip_n_values]
