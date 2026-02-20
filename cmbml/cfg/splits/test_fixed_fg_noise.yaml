@@ -1,6 +1,0 @@
-# name: "TestFFN"
-# TestFNC:
-#   n_sims: 100
-#   n_sims_cap: ${n_infer_cap}
-#   noise_fixed: true
-# run_inference_on: ${run_inference_on}

@@ -39,7 +39,7 @@ from cmbml.sims import (
 logger = logging.getLogger(__name__)
 
 
-@hydra.main(version_base=None, config_name="config_sim_flex")
+@hydra.main(version_base=None, config_name="config_sim")
 def run_simulations(cfg):
     """
     Runs the simulation pipeline.
