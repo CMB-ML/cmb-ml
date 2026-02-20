@@ -1,4 +1,5 @@
 from typing import Dict
+import omegaconf
 
 from pathlib import Path
 from contextlib import contextmanager, ExitStack
@@ -52,7 +53,7 @@ class Namer:
         self.context['working'] = self._working_dir
         self.context['root'] = str(self._root)
         self.context['src_root'] = self.src_root
-        if isinstance(self.fig_type, list):
+        if isinstance(self.fig_type, list) or isinstance(self.fig_type, omegaconf.listconfig.ListConfig):
             self.context['fig_type'] = self.fig_type[0]
         else:
             self.context['fig_type'] = self.fig_type
