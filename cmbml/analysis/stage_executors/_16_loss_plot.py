@@ -20,8 +20,12 @@ class LossPlotExecutor(BaseStageExecutor):
 
     def execute(self):
         self.out_fig.handler.set_fig_types(self.fig_type)
+        fig, ax = make_loss_plot(some_path=self.in_loss_csv.path,
+                                 fig_label=self.fig_label)
+        self.out_fig.write(fig=fig)
 
-        df = pd.read_csv(self.in_loss_csv.path)
+def make_loss_plot(some_path, fig_label, figsize=(10,6)):
+        df = pd.read_csv(some_path)
         #skipping the first few rows if they are not needed
         # df = df[df["Epoch"] >= self.skip_n_values]
 
@@ -29,7 +33,7 @@ class LossPlotExecutor(BaseStageExecutor):
         best_val_loss = df.loc[best_idx, "Validation Loss"]
         best_epoch = df.loc[best_idx, "Epoch"]
 
-        fig, ax = plt.subplots(figsize=(10, 6))
+        fig, ax = plt.subplots(figsize=figsize)
         ax.plot(df["Epoch"], df["Training Loss"], label="Training Loss", color="tab:blue", alpha=0.6, linewidth=0.5)
         ax.plot(df["Epoch"], df["Validation Loss"], label="Validation Loss", color="tab:orange", alpha=0.8, linewidth=0.5)
 
@@ -59,7 +63,7 @@ class LossPlotExecutor(BaseStageExecutor):
 
         ax.set_xlabel("Epoch")
         ax.set_ylabel("Log Loss")
-        ax.set_title(f"Training vs Validation Loss, {self.fig_label}")
+        ax.set_title(f"Training vs Validation Loss, {fig_label}")
 
         custom_legend = [
             Line2D([0], [0], color="tab:blue", linestyle="-", linewidth=2, label="Training Loss"),
@@ -67,8 +71,7 @@ class LossPlotExecutor(BaseStageExecutor):
         ]
         ax.legend(handles=custom_legend)
         ax.grid(True)
-
-        self.out_fig.write(fig=fig)
+        return fig, ax
 
 def exp_as_ltx(some_val):
     val_sci = "{:.1e}".format(some_val)
