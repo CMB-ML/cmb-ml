@@ -183,6 +183,7 @@ def make_instrument(
         # Normalize None/null values to 0
         min_obs_beam = 0 if min_obs_beam is None else float(min_obs_beam)
     # Apply the minimum FWHM constraint
+    min_obs_beam = u.Quantity(min_obs_beam, u.arcmin)
     fwhms = [max(det_info[f]["fwhm"], min_obs_beam) for f in nom_freqs]
 
     if use_rimo:
