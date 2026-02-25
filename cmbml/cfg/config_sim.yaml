@@ -3,7 +3,7 @@ defaults:
   - file_system    : common_fs
   - pipeline       : assembly_sim_flex
   - scenario       : scenario
-  - splits         : all
+  - splits         : all_2000
   - model/sim      : sim_flex_fgs
   - model/analysis : basic_analysis
   - override hydra/job_logging: custom_log
@@ -24,7 +24,7 @@ hydra:
 # These are not to be used directly in the python
 # They are picked up from here and MAY be used elsewhere in the yamls.
 # In the scenario yaml
-nside          : 128
+nside          : 512
 detectors      : [100, 143, 217, 353]
 map_fields     : "I"
 
