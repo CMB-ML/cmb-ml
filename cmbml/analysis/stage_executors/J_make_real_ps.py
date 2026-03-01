@@ -65,6 +65,7 @@ class MakeRealPowerSpectrumExecutor(BaseStageExecutor):
         logger.debug(f"Running {self.__class__.__name__} execute().")
         if self.skip_mask:
             logger.warning("Skipping mask when getting Realization PS!")
+        else:
             self.mask = self.get_masks()
         if self.cmb_beam == "min":
             raise NotImplementedError("Need to think through this option.")
