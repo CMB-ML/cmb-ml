@@ -21,3 +21,4 @@ from .stage_executors.L_make_mask import MaskCreatorExecutor
 
 # from .stage_executors.use_planck_obs_for_foregrounds.H_A_prep_foregrounds import PrepForegroundsExecutor
 # from .stage_executors.use_planck_obs_for_foregrounds.H_B_make_observations_with_pl_fgs import ObsCreatorPlFGsExecutor
+from .stage_executors.M_make_nearby_params import NearParamConfigExecutor, NearTheoryPSExecutor

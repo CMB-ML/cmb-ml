@@ -180,3 +180,40 @@ download_sims:
   splits: *all_splits
   make_stage_log: True
   top_level_working: True
+
+make_near_cosmo_configs:
+  assets_out:
+    split_configs:
+      handler: Config
+      path_template: "{root}/{dataset}/{working}{stage}/{split}/split_config.yaml"
+    near_cosmo_config:
+      handler: Config
+      path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/cosmo_params.yaml"
+      path_template_alt: "{root}/{dataset}/{working}{stage}/{split}/cosmo_params.yaml"
+    quick_flag:
+      handler: TextHandler
+      path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/changed_{param}_{ud}{amount}.txt"
+  assets_in:
+    cosmo_config: {stage: make_cosmo_configs}
+  splits: *all_splits
+  dir_name: Simulation_M_Near_Cosmo_Configs
+  make_stage_log: True
+
+make_near_theory_ps:
+# This is mostly make_theory_ps, except where noted below
+  assets_out:
+    cmb_ps:
+      handler: CambPowerSpectrum
+      path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/cmb_ps_fid.txt"
+    cmb_ps_planck:
+      handler: PandasCAMBPowerSpectrum
+      path_template: *pta
+  assets_in:
+    cosmo_config: {stage: make_near_cosmo_configs, orig_name: near_cosmo_config}  # CHANGE IS HERE
+    planck_ps: {stage: raw, orig_name: planck_ps_pandas_camb}
+  splits:
+    - test
+    - valid
+  dir_name: Simulation_N_Near_Theory_PS  # CHANGE IS HERE
+  make_stage_log: True
+  

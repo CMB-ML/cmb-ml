@@ -1,0 +1,29 @@
+defaults:
+  - config_sim
+  - _self_
+
+dataset_name: "${map_fields}_${scenario.nside}_${splits.name}_near_test_${n_sigma_near_params}"
+working_dir : "Simulation_Working/"
+
+hydra:
+  mode: MULTIRUN
+  run:
+    dir        : Logs/${now:%Y-%m-%d-%H-%M-%S}
+  sweep:
+    dir        : Logs/${now:%Y-%m-%d-%H-%M-%S}  # Should be the same as run.dir
+    subdir     : ${hydra.job.num}               # Subsequent jobs will include duplicate logs for all previous jobs. 
+                                                #   This is a minor bug, not worth fixing.
+  verbose          : false
+  sweeper:
+    params:
+      n_sigma_near_params    :  1.5, 2, 2.5, 5
+
+
+n_sigma_near_params : 2    # If given a float/int, will pick one of the parameters
+                             #   and vary it by +/- this value.
+# n_sigma_near_params :      # If given a dict, it will use just one of the values
+#   tau  : .2
+ 
+fixed_jitter        : 0.1  # Fixed splits have just one underlying spectrum;
+                           #   that would produce just 12 variations. With
+                           #   this, the new value is n_sigma_near_params

@@ -44,9 +44,9 @@ class TheoryPSExecutor(BaseStageExecutor):
             Generates the theoretical power spectra for the given WMAP parameters and writes them to the output asset.
     """
 
-    def __init__(self, cfg: DictConfig) -> None:
+    def __init__(self, cfg: DictConfig, stage_str='make_theory_ps') -> None:
         # The following stage_str must match the pipeline yaml
-        super().__init__(cfg, stage_str='make_theory_ps')
+        super().__init__(cfg, stage_str=stage_str)
 
         self.max_ell_for_camb = cfg.model.sim.cmb.ell_max
         self.cosmo_params = cfg.model.sim.cmb.camb_params
@@ -78,15 +78,16 @@ class TheoryPSExecutor(BaseStageExecutor):
         if split.ps_fidu_planck:
             self.get_planck_ps(self.out_cmb_ps_planck, use_alt_path=True)
         elif split.ps_fidu_fixed:
-            self.make_ps(self.in_cosmo_config, self.out_cmb_ps, use_alt_path=True)
+            camb_results = self.make_ps(self.in_cosmo_config, use_alt_path=True)
+            self.out_cmb_ps.write(use_alt_path=True, data=camb_results, lmax=self.max_ell_for_camb)
         else:
             for sim in tqdm(split.iter_sims()):
                 with self.name_tracker.set_context("sim_num", sim):
-                    self.make_ps(self.in_cosmo_config, self.out_cmb_ps, use_alt_path=False)
+                    camb_results = self.make_ps(self.in_cosmo_config, use_alt_path=False)
+                    self.out_cmb_ps.write(use_alt_path=False, data=camb_results, lmax=self.max_ell_for_camb)
 
     def make_ps(self, 
                 wmap_params: AssetWithPathAlts, 
-                ps_asset: AssetWithPathAlts,
                 use_alt_path) -> None:
         """
         Generates the theoretical power spectra for the given WMAP parameters and writes them to the output asset.
@@ -102,9 +103,7 @@ class TheoryPSExecutor(BaseStageExecutor):
         # cosmological parameters from WMAP chains have (slightly) different names in camb
         if self.need_xl:
             cosmo_params = self._translate_params_keys(cosmo_params)
-
-        camb_results = make_camb_ps(cosmo_params, lmax=self.max_ell_for_camb)
-        ps_asset.write(use_alt_path=use_alt_path, data=camb_results, lmax=self.max_ell_for_camb)
+        return make_camb_ps(cosmo_params, lmax=self.max_ell_for_camb)
 
     def _translate_params_keys(self, src_params):
         out_params = {}

@@ -63,20 +63,19 @@ class ParamConfigExecutor(BaseStageExecutor):
         ps_fidu_fixed = split.ps_fidu_fixed
 
         if ps_fidu_fixed:
-            these_params = self.get_cosmo_params(split)
+            these_params = self.get_cosmo_params_fixed_split()
             self.out_wmap_config.write(use_alt_path=True, data=these_params)
             return
         
+        # Otherwise
         for sim in split.iter_sims():
             with self.name_tracker.set_context("sim_num", sim):
                 these_params = self.get_cosmo_params(split)
                 self.out_wmap_config.write(use_alt_path=False, data=these_params)
+        return
 
-    def get_cosmo_params(self, split) -> Dict[str, List[float]]:
-        if split.ps_fidu_fixed:
-            sim_name = "fixed"
-        else:
-            sim_name = self.name_tracker.sim_name()
+    def get_cosmo_params(self, split: Split) -> Dict[str, List[float]]:
+        sim_name = self.name_tracker.sim_name()
         seed = self.seed_factory.get_seed(
             split=split.name,
             sim=sim_name,
@@ -85,7 +84,8 @@ class ParamConfigExecutor(BaseStageExecutor):
         rng = np.random.default_rng(seed)
         param_draws = {}
         for key, values in self.params.items():
-            if key == "ln1010as":
+            if key == "ln1010as":  
+                # In Planck's version of params, ln1010as is reported instead of As
                 ln1010As = rng.normal(values["mean"], values["std"])
                 As = np.exp(ln1010As)*1e-10
                 param_draws["As"] = As
@@ -94,4 +94,19 @@ class ParamConfigExecutor(BaseStageExecutor):
                 param_draws[key] = values["value"]
             else:
                 param_draws[key] = rng.normal(values["mean"], values["std"])
+        return param_draws
+
+    def get_cosmo_params_fixed_split(self):
+        # Just use mean parameters. These are not actually used for creating 
+        #    the spectrum; that is loaded from a file
+        param_draws = {}
+        for key, values in self.params.items():
+            if key == "ln1010as":
+                ln1010As = values["mean"]
+                As = np.exp(ln1010As)*1e-10
+                param_draws["As"] = As
+            elif "value" in values:
+                param_draws[key] = values["value"]
+            else:
+                param_draws[key] = values["mean"]
         return param_draws
