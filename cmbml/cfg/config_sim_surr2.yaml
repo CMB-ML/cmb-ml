@@ -2,7 +2,7 @@ defaults:
   - config_sim
   - _self_
 
-dataset_name: "${map_fields}_${scenario.nside}_${splits.name}_near_test_${n_sigma_near_params}"
+dataset_name: "${map_fields}_${scenario.nside}_${splits.name}_near_test_${n_sigma_near_params}_all"
 working_dir : "Simulation_Working/"
 
 hydra:
@@ -16,8 +16,11 @@ hydra:
   verbose          : false
   sweeper:
     params:
-      n_sigma_near_params    :  1.5, 2, 2.5, 5
+      n_sigma_near_params    :  0.1, 0.2, 0.5, 1, 2, 5
 
+
+# change_params       : 1    # Default; just alter one of the parameters
+change_params       : all  # Alternatively, change all parameters. Use smaller n_sigma_near_params
 
 n_sigma_near_params : 2    # If given a float/int, will pick one of the parameters
                              #   and vary it by +/- this value.

@@ -63,6 +63,7 @@ class NearParamConfigExecutor(BaseStageExecutor):
             self.n_sigma_near_params = OmegaConf.to_container(cfg.n_sigma_near_params)
         except ValueError:  # Permit int or float values; one parameter will be chosen randomly
             self.n_sigma_near_params = cfg.n_sigma_near_params
+        self.change_params = cfg.change_params  # Either all or 1
         self.fixed_jitter = cfg.fixed_jitter
 
     def execute(self) -> None:
@@ -99,8 +100,12 @@ class NearParamConfigExecutor(BaseStageExecutor):
             elligible_keys = [k for k,v in change_dict.items() if "value" not in v]
         else:
             elligible_keys = [k for k,v in self.params.items() if "value" not in v]
-        change_param = rng.choice(elligible_keys)
-        change_dict[change_param] = self.n_sigma_near_params
+        
+        if self.change_params == 1:
+            change_param = rng.choice(elligible_keys)
+            change_dict[change_param] = self.n_sigma_near_params
+        else:
+            change_dict = {k: self.n_sigma_near_params for k in elligible_keys}
 
         for k, v in change_dict.items():
             fixed_jitter = rng.uniform(1-self.fixed_jitter, 
