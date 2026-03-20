@@ -43,6 +43,7 @@ def cl_to_dl(cl, ells):
 
 
 def dl_to_cl(dl, ells):
+    ells[ells==0]=1
     norm = ells * (ells+1) / (np.pi * 2)
     return dl / norm
 

@@ -34,7 +34,7 @@ from cmbml.sims import (
     NoiseMapCreatorExecutor,
     SimCreatorExecutor,
 )
-
+from cmbml.sims.stage_executors.K_make_direct_real_ps import CheapRealizationPSExecutor
 
 logger = logging.getLogger(__name__)
 
@@ -59,8 +59,8 @@ def run_simulations(cfg):
 
     pipeline_context = PipelineContext(cfg, log_maker)
 
-    # Required for the kinds of noise implemented in the pipeline
-    pipeline_context.add_pipe(NoiseCacheExecutor)
+    # # Required for the kinds of noise implemented in the pipeline
+    # pipeline_context.add_pipe(NoiseCacheExecutor)
 
     ############################
     # Noise model creation
@@ -84,7 +84,7 @@ def run_simulations(cfg):
     # an average noise map, a power spectrum, and a noise covariance matrix
     # for each detector frequency. It's much smaller than the original data
     # (processed above in commented out Executors)
-    pipeline_context.add_pipe(DownloadNoiseModelExecutor)
+    # pipeline_context.add_pipe(DownloadNoiseModelExecutor)
 
     ############################
     # Simulation creation
@@ -97,11 +97,12 @@ def run_simulations(cfg):
     else:
         pipeline_context.add_pipe(ParamConfigExecutor)
     pipeline_context.add_pipe(TheoryPSExecutor)
-    pipeline_context.add_pipe(ForegroundConfigExecutor)
-    pipeline_context.add_pipe(PySMForegroundPrepExecutor)
-    pipeline_context.add_pipe(ObsCreatorExecutor)
-    pipeline_context.add_pipe(NoiseMapCreatorExecutor)
-    pipeline_context.add_pipe(SimCreatorExecutor)
+    pipeline_context.add_pipe(CheapRealizationPSExecutor)
+    # pipeline_context.add_pipe(ForegroundConfigExecutor)
+    # pipeline_context.add_pipe(PySMForegroundPrepExecutor)
+    # pipeline_context.add_pipe(ObsCreatorExecutor)
+    # pipeline_context.add_pipe(NoiseMapCreatorExecutor)
+    # pipeline_context.add_pipe(SimCreatorExecutor)
 
     pipeline_context.prerun_pipeline()
 

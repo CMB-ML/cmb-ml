@@ -180,3 +180,13 @@ download_sims:
   splits: *all_splits
   make_stage_log: True
   top_level_working: True
+
+make_cheap_real_ps:
+  assets_out:
+    cmb_ps:
+      handler: TextPowerSpectrum
+      path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/cmb_ps_cheap_real.txt"
+  assets_in:
+    cmb_ps: {stage: make_theory_ps}
+  dir_name: Simulation_K_Cheap_Realization_PS
+  splits: *all_splits
