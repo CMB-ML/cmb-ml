@@ -22,7 +22,7 @@ class PyTorchModel(GenericHandler):
              scheduler=None,
              scaler=None,
              strict: bool=True,
-             map_location: str | torch.device = "cpu"
+             map_location: Union[str, torch.device] = "cpu"
              ) -> Dict:
         logger.debug(f"Reading model from '{path}'")
         fn_template = path.name
