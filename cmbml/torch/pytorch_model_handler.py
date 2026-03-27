@@ -1,4 +1,4 @@
-from typing import Dict, Union
+from typing import Dict, Union, Optional
 import logging
 from pathlib import Path
 
@@ -17,7 +17,7 @@ class PyTorchModel(GenericHandler):
     def read(self, 
              path: Path, 
              model: torch.nn.Module, 
-             epoch: int | str | None = None, 
+             epoch: Optional[Union[int, str]] = None, 
              optimizer=None, 
              scheduler=None,
              scaler=None,
