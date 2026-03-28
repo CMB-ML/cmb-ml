@@ -1,4 +1,4 @@
-from typing import Dict, Union, Optional
+from typing import Dict, Union, Optional, Any
 import logging
 from pathlib import Path
 
@@ -23,7 +23,7 @@ class PyTorchModel(GenericHandler):
              scaler=None,
              strict: bool=True,
              map_location: Union[str, torch.device] = "cpu"
-             ) -> Dict:
+             ) -> Dict[str, Any]:
         logger.debug(f"Reading model from '{path}'")
         fn_template = path.name
         if epoch is None and "{epoch}" in fn_template:
@@ -45,6 +45,9 @@ class PyTorchModel(GenericHandler):
             scheduler.load_state_dict(checkpoint['scheduler_state_dict'])
         if 'scaler_state_dict' in checkpoint and scaler is not None:
             scaler.load_state_dict(checkpoint['scaler_state_dict'])
+        if 'model_config' in checkpoint:
+            model.model_config = checkpoint['model_config']
+
         return {
             "epoch": checkpoint.get("epoch"),
             "best_loss": checkpoint.get("best_loss", None),
@@ -73,6 +76,8 @@ class PyTorchModel(GenericHandler):
             checkpoint['scaler_state_dict'] = scaler.state_dict()
         if best_loss is not None:
             checkpoint['best_loss'] = best_loss
+        if hasattr(model, "model_config"):
+            checkpoint['model_config'] = model.model_config
 
         new_path = Path(str(path).format(epoch=epoch))
         make_directories(new_path)
