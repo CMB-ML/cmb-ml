@@ -8,6 +8,7 @@ camb_params :
     # Commented out values will not be pulled from the chain and put into the config.
     # Setting a value to null will get the value from the chain, but not use it when
     #    making a CMB power spectrum.
+    # Parameter values are listed: https://lambda.gsfc.nasa.gov/product/wmap/dr5/params/lcdm_wmap9.html
     # H0:        {camb: H0}
     ombh2:        {mean: 0.02264, std: 0.00050}
     omch2:        {mean: 0.1138,  std: 0.0045}
