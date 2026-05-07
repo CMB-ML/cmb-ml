@@ -133,7 +133,7 @@ class AssetWithPathAlts(Asset):
             else:
                 return self.name_tracker.path(self.path_template_alt)
 
-    def read(self, use_alt_path:bool=None, **kwargs):
+    def read(self, *, use_alt_path:bool=None, **kwargs):
         if use_alt_path is None:
             raise AttributeError("Use alt path must be specified.")
         if self.can_read:
