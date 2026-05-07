@@ -8,6 +8,12 @@ import shutil
 
 from cmbml.core.log_maker import LogMaker
 
+
+# Fill in the following based on your local system
+PYILC_SCRIPT    = "/home/jim/Code/cmb-ml-pyilc/main_pyilc_predict.py"
+D2PS_DIRECTORY  = "/home/jim/Code/e-d2ps_a"
+PYILC_DIRECTORY = "/home/jim/Code/cmb-ml-pyilc"
+
 # ── 1. Test: _find_installed_cmbml_root ──────────────────────────────
 print("=== 1. Finding installed cmbml root ===")
 root = LogMaker._find_installed_cmbml_root()
@@ -18,7 +24,7 @@ print("  PASS")
 # ── 2. Test: _script_imports_package ─────────────────────────────────
 print("\n=== 2. Checking import detection ===")
 # Use the pyilc main script — we know it imports from cmbml
-pyilc_script = Path("/bigdata/aankit/cmb-ml-pyilc/main_pyilc_predict.py")
+pyilc_script = Path(PYILC_SCRIPT)
 result = LogMaker._script_imports_package(pyilc_script, "cmbml")
 print(f"  pyilc main imports cmbml: {result}")
 assert result is True, "FAIL: should detect cmbml import"
@@ -29,16 +35,16 @@ print("  PASS")
 
 # ── 3. Test: _find_local_package_roots ───────────────────────────────
 print("\n=== 3. Finding local package roots ===")
-pyilc_dir = Path("/bigdata/aankit/cmb-ml-pyilc")
-roots = LogMaker._find_local_package_roots(pyilc_dir)
-print(f"  Found roots: {[r.name for r in roots]}")
-assert any(r.name == "pyilc_local" for r in roots), "FAIL: pyilc_local not found"
-print("  PASS")
-
-d2ps_dir = Path("/bigdata/aankit/e-d2ps")
+d2ps_dir = Path(D2PS_DIRECTORY)
 roots2 = LogMaker._find_local_package_roots(d2ps_dir)
 print(f"  Found roots in e-d2ps: {[r.name for r in roots2]}")
 assert any(r.name == "d2ps_nn" for r in roots2), "FAIL: d2ps_nn not found"
+print("  PASS")
+
+pyilc_dir = Path(PYILC_DIRECTORY)
+roots = LogMaker._find_local_package_roots(pyilc_dir)
+print(f"  Found roots: {[r.name for r in roots]}")
+assert any(r.name == "pyilc_local" for r in roots), "FAIL: pyilc_local not found"
 print("  PASS")
 
 # ── 4. Test: _trace_imports on installed cmbml ───────────────────────
