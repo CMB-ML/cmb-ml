@@ -18,7 +18,7 @@ import hydra
 from omegaconf import OmegaConf
 from cmbml.core import PipelineContext, LogMaker
 from cmbml.core.A_check_hydra_configs import HydraConfigCheckerExecutor
-from cmbml.sims import (
+from cmbml.sims.ex import (
     NoiseCacheExecutor,
     DownloadNoiseModelExecutor,
     HalfMissionNoiseExecutor,
