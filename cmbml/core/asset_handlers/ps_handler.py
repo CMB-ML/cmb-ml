@@ -23,7 +23,7 @@ class CambPowerSpectrum(GenericHandler):
 
     Power spectra read are returned with only TT information.
     """
-    def read(self, path: Path, TT_only=True) -> None:
+    def read(self, path: Path, fields=['TT']) -> None:
         """
         Method used to read CAMB's power spectra for analysis.
 
@@ -45,19 +45,13 @@ class CambPowerSpectrum(GenericHandler):
 
         df = add_missing_multipoles(df, path.name)
 
-        TT = df['TT'].to_numpy()
-        # EE = df['EE'].to_numpy()
-        # BB = df['BB'].to_numpy()
-        # TE = df['TE'].to_numpy()
-        # PP = df['PP'].to_numpy()
-        # PT = df['PT'].to_numpy()
-        # PE = df['PE'].to_numpy()
+        if isinstance(fields, str):
+            fields = [fields]
 
-        if TT_only:
-            return TT
-        else:
-            raise NotImplementedError("Untested, no use case currently.")
-            return df
+        return {
+            field: df[field].to_numpy()
+            for field in fields
+        }
 
     def write(self, path: Path, data: camb.CAMBdata, lmax: int) -> None:
         make_directories(path)
