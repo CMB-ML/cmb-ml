@@ -48,6 +48,10 @@ class MakeRealPowerSpectrumExecutor(BaseStageExecutor):
         self.mask_threshold = self.cfg.model.analysis.mask_threshold
         self.mask = None
 
+        self.skip_mask = self.cfg.get("skip_real_ps_mask", None)
+        if self.skip_mask:
+            logger.warning("Skipping mask when getting Realization PS!")
+
         self.use_sm_mask = self.cfg.model.analysis.ps_use_smooth_mask
 
         self.beam_real = None
@@ -59,7 +63,10 @@ class MakeRealPowerSpectrumExecutor(BaseStageExecutor):
 
     def execute(self) -> None:
         logger.debug(f"Running {self.__class__.__name__} execute().")
-        self.mask = self.get_masks()
+        if self.skip_mask:
+            logger.warning("Skipping mask when getting Realization PS!")
+        else:
+            self.mask = self.get_masks()
         if self.cmb_beam == "min":
             raise NotImplementedError("Need to think through this option.")
         elif self.cmb_beam == 0:
@@ -97,7 +104,7 @@ class MakeRealPowerSpectrumExecutor(BaseStageExecutor):
 
     def make_real_ps(self, real_map):
         auto_real_ps = get_auto_ps_result(real_map,
-                                          mask=self.mask,
+                                          mask=self.mask,  # If mask loading was skipped, this is None.
                                           lmax=self.lmax,
                                           n_iter=self.anafast_iters,
                                           beam=self.beam_real,

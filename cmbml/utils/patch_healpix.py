@@ -68,7 +68,9 @@ def get_patch_pixels(ring_patch_id: int, nside_patch: int, nside_obs: int):
     return r_is
 
 
-def make_pixel_index_lut(nside_obs, nside_patches):
+def make_pixel_index_lut(nside_obs, nside_patches=None):
+    if nside_patches is None:
+        nside_patches = nside_obs
     nside_ip = get_inverse_nside(nside_obs, nside_patches)
     n_patches = hp.nside2npix(nside_ip)
     lut = []

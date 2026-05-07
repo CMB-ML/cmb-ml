@@ -1,4 +1,4 @@
-from typing import Dict, Union
+from typing import Dict, Union, Optional, Any
 import logging
 from pathlib import Path
 
@@ -14,25 +14,45 @@ logger = logging.getLogger(__name__)
 
 
 class PyTorchModel(GenericHandler):
-    def read(self, path: Path, 
+    def read(self, 
+             path: Path, 
              model: torch.nn.Module, 
-             epoch: str, 
+             epoch: Optional[Union[int, str]] = None, 
              optimizer=None, 
              scheduler=None,
-             scaler=None) -> Dict:
+             scaler=None,
+             strict: bool=True,
+             map_location: Union[str, torch.device] = "cpu"
+             ) -> Dict[str, Any]:
         logger.debug(f"Reading model from '{path}'")
         fn_template = path.name
-        fn = fn_template.format(epoch=epoch)
+        if epoch is None and "{epoch}" in fn_template:
+            raise ValueError("Path template expects 'epoch', but epoch=None was provided.")
+        fn = fn_template if epoch is None else fn_template.format(epoch=epoch)
         this_path = path.parent / fn
-        checkpoint = torch.load(this_path)
-        model.load_state_dict(checkpoint['model_state_dict'])
-        if 'optimizer' in checkpoint and optimizer is not None:
-            optimizer.load_state_dict(checkpoint['optimizer'])
-        if 'scheduler' in checkpoint and scheduler is not None:
-            scheduler.load_state_dict(checkpoint['scheduler'])
-        if 'scaler' in checkpoint and scaler is not None:
-            scaler.load_state_dict(checkpoint['scaler'])
-        return checkpoint['epoch']
+        checkpoint = torch.load(this_path,
+                                map_location=map_location,
+                                weights_only=True)
+        
+        incompat = model.load_state_dict(
+            checkpoint["model_state_dict"],
+            strict=strict
+        )
+
+        if 'optimizer_state_dict' in checkpoint and optimizer is not None:
+            optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+        if 'scheduler_state_dict' in checkpoint and scheduler is not None:
+            scheduler.load_state_dict(checkpoint['scheduler_state_dict'])
+        if 'scaler_state_dict' in checkpoint and scaler is not None:
+            scaler.load_state_dict(checkpoint['scaler_state_dict'])
+        if 'model_config' in checkpoint:
+            model.model_config = checkpoint['model_config']
+
+        return {
+            "epoch": checkpoint.get("epoch"),
+            "best_loss": checkpoint.get("best_loss", None),
+            "incompat": incompat,
+        }
 
     def write(self, 
               path: Path, 
@@ -41,7 +61,7 @@ class PyTorchModel(GenericHandler):
               optimizer = None,
               scheduler = None,
               scaler = None,
-              loss = None,
+              best_loss = None,
               ) -> None:
         checkpoint = {
             'epoch': epoch,
@@ -54,8 +74,10 @@ class PyTorchModel(GenericHandler):
             checkpoint['scheduler_state_dict'] = scheduler.state_dict()
         if scaler is not None:
             checkpoint['scaler_state_dict'] = scaler.state_dict()
-        if loss is not None:
-            checkpoint['loss'] = loss
+        if best_loss is not None:
+            checkpoint['best_loss'] = best_loss
+        if hasattr(model, "model_config"):
+            checkpoint['model_config'] = model.model_config
 
         new_path = Path(str(path).format(epoch=epoch))
         make_directories(new_path)
