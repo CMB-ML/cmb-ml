@@ -7,17 +7,10 @@ from omegaconf import errors as OmegaErrors
 from .namers import Namer
 from .asset_handlers.asset_handlers_base import GenericHandler
 from .asset_handlers.asset_handler_registration import get_handler
+from .failed_path_interp import FailedPathInterpolationSentinel
 
 
 logger = logging.getLogger(__name__)
-
-
-class FailedPathInterpolationSentinel:
-    """
-    This class is used to indicate that path interpolation has failed.
-    It is used in the Namer class to indicate that the path cannot be generated.
-    """
-    pass
 
 
 class Asset:
@@ -38,6 +31,7 @@ class Asset:
 
         handler: GenericHandler = get_handler(asset_info, source_stage)
         self.handler = handler()
+
         try:
             self.path_template = asset_info.get('path_template', None)
         except OmegaErrors.InterpolationKeyError as e:
@@ -45,7 +39,12 @@ class Asset:
             # The path template for WMAP9 chains uses interpolation. We set a special sentinel value
             #   to indicate that the path template is not available. This allows us to work with other
             #   assets that do not use interpolation.
-            self.path_template = FailedPathInterpolationSentinel()
+            self.path_template = FailedPathInterpolationSentinel(
+                asset_name=asset_name,
+                source_stage=source_stage,
+                error=e,
+            )
+
         if self.path_template is None:
             logger.warning("No template found.")
             # TODO: Remove? Think through this?

@@ -3,6 +3,7 @@ import omegaconf
 
 from pathlib import Path
 from contextlib import contextmanager, ExitStack
+from .failed_path_interp import FailedPathInterpolationSentinel
 
 
 class Namer:
@@ -99,6 +100,9 @@ class Namer:
         temp_context = dict(**self.context)
         if "sim" not in self.context and "sim_num" in self.context:
             temp_context["sim"] = self.sim_name()
+
+        if isinstance(path_template, FailedPathInterpolationSentinel):
+            raise RuntimeError(f"Cannot use failed path template: {path_template!r}")
 
         try:
             result_path_str = path_template.format(**temp_context)
