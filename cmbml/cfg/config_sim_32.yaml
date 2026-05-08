@@ -1,7 +1,7 @@
 defaults:
   - local_system   : generic_lab
   - file_system    : common_fs
-  - pipeline       : assembly_sim_flex
+  - pipeline       : assembly_sim_cmb_only
   - scenario       : scenario
   - splits         : all_2000
   - model/sim      : sim_flex_fgs
@@ -24,22 +24,3 @@ nside          : 32
 cmb_lmax_fac   : 2.5
 map_fields     : "I"
 param_sigma_fac: 2
-
-pipeline:
-  make_theory_ps:
-    assets_out:
-      cmb_ps:
-        # TODO: There's a better way to do this. This is a recipe for cruft
-        #       But it will suffice for make_cmb_only, the next stage.
-        handler: DictCambPowerSpectrum
-  make_cmb_only:
-    assets_out:
-      cmb_map:
-        handler: HealpyMap
-        path_template: "{root}/{dataset}/{stage}/{split}/{sim}/cmb_map_fid.fits"
-    assets_in:
-      cmb_ps: {stage: make_theory_ps}
-    splits: [train, valid, test]
-    dir_name: Simulation
-    make_stage_log: True
-    top_level_working: True
