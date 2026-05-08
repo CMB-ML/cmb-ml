@@ -21,7 +21,7 @@ hydra:
   verbose      : false
 
 nside          : 32
-cmb_lmax       : 80
+cmb_lmax_fac   : 2.5
 map_fields     : "I"
 param_sigma_fac: 2
 

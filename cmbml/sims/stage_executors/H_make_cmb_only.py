@@ -31,7 +31,7 @@ class CMBCreatorExecutor(BaseStageExecutor):
 
         self.nside_out = cfg.scenario.nside
         logger.info(f"Simulations will be output at nside_out = {self.nside_out}")
-        self.lmax = cfg.cmb_lmax
+        self.lmax = cfg.cmb_lmax_fac * self.nside_out
         logger.info(f"Simulation maps will be created with lmax = {self.lmax}")
         self.output_units = cfg.scenario.units
         logger.info(f"Output units are {self.output_units}")
