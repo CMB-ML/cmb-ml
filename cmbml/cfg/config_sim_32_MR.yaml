@@ -1,0 +1,44 @@
+defaults:
+  - local_system   : generic_lab
+  - file_system    : common_fs
+  - pipeline       : assembly_sim_flex
+  - scenario       : scenario
+  - splits         : all_2000
+  - model/sim      : sim_flex_fgs
+  - model/analysis : basic_analysis
+  - override hydra/job_logging: custom_log
+  - _self_
+
+dataset_name: "${map_fields}_${scenario.nside}_${splits.name}_CMB_only/scale_${param_sigma_fac}"
+working_dir : "Simulation_Working/"
+hydra:
+  mode: MULTIRUN
+  run:
+    dir        : Logs/${now:%Y-%m-%d-%H-%M-%S}
+  sweep:
+    dir        : Logs/${now:%Y-%m-%d-%H-%M-%S}  # Should be the same as run.dir
+    subdir     : ${hydra.job.num}               # Subsequent jobs will include duplicate logs for all previous jobs. 
+                                                #   This is a minor bug, not worth fixing.
+  verbose      : false
+  sweeper:
+    params:
+      param_sigma_fac: 0.2, 0.5, 1, 2, 5
+      nside: 16, 32, 64
+
+nside          : 32
+cmb_lmax       : 80
+map_fields     : "I"
+param_sigma_fac: 1
+
+pipeline:
+  make_cmb_only:
+    assets_out:
+      cmb_map:
+        handler: HealpyMap
+        path_template: "{root}/{dataset}/{stage}/{split}/{sim}/cmb_map_fid.fits"
+    assets_in:
+      cmb_ps: {stage: make_theory_ps}
+    splits: [train, valid, test]
+    dir_name: Simulation
+    make_stage_log: True
+    top_level_working: True
