@@ -53,6 +53,11 @@ class ParamConfigExecutor(BaseStageExecutor):
         self.params = cfg.model.sim.cmb.camb_params
         self.seed_factory = SeedFactory(self.seed_template)
 
+        sigma_fac = cfg.model.sim.cmb.get("param_sigma_fac", None)
+        if sigma_fac is None:
+            logger.warning("Parameter sigma undeclared. Using scale factor of 1.")
+        self.sigma_fac = 1 if sigma_fac is None else sigma_fac
+
     def execute(self) -> None:
         logger.debug(f"Running {self.__class__.__name__} execute() method.")
         for split in self.splits:
@@ -86,12 +91,12 @@ class ParamConfigExecutor(BaseStageExecutor):
         param_draws = {}
         for key, values in self.params.items():
             if key == "ln1010as":
-                ln1010As = rng.normal(values["mean"], values["std"])
+                ln1010As = rng.normal(values["mean"], values["std"] * self.sigma_fac)
                 As = np.exp(ln1010As)*1e-10
                 param_draws["As"] = As
             elif "value" in values:
                 # If the parameter has a fixed value, use that
                 param_draws[key] = values["value"]
             else:
-                param_draws[key] = rng.normal(values["mean"], values["std"])
+                param_draws[key] = rng.normal(values["mean"], values["std"] * self.sigma_fac)
         return param_draws

@@ -3,13 +3,13 @@ defaults:
   - file_system    : common_fs
   - pipeline       : assembly_sim_flex
   - scenario       : scenario
-  - splits         : all_2000
+  - splits         : "1-1"
   - model/sim      : sim_flex_fgs
   - model/analysis : basic_analysis
   - override hydra/job_logging: custom_log
   - _self_
 
-dataset_name: "${map_fields}_${scenario.nside}_${splits.name}_CMB_only"
+dataset_name: "${map_fields}_${scenario.nside}_${splits.name}_CMB_only/sigma_${param_sigma_fac}"
 working_dir : "Simulation_Working/"
 hydra:
   run:
@@ -23,13 +23,14 @@ hydra:
 nside          : 32
 cmb_lmax       : 80
 map_fields     : "I"
+param_sigma_fac: 2
 
 pipeline:
   make_cmb_only:
     assets_out:
       cmb_map:
         handler: HealpyMap
-        path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/cmb_map_fid.fits"
+        path_template: "{root}/{dataset}/{stage}/{split}/{sim}/cmb_map_fid.fits"
     assets_in:
       cmb_ps: {stage: make_theory_ps}
     splits: [train, valid, test]

@@ -24,4 +24,5 @@ seed_template_ps   : "{split}_{sim}_cmb_ps"
 seed_template_map  : "{split}_{sim}_cmb_map"
 make_ps_if_absent  : true
 
+param_sigma_fac    : ${param_sigma_fac}
 # seed               : 8675309
