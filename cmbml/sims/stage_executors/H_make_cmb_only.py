@@ -10,7 +10,7 @@ from tqdm import tqdm
 from cmbml.sims.random_seed_manager import SeedFactory
 
 from cmbml.core import BaseStageExecutor, Split, Asset, AssetWithPathAlts
-from cmbml.core.asset_handlers.ps_handler import CambPowerSpectrum
+from cmbml.core.asset_handlers.ps_handler import DictCambPowerSpectrum
 from cmbml.core.asset_handlers.healpy_map_handler import HealpyMap
 from cmbml.utils.physics_ps import dl_to_cl
 
@@ -27,11 +27,11 @@ class CMBCreatorExecutor(BaseStageExecutor):
         out_cmb_map_handler: HealpyMap
 
         self.in_cmb_ps: AssetWithPathAlts = self.assets_in['cmb_ps']
-        in_cmb_ps_handler: CambPowerSpectrum
+        in_cmb_ps_handler: DictCambPowerSpectrum
 
         self.nside_out = cfg.scenario.nside
         logger.info(f"Simulations will be output at nside_out = {self.nside_out}")
-        self.lmax = cfg.cmb_lmax_fac * self.nside_out
+        self.lmax = int(cfg.cmb_lmax_fac * self.nside_out)
         logger.info(f"Simulation maps will be created with lmax = {self.lmax}")
         self.output_units = cfg.scenario.units
         logger.info(f"Output units are {self.output_units}")
