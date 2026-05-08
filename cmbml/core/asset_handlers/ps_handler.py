@@ -23,6 +23,53 @@ class CambPowerSpectrum(GenericHandler):
 
     Power spectra read are returned with only TT information.
     """
+    def read(self, path: Path, TT_only=True) -> None:
+        """
+        Method used to read CAMB's power spectra for analysis.
+
+        Reading CAMB's power spectra for simulation is performed by
+           a PySM3 method. We simply provide it with the filepath.
+        """
+        # Read header line, remove the leading "#"
+        path = Path(path)  # ensure path is a path
+        with open(path, 'r') as file:
+            header_line = file.readline().strip().lstrip('#').split()
+
+        # Read the data into a DataFrame, setting the header manually.
+        df = pd.read_csv(path, 
+                         comment='#', 
+                         sep=r'\s+', 
+                         header=None, 
+                         skiprows=1, 
+                         names=header_line)
+
+        df = add_missing_multipoles(df, path.name)
+
+        TT = df['TT'].to_numpy()
+        # EE = df['EE'].to_numpy()
+        # BB = df['BB'].to_numpy()
+        # TE = df['TE'].to_numpy()
+        # PP = df['PP'].to_numpy()
+        # PT = df['PT'].to_numpy()
+        # PE = df['PE'].to_numpy()
+
+        if TT_only:
+            return TT
+        else:
+            raise NotImplementedError("Untested, no use case currently.")
+            return df
+
+    def write(self, path: Path, data: camb.CAMBdata, lmax: int) -> None:
+        make_directories(path)
+        data.save_cmb_power_spectra(filename=path, lmax=lmax)
+
+
+class DictCambPowerSpectrum(GenericHandler):
+    """
+    Reads power spectrum files using Pandas, writes using CAMB
+
+    Power spectra read are returned with only TT information.
+    """
     def read(self, path: Path, fields=['TT']) -> None:
         """
         Method used to read CAMB's power spectra for analysis.
@@ -47,11 +94,13 @@ class CambPowerSpectrum(GenericHandler):
 
         if isinstance(fields, str):
             fields = [fields]
-
-        return {
+            
+        res = {
             field: df[field].to_numpy()
             for field in fields
         }
+
+        return res
 
     def write(self, path: Path, data: camb.CAMBdata, lmax: int) -> None:
         make_directories(path)
@@ -131,3 +180,4 @@ register_handler("CambPowerSpectrum", CambPowerSpectrum)
 register_handler("NumpyPowerSpectrum", NumpyPowerSpectrum)
 register_handler("TextPowerSpectrum", TextPowerSpectrum)
 register_handler("PandasCAMBPowerSpectrum", PandasCAMBPowerSpectrum)
+register_handler("DictCambPowerSpectrum", DictCambPowerSpectrum)
