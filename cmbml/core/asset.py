@@ -134,7 +134,7 @@ class AssetWithPathAlts(Asset):
 
     def read(self, *, use_alt_path:bool=None, **kwargs):
         if use_alt_path is None:
-            raise AttributeError("Use alt path must be specified.")
+            raise ValueError("Use alt path must be specified.")
         if self.can_read:
             if use_alt_path:
                 return self.handler.read(self.path_alt, **kwargs)
