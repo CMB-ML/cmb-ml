@@ -138,15 +138,24 @@ class AssetWithPathAlts(Asset):
     def path_alt(self):
         return self._path_from_template(self.path_template_alt)
 
-    def resolve_path(self, *, use_alt_path: Optional[bool] = None, for_write: bool = False):
-        if use_alt_path is None:
-            if for_write:
-                raise ValueError(
-                    f"{type(self).__name__}.write()/start() must specify "
-                    "use_alt_path=True or use_alt_path=False."
-                )
+    def resolve_path(self, *, use_alt_path: bool | None = None, for_write: bool = False):
+        if use_alt_path is not None:
+            return self.path_alt if use_alt_path else self.path
 
-            # For reads, default to the alternate/shared path.
-            use_alt_path = True
+        if for_write:
+            raise ValueError(
+                f"{type(self).__name__}.write()/start() must specify "
+                "use_alt_path=True or use_alt_path=False."
+            )
 
-        return self.path_alt if use_alt_path else self.path
+        path = self.path
+        path_alt = self.path_alt
+
+        if Path(path).exists():
+            return path
+
+        if Path(path_alt).exists():
+            return path_alt
+
+        # Prefer the normal path for the eventual error message.
+        return path
