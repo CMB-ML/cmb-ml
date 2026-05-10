@@ -64,15 +64,12 @@ class Asset:
             else:
                 return self.name_tracker.path(self.path_template)
 
-    def read(self, **kwargs):
+    def read(self, *, use_alt_path: bool = False, **kwargs):
+        if use_alt_path:
+            raise ValueError(f"{type(self).__name__} does not support alternate paths.")
         if not self.can_read:
             raise AttributeError("This asset is not set up to read.")
-        try:
-            if self.can_read:
-                return self.handler.read(self.path, **kwargs)
-        except TypeError as e:
-            logger.exception("The calling .read() method must be given keyword arguments only.", exc_info=e)
-            raise e
+        return self.handler.read(self.path, **kwargs)
 
     def start(self, **kwargs):
         if not self.can_write:
