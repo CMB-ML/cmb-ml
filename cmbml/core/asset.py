@@ -138,7 +138,7 @@ class AssetWithPathAlts(Asset):
     def path_alt(self):
         return self._path_from_template(self.path_template_alt)
 
-    def resolve_path(self, *, use_alt_path: bool | None = None, for_write: bool = False):
+    def resolve_path(self, *, use_alt_path: Optional[bool] = None, for_write: bool = False):
         if use_alt_path is not None:
             return self.path_alt if use_alt_path else self.path
 
