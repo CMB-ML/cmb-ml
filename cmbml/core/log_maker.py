@@ -170,7 +170,7 @@ class LogMaker:
         references pkg_name at the top level.
         """
         try:
-            with script_path.open("r") as f:
+            with script_path.open("r", encoding="utf-8") as f:
                 tree = ast.parse(f.read(), filename=str(script_path))
         except (OSError, SyntaxError) as e:
             logger.warning(f"Could not parse {script_path} for import check: {e}")
@@ -234,7 +234,7 @@ class LogMaker:
                 collected.add(filename)
 
             try:
-                with filename.open("r") as fh:
+                with filename.open("r", encoding="utf-8") as fh:
                     tree = ast.parse(fh.read(), filename=str(filename))
             except (OSError, SyntaxError) as e:
                 logger.warning(f"Could not parse {filename}: {e}")
@@ -328,11 +328,15 @@ class LogMaker:
         with open(target_root / "config_sources.txt", "w") as f:
             for provider, config_files in relevant_config_files.items():
                 f.write(f"{provider}\n")
-                f.write(f"Common path: {self._find_common_paths(config_files)}\n")
+                # f.write(f"Common path: {self._find_common_paths(config_files)}\n")
+                common = self._find_common_paths(config_files) if config_files else "N/A"
+                f.write(f"Common path: {common}\n")
                 for config_file in config_files:
                     f.write(f"    {config_file}\n")
 
         for provider, config_files in relevant_config_files.items():
+            if not config_files:
+                continue
             base_path = self._find_common_paths(config_files)
             base_path = base_path.parent
 
@@ -387,10 +391,10 @@ class LogMaker:
                 missing_combinations.append((choice_key, choice_value))
 
         if missing_combinations:
-            logger.warning("Missing configuration files for:", missing_combinations)
+            logger.warning(f"Missing configuration files for: {missing_combinations}")
 
-        for provider, config_paths in relevant_files.items():
-            for config_path in config_paths:
+        for provider, config_files in relevant_files.items():
+            for config_path in config_files:
                 config_path = Path(config_path)
                 with open(config_path, 'r') as f:
                     try:
