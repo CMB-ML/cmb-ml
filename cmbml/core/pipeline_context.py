@@ -1,7 +1,10 @@
 import logging
 from .executor_base import BaseStageExecutor
+from .log_maker import LogMaker
+
 
 logger = logging.getLogger("stages")
+
 
 class PipelineContext:
     def __init__(self, cfg, log_maker=None):
@@ -16,7 +19,7 @@ class PipelineContext:
         None
         """
         self.cfg = cfg
-        self.log_maker = log_maker
+        self.log_maker: LogMaker = log_maker
         self.pipeline = []
 
     def add_pipe(self, executor: BaseStageExecutor):
@@ -43,6 +46,8 @@ class PipelineContext:
         None
         """
         logger.info("Performing pre-run checks. Trying __init__() method for each stage to check for obvious issues.")
+        if self.log_maker is not None:
+            self.log_maker.log_pipeline(self.pipeline)
         for stage in self.pipeline:
             logger.info(f"Checking initialization for: {stage.__name__}")
             executor: BaseStageExecutor = stage(self.cfg)
@@ -55,10 +60,10 @@ class PipelineContext:
         Returns:
         None
         """
-        for executor in self.pipeline:
-            self._run_executor(executor)
+        for order, executor in enumerate(self.pipeline):
+            self._run_executor(executor, order)
 
-    def _run_executor(self, stage: BaseStageExecutor):
+    def _run_executor(self, stage: BaseStageExecutor, order: int):
         """
         Execute a specific stage in the pipeline.
 
@@ -69,17 +74,24 @@ class PipelineContext:
         None
         """
         logger.info(f"Running stage: {stage.__name__}")
+        if self.log_maker is not None:
+            self.log_maker.mark_stage(order, "running")
+
         executor: BaseStageExecutor = stage(self.cfg)
         had_exception = False
         try:
             executor.execute()
         except Exception as e:
             had_exception = True
+            if self.log_maker is not None:
+                self.log_maker.mark_stage(order, "failed")
             logger.exception(f"An exception occurred during stage: {stage.__name__}", exc_info=e)
             raise e
         finally:
             if not had_exception:
                 logger.info(f"Done running stage: {stage.__name__}")
+                if self.log_maker is not None:
+                    self.log_maker.mark_stage(order, "completed")
             if executor.make_stage_logs:
                 stage_str = executor.stage_str
                 top_level_working = executor.top_level_working
