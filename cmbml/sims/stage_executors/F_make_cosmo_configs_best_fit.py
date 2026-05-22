@@ -3,6 +3,7 @@ from pathlib import Path
 import logging
 
 import numpy as np
+import omegaconf
 from omegaconf import DictConfig, OmegaConf
 
 from cmbml.core.asset_handlers import Config
@@ -53,9 +54,12 @@ class ParamConfigExecutor(BaseStageExecutor):
         self.params = cfg.model.sim.cmb.camb_params
         self.seed_factory = SeedFactory(self.seed_template)
 
-        sigma_fac = cfg.model.sim.cmb.get("param_sigma_fac", None)
+        try:
+            sigma_fac = cfg.model.sim.cmb.param_sigma_fac
+        except omegaconf.errors.InterpolationKeyError as e:
+            sigma_fac = None
         if sigma_fac is None:
-            logger.warning("Parameter sigma undeclared. Using scale factor of 1.")
+            logger.info("Parameter sigma undeclared. Using scale factor of 1.")
         self.sigma_fac = 1 if sigma_fac is None else sigma_fac
 
     def execute(self) -> None:
