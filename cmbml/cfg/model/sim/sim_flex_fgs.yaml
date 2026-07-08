@@ -10,7 +10,7 @@ defaults:
 #    While debugging code, it is often convenient to use lower resolution nside_sky
 #    Only one of the two should be set. The other should be "null". Setting both may given unexpected results.
 # Moved to top level for now
-nside_sky            : 256
+nside_sky            : 2048
 nside_sky_factor     : null
 sky_unit             : MJy/sr
 
@@ -23,7 +23,7 @@ seed_base_string: cmb_ml
 do_bandpass_int_each_sim : false
 min_obs_beam             : ${min_obs_beam_fwhm}
 include_cmb              : true  # Defaults to true if not included. Will still produce power spectra, only affects making sky and observations.
-downgrade_lmax           : 320
+downgrade_lmax           : 1280
 
 # Use constant fg refers to the same fgs across all simulation splits
 use_constant_fg          : true

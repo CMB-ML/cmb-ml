@@ -37,14 +37,18 @@ def get_xpower(map1, map2, mask, lmax, n_iter, use_pixel_weights=False):
     return ps
 
 
-def cl_to_dl(cl, ells):
-    norm = ells * (ells+1) / (np.pi * 2)
-    return cl * norm
+def norm(ells):
+    res = (ells * (ells + 1)) / (2 * np.pi)
+    res[ells == 0] = 1  # norm is always a factor; safe to set to 1?
+    return res
 
 
 def dl_to_cl(dl, ells):
-    norm = ells * (ells+1) / (np.pi * 2)
-    return dl / norm
+    return dl / norm(ells)
+
+
+def cl_to_dl(cl, ells):
+    return cl * norm(ells)
 
 
 class PowerSpectrum(ABC):

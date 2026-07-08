@@ -1,0 +1,13 @@
+defaults:
+  - config_sim_32
+
+dataset_name: "${map_fields}_${scenario.nside}_${splits.name}_CMB_only/scale_${param_sigma_fac}"
+hydra:
+  mode: MULTIRUN
+  sweeper:
+    params:
+      param_sigma_fac: 0.2  #, 0.5, 1, 2, 5
+      nside: 16  #, 32, 64
+
+nside          : ???
+param_sigma_fac: ???

@@ -17,18 +17,18 @@ import logging
 import hydra
 from omegaconf import OmegaConf
 from cmbml.core import PipelineContext, LogMaker
-from cmbml.core.A_check_hydra_configs import HydraConfigCheckerExecutor
 from cmbml.sims.ex import (
-    NoiseCacheExecutor,
-    DownloadNoiseModelExecutor,
-    HalfMissionNoiseExecutor,
-    SimHMCreatorExecutor
+    ChainsConfigExecutor,
+    ParamConfigExecutor,
+    TheoryPSExecutor,
+    CMBCreatorExecutor
 )
+
 
 logger = logging.getLogger(__name__)
 
 
-@hydra.main(version_base=None, config_name="config_sim_flex")
+@hydra.main(version_base=None, config_name="config_sim_32_MR")
 def run_simulations(cfg):
     """
     Runs the simulation pipeline.
@@ -48,14 +48,12 @@ def run_simulations(cfg):
 
     pipeline_context = PipelineContext(cfg, log_maker)
 
-    # pipeline_context.add_pipe(NoiseCacheExecutor)
-    # pipeline_context.add_pipe(DownloadNoiseModelExecutor)
-    pipeline_context.add_pipe(HalfMissionNoiseExecutor)
-    pipeline_context.add_pipe(SimHMCreatorExecutor)
-
-
-    # # TODO: Put this back in the pipeline yaml; fix/make executor
-    # # pipeline_context.add_pipe(ShowSimsExecutor)  # Out of date, do not use.
+    if cfg.model.sim.cmb.use_chains:
+        pipeline_context.add_pipe(ChainsConfigExecutor)
+    else:
+        pipeline_context.add_pipe(ParamConfigExecutor)
+    pipeline_context.add_pipe(TheoryPSExecutor)
+    pipeline_context.add_pipe(CMBCreatorExecutor)
 
     pipeline_context.prerun_pipeline()
 

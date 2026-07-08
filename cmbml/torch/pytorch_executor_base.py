@@ -20,10 +20,13 @@ class BasePyTorchModelExecutor(BaseStageExecutor):
 
     def __init__(self, cfg: DictConfig, stage_str) -> None:
         super().__init__(cfg, stage_str)
-        self.instrument: Instrument = make_instrument(cfg=cfg)
-
-        self.n_dets = len(self.instrument.dets)
+        
         self.nside = cfg.scenario.nside
+
+        if cfg.get("no_instrument", False):
+            return
+        self.instrument: Instrument = make_instrument(cfg=cfg)
+        self.n_dets = len(self.instrument.dets)
 
     def choose_device(self, force_device=None) -> None:
         if force_device:

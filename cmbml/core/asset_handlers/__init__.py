@@ -13,6 +13,7 @@ from .ps_handler import NumpyPowerSpectrum
 from .ps_handler import TextPowerSpectrum
 from .ps_handler import CambPowerSpectrum
 from .ps_handler import PandasCAMBPowerSpectrum
+from .ps_handler import DictCambPowerSpectrum
 # from .pytorch_model_handler import PyTorchModel
 from .qtable_handler import QTableHandler
 from .txt_handler import TextHandler
@@ -20,3 +21,4 @@ from .appending_csv_handler import AppendingCsvHandler
 from .figure_handler import Figure
 from .figure_handler import MPLFigure
 from .rimo_handler import RIMO
+from .numpy_handler import NpyHandler
