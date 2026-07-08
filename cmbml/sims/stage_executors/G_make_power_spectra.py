@@ -58,6 +58,8 @@ class TheoryPSExecutor(BaseStageExecutor):
 
         self.need_xl = cfg.model.sim.cmb.get('use_chains', False)
 
+        self.do_lensing = cfg.model.sim.cmb.get('do_lensing', True)
+
         out_cmb_ps_handler: CambPowerSpectrum
         in_cosmo_config_handler: Config
 
@@ -103,7 +105,7 @@ class TheoryPSExecutor(BaseStageExecutor):
         if self.need_xl:
             cosmo_params = self._translate_params_keys(cosmo_params)
 
-        camb_results = make_camb_ps(cosmo_params, lmax=self.max_ell_for_camb)
+        camb_results = make_camb_ps(cosmo_params, lmax=self.max_ell_for_camb, do_lensing=self.do_lensing)
         ps_asset.write(use_alt_path=use_alt_path, data=camb_results, lmax=self.max_ell_for_camb)
 
     def _translate_params_keys(self, src_params):

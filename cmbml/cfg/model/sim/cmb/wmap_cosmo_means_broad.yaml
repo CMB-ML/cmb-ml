@@ -1,0 +1,29 @@
+cmb_type           : lensed
+param_set_name     : wmap_best_fit
+use_chains         : false # When pulling from the WMAP9 chains, we need to convert the
+                           #    WMAP9 parameter names to CAMB parameter names.
+                           #    This is not needed for best_fit methods, which draw
+                           #    parameters from simple normal distributions.
+
+do_lensing: false
+
+camb_params :
+    # Commented out values will not be pulled from the chain and put into the config.
+    # Setting a value to null will get the value from the chain, but not use it when
+    #    making a CMB power spectrum.
+    # Parameter values are listed: https://lambda.gsfc.nasa.gov/product/wmap/dr5/params/lcdm_wmap9.html
+    # H0:        {camb: H0}
+    ombh2:         {mean: 0.02264,   std: 0.00050,  sigma_fac: 1, dist: uniform}
+    omch2:         {mean: 0.1138,    std: 0.0045,   sigma_fac: 1, dist: uniform}
+    tau:           {mean: 0.089,     std: 0.014,    sigma_fac: 1, dist: uniform}
+    As:            {mean: 2.41e-9,   std: 0.10e-9,  sigma_fac: 3, dist: uniform}
+    ns:            {mean: 0.972,     std: 0.013,    sigma_fac: 3, dist: uniform}
+    # H0:            {mean: 70.0,    std: 2.2}
+    cosmomc_theta: {mean: 0.0104150, std: 6.5e-5,  sigma_fac: 10, dist: uniform}
+    pivot_scalar:  {value: 0.002}  # WMAP chains default is 0.002, but CAMB default is 0.05
+ell_max            : 1280  # Testing shows no change above ~3.5*nside
+                           # We use 8150 as a default incase we do resolution 2048 maps.
+                           # TODO: Reduce this to 3.5 x nside or exchange with factor parameter
+seed_template_ps   : "{split}_{sim}_cmb_ps"
+seed_template_map  : "{split}_{sim}_cmb_map"
+make_ps_if_absent  : true

@@ -15,7 +15,7 @@ import healpy as hp
 logger = logging.getLogger(__name__)
 
 
-def make_camb_ps(cosmo_params, lmax) -> camb.CAMBdata:
+def make_camb_ps(cosmo_params, lmax, do_lensing) -> camb.CAMBdata:
     """
     Make a CAMB power spectrum object.
 
@@ -28,12 +28,12 @@ def make_camb_ps(cosmo_params, lmax) -> camb.CAMBdata:
     """
     #Set up a new set of parameters for CAMB
     # logger.debug(f"Beginning CAMB")
-    pars: camb.CAMBparams = setup_camb(cosmo_params, lmax)
+    pars: camb.CAMBparams = setup_camb(cosmo_params, lmax, do_lensing)
     results: camb.CAMBdata = camb.get_results(pars)
     return results
 
 
-def setup_camb(cosmo_params: Dict[str, Any], lmax:int) -> camb.CAMBparams:
+def setup_camb(cosmo_params: Dict[str, Any], lmax:int, do_lensing:bool) -> camb.CAMBparams:
     """
     Set up the CAMB parameters.
 
@@ -51,6 +51,7 @@ def setup_camb(cosmo_params: Dict[str, Any], lmax:int) -> camb.CAMBparams:
     pars.set_cosmology(**set_cosmology_args)
     pars.InitPower.set_params(**init_power_args)
     pars.set_for_lmax(lmax, lens_potential_accuracy=0)
+    pars.DoLensing = do_lensing  # allow for weird results with wide distributions
     return pars
 
 

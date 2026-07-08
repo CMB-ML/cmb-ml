@@ -51,12 +51,12 @@ class ParamConfigExecutor(BaseStageExecutor):
 
         self.seed_template = cfg.model.sim.cmb.seed_template_ps
         self.params = cfg.model.sim.cmb.camb_params
-        self.seed_factory = SeedFactory(self.seed_template)
 
-        sigma_fac = cfg.model.sim.cmb.get("param_sigma_fac", None)
-        if sigma_fac is None:
-            logger.warning("Parameter sigma undeclared. Using scale factor of 1.")
-        self.sigma_fac = 1 if sigma_fac is None else sigma_fac
+        for param, settings in self.params.items():
+            if "dist" in settings and settings["dist"] not in ["normal", "uniform"]:
+                raise ValueError("Distribution must be either uniform or normal.")
+
+        self.seed_factory = SeedFactory(self.seed_template)
 
     def execute(self) -> None:
         logger.debug(f"Running {self.__class__.__name__} execute() method.")
@@ -90,13 +90,28 @@ class ParamConfigExecutor(BaseStageExecutor):
         rng = np.random.default_rng(seed)
         param_draws = {}
         for key, values in self.params.items():
-            if key == "ln1010as":
-                ln1010As = rng.normal(values["mean"], values["std"] * self.sigma_fac)
-                As = np.exp(ln1010As)*1e-10
-                param_draws["As"] = As
-            elif "value" in values:
-                # If the parameter has a fixed value, use that
-                param_draws[key] = values["value"]
+            if "value" in values:
+                draw = values["value"]
             else:
-                param_draws[key] = rng.normal(values["mean"], values["std"] * self.sigma_fac)
+                sigma_fac = values.get("sigma_fac", 1)
+                scale = values["std"] * sigma_fac
+                use_dist = use_dist = values.get("dist", "normal")
+
+                if use_dist == "normal":
+                    draw = rng.normal(
+                        loc=values["mean"], 
+                        scale=scale
+                    )
+                elif use_dist == "uniform":
+                    draw = rng.uniform(
+                        low=values["mean"] - scale, 
+                        high=values["mean"] + scale
+                    )
+                else:
+                    raise ValueError("Unknown distribution to be used")
+
+            if key == "ln1010as":
+                param_draws["As"] = np.exp(draw) * 1e-10
+            else:
+                param_draws[key] = draw
         return param_draws
