@@ -5,7 +5,7 @@ use_chains         : false # When pulling from the WMAP9 chains, we need to conv
                            #    This is not needed for best_fit methods, which draw
                            #    parameters from simple normal distributions.
 
-do_lensing: false
+do_lensing: true
 
 camb_params :
     # Commented out values will not be pulled from the chain and put into the config.
