@@ -20,18 +20,22 @@ logger = logging.getLogger(__name__)
 
 
 class PySMForegroundPrepExecutor(BaseStageExecutor):
+    """
+    Produce both:
+    - const foreground map for all splits (preset strings only)
+    - fixed foreground map for TestFFN (d11, s6 are fixed)
+    """
     def __init__(self, cfg: DictConfig, stage_str="pysm_fg_prep") -> None:
         super().__init__(cfg, stage_str=stage_str)
 
         self.out_fg_map: Asset = self.assets_out['fg_maps']
         out_map_handler: HealpyMap
         self.in_fg_config: Asset = self.assets_in.get('fg_config', None)
-        self.in_fg_map: Asset = self.assets_in['fg_maps']
 
         self.instrument: Instrument = make_instrument(cfg=cfg)
 
         self.nside_sky = self.get_nside_sky()
-        sky_unit = cfg.model.sim.sky_unit  # Pretty sure it needs to be MJy/sr
+        sky_unit = cfg.model.sim.sky_unit  # Pretty sure this needs to be MJy/sr (confirmed with test in lost_in_space)
         self.sky_unit = u.Unit(sky_unit)
         self.preset_strings = OmegaConf.to_container(cfg.model.sim.preset_strings, resolve=True)
         self.use_constant_fg = cfg.model.sim.get("use_constant_fg", None)
