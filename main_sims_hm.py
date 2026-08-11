@@ -53,7 +53,6 @@ def run_simulations(cfg):
     pipeline_context.add_pipe(HalfMissionNoiseExecutor)
     pipeline_context.add_pipe(SimHMCreatorExecutor)
 
-
     # # TODO: Put this back in the pipeline yaml; fix/make executor
     # # pipeline_context.add_pipe(ShowSimsExecutor)  # Out of date, do not use.
 
