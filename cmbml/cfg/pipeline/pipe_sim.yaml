@@ -117,8 +117,9 @@ make_hm_noise:
     noise_model: {stage: make_noise_models}
     noise_avg:   {stage: make_planck_noise_sims_avgs}
   dir_name: Simulation_E2_HM_Noise
-  splits: &test
+  splits: &hm
     - test
+    - valid
   make_stage_log: False
 
 make_hm_sims:
@@ -131,7 +132,7 @@ make_hm_sims:
     # sky_no_noise_maps: {stage: make_obs_no_noise, working: *sw}
     sky_no_noise_maps: {stage: make_obs_no_noise}
   dir_name: Simulation_HM_Maps
-  splits: *test
+  splits: *hm
   make_stage_log: False
   top_level_working: True
 
