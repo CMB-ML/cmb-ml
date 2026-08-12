@@ -21,4 +21,4 @@ from .appending_csv_handler import AppendingCsvHandler
 from .figure_handler import Figure
 from .figure_handler import MPLFigure
 from .rimo_handler import RIMO
-from .numpy_handler import NpyHandler
+from .numpy_handler import NpyHandler, NpzHandler
