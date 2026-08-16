@@ -1,5 +1,5 @@
 defaults:
-  - cmb:   wmap_cosmo_means_broad
+  - cmb:   wmap_cosmo_means
   # - noise: noise_empty  # Array of zeros
   # - noise: anisotropic  # "Variance"
   # - noise: correlated   # "Variance with induced correlations"
