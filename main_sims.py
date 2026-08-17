@@ -92,14 +92,14 @@ def run_simulations(cfg):
 
     # # Needed for all:
 
-    if cfg.model.sim.cmb.use_chains:
-        pipeline_context.add_pipe(ChainsConfigExecutor)
-    else:
-        pipeline_context.add_pipe(ParamConfigExecutor)
-    pipeline_context.add_pipe(TheoryPSExecutor)
-    pipeline_context.add_pipe(ForegroundConfigExecutor)
-    pipeline_context.add_pipe(PySMForegroundPrepExecutor)
-    pipeline_context.add_pipe(ObsCreatorExecutor)
+    # if cfg.model.sim.cmb.use_chains:
+    #     pipeline_context.add_pipe(ChainsConfigExecutor)
+    # else:
+    #     pipeline_context.add_pipe(ParamConfigExecutor)
+    # pipeline_context.add_pipe(TheoryPSExecutor)
+    # pipeline_context.add_pipe(ForegroundConfigExecutor)
+    # # pipeline_context.add_pipe(PySMForegroundPrepExecutor)
+    # pipeline_context.add_pipe(ObsCreatorExecutor)
     pipeline_context.add_pipe(NoiseMapCreatorExecutor)
     pipeline_context.add_pipe(SimCreatorExecutor)
 
