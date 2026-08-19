@@ -33,6 +33,8 @@ from cmbml.sims.ex import (
     ObsCreatorExecutor,
     NoiseMapCreatorExecutor,
     SimCreatorExecutor,
+    HalfMissionNoiseExecutor,
+    SimHMCreatorExecutor
 )
 
 
@@ -102,6 +104,8 @@ def run_simulations(cfg):
     pipeline_context.add_pipe(ObsCreatorExecutor)
     pipeline_context.add_pipe(NoiseMapCreatorExecutor)
     pipeline_context.add_pipe(SimCreatorExecutor)
+    pipeline_context.add_pipe(HalfMissionNoiseExecutor)
+    pipeline_context.add_pipe(SimHMCreatorExecutor)
 
     pipeline_context.prerun_pipeline()
 
