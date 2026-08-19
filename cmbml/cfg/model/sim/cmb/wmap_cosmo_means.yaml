@@ -17,7 +17,7 @@ camb_params :
     ns:           {mean: 0.972,   std: 0.013}
     H0:           {mean: 70.0,    std: 2.2}
     pivot_scalar: {value: 0.002}  # WMAP chains default is 0.002, but CAMB default is 0.05
-ell_max            : 1280  # Testing shows no change above ~3.5*nside
+ell_max            : 8150  # Testing shows no change above ~3.5*nside
                            # We use 8150 as a default incase we do resolution 2048 maps.
                            # TODO: Reduce this to 3.5 x nside or exchange with factor parameter
 seed_template_ps   : "{split}_{sim}_cmb_ps"
