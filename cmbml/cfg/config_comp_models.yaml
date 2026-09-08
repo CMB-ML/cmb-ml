@@ -20,8 +20,8 @@ hydra:
 
 models_comp:
   - cmbnncs:
-    model_name        : CMBNNCS
-    working_directory : CMBNNCS_UNet8/
+    model_name        : cmbNNCS
+    working_directory : cmbNNCS_UNet8/
     epoch             : 120
   - pyilc:
     model_name        : CNILC
@@ -43,4 +43,4 @@ map_fields     : "I"
 # Should not be needed here; remove the check for this wherever it occurs
 n_test_cap       : null
 n_show_cap       : 5
-run_inference_on      : test  # Either "test" or "valid" ("train" should work, but is not recommended)
+run_inference_on      : [test]  # Either "test" or "valid" ("train" should work, but is not recommended)

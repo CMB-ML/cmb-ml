@@ -27,8 +27,7 @@ common_post_map_real:
   assets_in:
     cmb_map: {stage: make_sims}
     mask: {stage: make_mask}
-  splits:
-    - ${splits.run_inference_on}
+  splits: ${splits.run_inference_on}
   dir_name: Analysis_D_Common_Post_Map_Real
 
 common_post_map_pred:
@@ -39,8 +38,7 @@ common_post_map_pred:
   assets_in:
     cmb_map: {stage: final_infer}
     mask: {stage: make_mask}
-  splits:
-    - ${splits.run_inference_on}
+  splits: ${splits.run_inference_on}
   dir_name: Analysis_E_Common_Post_Map_Pred
   epochs: ${use_epochs_imgs}
 
@@ -53,8 +51,7 @@ show_cmb_post_masked:
     cmb_map_post: {stage: common_post_map_pred, orig_name: cmb_map}
     cmb_map_sim: {stage: common_post_map_real, orig_name: cmb_map}
     # deltabandpass: {stage: raw}
-  splits:
-    - ${splits.run_inference_on}
+  splits: ${splits.run_inference_on}
   override_n_sims: ${n_show_cap}    
   plot_min_max: 500                  # value, v: plots from -v to +v; null: allow MPL to choose; list (size 2): min and max val
   make_stage_log: False
@@ -85,8 +82,7 @@ show_cmb_post_masked_ind:
     cmb_map_post: {stage: common_post_map_pred, orig_name: cmb_map}
     cmb_map_sim: {stage: common_post_map_real, orig_name: cmb_map}
     # deltabandpass: {stage: raw}
-  splits:
-    - ${splits.run_inference_on}
+  splits: ${splits.run_inference_on}
   override_n_sims: ${n_show_cap}    
   plot_min_max: 500                  # value, v: plots from -v to +v; null: allow MPL to choose; list (size 2): min and max val
   make_stage_log: False
@@ -101,8 +97,7 @@ pixel_analysis:
   assets_in:
     cmb_map_post: {stage: common_post_map_pred, orig_name: cmb_map}
     cmb_map_sim: {stage: common_post_map_real, orig_name: cmb_map}
-  splits:
-    - ${splits.run_inference_on}
+  splits: ${splits.run_inference_on}
   epochs: ${use_epochs_map_stats}
   dir_name: Analysis_F_Pixel_Report
 
@@ -116,8 +111,7 @@ pixel_summary_tables:
       handler: PandasCsvHandler
   assets_in:
     report: {stage: pixel_analysis}
-  splits:
-    - ${splits.run_inference_on}
+  splits: ${splits.run_inference_on}
   epochs: ${use_epochs_map_stats}
   dir_name: Analysis_3_Pixel_Summary_Tables
 
@@ -131,8 +125,7 @@ pixel_summary_figs:
       handler: EmptyHandler
   assets_in:
     report: {stage: pixel_analysis}
-  splits:
-    - ${splits.run_inference_on}
+  splits: ${splits.run_inference_on}
   epochs: ${use_epochs_map_stats}
   dir_name: Analysis_4_Pixel_Summary_Figs
 
@@ -146,8 +139,7 @@ make_real_ps:
     cmb_map_real: {stage: make_sims, orig_name: cmb_map}
     mask:    {stage: make_mask}
     mask_sm: {stage: make_mask}
-  splits:
-    - ${splits.run_inference_on}
+  splits: ${splits.run_inference_on}
   epochs: ${use_epochs_ps_stats}
   dir_name: Analysis_K_Power_Spectra
 
@@ -161,8 +153,7 @@ make_pred_ps:
     cmb_map_post: {stage: final_infer, orig_name: cmb_map}
     mask:    {stage: make_mask}
     mask_sm: {stage: make_mask}
-  splits:
-    - ${splits.run_inference_on}
+  splits: ${splits.run_inference_on}
   epochs: ${use_epochs_ps_stats}
   dir_name: Analysis_K_Power_Spectra
 
@@ -175,8 +166,7 @@ one_ps_fig:  # Produce a power spectrum without needing the rest of the spectra 
     theory_ps: {stage: convert_theory_ps}
     auto_real: {stage: make_pred_ps}
     auto_pred: {stage: make_pred_ps}
-  splits:
-    - ${splits.run_inference_on}
+  splits: ${splits.run_inference_on}
   epochs: ${use_epochs_ps_stats}
   override_n_sims: ${n_show_cap}
   dir_name: Analysis_11_One_PS_Fig
