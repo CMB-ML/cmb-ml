@@ -29,12 +29,19 @@ class MPLFigure(GenericHandler):
     def write(self, path: Path, fig, **kwargs) -> Path:
         logger.debug(f"Creating parent directory at {path}")
         make_directories(path)
-        logger.debug(f"Saving figure to {path}")
-        try:
-            for fig_type in self.fig_types:
-                plt.savefig(path.with_suffix(f".{fig_type.lstrip('.')}"), **kwargs)
-        except:
-            plt.savefig(path, **kwargs)
+
+        fig_types = getattr(self, "fig_types", None)
+        if not fig_types:
+            logger.warning(
+                f"No fig_types set on {type(self).__name__}; saving only "
+                f"{path.suffix or 'the default format'}. Call set_fig_types()."
+            )
+            fig_types = [path.suffix or "png"]
+
+        for fig_type in fig_types:
+            out = path.with_suffix(f".{fig_type.lstrip('.')}")
+            logger.debug(f"Saving figure to {out}")
+            fig.savefig(out, **kwargs)
         plt.close(fig)
 
     def set_fig_types(self, fig_types):
