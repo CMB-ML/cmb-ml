@@ -26,7 +26,7 @@ class MPLFigure(GenericHandler):
     def read(self, path: Path) -> None:
         raise NotImplementedError("No read method implemented for Mover Handler; implement a handler for files to be read.")
 
-    def write(self, path: Path, fig, **kwargs) -> Path:
+    def write(self, path: Path, fig, verbose=False, **kwargs) -> Path:
         logger.debug(f"Creating parent directory at {path}")
         make_directories(path)
 
@@ -38,10 +38,11 @@ class MPLFigure(GenericHandler):
             )
             fig_types = [path.suffix or "png"]
 
+        log = logger.info if verbose else logger.debug
+        log(f"Saving figure to {path.with_suffix('')} as {fig_types}")
+
         for fig_type in fig_types:
-            out = path.with_suffix(f".{fig_type.lstrip('.')}")
-            logger.debug(f"Saving figure to {out}")
-            fig.savefig(out, **kwargs)
+            fig.savefig(path.with_suffix(f".{fig_type.lstrip('.')}"), **kwargs)
         plt.close(fig)
 
     def set_fig_types(self, fig_types):
