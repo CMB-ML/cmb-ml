@@ -85,7 +85,7 @@ class PipelineContext:
             had_exception = True
             if self.log_maker is not None:
                 self.log_maker.mark_stage(order, "failed")
-            logger.exception(f"An exception occurred during stage: {stage.__name__}")
+            logger.error(f"An exception occurred during stage: {executor.__class__.__name__}")
             raise
         finally:
             if not had_exception:
