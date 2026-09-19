@@ -12,18 +12,72 @@ from .asset_handlers_base import (
     register_handler, 
     make_directories)
 from cmbml.utils.physics_units import get_fields_units_from_fits
+from cmbml.utils.fits_inspection import (
+    get_field_index_by_name,
+    get_field_types_from_fits,
+)
 
 
 logger = logging.getLogger(__name__)
 
 
-def field_strs_to_ints(field_strs: Union[str, List[str]]) -> List[int]:
-    if isinstance(field_strs, List):
-        field_strs = "".join(field_strs)
+STOKES_SUGAR = {"I": 0, "Q": 1, "U": 2}
+
+
+
+# def field_strs_to_ints(field_strs: Union[str, List[str]]) -> List[int]:
+#     # NOTE: map_field_strs is Stokes shorthand ("IQU" -> [0, 1, 2]), not column
+#     #       names. To read by column name (e.g., Planck "F100"), resolve the 
+#     #       index first and pass map_fields.
+#     # TODO: Rectify this; should specify correct field by name, 
+#     #       possibly with "I", "Q", "U" syntactic
+
+#     if isinstance(field_strs, List):
+#         field_strs = "".join(field_strs)
+#     field_ints = []
+#     fields_lookup = {"I": 0, "Q": 1, "U": 2}
+#     for c in field_strs:
+#         field_ints.append(fields_lookup[c])
+#     return field_ints
+
+
+def resolve_map_fields(path, field_strs, hdu=1) -> List[int]:
+    """
+    Resolve field names to zero-based column indices.
+
+    Each token is matched (case-insensitively) against the column names in the
+    FITS table. If no column matches and the token consists only of I/Q/U
+    characters, it is treated as positional Stokes shorthand ("IQU" -> [0, 1, 2]).
+
+    Args:
+        path: Path to the FITS file.
+        field_strs (str | List[str]): A name, shorthand string, or list of either.
+        hdu (int): HDU containing the table. Defaults to 1.
+
+    Returns:
+        List[int]: Zero-based field indices, in the order requested.
+    """
+    if isinstance(field_strs, str):
+        field_strs = [field_strs]
+
     field_ints = []
-    fields_lookup = {"I": 0, "Q": 1, "U": 2}
-    for c in field_strs:
-        field_ints.append(fields_lookup[c])
+    for token in field_strs:
+        idx = get_field_index_by_name(
+            str(path), token, hdu=hdu, case_sensitive=False, match="exact"
+        )
+        if idx is not None:
+            field_ints.append(idx)
+            continue
+
+        key = token.strip().upper()
+        if key and all(c in STOKES_SUGAR for c in key):
+            field_ints.extend(STOKES_SUGAR[c] for c in key)
+        else:
+            available = get_field_types_from_fits(str(path), hdu=hdu)
+            raise KeyError(
+                f"Field {token!r} not found in {path}. Available fields: {available}. "
+                f"Stokes shorthand (combinations of I, Q, U) is also accepted."
+            )
     return field_ints
 
 
@@ -42,7 +96,7 @@ class HealpyMap(GenericHandler):
             if map_field_strs is None:
                 map_fields = 0
             else:
-                map_fields = field_strs_to_ints(map_field_strs)
+                map_fields = resolve_map_fields(path, map_field_strs)
 
         if precision is None:
             # Get and use the data type from the FITS file
