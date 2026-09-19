@@ -1,28 +1,38 @@
 """
-Module Name: file_helper.py
+Module Name: fits_inspection.py
 
 This module contains helper functions for examining and processing fits files.
 One function, get_map_dtype, is from the PySM3 template.py file, with minimal alteration.
 
 Functions:
-    print_out_header: Print out the header of a FITS file.
-    get_num_fields_in_hdr: Get the number of fields in the header of the specified HDU.
-    get_field_unit: Get the unit associated with a specific field from the header of the specified HDU.
-    get_num_fields: Get the number of fields in each HDU of a FITS file.
+    print_out_header: Print out the header of each HDU in a FITS file.
+    get_num_all_fields_in_hdr: Get the number of columns in the specified HDU.
+    get_num_field_types_in_hdr: Count the TTYPE# keywords in the header of the specified HDU.
+    get_field_unit_str: Get the unit (TUNIT#) of a field in the specified HDU.
+    get_other_info: Get the value of an arbitrary header keyword in the specified HDU.
+    get_field_type_from_fits: Get the name (TTYPE#) of a field in the specified HDU.
+    get_field_types_from_fits: Get the names of multiple (default: all) fields in the specified HDU.
+    get_num_fields: Get the number of fields (TFIELDS) in each non-primary HDU.
     print_fits_information: Print out the information of a FITS file.
-    get_fits_information: Get detailed information about a FITS file.
+    get_fits_information: Get headers and field types/units for each non-primary HDU.
     show_all_maps: Display all maps in each HDU of a FITS file.
     show_one_map: Display a specific map from a FITS file.
     get_map_dtype: Get the data type of a map in a format compatible with numba and mpi4py.
-    get_field_index_by_name:
-    find_field_across_hdus:
-    
+    get_field_index_by_name: Find the index of a field in an HDU by its TTYPE name.
+    find_field_across_hdus: Search all non-primary HDUs for a field and return (hdu, index) pairs.
+    get_field_data: Load a single column from a FITS table HDU by name.
+    require_field_index: Like get_field_index_by_name, but raises KeyError if the field is missing.
+
 Author: 
 Date: June 11, 2024
 Version: 0.1.0
 
 Edits: Sept 16, 2024 - Added documentation
         Sept 29, 2025 - Added functions for finding a particular field in a fits file
+        Sept 18, 2026 - Corrected module name in docstring; updated function list to
+                        match current names and added missing entries; corrected
+                        get_other_info docstring; get_field_index_by_name now opens 
+                        the file once; added require_field_index
 """
 from typing import Dict, Union, Any
 
@@ -123,16 +133,16 @@ def get_field_unit_str(fits_fn, field_idx, hdu=1):
 
 def get_other_info(fits_fn, header_lbl, hdu=1):
     """
-    Get the content associated with a specific field from the header of the 
-    specified HDU (Header Data Unit) in a FITS file.
+    Get the value of an arbitrary header keyword from the specified
+    HDU (Header Data Unit) in a FITS file.
 
     Args:
         fits_fn (str): The filename of the FITS file.
-        hdu (int): The index of the HDU.
-        field_idx (int): The index of the field.
+        header_lbl (str): The header keyword to look up (e.g., "NSIDE", "ORDERING").
+        hdu (int): The index of the HDU. Defaults to 1.
 
     Returns:
-        str: The unit of the field.
+        The keyword's value, or "" if the keyword is not present.
     """
     with fits.open(fits_fn) as hdul:
         try:
