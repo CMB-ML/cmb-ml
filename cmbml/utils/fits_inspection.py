@@ -37,6 +37,12 @@ from pprint import pprint
 ASSUME_FITS_HEADER = 1
 
 
+
+def _get_column_names(fits_fn, hdu=1) -> list[str]:
+    with fits.open(fits_fn) as hdul:
+        return list(hdul[hdu].columns.names)
+
+
 def print_out_header(fits_fn):
     """
     Print out the header of a FITS file.
@@ -346,20 +352,18 @@ def get_field_index_by_name(
     Returns:
         int | None: Zero-based field index if found, else None.
     """
-    names = get_field_types_from_fits(fits_fn, hdu=hdu)  # uses TTYPEn
-    # Normalize
+    names = _get_column_names(fits_fn, hdu=hdu)
+
     def norm(s: str) -> str:
         return s.strip() if case_sensitive else s.strip().lower()
 
     target = norm(field_name)
-    candidates = [norm(n or "") for n in names]
-
-    for i, nm in enumerate(candidates):
+    for i, nm in enumerate(norm(n or "") for n in names):
         if match == "exact" and nm == target:
             return i
-        elif match == "prefix" and nm.startswith(target):
+        if match == "prefix" and nm.startswith(target):
             return i
-        elif match == "contains" and target in nm:
+        if match == "contains" and target in nm:
             return i
     return None
 
@@ -490,3 +494,22 @@ def get_field_data(
                 pass
 
         return arr
+
+
+def require_field_index(
+    fits_fn: str,
+    field_name: str,
+    hdu: int = 1,
+    case_sensitive: bool = False,
+    match: str = "exact",
+) -> int:
+    """Like get_field_index_by_name, but raises KeyError if the field is missing."""
+    idx = get_field_index_by_name(
+        fits_fn, field_name, hdu=hdu, case_sensitive=case_sensitive, match=match
+    )
+    if idx is None:
+        raise KeyError(
+            f"Field {field_name!r} not found in HDU {hdu} of {fits_fn}. "
+            f"Available fields: {_get_column_names(fits_fn, hdu)}"
+        )
+    return idx
