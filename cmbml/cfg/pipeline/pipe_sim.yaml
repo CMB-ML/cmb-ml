@@ -163,7 +163,7 @@ make_mask:
       handler: HealpyMap
       path_template: "{root}/{dataset}/{stage}/mask_sm.fits"
   assets_in:
-    mask: {stage: raw, orig_name: mask_src_map}
+    mask: {stage: raw, orig_name: mask_nilc_map}
   dir_name: Simulation_Mask
 
 download_sims:

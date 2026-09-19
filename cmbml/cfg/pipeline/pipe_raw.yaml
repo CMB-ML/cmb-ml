@@ -21,11 +21,12 @@ raw:
     planck_ps_pandas_camb:
       handler: PandasCAMBPowerSpectrum
       path_template: *pl_ps_fp
-    mask_src_map: 
+    # TODO: Change name of key
+    mask_nilc_map: 
       path_template: "{src_root}/Planck/COM_CMB_IQU-nilc_2048_R3.00_full.fits"
       handler: HealpyMap
       use_fields: 3    # Healpy indices are 0-based. We are using Healpy. FITS file indices are 1-based. If you inspect the FITS file, this may lead to confusion.
-      # TODO: Use a hash instead of a file size?
+      # TODO: Use a hash instead of a file size? No. Getting the hash takes a while. This was considered.
       file_size: 1610  # Slightly smaller so we don't trigger re-download in get_assets.py
     mask_point_source_map: 
       path_template: "{src_root}/Planck/HFI_Mask_PointSrc_2048_R2.00.fits"
@@ -48,7 +49,7 @@ raw_in:  # Allows creating assets in read mode, easily
     wmap_chains: {stage: raw}
     planck_ps_txt: {stage: raw}
     planck_ps_pandas_camb: {stage: raw}
-    mask_src_map: {stage: raw}
+    mask_nilc_map: {stage: raw}
     noise_src_varmaps: {stage: raw}
 
 

@@ -8,7 +8,7 @@ make_fgs:
     planck_deltabandpass: {stage: raw}
     sim_deltabandpass: {stage: raw, orig_name: deltabandpass}
     src_obs_maps: {stage: raw, orig_name: noise_src_varmaps}
-    src_cmb_map: {stage: raw, orig_name: mask_src_map}
+    src_cmb_map: {stage: raw, orig_name: mask_nilc_map}
   dir_name: Simulation_DA_Foregrounds
   make_stage_log: True
 

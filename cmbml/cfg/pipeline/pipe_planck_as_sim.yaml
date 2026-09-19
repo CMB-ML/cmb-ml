@@ -36,7 +36,7 @@ convert_cmb:
     # If we need to use the original beams
     # deltabandpass: {stage: raw, orig_name: planck_deltabandpass}
     planck_deltabandpass: {stage: raw}
-    cmb_map: {stage: raw, orig_name: mask_src_map}
+    cmb_map: {stage: raw, orig_name: mask_nilc_map}
   splits:
     - test
   dir_name: *planck_maps_dir
@@ -100,5 +100,5 @@ make_mask:
       handler: HealpyMap
       path_template: "{root}/{dataset}/{stage}/mask_sm.fits"
   assets_in:
-    mask: {stage: raw, orig_name: mask_src_map}
+    mask: {stage: raw, orig_name: mask_nilc_map}
   dir_name: Simulation_Mask

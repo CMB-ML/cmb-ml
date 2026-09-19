@@ -29,7 +29,11 @@ class GetAssetsExecutor(BaseStageExecutor):
 
         self.noise_src_varmaps: Asset = self.assets_out['noise_src_varmaps']
         self.wmap_chains: Asset = self.assets_out['wmap_chains']
-        self.mask_src_map: Asset = self.assets_out.get('mask_src_map', None)
+        self.mask_nilc_map: Asset = self.assets_out.get('mask_nilc_map', None)
+
+        # NOTE: The next two need getter functions!!!
+        self.mask_point_source_map: Asset = self.assets_out.get('mask_point_source_map', None)
+        self.mask_gal_cut_apo_0_map: Asset = self.assets_out.get('mask_gal_cut_apo_0_map', None)
         self.deltabandpass: Asset = self.assets_out['deltabandpass']
         # For reference:
         in_noise_varmaps: HealpyMap
@@ -94,13 +98,13 @@ class GetAssetsExecutor(BaseStageExecutor):
             get_planck_hm_data_ext(detector=det, assets_directory=noise_src_dir, progress=True)  # download the data if it doesn't exist
 
     def get_planck_pred(self):
-        if self.mask_src_map is None:
+        if self.mask_nilc_map is None:
             return
-        fp = self.mask_src_map.path
+        fp = self.mask_nilc_map.path
         fp.parent.mkdir(parents=True, exist_ok=True)
         get_planck_pred_data_ext(assets_directory=fp.parent, 
                                  fn=fp.name,
-                                 file_size=self.mask_src_map.file_size,
+                                 file_size=self.mask_nilc_map.file_size,
                                  progress=True)  # download the data if it doesn't exist
 
     def copy_cmb_ml_assets(self):
