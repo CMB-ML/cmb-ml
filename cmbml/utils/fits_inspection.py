@@ -33,6 +33,7 @@ Edits: Sept 16, 2024 - Added documentation
                         match current names and added missing entries; corrected
                         get_other_info docstring; get_field_index_by_name now opens 
                         the file once; added require_field_index
+        Sept 19, 2026 - print_out_header now shows comments and blank undefined values
 """
 from typing import Dict, Union, Any
 
@@ -55,18 +56,18 @@ def _get_column_names(fits_fn, hdu=1) -> list[str]:
 
 def print_out_header(fits_fn):
     """
-    Print out the header of a FITS file.
+    Print out the header of each HDU in a FITS file.
 
     Args:
         fits_fn (str): The filename of the FITS file.
     """
-    # Open the FITS file
     with fits.open(fits_fn) as hdul:
-        # Loop over all HDUs in the FITS file
         for i, hdu in enumerate(hdul):
             print(f"Header for HDU {i}:")
             for card in hdu.header.cards:
-                print(f"{card.keyword}: {card.value}")
+                value = "" if isinstance(card.value, fits.card.Undefined) else card.value
+                comment = f"  / {card.comment}" if card.comment else ""
+                print(f"{card.keyword}: {value}{comment}")
             print("\n" + "-"*50 + "\n")
 
 
