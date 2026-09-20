@@ -21,24 +21,6 @@ logger = logging.getLogger(__name__)
 
 
 class ObsMapsConvertExecutor(BaseStageExecutor):
-    """
-    NoiseCacheExecutor is responsible for generating and caching noise maps for a given simulation scenario.
-
-    Attributes:
-        out_noise_cache (Asset): The output asset for the noise cache.
-        in_noise_src (Asset): The input asset for the noise source maps.
-        instrument (Instrument): The instrument configuration used for the simulation.
-
-    Methods:
-        execute() -> None:
-            Executes the noise cache generation process.
-        write_wrapper(data: Quantity, field_str: str) -> None:
-            Writes the noise map data to the output cache with appropriate column names and units.
-        get_field_idx(src_path: str, field_str: str) -> int:
-            Determines the field index corresponding to the given field string from the FITS file.
-        get_src_path(detector: int) -> str:
-            Retrieves the path for the source noise file based on the configuration.
-    """
     def __init__(self, cfg: DictConfig, stage_str='convert_obs') -> None:
         # The following stage_str must match the pipeline yaml
         super().__init__(cfg, stage_str=stage_str)
