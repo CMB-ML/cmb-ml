@@ -34,6 +34,7 @@ Edits: Sept 16, 2024 - Added documentation
                         get_other_info docstring; get_field_index_by_name now opens 
                         the file once; added require_field_index
         Sept 19, 2026 - print_out_header now shows comments and blank undefined values
+                        add get_header_cards, for use composing provenance in headers
 """
 from typing import Dict, Union, Any
 
@@ -524,3 +525,24 @@ def require_field_index(
             f"Available fields: {_get_column_names(fits_fn, hdu)}"
         )
     return idx
+
+
+def get_header_cards(fits_fn, hdu=1) -> list[tuple[str, Any, str]]:
+    """
+    Get the (keyword, value, comment) cards from the header of the specified HDU.
+    Undefined values are returned as None.
+
+    Args:
+        fits_fn (str): The filename of the FITS file.
+        hdu (int): The index of the HDU. Defaults to 1.
+
+    Returns:
+        list[tuple[str, Any, str]]: The header cards.
+    """
+    with fits.open(fits_fn) as hdul:
+        return [
+            (c.keyword,
+             None if isinstance(c.value, fits.card.Undefined) else c.value,
+             c.comment)
+            for c in hdul[hdu].header.cards
+        ]
