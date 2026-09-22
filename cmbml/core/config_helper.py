@@ -174,6 +174,8 @@ def get_applicable_splits(cfg: DictConfig, stage_str: str) -> List[Split]:
     splits_scope = config_helper.get_stage_elem_silent("splits", stage_str)
     if splits_scope is None:
         return Splits([])
+    if isinstance(splits_scope, str):
+        splits_scope = [splits_scope]
 
     filtered_names = [
         name
