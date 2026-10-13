@@ -26,7 +26,7 @@ logger = logging.getLogger(__name__)
 
 
 class MakePredPowerSpectrumExecutor(BaseStageExecutor):
-    def __init__(self, cfg: DictConfig, beam_type:str) -> None:
+    def __init__(self, cfg: DictConfig) -> None:
         # The following string must match the pipeline yaml
         super().__init__(cfg, stage_str="make_pred_ps")
 
