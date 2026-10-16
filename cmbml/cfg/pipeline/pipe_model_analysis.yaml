@@ -23,23 +23,25 @@ common_post_map_real:
   assets_out:
     cmb_map:
       handler: HealpyMap
-      path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/cmb_real_post.fits"
+      path_template: "{root}/{dataset}/Sims_Analysis/{stage}/{split}/{sim}/cmb_real_post_beam_{beam_name}.fits"
   assets_in:
     cmb_map: {stage: make_sims}
     mask: {stage: make_mask}
+  make_stage_log: True
   splits: ${splits.run_inference_on}
-  dir_name: Analysis_D_Common_Post_Map_Real
+  dir_name: Analysis_D_Post_Map_Real
 
 common_post_map_pred:
   assets_out:
     cmb_map:
       handler: HealpyMap
-      path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/cmb_pred_post_{epoch}.fits"
+      path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/cmb_pred_post_{epoch}_beam_{beam_name}.fits"
   assets_in:
     cmb_map: {stage: final_infer}
     mask: {stage: make_mask}
+  make_stage_log: True
   splits: ${splits.run_inference_on}
-  dir_name: Analysis_E_Common_Post_Map_Pred
+  dir_name: Analysis_E_Post_Map_Pred
   epochs: ${use_epochs_imgs}
 
 show_cmb_post_masked:

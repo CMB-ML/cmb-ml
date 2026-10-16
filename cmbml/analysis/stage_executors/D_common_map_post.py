@@ -1,20 +1,13 @@
-from typing import List, Dict
 import logging
-from itertools import product
 
-from hydra.utils import instantiate
-import numpy as np
-from tqdm import tqdm
 import healpy as hp
-
+import numpy as np
 from omegaconf import DictConfig
+import pysm3.units as u
+from tqdm import tqdm
 
-from cmbml.core import (
-    BaseStageExecutor, 
-    Split,
-    Asset
-    )
-from cmbml.core.asset_handlers.healpy_map_handler import HealpyMap # Import for typing hint
+from cmbml.core import BaseStageExecutor, Split, Asset
+from cmbml.utils.physics_beam import make_beam, make_target_beams
 from cmbml.utils.physics_mask import downgrade_mask
 
 
@@ -22,181 +15,145 @@ logger = logging.getLogger(__name__)
 
 
 class CommonPostExecutor(BaseStageExecutor):
-    def __init__(self, cfg: DictConfig, stage_str: str) -> None:
-        # The following string must match the pipeline yaml
+    def __init__(self, cfg: DictConfig, stage_str: str, source_beam_spec) -> None:
         super().__init__(cfg, stage_str)
 
         self.out_cmb_map: Asset = self.assets_out["cmb_map"]
-        out_ps_handler: HealpyMap
-
         self.in_cmb_map: Asset = self.assets_in["cmb_map"]
         self.in_mask: Asset = self.assets_in.get("mask", None)
-        in_cmb_map_handler: HealpyMap
 
-        # Basic parameters
         self.nside_out = cfg.scenario.nside
-        self.lmax = cfg.model.get("lmax", None)
-        if self.lmax is None:
-            self.lmax = int(cfg.model.analysis.lmax_ratio * self.nside_out)
+        self.lmax = cfg.model.analysis.lmax
 
-        # Prepare to load mask (in execute())
         self.mask_threshold = cfg.model.analysis.mask_threshold
-
         self.use_pixel_weights = False
-        self.mask_b4_deconv        = cfg.model.analysis.post_map_mask_b4_deconv
-        self.do_deconv             = cfg.model.analysis.post_map_do_deconv
+        self.mask_b4_deconv = cfg.model.analysis.post_map_mask_b4_deconv
         self.mask_b4_remove_dipole = cfg.model.analysis.post_map_mask_b4_remove_dipole
-        self.do_remove_dipole      = cfg.model.analysis.post_map_remove_dipole
+        self.do_remove_dipole = cfg.model.analysis.post_map_remove_dipole
 
-        # self.beam_cfg = cfg.model.beam
-
-        # Prepare to load beam and mask in execute()
-        self.beam = None
+        self.source_beam_spec = source_beam_spec
+        self.target_beams_cfg = cfg.model.analysis.target_beam_fwhm
+        self.source_beam = None
+        self.target_beams = None
         self.mask = None
 
     def execute(self) -> None:
         logger.debug(f"Running {self.__class__.__name__} execute().")
         self.mask = self.get_mask()
-        self.beam = self.get_beam()
+        self.source_beam = make_beam(self.source_beam_spec, lmax=self.lmax)
+        self.target_beams = make_target_beams(self.target_beams_cfg, lmax=self.lmax)
         self.default_execute()
 
     def get_mask(self):
-        """
-        Load the mask from the input asset, and downgrade it to the output nside.
-
-        Note in the pipeline_model_analysis.yaml, the mask {stage: X} may have 
-            X be "mask" or "mask_in". If mask_in, it will be loaded from the 
-            source mask (currently a Planck asset from the NILC cleaning). If 
-            make_mask, it will use the mask created by the MaskCreatorExecutor.
-        """
-        mask = None
         with self.name_tracker.set_context("src_root", self.cfg.local_system.assets_dir):
             logger.info(f"Using mask from {self.in_mask.path}")
             mask = self.in_mask.read(map_fields=self.in_mask.use_fields)[0]
-        mask = downgrade_mask(mask, self.nside_out, threshold=self.mask_threshold)
         return mask
 
-    def get_beam(self):
-        # Partially instantiate the beam object, defined in the hydra configs (cfg.model.analysis)
-        beam = instantiate(self.beam_cfg)  # Defined in children classes (at bottom of file)
-        beam = beam(lmax=self.lmax)
-        return beam
-
-    def process_split(self, 
-                      split: Split) -> None:
-        logger.info(f"Running {self.__class__.__name__} process_split() for split: {split.name}.")
-        
+    def process_split(self, split: Split) -> None:
+        logger.info(
+            f"Running {self.__class__.__name__} process_split() for split: {split.name}."
+        )
         epochs = self.model_epochs if self.model_epochs else [""]
-
         for epoch in epochs:
             for sim in tqdm(split.iter_sims()):
-                context_params = dict(epoch=epoch, sim_num=sim)
-                with self.name_tracker.set_contexts(context_params):
+                with self.name_tracker.set_contexts(dict(epoch=epoch, sim_num=sim)):
                     self.process_sim()
 
     def process_sim(self) -> None:
-        # Get power spectrum for realization
-        cmb_map: np.ndarray = self.in_cmb_map.read()
+        cmb_map = self.in_cmb_map.read()
         if cmb_map.shape[0] == 3 and self.map_fields == "I":
             cmb_map = cmb_map[0]
-
         post_map = cmb_map.copy()
 
-        # Apply the mask
+        # Preserved for compatibility; normally False for full-sky analysis.
         if self.mask_b4_deconv:
             post_map = hp.ma(post_map)
             post_map.mask = np.logical_not(self.mask)
 
-        # Deconvolve the beam
-        if self.do_deconv:
-            post_map = self.deconv(post_map)
+        source_profile = np.asarray(
+            self.source_beam.beam[:self.lmax + 1], dtype=float
+        )
+        if source_profile.size != self.lmax + 1:
+            raise ValueError("Source beam does not cover lmax")
 
-        # Reapply the mask
+        # Lazy cache: transform only if a target differs from the source beam.
+        alm_in = None
+        units = [getattr(cmb_map, "unit", None) for _ in self.map_fields]
+    
+        for beam_name, target_beam in self.target_beams:
+            target_profile = target_beam.beam
+
+            if np.array_equal(source_profile, target_profile):
+                # Preserve pixels exactly when source and target beams match,
+                # including NoBeam -> NoBeam and PyILC 20.6' -> 20.6'.
+                output_map = post_map.copy()
+            else:
+                if not np.all(np.isfinite(source_profile)) or np.any(source_profile == 0):
+                    raise ValueError("Source beam cannot be safely inverted")
+
+                # Always transform to the *specified* target resolution.
+                transfer = target_profile / source_profile
+                if not np.all(np.isfinite(transfer)):
+                    raise ValueError("Invalid source-to-target beam transfer function")
+
+                if alm_in is None:
+                    alm_in = hp.map2alm(post_map, lmax=self.lmax)
+                alm_out = hp.almxfl(alm_in, transfer)
+                output_map = hp.alm2map(alm_out, nside=self.nside_out)
+
+            if self.do_remove_dipole:
+                output_map = self.remove_dipole(output_map)
+
+            with self.name_tracker.set_context("beam_name", beam_name):
+                self.out_cmb_map.write(data=output_map, column_units=units)
+
+    def remove_dipole(self, cmb_map: np.ndarray) -> np.ndarray:
+        """Fit monopole/dipole (optionally masked); subtract from full sky.
+
+        Preserves units if the input is an Astropy Quantity.
+        Assumes HEALPix RING ordering.
+        """
+        # Extract numerical values, preserving the original units
+        is_quantity = isinstance(cmb_map, u.Quantity)
+        map_values = cmb_map.value if is_quantity else cmb_map
+
         if self.mask_b4_remove_dipole:
-            post_map = hp.ma(post_map)
-            post_map.mask = np.logical_not(self.mask)
+            fit_map = hp.ma(map_values.copy())
+            fit_map.mask = np.logical_not(self.mask)
+        else:
+            fit_map = map_values
 
-        # Remove the dipole and monopole
-        if self.do_remove_dipole:
-            post_map = hp.remove_dipole(post_map)
+        mono, dipole = hp.fit_dipole(fit_map)
 
-        units = [cmb_map.unit for _ in self.map_fields]
+        nside = hp.get_nside(map_values)
+        pixels = np.arange(hp.nside2npix(nside))
+        x, y, z = hp.pix2vec(nside, pixels)
 
-        self.out_cmb_map.write(data=post_map, column_units=units)
+        fitted_signal = mono + dipole[0] * x + dipole[1] * y + dipole[2] * z
 
-    def deconv(self, data) -> np.ndarray:
-        # Convert to spherical harmonic space (a_lm)
-        alm_in = hp.map2alm(data, lmax=self.lmax)
-
-        # TODO: Update this. We want to convolve to a common beam here. I think.
-        #       Current work is just untangling repos, so this is future work.
-        #       It's simply a matter of adding the following (commented out) lines
-        # beam = self.target_beam.beam[:self.lmax] / self.source_beam.beam[:self.lmax]
-        # # Deconvolve the beam
-        # alm_deconv = hp.almxfl(alm_in, beam)
-
-        # Deconvolve the beam
-        alm_deconv = hp.almxfl(alm_in, 1 / self.beam.beam[:self.lmax])
-
-        # Convert back to map space
-        map_deconv = hp.alm2map(alm_deconv, nside=self.nside_out)
-
-        return map_deconv
+        # Subtract, then restore units if appropriate
+        result = map_values - fitted_signal
+        return result * cmb_map.unit if is_quantity else result
 
 
 class CommonRealPostExecutor(CommonPostExecutor):
-    """
-    Applies mask, deconvolves beam, and removes monopole and dipole from CMB realization map (target).
-    """
+    """Postprocess full-sky realization maps."""
+
     def __init__(self, cfg: DictConfig) -> None:
-        super().__init__(cfg, stage_str="common_post_map_real")
-
-    def deconv(self, data):
-        """
-        No-op because the realization map was never convolved
-        """
-        return data
-
-    def get_beam(self):
-        pass
+        super().__init__(
+            cfg,
+            stage_str="common_post_map_real",
+            source_beam_spec=cfg.scenario.cmb_beam
+        )
 
 
 class CommonPredPostExecutor(CommonPostExecutor):
-    """
-    Applies mask, deconvolves beam, and removes monopole and dipole from CMB prediction map.
-    """
+    """Postprocess prediction maps."""
+
     def __init__(self, cfg: DictConfig) -> None:
-        super().__init__(cfg, stage_str="common_post_map_pred")
-        self.beam_cfg = cfg.model.analysis.beam_type
-
-# class CommonCMBNNCSPredPostExecutor(CommonPostExecutor):
-#     """
-#     Applies mask, deconvolves beam, and removes monopole and dipole from CMBNNCS prediction map.
-#     """
-#     def __init__(self, cfg: DictConfig) -> None:
-#         super().__init__(cfg, stage_str="common_post_map_pred")
-#         self.out_cmb_map: Asset = self.assets_out["cmb_map"]
-#         self.in_cmb_map: Asset = self.assets_in["cmb_map"]
-#         self.beam_cfg = cfg.model.analysis.beam_cmbnncs
-
-
-# class CommonNNPredPostExecutor(CommonPostExecutor):
-#     """
-#     Applies mask, deconvolves beam, and removes monopole and dipole from generic NN prediction map.
-#     """
-#     def __init__(self, cfg: DictConfig) -> None:
-#         super().__init__(cfg, stage_str="common_post_map_pred")
-#         self.out_cmb_map: Asset = self.assets_out["cmb_map"]
-#         self.in_cmb_map: Asset = self.assets_in["cmb_map"]
-#         self.beam_cfg = cfg.model.analysis.beam_nn
-
-
-# class CommonPyILCPredPostExecutor(CommonPostExecutor):
-#     """
-#     Applies mask, deconvolves beam, and removes monopole and dipole from PyILC prediction map.
-#     """
-#     def __init__(self, cfg: DictConfig) -> None:
-#         super().__init__(cfg, stage_str="common_post_map_pred")
-#         self.out_cmb_map: Asset = self.assets_out["cmb_map"]
-#         self.in_cmb_map: Asset = self.assets_in["cmb_map"]
-#         self.beam_cfg = cfg.model.analysis.beam_pyilc
+        super().__init__(
+            cfg,
+            stage_str="common_post_map_pred",
+            source_beam_spec=cfg.model.analysis.beam_type
+        )

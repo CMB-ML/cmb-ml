@@ -41,9 +41,10 @@ mask_sm_apo_size:  150  # Matching smallest beam
 mask_sm_apo_type:  'hp.smoothing'  # NaMaster mask type
 
 post_map_mask_b4_deconv : false       # Whether the post_map will be masked before deconvolving it
-post_map_do_deconv: true              # Whether the post_map will be deconvolved
 post_map_mask_b4_remove_dipole: true  # Whether the post_map will be masked before removing the dipole
 post_map_remove_dipole: true          # Whether the post_map will have the dipole removed
+
+target_beam_fwhm: [null, 20.6, 60.0]
 
 ps_use_smooth_mask: true  # Whether to use the smoothed mask for power spectrum calculations
 ps_anafast_iters: 12

@@ -1,8 +1,14 @@
-import healpy as hp
+from collections.abc import Iterable
+from numbers import Real
+
 from astropy.io import fits
+import healpy as hp
+from hydra.utils import instantiate
+import numpy as np
+from omegaconf import DictConfig
 import pysm3.units as u
 
-import numpy as np
+from cmbml.utils.beam_naming import name_beam_fwhms
 
 
 class Beam:
@@ -185,3 +191,41 @@ def ensure_beam(obj, *, lmax=None, on_none="identity"):
     if lmax is not None and arr.shape[0] < lmax + 1:
         raise ValueError(f"Beam array too short for lmax={lmax}: len={arr.shape[0]}")
     return Beam(arr if lmax is None else arr[:lmax+1])
+
+
+def make_target_beams(
+    fwhms_arcmin: Iterable[float | None], *, lmax: int
+) -> list[tuple[str, Beam]]:
+    """Create (beam_name, Beam) pairs for the configured target widths."""
+    return [
+        (name, make_beam(fwhm, lmax=lmax))
+        for name, fwhm in name_beam_fwhms(fwhms_arcmin)
+    ]
+
+
+def make_beam(spec, *, lmax: int) -> Beam:
+    """
+    Construct a beam from either:
+      - None or 0: NoBeam
+      - Positive FWHM in arcminutes: GaussianBeam
+      - Hydra configuration: configured Beam subclass
+      - Existing Beam object: return unchanged
+    """
+    if isinstance(spec, Beam):
+        return spec
+
+    if spec is None:
+        return NoBeam(lmax=lmax)
+
+    if isinstance(spec, Real) and not isinstance(spec, bool):
+        if spec == 0:
+            return NoBeam(lmax=lmax)
+        if not np.isfinite(spec) or spec < 0:
+            raise ValueError(f"Invalid beam FWHM: {spec}")
+        return GaussianBeam(beam_fwhm=spec, lmax=lmax)
+
+    if isinstance(spec, DictConfig):
+        beam_factory = instantiate(spec)
+        return ensure_beam(beam_factory(lmax=lmax), lmax=lmax)
+
+    raise TypeError(f"Unsupported beam specification: {spec!r}")
