@@ -1,22 +1,4 @@
-# from .stage_executors._1_show_map_simulations import ShowSimsExecutor
-# from .stage_executors._1_show_map_simulations_log import ShowSimsLogExecutor
-from .stage_executors._2_show_map_comparisons import  (
-    ShowSimsPostExecutor
-    )
-# from .stage_executors._2_show_map_comparisons import  (
-#     ShowSimsPrepExecutor, 
-#     CMBNNCSShowSimsPredExecutor, 
-#     # CMBNNCSShowSimsPostExecutor, 
-#     # PetroffShowSimsPostExecutor, 
-#     # NILCShowSimsPostExecutor,
-#     CommonCMBNNCSShowSimsPostExecutor,
-#     CommonNNShowSimsPostExecutor,
-#     CommonPetroffShowSimsPostExecutor,
-#     CommonNILCShowSimsPostExecutor
-#     )
-from .stage_executors._2_show_map_comparisons_ind import (
-    ShowSimsPostExecutor
-)
+from .stage_executors._2_show_map_comparisons import ShowSimsPostExecutor
 from .stage_executors._3_pixel_summary_tables import PixelSummaryExecutor
 # from .stage_executors._4_pixel_summary_figs import PixelSummaryFigsExecutor
 # from .stage_executors._5_ps_summary_table import PowerSpectrumSummaryExecutor

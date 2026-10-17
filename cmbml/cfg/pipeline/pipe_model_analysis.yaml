@@ -1,24 +1,3 @@
-# show_cmb_prep:
-#   assets_out:
-#     cmb_map_render:
-#       handler: EmptyHandler
-#       path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/cmb_{field}.png"
-#     obs_map_render:
-#       handler: EmptyHandler
-#       path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/obs_{field}_{freq}.png"
-#   assets_in:
-#     cmb_map_prep: {stage: preprocess, orig_name: cmb_map}
-#     cmb_map_sim: {stage: make_sims, orig_name: cmb_map}
-#     obs_maps_prep: {stage: preprocess, orig_name: obs_maps}
-#     obs_maps_sim: {stage: make_sims, orig_name: obs_maps}
-#     deltabandpass: {stage: raw}
-#   splits:
-#     - train
-#   override_n_sims: ${n_show_cap}
-#   plot_min_max: 500                  # value, v: plots from -v to +v; null: allow MPL to choose; list (size 2): min and max val
-#   dir_name: Analysis_2_Show_CMB_Prep
-#   make_stage_log: False
-
 common_post_map_real:
   assets_out:
     cmb_map:
@@ -47,12 +26,12 @@ common_post_map_pred:
 show_cmb_post_masked:
   assets_out:
     cmb_map_render:
-      handler: EmptyHandler
-      path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/cmb_{epoch}_{field}.svg"
+      handler: MPLFigure
+      path_template: "{root}/{dataset}/{working}{stage}/{split}/{sim}/cmb_{epoch}_{field}_{beam_name}.{fig_type}"
   assets_in:
     cmb_map_post: {stage: common_post_map_pred, orig_name: cmb_map}
     cmb_map_sim: {stage: common_post_map_real, orig_name: cmb_map}
-    # deltabandpass: {stage: raw}
+    mask: {stage: make_mask}
   splits: ${splits.run_inference_on}
   override_n_sims: ${n_show_cap}    
   plot_min_max: 500                  # value, v: plots from -v to +v; null: allow MPL to choose; list (size 2): min and max val

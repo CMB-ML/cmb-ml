@@ -1,260 +1,237 @@
-"""
-Produce, for each specified simulation, the target CMB, the prediction, the difference, and a histogram of the difference.
+"""Four-panel CMB postprocessing diagnostics for each simulation and beam."""
 
-One figure is produced with all images. Due to difficulties with healpy and matplotlib, this figure may not be suitable for publication.
-"""
-from typing import List, Dict, Union
 import logging
 
-import numpy as np
-
-import matplotlib.pyplot as plt
-import matplotlib.gridspec as gridspec
-from omegaconf import DictConfig, ListConfig
 import healpy as hp
+import matplotlib.pyplot as plt
+import numpy as np
 import pysm3.units as u
+from omegaconf import DictConfig, ListConfig
 
-from cmbml.core import (
-    BaseStageExecutor, 
-    Split,
-    Asset
-    )
-from cmbml.core.asset_handlers import Config
-from cmbml.core.asset_handlers.asset_handlers_base import EmptyHandler
-from cmbml.core.asset_handlers.healpy_map_handler import HealpyMap
-from cmbml.core.asset_handlers.qtable_handler import QTableHandler  # Import to register handler
-
-from cmbml.core.asset_handlers.handler_npymap import NumpyMap
-from cmbml.utils.planck_instrument import make_instrument, Instrument
+from cmbml.core import BaseStageExecutor, Split, Asset
+from cmbml.core.asset_handlers import MPLFigure
+from cmbml.core.asset_handlers.healpy_map_handler import HealpyMap  # Register handler
+from cmbml.utils.beam_naming import name_beam_fwhms
 from cmbml.utils import planck_cmap
-
 
 logger = logging.getLogger(__name__)
 
 
-# TODO: Fix all this up. I'm inheriting the wrong stuff. It's like the end of Akira, stuff added to stuff added...
-class ShowSimsExecutor(BaseStageExecutor):
-    """
-    Abstract.
+def _field_values(cmb_map, index: int):
+    """Return numerical HEALPix values for an I/Q/U field or scalar I map."""
+    values = cmb_map.value if isinstance(cmb_map, u.Quantity) else cmb_map
+    values = np.asarray(values)
+    if values.ndim == 1:
+        if index != 0:
+            raise ValueError("Scalar input map only contains the I field")
+        return values
+    return values[index]
 
-    Makes pairs of images of maps - one is always the simulation CMB. The other
-        depends on the child class.
 
-    Will only make a subset of test set as images given by `override_n_sims`
-        in the pipeline yaml for this stage.
-    """
-    def __init__(self, cfg: DictConfig, stage_str: str) -> None:
-        # The following stage_str must match the pipeline yaml
-        super().__init__(cfg, stage_str=stage_str)
+from matplotlib.cm import ScalarMappable
+from matplotlib.colors import Normalize
 
-        if self.__class__.__name__ == "ShowSimsExecutor":
-            # TODO: Can I ABC this?
-            raise NotImplementedError("This is a base class.")
 
-        self.instrument: Instrument = make_instrument(cfg=cfg)
+def make_cmb_post_figure(
+    realization,
+    prediction,
+    mask,
+    *,
+    min_max=(-500, 500),
+    diff_limits=None,
+    unit=None,
+    title=None,
+    figsize=(24, 6),
+    dpi=150,
+):
+    """Build realization, prediction, masked residual, and histogram panels."""
 
-        if self.override_sim_nums is None:
-            logger.warning("No particular sim indices specified. Outputs will be produced for all. This is not recommended.")
-        self.min_max = self.get_plot_min_max()
-        self.fig_model_name = cfg.fig_model_name
+    real = np.asarray(realization)
+    pred = np.asarray(prediction)
+    keep = np.asarray(mask, dtype=bool)
 
-    def get_plot_min_max(self):
-        """
-        Handles reading the minimum intensity and maximum intensity from cfg files
-        TODO: Better docstring
-        """
-        min_max = self.get_stage_element("plot_min_max")
-        if min_max is None:
-            plot_min = plot_max = None
-        elif isinstance(min_max, int):
-            plot_min = -min_max
-            plot_max = min_max
-        elif isinstance(min_max, ListConfig):
-            plot_min = min_max[0]
-            plot_max = min_max[1]
-        return plot_min, plot_max
-
-    def execute(self) -> None:
-        logger.debug(f"Running {self.__class__.__name__} execute().")
-        self.default_execute()
-
-    def process_split(self, 
-                      split: Split) -> None:
-        logger.info(f"Running {self.__class__.__name__} process_split() for split: {split.name}.")
-
-        # We may want to process a subset of all sims
-        if self.override_sim_nums is None:
-            sim_iter = split.iter_sims()
-        else:
-            sim_iter = self.override_sim_nums
-
-        for sim in sim_iter:
-        # for sim in tqdm(sim_iter):
-            with self.name_tracker.set_context("sim_num", sim):
-                self.process_sim()
-
-    def process_sim(self):
-        raise NotImplementedError("This is intended to be an abstract class. process_sim() should be overwritten.")
-
-    def make_maps_per_field(self, map_sim, map_mang, det, scale_factors, out_asset):
-        split = self.name_tracker.context['split']
-        sim_n = f"{self.name_tracker.context['sim_num']:0{self.cfg.file_system.sim_str_num_digits}d}"
-        if det == "cmb":
-            title_start = "CMB Realization (Target)"
-            fields = self.cfg.scenario.map_fields
-        else:
-            title_start = f"Observation, {det} GHz"
-            fields = self.instrument.dets[det].fields
-        for field_str in fields:
-            with self.name_tracker.set_context("field", field_str):
-                field_idx = {'I': 0, 'Q': 1, 'U': 2}[field_str]
-                fig = plt.figure(figsize=(12, 6))
-                gs = gridspec.GridSpec(1, 3, width_ratios=[6, 3, 0.1], wspace=0.1)
-
-                (ax1, ax2, cbar_ax) = [plt.subplot(gs[i]) for i in [0,1,2]]
-
-                self.make_mollview(map_sim[field_idx], ax1, show_cbar=True)
-
-                scale_factor = scale_factors[field_str]['scale']
-                unscaled_map_mang = map_mang[field_idx] * scale_factor
-                self.make_imshow(unscaled_map_mang, ax2)
-
-                norm = plt.Normalize(vmin=self.min_max[0], vmax=self.min_max[1])
-                sm = plt.cm.ScalarMappable(cmap=planck_cmap.colombi1_cmap, norm=norm)
-                sm.set_array([])
-
-                map_unit = map_sim[field_idx].unit.to_string('latex_inline')
-
-                cb = fig.colorbar(sm, cax=cbar_ax)
-                cb.set_label(f'Intensity ({map_unit})')
-
-                self.save_figure(title_start, split, sim_n, field_str, out_asset)
-
-    def save_figure(self, title, split_name, sim_num, field_str, out_asset):
-        plt.suptitle(f"{title}, {split_name}:{sim_num} {field_str} Stokes")
-
-        fn = out_asset.path
-        out_asset.write()
-        plt.savefig(fn)
-        plt.close()
-
-    def make_imshow(self, some_map, ax):
-        plt.axes(ax)
-        plot_params = dict(
-            vmin=self.min_max[0],
-            vmax=self.min_max[1],
-            cmap=planck_cmap.colombi1_cmap,
+    if real.shape != pred.shape or real.shape != keep.shape:
+        raise ValueError(
+            f"Map/mask shapes differ: "
+            f"real={real.shape}, pred={pred.shape}, mask={keep.shape}"
         )
-        plt.imshow(some_map.value, **plot_params)
-        plt.title(self.right_subplot_title)
-        ax.set_axis_off()
-        # cb = plt.colorbar()
-        # map_unit = some_map.unit.to_string('latex_inline')
-        # cb.set_label(f'Intensity ({map_unit})')
 
-    def make_mollview(self, some_map, ax, min_or=None, max_or=None, show_cbar=False, unit=None, title="Raw Simulation"):
-        if isinstance(some_map, u.Quantity):
-            unit = some_map.unit.to_string('latex_inline')
-            to_plot = some_map.value
-        else:
-            to_plot = some_map
-        plt.axes(ax)
-        vmin = self.min_max[0] if min_or is None else min_or
-        vmax = self.min_max[1] if max_or is None else max_or
-        plot_params = dict(
-            xsize=2400,
-            min=vmin, 
-            max=vmax,
-            unit=unit,
-            cmap=planck_cmap.colombi1_cmap,
+    diff = hp.ma(pred - real)
+    diff.mask = ~keep
+
+    if diff_limits is None:
+        delta_max = np.percentile(np.abs(diff.compressed()), 99.99)
+        diff_limits = (-delta_max, delta_max)
+
+    fig = plt.figure(figsize=figsize, dpi=dpi)
+    cmap = planck_cmap.colombi1_cmap
+
+    # Explicit panel positions in normalized figure coordinates.
+    # (left, bottom, width, height)
+    map_positions = [
+        (0.02, 0.22, 0.225, 0.65),
+        (0.265, 0.22, 0.225, 0.65),
+        (0.51, 0.22, 0.225, 0.65),
+    ]
+
+    hist_position = (0.78, 0.22, 0.195, 0.65)
+
+    map_titles = ("Realization", "Prediction", "Difference")
+    display_maps = (real, pred, diff)
+
+    for i, (map_data, label) in enumerate(zip(display_maps, map_titles)):
+        limits = diff_limits if i == 2 else min_max
+
+        # Create an axis occupying exactly the desired position.
+        ax = fig.add_axes(map_positions[i])
+        plt.sca(ax)
+
+        # Healpy replaces the active axes, preserving their position.
+        hp.mollview(
+            map_data,
+            fig=fig.number,
             hold=True,
-            cbar=show_cbar
+            title="",
+            min=limits[0],
+            max=limits[1],
+            cmap=cmap,
+            cbar=False,
+            xsize=2400,
         )
-        hp.mollview(to_plot, **plot_params)
 
-        plt.title(title)
+        ax = plt.gca()
+        ax.set_title(label, fontsize=12, pad=10)
+
+        # Explicit colorbar below each map.
+        left, bottom, width, height = map_positions[i]
+
+        cax = fig.add_axes([
+            left + width * 0.15,
+            0.12,
+            width * 0.70,
+            0.025,
+        ])
+
+        norm = Normalize(vmin=limits[0], vmax=limits[1])
+
+        if limits[0] is None or limits[1] is None:
+            norm.autoscale_None(np.asarray(map_data).ravel())
+
+        sm = ScalarMappable(norm=norm, cmap=cmap)
+
+        cb = fig.colorbar(
+            sm,
+            cax=cax,
+            orientation="horizontal",
+        )
+
+        if unit:
+            cb.set_label(unit, fontsize=10)
+
+    # Histogram
+    ax = fig.add_axes(hist_position)
+
+    ax.hist(
+        diff.compressed(),
+        bins=50,
+        range=diff_limits,
+        color="#524FA1",
+        histtype="stepfilled",
+    )
+
+    ax.set_xlabel(
+        r"Deviation from zero difference ($\mu\mathrm{K}_{\mathrm{CMB}}$)"
+    )
+    ax.set_ylabel("Pixel count")
+    ax.set_title("Histogram of difference", fontsize=12)
+
+    # Use Matplotlib's automatically selected major ticks
+    ax.set_xlim(*diff_limits)
+    axv_locs = ax.get_xticks()
+
+    for value in axv_locs:
+        if diff_limits[0] <= value <= diff_limits[1]:
+            ax.axvline(
+                value,
+                color="black",
+                linestyle="--",
+                linewidth=0.5,
+            )
+
+    if title:
+        fig.suptitle(title, fontsize=14, y=0.98)
+
+    return fig
 
 
-class ShowSimsPostExecutor(ShowSimsExecutor):
-    def __init__(self, cfg: DictConfig, stage_str=None) -> None:
-        stage_str = "show_cmb_post_masked"
-        super().__init__(cfg, stage_str)
+class ShowSimsPostExecutor(BaseStageExecutor):
+    """Render one four-panel figure per split/simulation/epoch/beam/field."""
 
-        self.suptitle = "CMB Predictions"
-        self.right_subplot_title = "Predicted"
+    def __init__(self, cfg: DictConfig) -> None:
+        super().__init__(cfg, stage_str="show_cmb_post_masked")
 
         self.out_cmb_figure: Asset = self.assets_out["cmb_map_render"]
-        out_cmb_figure_handler: EmptyHandler
+        out_cmb_figure_handler: MPLFigure
 
         self.in_cmb_map_post: Asset = self.assets_in["cmb_map_post"]
         self.in_cmb_map_sim: Asset = self.assets_in["cmb_map_sim"]
+        self.in_mask: Asset = self.assets_in["mask"]
         in_cmb_map_handler: HealpyMap
+        in_mask_handler: HealpyMap
+
+        self.target_beams = name_beam_fwhms(cfg.model.analysis.target_beam_fwhm)
+        self.fig_type = cfg.get("fig_type", None)
+        self.plot_min_max = self.get_stage_element("plot_min_max")
+        self.mask = None
+
+    def execute(self) -> None:
+        self.out_cmb_figure.handler.set_fig_types(self.fig_type)
+        # The sharp mask is already binary and at the correct NSIDE.
+        self.mask = np.asarray(
+            self.in_mask.read(map_fields=self.in_mask.use_fields)[0], dtype=bool
+        )
+        self.default_execute()
+
+    def process_split(self, split: Split) -> None:
+        sims = split.iter_sims() if self.override_sim_nums is None else self.override_sim_nums
+        for sim in sims:
+            with self.name_tracker.set_context("sim_num", sim):
+                self.process_sim()
 
     def process_sim(self) -> None:
-        for epoch in self.model_epochs:
-            with self.name_tracker.set_context('epoch', epoch):
-                cmb_map_sim = self.in_cmb_map_sim.read()
-                cmb_map_post = self.in_cmb_map_post.read()
-                self.make_maps_per_field(cmb_map_sim, 
-                                         cmb_map_post, 
-                                         out_asset=self.out_cmb_figure)
+        epochs = self.model_epochs if self.model_epochs else [""]
+        for epoch in epochs:
+            with self.name_tracker.set_context("epoch", epoch):
+                for beam_name, _ in self.target_beams:
+                    with self.name_tracker.set_context("beam_name", beam_name):
+                        real_map = self.in_cmb_map_sim.read()
+                        pred_map = self.in_cmb_map_post.read()
+                        self.make_maps_per_field(real_map, pred_map)
 
-    def make_maps_per_field(self, map_sim, map_post, out_asset):
-        """
-        Makes a figure for each field in the maps (e.g., IQU will result in 3 figures)
-        """
-        split = self.name_tracker.context['split']
-        sim_n = f"{self.name_tracker.context['sim_num']:0{self.cfg.file_system.sim_str_num_digits}d}"
-        fields = self.cfg.scenario.map_fields
+    def make_maps_per_field(self, real_map, pred_map) -> None:
+        value = self.plot_min_max
+        if value is None:
+            limits = (None, None)
+        elif isinstance(value, (int, float)):
+            limits = (-value, value)
+        elif isinstance(value, (list, tuple, ListConfig)) and len(value) == 2:
+            limits = tuple(value)
+        else:
+            raise ValueError(f"Invalid plot_min_max: {value!r}")
 
-        for field_str in fields:
-            with self.name_tracker.set_context("field", field_str):
-                field_idx = {'I': 0, 'Q': 1, 'U': 2}[field_str]
-                fig = plt.figure(figsize=(30, 7), dpi=150)
-                gs = gridspec.GridSpec(1, 4, width_ratios=[6, 6, 6, 6], wspace=0.1)
-
-                axs = [plt.subplot(gs[i]) for i in range(4)]
-
-                try:  # If an astropy.Quantity
-                    mask = map_sim[field_idx].value == hp.UNSEEN
-                except AttributeError:  #  If not an astropy.Quantity
-                    mask = map_sim[field_idx] == hp.UNSEEN
-
-                diff = map_post[field_idx] - map_sim[field_idx]
-                diff = hp.ma(diff)
-                diff.mask = mask
-
-                plot_params = dict(show_cbar=True, unit=map_post.unit.to_string('latex_inline'))
-
-                self.make_mollview(map_sim[field_idx], axs[0], title="Realization", **plot_params)
-                self.make_mollview(map_post[field_idx], axs[1], title="Prediction", **plot_params)
-                self.make_mollview(diff, axs[2], title="Difference", min_or=-120, max_or=120, **plot_params)
-
-                # healpy applies the graticule to every subplot, so we only need to do it once; 
-                # if this were in self.make_mollview, earlier subplots will have multiple graticules applied.
-                hp.graticule(dpar=45, dmer=45)
-
-                n_bins = 50
-
-                plt.axes(axs[3])
-                plt.hist(diff.compressed(), bins=n_bins, range=(-120, 120), color="#524FA1", histtype='stepfilled')
-                axs[3].set_yticks([])
-                axs[3].set_xlabel("Deviation from Zero Difference ($\\mu \\text{K}_\\text{CMB}$)")
-                axs[3].set_ylabel("Pixel Count")
-                axs[3].set_title("Histogram of Difference")
-                for x in [-100, -50, 0, 50, 100]:
-                    axs[3].axvline(x=x, color='black', linestyle='--', linewidth=0.5)
-                self.save_figure(self.suptitle, split, sim_n, field_str, out_asset)
-
-
-# class CommonRealPostExecutor(ShowSimsPostExecutor):
-#     def __init__(self, cfg: DictConfig) -> None:
-#         stage_str = "show_cmb_post_masked"
-#         super().__init__(cfg, stage_str=stage_str)
-
-
-# class CommonShowSimsPostExecutor(CommonRealPostExecutor):  # This is a confusing name. 
-#     def __init__(self, cfg: DictConfig) -> None:
-#         super().__init__(cfg)
-#         self.right_subplot_title = "NILC Predicted"
-#         self.suptitle = cfg.fig_model_name
+        unit = pred_map.unit.to_string("latex_inline") if isinstance(pred_map, u.Quantity) else None
+        for field in self.map_fields:
+            index = {"I": 0, "Q": 1, "U": 2}[field]
+            with self.name_tracker.set_context("field", field):
+                fig = make_cmb_post_figure(
+                    _field_values(real_map, index),
+                    _field_values(pred_map, index),
+                    self.mask,
+                    min_max=limits,
+                    unit=unit,
+                    title=f"CMB predictions — {field}",
+                )
+                try:
+                    self.out_cmb_figure.write(fig=fig)
+                finally:
+                    plt.close(fig)
