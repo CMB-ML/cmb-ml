@@ -69,11 +69,11 @@ pixel_summary_tables:
 pixel_summary_figs:
   assets_out:
     boxplots:
-      path_template: "{root}/{dataset}/{working}{stage}/epoch_{epoch}/boxplots.png"
-      handler: EmptyHandler
+      handler: MPLFigure
+      path_template: "{root}/{dataset}/{working}{stage}/epoch_{epoch}/boxplots.{fig_type}"
     histogram:
-      path_template: "{root}/{dataset}/{working}{stage}/epoch_{epoch}/{metric}_histogram.png"
-      handler: EmptyHandler
+      handler: MPLFigure
+      path_template: "{root}/{dataset}/{working}{stage}/epoch_{epoch}/{metric}_histogram.{fig_type}"
   assets_in:
     report: {stage: pixel_analysis}
   splits: ${splits.run_inference_on}

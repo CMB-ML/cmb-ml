@@ -1,6 +1,6 @@
 from .stage_executors._2_show_map_comparisons import ShowSimsPostExecutor
 from .stage_executors._3_pixel_summary_tables import PixelSummaryExecutor
-# from .stage_executors._4_pixel_summary_figs import PixelSummaryFigsExecutor
+from .stage_executors._4_pixel_summary_figs import PixelSummaryFigsExecutor
 # from .stage_executors._5_ps_summary_table import PowerSpectrumSummaryExecutor
 # from .stage_executors._6_ps_summary_figs import PowerSpectrumSummaryFigsExecutor
 # from .stage_executors._7_post_ps_figs import PostAnalysisPsFigExecutor

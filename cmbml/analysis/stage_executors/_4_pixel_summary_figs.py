@@ -1,103 +1,195 @@
-# import logging
+"""Plot distributions of per-simulation pixel statistics, separately by beam."""
 
-# import numpy as np
-# import pandas as pd
-# import seaborn as sns
-# import matplotlib.pyplot as plt
+import logging
+import math
+import re
 
-# from omegaconf import DictConfig
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+from omegaconf import DictConfig
 
-# from cmbml.core import (
-#     BaseStageExecutor,
-#     Asset,
-#     GenericHandler,
-#     )
-# from cmbml.core.asset_handlers import Config
-# from cmbml.core.asset_handlers.asset_handlers_base import EmptyHandler
+from cmbml.core import Asset, BaseStageExecutor
+from cmbml.core.asset_handlers import Config, MPLFigure
+from cmbml.utils.beam_naming import name_beam_fwhms
 
-# logger = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 
-# class PixelSummaryFigsExecutor(BaseStageExecutor):
-#     def __init__(self, cfg: DictConfig) -> None:
-#         # The following string must match the pipeline yaml
-#         super().__init__(cfg, stage_str="pixel_summary_figs")
+def _split_sort_key(name: str) -> tuple[int, int, str]:
+    """Place Test, Test0, Test1, ... before other named splits."""
+    match = re.fullmatch(r"Test(\d*)", str(name))
+    if match:
+        return (0, int(match.group(1)) if match.group(1) else -1, "")
+    return (1, 0, str(name))
 
-#         self.in_report: Asset = self.assets_in["report"]
-#         in_report_handler: Config
 
-#         self.out_boxplots: Asset = self.assets_out["boxplots"]
-#         self.out_histogram: Asset = self.assets_out["histogram"]
-#         out_boxplots_handler: EmptyHandler
-#         out_histogram_handler: EmptyHandler
+def make_pixel_boxplots_figure(
+    df: pd.DataFrame,
+    *,
+    metric_labels: dict,
+    split_order: list[str],
+    title: str,
+):
+    """Create a metric grid of Matplotlib boxplots comparing splits at one beam."""
+    metric_names = list(metric_labels)
+    ncols = 3
+    nrows = math.ceil(len(metric_names) / ncols)
+    fig, axes = plt.subplots(
+        nrows, ncols, figsize=(5.2 * ncols, 4.0 * nrows), squeeze=False
+    )
 
-#         self.labels_lookup = self.get_labels_lookup()
-#         self.fig_model_name = cfg.fig_model_name
+    for ax, metric in zip(axes.flat, metric_names):
+        data_by_split = [
+            pd.to_numeric(
+                df.loc[df["split"] == split, metric], errors="coerce"
+            ).dropna().to_numpy()
+            for split in split_order
+        ]
 
-#     def get_labels_lookup(self):
-#         lookup = dict(self.cfg.model.analysis.px_functions)
-#         return lookup
+        # Leave missing splits out rather than passing empty arrays to boxplot.
+        present = [(split, values) for split, values in zip(split_order, data_by_split)
+                   if len(values)]
+        if present:
+            ax.boxplot(
+                [values for _, values in present],
+                tick_labels=[split for split, _ in present],
+                patch_artist=True,
+                boxprops={"facecolor": "steelblue", "alpha": 0.6},
+            )
 
-#     def execute(self) -> None:
-#         logger.debug(f"Running {self.__class__.__name__} execute().")
-#         report_contents = self.in_report.read()
-#         df = pd.DataFrame(report_contents)
+        metadata = metric_labels[metric]
+        ax.set_title(metadata.get("plot_name", metric))
+        ax.set_xlabel("Split")
+        ax.set_ylabel(metadata.get("axis_name", metric))
+        ax.tick_params(axis="x", rotation=45)
 
-#         df = self.sort_order(df)
-#         df['epoch'] = df['epoch'].astype(str)
+    for ax in list(axes.flat)[len(metric_names):]:
+        ax.set_visible(False)
 
-#         for epoch in self.model_epochs:
-#             logger.info(f"Generating summary for epoch {epoch}.")
-#             with self.name_tracker.set_context('epoch', epoch):
-#                 epoch_df = df[df['epoch']==str(epoch)]
-#                 self.make_split_histograms(epoch_df)
-#                 self.make_boxplots(epoch_df)
+    fig.suptitle(title)
+    fig.tight_layout(rect=(0, 0, 1, 0.96))
+    return fig
 
-#     def sort_order(self, df):
-#         # Sort Split Order for tables and figures
-#         try:
-#             # The default order of splits is lexicographic; putting Test10 between Test1 and Test2
-#             split_order = sorted(df['split'].unique(), key=lambda x: int(x.replace('Test', '')))
-#             # Convert 'split' to a categorical type with the defined order
-#             df['split'] = pd.Categorical(df['split'], categories=split_order, ordered=True)
-#         except:
-#             # Failure is ok. An ugly order can be sorted out later.
-#             pass
 
-#         return df
+def make_pixel_histogram_figure(
+    df: pd.DataFrame,
+    *,
+    metric: str,
+    metric_label: str,
+    split_order: list[str],
+    title: str,
+    bins: int = 30,
+):
+    """Create histograms with shared bin edges and axes across splits."""
+    ncols = min(4, len(split_order))
+    nrows = math.ceil(len(split_order) / ncols)
+    fig, axes = plt.subplots(
+        nrows, ncols, figsize=(4.2 * ncols, 3.4 * nrows),
+        squeeze=False, sharex=True, sharey=True,
+    )
+    values = pd.to_numeric(df[metric], errors="coerce").dropna()
+    values = values[np.isfinite(values)]
+    if values.empty:
+        raise ValueError(f"No finite numeric values for metric {metric!r}")
 
-#     def make_split_histograms(self, df):
-#         numeric_columns = df.select_dtypes(include=[np.number]).columns
+    edges = np.histogram_bin_edges(values.to_numpy(), bins=bins)
 
-#         for metric in numeric_columns:
-#             with self.name_tracker.set_context("metric", metric):
-#                 if "{metric}" not in self.out_histogram.path_template:
-#                     logger.warning("If multiple metrics were used, they will be overwritten by the last one.")
-#                 self.out_histogram.write()  # Make directory
-#                 path = self.out_histogram.path
-#                 g = sns.FacetGrid(df, col="split", col_wrap=4, height=3)
-#                 g.map(sns.histplot, metric)
-#                 g.figure.suptitle(f"")
-#                 plt.subplots_adjust(top=0.9)                             # Adjust the top margin to fit the suptitle
-#                 g.savefig(path)
-#                 plt.close(g.figure)
+    for ax, split in zip(axes.flat, split_order):
+        subset = pd.to_numeric(
+            df.loc[df["split"] == split, metric], errors="coerce"
+        ).dropna()
+        subset = subset[np.isfinite(subset)]
+        ax.hist(subset.to_numpy(), bins=edges, color="#524FA1")
+        ax.set_title(f"{split} (n={len(subset)})")
+        ax.set_xlabel(metric_label)
+        ax.set_ylabel("Simulations")
 
-#     def make_boxplots(self, df):
-#         metrics = list(self.labels_lookup.keys())
-#         fig, axes = plt.subplots(nrows=2, ncols=2, figsize=(12, 10))
+    for ax in list(axes.flat)[len(split_order):]:
+        ax.set_visible(False)
 
-#         for ax, metric in zip(axes.flatten(), metrics):
-#             df.boxplot(column=metric, by='split', ax=ax)
-#             ax.set_title(self.labels_lookup[metric]["plot_name"])
-#             ax.set_ylabel(self.labels_lookup[metric]["axis_name"])
+    fig.suptitle(title)
+    fig.tight_layout(rect=(0, 0, 1, 0.94))
+    return fig
 
-#         title = self.make_title(metric)
-#         plt.suptitle(title)
-#         plt.tight_layout(rect=[0, 0.03, 1, 0.95])
-#         self.out_boxplots.write()  # Make directory
-#         path = self.out_boxplots.path
-#         plt.savefig(path)
-#         plt.close()
 
-#     def make_title(self, metric):
-#         return f"{self.fig_model_name} Per Pixel Distribution of {metric} by Split, Epoch {self.name_tracker.context['epoch']}"
+class PixelSummaryFigsExecutor(BaseStageExecutor):
+    """Write beam-separated boxplots and split-faceted metric histograms."""
+
+    def __init__(self, cfg: DictConfig) -> None:
+        super().__init__(cfg, stage_str="pixel_summary_figs")
+
+        self.in_report: Asset = self.assets_in["report"]
+        in_report_handler: Config
+
+        self.out_boxplots: Asset = self.assets_out["boxplots"]
+        self.out_histogram: Asset = self.assets_out["histogram"]
+        out_boxplots_handler: MPLFigure
+        out_histogram_handler: MPLFigure
+
+        self.metric_labels = dict(cfg.model.analysis.px_functions)
+        self.metric_names = list(self.metric_labels)
+        self.beam_names = [
+            name for name, _ in name_beam_fwhms(cfg.model.analysis.target_beam_fwhm)
+        ]
+        self.fig_model_name = cfg.fig_model_name
+        self.fig_type = cfg.get("fig_type", None)
+
+    def execute(self) -> None:
+        self.out_boxplots.handler.set_fig_types(self.fig_type)
+        self.out_histogram.handler.set_fig_types(self.fig_type)
+
+        df = pd.DataFrame(self.in_report.read())
+        required = {"split", "sim", "epoch", "beam_name", *self.metric_names}
+        missing = required.difference(df.columns)
+        if missing:
+            raise ValueError(f"Pixel report missing columns: {sorted(missing)}")
+        if df.empty:
+            raise ValueError("Pixel report contains no records")
+
+        df["epoch"] = df["epoch"].astype(str)
+        unknown = set(df["beam_name"].dropna()) - set(self.beam_names)
+        if unknown:
+            raise ValueError(f"Pixel report contains unknown beams: {sorted(unknown)}")
+
+        for epoch in self.model_epochs:
+            epoch_df = df.loc[df["epoch"] == str(epoch)]
+            if epoch_df.empty:
+                logger.warning("No pixel report entries for epoch %s", epoch)
+                continue
+            with self.name_tracker.set_context("epoch", epoch):
+                for beam_name in self.beam_names:
+                    beam_df = epoch_df.loc[epoch_df["beam_name"] == beam_name]
+                    if beam_df.empty:
+                        logger.warning("No data for epoch %s, beam %s", epoch, beam_name)
+                        continue
+                    with self.name_tracker.set_context("beam_name", beam_name):
+                        self.make_figures(beam_df, epoch=epoch, beam_name=beam_name)
+
+    def make_figures(self, df: pd.DataFrame, *, epoch, beam_name: str) -> None:
+        split_order = sorted(df["split"].unique(), key=_split_sort_key)
+        title_prefix = f"{self.fig_model_name} — {beam_name} — epoch {epoch}"
+
+        fig = make_pixel_boxplots_figure(
+            df, metric_labels=self.metric_labels,
+            split_order=split_order,
+            title=f"{title_prefix}: pixel statistics by split",
+        )
+        try:
+            self.out_boxplots.write(fig=fig)
+        finally:
+            plt.close(fig)
+
+        for metric in self.metric_names:
+            with self.name_tracker.set_context("metric", metric):
+                fig = make_pixel_histogram_figure(
+                    df,
+                    metric=metric,
+                    metric_label=self.metric_labels[metric].get("axis_name", metric),
+                    split_order=split_order,
+                    title=f"{title_prefix}: {self.metric_labels[metric].get('plot_name', metric)}",
+                )
+                try:
+                    self.out_histogram.write(fig=fig)
+                finally:
+                    plt.close(fig)

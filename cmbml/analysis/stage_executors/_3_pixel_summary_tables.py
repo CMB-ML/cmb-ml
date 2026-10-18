@@ -1,22 +1,35 @@
+"""Summarize pixel-space metrics across simulations, splits, and beams."""
+
 import logging
+import re
 
-import numpy as np
 import pandas as pd
-# import seaborn as sns
-import matplotlib.pyplot as plt
-
 from omegaconf import DictConfig
 
-from cmbml.core import BaseStageExecutor, Asset
+from cmbml.core import Asset, BaseStageExecutor
 from cmbml.core.asset_handlers import Config
-from cmbml.core.asset_handlers.pd_csv_handler import PandasCsvHandler # Import for typing hint
+from cmbml.core.asset_handlers.pd_csv_handler import PandasCsvHandler  # Register handler
+from cmbml.utils.beam_naming import name_beam_fwhms
 
 logger = logging.getLogger(__name__)
 
 
+def _split_sort_key(name: str) -> tuple[int, int, str]:
+    """Order Test, Test0, Test1, ..., then other split names."""
+    match = re.fullmatch(r"Test(\d*)", str(name))
+    if match:
+        return (0, int(match.group(1)) if match.group(1) else -1, "")
+    return (1, 0, str(name))
+
+
 class PixelSummaryExecutor(BaseStageExecutor):
+    """Write overall and per-split metric summaries for each epoch.
+
+    Overall rows are indexed by beam_name; per-split rows by split and
+    beam_name. Both tables have (metric, mean/std) columns.
+    """
+
     def __init__(self, cfg: DictConfig) -> None:
-        # The following string must match the pipeline yaml
         super().__init__(cfg, stage_str="pixel_summary_tables")
 
         self.out_overall_stats: Asset = self.assets_out["overall_stats"]
@@ -27,49 +40,52 @@ class PixelSummaryExecutor(BaseStageExecutor):
         self.in_report: Asset = self.assets_in["report"]
         in_report_handler: Config
 
-        self.labels_lookup = self.get_labels_lookup()
-
-    def get_labels_lookup(self):
-        lookup = dict(self.cfg.model.analysis.px_functions)
-        return lookup
+        self.metric_names = list(cfg.model.analysis.px_functions.keys())
+        self.beam_names = [
+            name for name, _ in name_beam_fwhms(cfg.model.analysis.target_beam_fwhm)
+        ]
 
     def execute(self) -> None:
-        logger.debug(f"Running {self.__class__.__name__} execute().")
-        report_contents = self.in_report.read()
-        df = pd.DataFrame(report_contents)
+        report = self.in_report.read()
+        df = pd.DataFrame(report)
+        required = {"split", "sim", "epoch", "beam_name", *self.metric_names}
+        missing = required.difference(df.columns)
+        if missing:
+            raise ValueError(f"Pixel report missing columns: {sorted(missing)}")
+        if df.empty:
+            raise ValueError("Pixel report contains no records")
 
-        df = self.sort_order(df)
-        df['epoch'] = df['epoch'].astype(str)
+        df["epoch"] = df["epoch"].astype(str)
+        df["split"] = pd.Categorical(
+            df["split"],
+            categories=sorted(df["split"].unique(), key=_split_sort_key),
+            ordered=True,
+        )
+        df["beam_name"] = pd.Categorical(
+            df["beam_name"], categories=self.beam_names, ordered=True
+        )
+        if df["beam_name"].isna().any():
+            raise ValueError("Pixel report includes beam names not in target_beam_fwhm")
 
         for epoch in self.model_epochs:
-            logger.info(f"Generating summary for epoch {epoch}.")
-            with self.name_tracker.set_context('epoch', epoch):
-                epoch_df = df[df['epoch']==str(epoch)]
+            epoch_str = str(epoch)
+            epoch_df = df.loc[df["epoch"] == epoch_str]
+            if epoch_df.empty:
+                logger.warning("No pixel-analysis records for epoch %s; skipping", epoch_str)
+                continue
+            logger.info("Generating pixel summary for epoch %s", epoch_str)
+            with self.name_tracker.set_context("epoch", epoch):
                 self.make_summary_tables(epoch_df)
 
-    def sort_order(self, df):
-        # Sort Split Order for tables and figures
-        try:
-            # The default order of splits is lexicographic; putting Test10 between Test1 and Test2
-            split_order = sorted(df['split'].unique(), key=lambda x: int(x.replace('Test', '')))
-            # Convert 'split' to a categorical type with the defined order
-            df['split'] = pd.Categorical(df['split'], categories=split_order, ordered=True)
-        except:
-            # Failure is ok. An ugly order can be sorted out later.
-            pass
+    def make_summary_tables(self, df: pd.DataFrame) -> None:
+        # observed=True prevents emitting rows for beams/splits with no data.
+        overall = df.groupby("beam_name", observed=True)[self.metric_names].agg(
+            ["mean", "std"]
+        )
+        per_split = df.groupby(
+            ["split", "beam_name"], observed=True, sort=True
+        )[self.metric_names].agg(["mean", "std"])
 
-        return df
-
-    def make_summary_tables(self, df):
-        # Compute overall averages, excluding non-numeric fields like 'split'
-        numeric_columns = df.select_dtypes(include=[np.number]).columns
-        # Also get rid of the 'sim' column, ('sim' is just an ID number, no statistics wanted.)
-        numeric_columns = numeric_columns.drop('sim')
-
-        overall_stats = df[numeric_columns].agg(['mean', 'std'])
-        overall_stats.reset_index()
-        self.out_overall_stats.write(data=overall_stats, index=True)
-
-        stats_per_split = df.groupby('split')[numeric_columns].agg(['mean', 'std'])
-        stats_per_split.reset_index()
-        self.out_stats_per_split.write(data=stats_per_split, index=True)
+        # Preserve the CSV handlers' existing convention: index columns are written.
+        self.out_overall_stats.write(data=overall, index=True)
+        self.out_stats_per_split.write(data=per_split, index=True)
