@@ -10,7 +10,7 @@ defaults:
 
 # dataset_name: CMML_Dataset
 # When creating multiple datasets, using interpolation like this may be easier:
-dataset_name         : CMB-ML_${scenario.nside}_${splits.name}
+dataset_name         : I_512_1850_UnifWMAP_Wide
 working_dir          : ""  # Otherwise None will be prepended to the directory name.
 fig_model_name       : null
 hydra:
@@ -30,13 +30,13 @@ models_comp:
     epoch             : ""
 ps_baseline           : theory
 
-
 # Settings below this point are used for interpolation.
 # These are not to be used directly in the python
 # They are picked up from here and MAY be used elsewhere in the yamls.
 # In the scenario yaml
 nside          : 512
 map_fields     : "I"
+lmax           : 1280
 
 # Limit the number of simulations on which to do inference and postprocessing
 # In the splits yaml; null to run on all

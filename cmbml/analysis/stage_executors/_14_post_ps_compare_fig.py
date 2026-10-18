@@ -51,7 +51,8 @@ class PostAnalysisPsCompareFigExecutor(BaseStageExecutor):
         in_ps_handler: NumpyPowerSpectrum
 
         self.nside = self.cfg.scenario.nside
-        self.lmax = int(cfg.model.analysis.lmax_ratio * self.nside) - 2
+        # self.lmax = int(cfg.model.analysis.lmax_ratio * self.nside) - 2
+        self.lmax = cfg.model.analysis.lmax
 
         self.fig_model_name = cfg.fig_model_name
         self.models_to_compare = cfg.models_comp

@@ -37,9 +37,11 @@ class MakeRealPowerSpectrumExecutor(BaseStageExecutor):
         # Basic parameters
         self.nside_out = self.cfg.scenario.nside
 
-        self.lmax = cfg.model.get("lmax", None)
-        if self.lmax is None:
-            self.lmax = int(cfg.model.analysis.lmax_ratio * self.nside_out)
+        self.lmax = cfg.model.analysis.lmax
+
+        # self.lmax = cfg.model.get("lmax", None)
+        # if self.lmax is None:
+        #     self.lmax = int(cfg.model.analysis.lmax_ratio * self.nside_out)
         self.anafast_iters = cfg.model.analysis.get("ps_anafast_iters")
 
         self.cmb_beam = cfg.scenario.cmb_beam

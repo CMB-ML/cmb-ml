@@ -17,19 +17,11 @@ from .stage_executors._16_loss_plot import LossPlotExecutor
 from .stage_executors.D_common_map_post import (
     CommonRealPostExecutor,
     CommonPredPostExecutor
-    # CommonCMBNNCSPredPostExecutor,
-    # CommonPyILCPredPostExecutor,
-    # CommonNNPredPostExecutor
 )
 
 from .stage_executors.F_pixel_analysis import PixelAnalysisExecutor
 
 from .stage_executors.J_make_real_ps import MakeRealPowerSpectrumExecutor
 from .stage_executors.K_make_pred_ps import MakePredPowerSpectrumExecutor
-# from .stage_executors.K_make_pred_ps import (
-#     # PyILCMakePSExecutor, 
-#     # CMBNNCSMakePSExecutor,
-#     # NNMakePowerSpectrumExecutor,
-# )
 # from .stage_executors.L_ps_analysis import PowerSpectrumAnalysisExecutor
 # from .stage_executors.L_ps_analysis_serial import PowerSpectrumAnalysisExecutorSerial
