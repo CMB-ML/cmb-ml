@@ -47,6 +47,7 @@ pixel_analysis:
   assets_in:
     cmb_map_post: {stage: common_post_map_pred, orig_name: cmb_map}
     cmb_map_sim: {stage: common_post_map_real, orig_name: cmb_map}
+    mask: {stage: make_mask}
   splits: ${splits.run_inference_on}
   epochs: ${use_epochs_map_stats}
   dir_name: Analysis_F_Pixel_Report
