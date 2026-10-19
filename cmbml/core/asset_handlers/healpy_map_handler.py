@@ -200,9 +200,15 @@ class HealpyMap(GenericHandler):
         if isinstance(data, np.ndarray) and data.shape[0] == 1:
             data = data.squeeze()
 
-        # Ensure that column units are strings
-        if column_units:
-            column_units = [str(unit) for unit in column_units]
+        # Normalize column units, preserving missing units.
+        if column_units is not None:
+            column_units = [
+                str(unit) if unit is not None else None
+                for unit in column_units
+            ]
+
+            if all(unit is None for unit in column_units):
+                column_units = None
 
         if extra_header is None:
             extra_header = []
