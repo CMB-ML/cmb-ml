@@ -32,11 +32,10 @@ class MPLFigure(GenericHandler):
 
         fig_types = getattr(self, "fig_types", None)
         if not fig_types:
-            logger.warning(
-                f"No fig_types set on {type(self).__name__}; saving only "
-                f"{path.suffix or 'the default format'}. Call set_fig_types()."
+            raise ValueError(
+                f"No figure formats configured for {path}. "
+                "Call set_fig_types() with a valid format."
             )
-            fig_types = [path.suffix or "png"]
 
         log = logger.info if verbose else logger.debug
         log(f"Saving figure to {path.with_suffix('')} as {fig_types}")
@@ -46,13 +45,22 @@ class MPLFigure(GenericHandler):
         plt.close(fig)
 
     def set_fig_types(self, fig_types):
-        try:
+        if OmegaConf.is_config(fig_types):
             fig_types = OmegaConf.to_container(fig_types)
-        except ValueError:
-            pass
-        if not isinstance(fig_types, list):
+
+        if not isinstance(fig_types, (list, tuple)):
             fig_types = [fig_types]
-        self.fig_types = fig_types
+
+        if not fig_types or any(
+            not isinstance(fmt, str) or not fmt.strip(". ")
+            for fmt in fig_types
+        ):
+            raise ValueError(
+                f"Invalid fig_types: {fig_types!r}. "
+                "Expected one or more figure formats, such as 'png' or 'pdf'."
+            )
+
+        self.fig_types = [fmt.strip().lstrip(".") for fmt in fig_types]
 
 register_handler("Figure", Figure)
 register_handler("MPLFigure", MPLFigure)
