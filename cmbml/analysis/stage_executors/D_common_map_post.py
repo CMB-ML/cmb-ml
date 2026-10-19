@@ -6,6 +6,7 @@ from omegaconf import DictConfig
 import pysm3.units as u
 from tqdm import tqdm
 
+from cmbml.core.asset_handlers import HealpyMap
 from cmbml.core import BaseStageExecutor, Split, Asset
 from cmbml.utils.physics_beam import make_beam, make_target_beams
 from cmbml.utils.physics_mask import downgrade_mask
@@ -19,8 +20,12 @@ class CommonPostExecutor(BaseStageExecutor):
         super().__init__(cfg, stage_str)
 
         self.out_cmb_map: Asset = self.assets_out["cmb_map"]
+        out_cmb_map_handler: HealpyMap
+
         self.in_cmb_map: Asset = self.assets_in["cmb_map"]
         self.in_mask: Asset = self.assets_in.get("mask", None)
+        in_mask_handler: HealpyMap
+        in_cmb_map_handler: HealpyMap
 
         self.nside_out = cfg.scenario.nside
         self.lmax = cfg.model.analysis.lmax
