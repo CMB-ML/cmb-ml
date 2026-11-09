@@ -60,8 +60,39 @@ class CambPowerSpectrum(GenericHandler):
             return df
 
     def write(self, path: Path, data: camb.CAMBdata, lmax: int) -> None:
+        """
+        Save unlensed CMB spectra with lensing-potential spectra.
+
+        Output columns: L TT EE BB TE PP PT PE
+
+        The CMB spectra are unlensed, while the lensing-potential
+        spectra are retained for PySM3 CMBLensed.
+        """
         make_directories(path)
-        data.save_cmb_power_spectra(filename=path, lmax=lmax)
+
+        cmb = data.get_unlensed_scalar_cls(
+            lmax=lmax,
+            CMB_unit="muK",
+        )
+
+        lens = data.get_lens_potential_cls(
+            lmax=lmax,
+            CMB_unit="muK",
+        )
+
+        ell = np.arange(lmax + 1)
+
+        table = np.column_stack((ell, cmb, lens))
+
+        np.savetxt(
+            path,
+            table,
+            fmt=["%4u"] + ["%12.7e"] * 7,
+            header=" L " + " ".join(
+                f"{name:13s}"
+                for name in "TT EE BB TE PP PT PE".split()
+            ),
+        )
 
 
 class DictCambPowerSpectrum(GenericHandler):
