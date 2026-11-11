@@ -54,10 +54,8 @@ class MaskCreatorExecutor(BaseStageExecutor):
 
         if self.mask_apo_type not in ["C1", "C2", "Smooth", 
                                       "hp.smoothing", 
-                                      "standardization_is_for_chumps"]:
+                                      "srt_method"]:
             raise NotImplementedError(f"Apodization type {self.mask_apo_type} is not supported.")
-        if self.mask_apo_type not in ["C1", "C2", "Smooth"]:
-            logger.warning(f'Mask apodization "{self.mask_apo_type}" will included masked areas in analysis! This is bad.')
 
     def execute(self) -> None:
         """
@@ -71,7 +69,7 @@ class MaskCreatorExecutor(BaseStageExecutor):
             mask_sm = use_namaster(mask, self.mask_apo_size, self.mask_apo_type)
         elif self.mask_apo_type == "hp.smoothing":
             mask_sm = use_hp_smoothing(mask, self.mask_apo_size)
-        elif self.mask_apo_type == "standardization_is_for_chumps":
+        elif self.mask_apo_type == "srt_method":
             mask_sm = use_alm_conv(mask, self.mask_apo_size)
         else:
             raise NotImplementedError(f"Apodization type {self.mask_apo_type} is not supported.")
@@ -96,14 +94,14 @@ def use_namaster(mask, mask_apo_size, mask_apo_type):
     return apo_mask
 
 def use_hp_smoothing(mask, mask_apo_size):
-    # Not recommended! This includes masked regions of the map in analysis!
+    # This includes masked regions of the map in analysis
     mask_apo_size_rad = mask_apo_size.to(u.rad).value
     apo_mask = hp.smoothing(mask, fwhm=mask_apo_size_rad)
     return apo_mask
 
 def use_alm_conv(mask, mask_apo_size):
-    # This method is the same as hp.smoothing, but this is the best I can get from Physics
-    # Not recommended! This includes masked regions of the map in analysis!
+    # This method is the same as hp.smoothing
+    # This includes masked regions of the map in analysis
     mask_apo_size_arcmin = mask_apo_size.to(u.arcmin)
     apo_mask = conv_to_beam(mask, mask_apo_size_arcmin)
     return apo_mask
