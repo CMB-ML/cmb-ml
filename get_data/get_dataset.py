@@ -15,13 +15,14 @@ from cmbml.get_data.stage_executors.B_get_cmbml_data import GetDatasetExecutor
 logger = logging.getLogger(__name__)
 
 
-@hydra.main(version_base=None, config_name="config_sim")
+@hydra.main(version_base=None, config_name="config_sim_ICCV2025")
 def main(cfg):
     """
     Gets a dataset. To use this script, ensure that:
-    - Your local_system/CMB-ML/ contains upload_records for the dataset you want.
-    - In cfg/pipeline/pipe_raw.yaml, select the version of the shared_links file.
-    - In cfg/config_sim.yaml, select the splits file with simulations you want.
+    - Your configured assets directory (CMB-ML/) contains the ICCV 2025
+      upload_records manifest for the selected nside (128 or 512).
+    - config_sim_ICCV2025.yaml selects the ICCV 2025 splits and dataset name.
+    - Override nside=128 to download the lower-resolution ICCV dataset.
     
     Args:
         cfg: The splits yaml determines which sims are downloaded!

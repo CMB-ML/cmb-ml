@@ -1,0 +1,9 @@
+# ICCV 2025: 1,000 training + 250 validation + 200 test = 1,450 simulations.
+# These split names and counts match both bundled Box upload-record manifests.
+name: "1450"
+Train:
+  n_sims: 1000
+Valid:
+  n_sims: 250
+Test:
+  n_sims: 200
