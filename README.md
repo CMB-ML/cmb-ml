@@ -14,6 +14,7 @@ Contents:
   - [Outside Works](#outside-works)
   - [Errata](#errata)
 - [Data File Links](#data-file-links)
+- [PRD Simulation Dataset: I_512_1850_UnifWMAP_Wide](#prd-simulation-dataset-i_512_1850_unifwmap_wide)
 
 # Quick Start
 
@@ -233,6 +234,7 @@ We provide links to the various data used. Alternatives to get this data are in 
     <!-- - [Downloading script](./get_data/get_assets.py) -->
 
 - Datasets
+  - **I_512_1850_UnifWMAP_Wide (PRD):** see [download and extraction instructions](#prd-simulation-dataset-i_512_1850_unifwmap_wide).
   - CMB_ML_512_1450
     - Individual files: [Box Link, CMB_ML_512_1450](https://utdallas.box.com/v/cmb-ml-512-1450)
       - Each simulation instance is in its own tar file and will need to be extracted before use
@@ -270,3 +272,42 @@ We provide links to the various data used. Alternatives to get this data are in 
 - Trained models
   - CMBNNCS
     - [UNet8 trained on CMB_ML_512_1450, at various epochs](https://utdallas.box.com/v/ml-cmb-UNet8-IQU-512-1450-bl)
+
+# PRD Simulation Dataset: I_512_1850_UnifWMAP_Wide
+
+This dataset is distributed as **222 uncompressed `.tar` shards** on [UT Dallas Box](https://utdallas.box.com/s/tvq6c72fj2t4lgkqdbh13dvn310da047). It includes the existing simulation and working data. The shards do not need to be repackaged or regenerated to use the released dataset.
+
+The command-line downloader requires **Python 3 and [rclone](https://rclone.org/install/)** on your `PATH`. **No Box account, Box sign-in, or configured rclone remote is required.** All commands below are run from the **root of this CMB-ML repository**. The dataset is downloaded outside the repository.
+
+**Download** (approximately **877 GiB** of archives plus small metadata files):
+
+```bash
+python3 get_data/download_unifwmap_wide.py \
+    --manifest assets/CMB-ML/UnifWMAP_Wide_download_manifest.json \
+    --dest ~/CMB_Data/UnifWMAP_Wide_shards \
+    --progress
+```
+
+The downloader retrieves the 222 shards, their `.complete.json` sidecars, and `shard_plan.json`, `manifest.jsonl`, and `SHA256SUMS`. It validates the size of each downloaded file and verifies the shards against their published SHA-256 hashes. It may be rerun after interruption: previously downloaded files are checked and skipped when valid; an interrupted **individual shard download starts again**, rather than resuming at a byte offset.
+
+**Extract** to the dataset directory (requiring approximately **877 GiB** more disk space):
+
+```bash
+python3 get_data/extract_tar_shards.py \
+    ~/CMB_Data/UnifWMAP_Wide_shards \
+    ~/CMB_Data/I_512_1850_UnifWMAP_Wide \
+    --progress-interval 5
+```
+
+The extractor checks the shard hashes and validates extracted members against the manifest. Its destination argument is the **exact restored dataset directory**; it recreates the contents of the original dataset inside that directory. Extraction can be restarted using the same command. If retaining both downloaded shards and extracted data, plan for **at least ~1.8 TiB of free disk space**, plus filesystem overhead.
+
+To download just one file, use `--only` with its exact filename; for example, replace the download command above with the following small metadata test:
+
+```bash
+python3 get_data/download_unifwmap_wide.py \
+    --manifest assets/CMB-ML/UnifWMAP_Wide_download_manifest.json \
+    --dest ~/CMB_Data/UnifWMAP_Wide_test \
+    --only SHA256SUMS
+```
+
+The public Box folder, the download manifest, and these two utilities are for **`I_512_1850_UnifWMAP_Wide` only**. Earlier datasets, including those used for the ICCV work, retain their existing download instructions and the original [`get_data/get_dataset.py`](./get_data/get_dataset.py) implementation.
