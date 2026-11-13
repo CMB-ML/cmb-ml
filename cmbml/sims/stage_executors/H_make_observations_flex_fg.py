@@ -210,7 +210,6 @@ class ObsCreatorExecutor(BaseStageExecutor):
             placeholder = [pysm3.Model(nside=self.nside_sky, max_nside=self.nside_sky)]
             placeholder_label = ['cmb']
         else:
-            # I don't know why this would be done, but sure, I'll keep it.
             placeholder = None
             placeholder_label = None
 
@@ -279,7 +278,7 @@ class ObsCreatorExecutor(BaseStageExecutor):
                     this_sky.update_component(fg, fg_params)
 
         # Track minimum FWHM; this may be used for the CMB map
-        min_fwhm = 21600 * u.arcmin  # Number of arcmin in full 360 degrees. Maybe could have used np.inf
+        min_fwhm = 21600 * u.arcmin
 
         for freq, detector in self.instrument.dets.items():
             min_fwhm = min(min_fwhm, detector.fwhm)

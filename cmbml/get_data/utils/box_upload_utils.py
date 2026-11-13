@@ -220,53 +220,6 @@ class BoxInterface:
         shared_link = file_info['shared_link']['url']
         return shared_link
 
-    # Does not work. Figure it out? Possibly a ChatGPT hallucination.
-    # def check_rate_limit(self):
-    #     """
-    #     Check the current rate limit of the Box API.
-    #     """
-    #     try:
-    #         # Fetch details of the root folder as an example of a lightweight API call
-    #         root_folder = self.client.folder(folder_id=self.root_folder_id).get(fields='id')
-    #         if 'X-RateLimit-Remaining' in root_folder.response_headers:
-    #             rate_limit_remaining = root_folder.response_headers['X-RateLimit-Remaining']
-    #             logging.info(f"Current API Rate Limit Remaining: {rate_limit_remaining}")
-    #         else:
-    #             logging.warning("Rate limit information is not available in the response headers.")
-    #     except Exception as e:
-    #         logging.error(f"Error checking rate limit: {e}")
-
 
 def get_token_from_shared_link(shared_link):
     return shared_link.split('/')[-1]
-
-
-# Seems to not be needed. Figure it out? Possibly a ChatGPT hallucination.
-# def safe_api_call(call: Callable, max_retries: int=5, delay: int=60) -> Union[Any, None]:
-#     """
-#     Attempt an API call with retries on rate limit errors.
-
-#     Args:
-#         call (function): The API call to be made.
-#         max_retries (int, optional): The maximum number of retries. Defaults to 5.
-#         delay (int, optional): The delay between retries in seconds. Defaults to 60.
-
-#     Returns:
-#         Any or None: The result of the API call, or None if all retries failed.
-#     """
-#     retries = 0
-#     while retries < max_retries:
-#         try:
-#             return call()
-#         except BoxAPIException as e:
-#             if e.status == 429:  # Check if it's a rate limit error
-#                 logging.warning("Rate limit exceeded. Waiting to retry...")
-#                 time.sleep(delay * (2 ** retries))  # Exponential backoff
-#                 retries += 1
-#             else:
-#                 logging.error(f"API call failed with error: {e}")
-#                 raise e
-#         except Exception as e:
-#             logging.error(f"Unexpected error: {e}")
-#             raise e
-#     return None

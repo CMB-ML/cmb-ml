@@ -49,7 +49,7 @@ class HydraConfigSimsCheckerExecutor(BaseStageExecutor):
         logger.debug("No conflict in Hydra Configs found.")
 
     def check_instrument_beam_min(self) -> None:
-        # TODO: Verify this works. The Hydra Config Checker hasn't been tested in a while... ymmv.
+        # TODO: Validate this check; it has not been tested recently.
         if self.nside >= 512:
             min_obs_beam = self.cfg.sim.model.get("min_obs_beam", None)
             if min_obs_beam:
@@ -79,7 +79,7 @@ class HydraConfigSimsCheckerExecutor(BaseStageExecutor):
             if nside_sky > 8192:
                 self.issues.append("PySM3 does not support resolutions above 8192.")
             elif nside_sky == 8192:
-                # Largest supported. If this is used, the nside_out can be 8192. Not for the faint of heart!
+                # Largest supported. If this is used, the nside_out can be 8192.
                 pass
             elif nside_sky < 2 * nside_out:
                 self.issues.append("nside of sky should be greater than nside of target output by at least a factor of 2 in simulation yaml")

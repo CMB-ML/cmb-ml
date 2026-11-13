@@ -22,7 +22,6 @@ ell_max            : 8150  # Testing shows no change above ~3.5*nside
                            # We use 8150 as a default incase we do resolution 2048 maps.
                            # TODO: Reduce this to 3.5 x nside or exchange with factor parameter
 
-!!!!! Do I need to do this just for CMB or for both CMB and observations????
 dg_lmax            : 1280  # applied to CMB when downgrading maps for output
 
 seed_template_ps   : "{split}_{sim}_cmb_ps"

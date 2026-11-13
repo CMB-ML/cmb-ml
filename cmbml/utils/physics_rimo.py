@@ -1,4 +1,3 @@
-# Produced with (significant cajoling of) ChatGPT 5.0
 import numpy as np
 import pysm3.units as u
 
