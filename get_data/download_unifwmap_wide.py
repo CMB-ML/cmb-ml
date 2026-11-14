@@ -20,7 +20,7 @@ import shutil
 import subprocess
 import sys
 
-DEFAULT_MANIFEST = Path(__file__).with_name('UnifWMAP_Wide_download_manifest.json')
+DEFAULT_MANIFEST = Path(__file__).resolve().parent.parent / 'assets' / 'CMB-ML' / 'UnifWMAP_Wide_download_manifest.json'
 VALID_ID = re.compile(r'^[0-9]+$')
 VALID_TOKEN = re.compile(r'^[A-Za-z0-9]+$')
 
