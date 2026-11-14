@@ -1,0 +1,153 @@
+{
+  "schema_version": 1,
+  "description": "Public Planck science assets used by CMB-ML.",
+  "public_folder_url": "https://utdallas.box.com/s/ufr8k9dvtdfl60tzifmerieo532rib91",
+  "folder_shared_token": "ufr8k9dvtdfl60tzifmerieo532rib91",
+  "download_url_pattern": "https://utdallas.app.box.com/index.php?rm=box_download_shared_file&shared_name={folder_shared_token}&file_id=f_{box_id}",
+  "files": [
+    {
+      "name": "COM_CMB_IQU-nilc_2048_R3.00_full.fits",
+      "box_id": "1555506145847",
+      "size_bytes": 1610660160,
+      "sha1": "aa10f4ebebd5e39c8232c1e3011ede59d727dede"
+    },
+    {
+      "name": "COM_PowerSpect_CMB-base-plikHM-TTTEEE-lowl-lowE-lensing-minimum-theory_R3.01.txt",
+      "box_id": "2590137983391",
+      "size_bytes": 205647,
+      "sha1": "c2d07b1f402944b29a97e2e43e79c3175e7e163d"
+    },
+    {
+      "name": "HFI_Mask_GalPlane-apo0_2048_R2.00.fits",
+      "box_id": "2590138400754",
+      "size_bytes": 402664320,
+      "sha1": "597fb8f6933a2950d7b807ee2e339620e6e63305"
+    },
+    {
+      "name": "HFI_Mask_PointSrc_2048_R2.00.fits",
+      "box_id": "2590140016331",
+      "size_bytes": 503334720,
+      "sha1": "0cc96a1978dd18836600c4723830b1201a3dbed4"
+    },
+    {
+      "name": "HFI_RIMO_R3.00.fits",
+      "box_id": "1555502848194",
+      "size_bytes": 1005120,
+      "sha1": "24775942fa709b4af767f1a8fd37942b4dc08e1b"
+    },
+    {
+      "name": "HFI_SkyMap_100_2048_R3.01_full.fits",
+      "box_id": "1555521061840",
+      "size_bytes": 2013278400,
+      "sha1": "b3aca9ed6fe275aa6f93bd1fb70734dd34e17da2"
+    },
+    {
+      "name": "HFI_SkyMap_100_2048_R3.01_halfmission-1.fits",
+      "box_id": "2590136642353",
+      "size_bytes": 2013278400,
+      "sha1": "8f51f1a7bff4890cbbe391344dd85a4cef1f74b8"
+    },
+    {
+      "name": "HFI_SkyMap_100_2048_R3.01_halfmission-2.fits",
+      "box_id": "2590135074766",
+      "size_bytes": 2013278400,
+      "sha1": "62ec095dfe888871cd2adeffe1ae629a6a666285"
+    },
+    {
+      "name": "HFI_SkyMap_143_2048_R3.01_full.fits",
+      "box_id": "1555508053581",
+      "size_bytes": 2013278400,
+      "sha1": "bf1484faa249275a96c4a8354808b516558c318f"
+    },
+    {
+      "name": "HFI_SkyMap_143_2048_R3.01_halfmission-1.fits",
+      "box_id": "2590138074777",
+      "size_bytes": 2013278400,
+      "sha1": "1d2223060175477deffd4cc32ab7d3625bdafd4c"
+    },
+    {
+      "name": "HFI_SkyMap_143_2048_R3.01_halfmission-2.fits",
+      "box_id": "2590139990045",
+      "size_bytes": 2013278400,
+      "sha1": "2c38690a6a68042bd963c748c5637763d3de520f"
+    },
+    {
+      "name": "HFI_SkyMap_217_2048_R3.01_full.fits",
+      "box_id": "1555520291295",
+      "size_bytes": 2013278400,
+      "sha1": "94fac923835aef44ad5b3b3980e362b662e2c09f"
+    },
+    {
+      "name": "HFI_SkyMap_217_2048_R3.01_halfmission-1.fits",
+      "box_id": "2590137375863",
+      "size_bytes": 2013278400,
+      "sha1": "77e4153a59b8d0e4fb9b916caf789f00b59f6f35"
+    },
+    {
+      "name": "HFI_SkyMap_217_2048_R3.01_halfmission-2.fits",
+      "box_id": "2590138239625",
+      "size_bytes": 2013278400,
+      "sha1": "1f258391308c5c6ac76b61152fe24ec330b28ab7"
+    },
+    {
+      "name": "HFI_SkyMap_353-psb_2048_R3.01_full.fits",
+      "box_id": "1555509440808",
+      "size_bytes": 2013278400,
+      "sha1": "9a28e87a0a41b15f04a132943220ed28633f5dcf"
+    },
+    {
+      "name": "HFI_SkyMap_353_2048_R3.01_halfmission-1.fits",
+      "box_id": "2590140069094",
+      "size_bytes": 2013278400,
+      "sha1": "dab1b39866d4c9fc42dc9fab1b72e4044868d7de"
+    },
+    {
+      "name": "HFI_SkyMap_353_2048_R3.01_halfmission-2.fits",
+      "box_id": "2590141211076",
+      "size_bytes": 2013278400,
+      "sha1": "0b4ea9e733eeb3265d8c2c2b98d9d7964eff69be"
+    },
+    {
+      "name": "HFI_SkyMap_545_2048_R3.01_full.fits",
+      "box_id": "1555497310923",
+      "size_bytes": 603990720,
+      "sha1": "0707089b6a405fdddb82808ad33776e06be107f5"
+    },
+    {
+      "name": "HFI_SkyMap_857_2048_R3.01_full.fits",
+      "box_id": "1555502601360",
+      "size_bytes": 603990720,
+      "sha1": "61516abd96411084a963301560d7c4705711c16b"
+    },
+    {
+      "name": "LFI_RIMO_R3.31.fits",
+      "box_id": "1555503565371",
+      "size_bytes": 771840,
+      "sha1": "f4764375226165c8d025866ad942515591572337"
+    },
+    {
+      "name": "LFI_SkyMap_030-BPassCorrected_1024_R3.00_full.fits",
+      "box_id": "1555504962537",
+      "size_bytes": 503328960,
+      "sha1": "ed956fc19dfc8d34f80d55d9a19a3d8db88135f3"
+    },
+    {
+      "name": "LFI_SkyMap_044-BPassCorrected_1024_R3.00_full.fits",
+      "box_id": "1555507274196",
+      "size_bytes": 503328960,
+      "sha1": "cef21d61dff2383caff8198db1afe711808dcc3e"
+    },
+    {
+      "name": "LFI_SkyMap_070-BPassCorrected_1024_R3.00_full.fits",
+      "box_id": "1555504381233",
+      "size_bytes": 503328960,
+      "sha1": "625bf2a3553b6e951f62e1b12c886b6ab53a6ebb"
+    },
+    {
+      "name": "planck_deltabandpass.tbl",
+      "box_id": "1555502058298",
+      "size_bytes": 481,
+      "sha1": "4e0aaf9ccec54d6d11b6f2703a2331d259c23ee8"
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "description": "Public WMAP9 chain archives used by CMB-ML.",
+  "public_folder_url": "https://utdallas.box.com/s/t6plr547kihgh3shocde4ohcj4mz7hlh",
+  "folder_shared_token": "t6plr547kihgh3shocde4ohcj4mz7hlh",
+  "download_url_pattern": "https://utdallas.app.box.com/index.php?rm=box_download_shared_file&shared_name={folder_shared_token}&file_id=f_{box_id}",
+  "files": [
+    {
+      "name": "wmap_lcdm_mnu_wmap9_chains_v5.tar.gz",
+      "box_id": "1555502968652",
+      "size_bytes": 383473891,
+      "sha1": "2299176de7604f57aa99d11e676be567c44809b9"
+    },
+    {
+      "name": "wmap_lcdm_wmap9_chains_v5.tar.gz",
+      "box_id": "1555508624885",
+      "size_bytes": 785818405,
+      "sha1": "c94fe105fdd1cc00c0a6961c71ab1cd1682aa742"
+    }
+  ]
+}
