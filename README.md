@@ -1,7 +1,5 @@
 # CMB-ML: A Cosmic Microwave Background Radiation Dataset for Machine Learning
 
-ZENODO (DOI) BADGE HERE
-
 Contents:
 - [Quick Start](#quick-start)
 - [Introduction](#introduction)
@@ -14,7 +12,7 @@ Contents:
   - [Outside Works](#outside-works)
   - [Errata](#errata)
 - [Data File Links](#data-file-links)
-- [PRD Simulation Dataset: I_512_1850_UnifWMAP_Wide](#prd-simulation-dataset-i_512_1850_unifwmap_wide)
+- [Simulation Dataset: I_512_1850_UnifWMAP_Wide](#prd-simulation-dataset-i_512_1850_unifwmap_wide)
 
 # Quick Start
 
@@ -50,36 +48,6 @@ Several tools enable this work. [Hydra](https://hydra.cc/) is used to manage man
 ![CMB Radiation Example](assets/readme_imgs/observations_and_cmb_small.png)
 
 The real CMB signal is observed at several microwave wavelengths. To mimic this, we make a ground truth CMB map and several contaminant foregrounds. We "observe" these at the different wavelengths, where each foreground has different levels. Then we apply instrumentation effects to get a set of observed maps. The standard dataset is produced at a low resolution, so that many simulations can be used in a reasonable amount of space.
-
-## Cleaning
-
-Two models are included as baselines in this repository. One is a classic astrophysics algorithm, a flavor of **i**nternal **l**inear **c**ombination methods, which employs **c**osine **n**eedlets (CNILC). The other is a machine learning method (a UNet) implemented and published in the astrophysics domain, CMBNNCS. 
-
-The CNILC method was implemented by [PyILC](https://github.com/jcolinhill/pyilc), and is described in [this paper](https://arxiv.org/abs/2307.01043).
-
-The cmbNNCS method was implemented by [cmbNNCS](https://github.com/Guo-Jian-Wang/cmbnncs), and is described in [this paper](https://iopscience.iop.org/article/10.3847/1538-4365/ac5f4a).
-
-The third method, the [PyTorch](https://pytorch.org/) implementation of a UNet, is very similar to cmbNNCS and many other published models. Unlike cmbNNCS, it operates on small patches of maps instead of the full sky.
-
-## Analysis
-
-We can compare the CMB predictions to the ground truths in order to determine how well the model works. However, because the models operate in fundamentally different ways, care is needed to ensure that they are compared in a consistent way. We first mask each prediction where the signal is often to bright to get meaningful predictions. We then remove effects of instrumentation from the predictions. The pipeline set up to run each method is then used in a slightly different way, to pull results from each method and produce output which directly compares them. The following figures were produced automatically by the pipeline, for quick review.
-
-![Map Cleaning Example](assets/readme_imgs/CNILC_px_comp_sim_0005_I.png)
-![Power Spectrum Example](assets/readme_imgs/CNILC_ps_comp_sim_0005_I.png)
-
-Other figures are produced of summary statistics, but these are far more boring (for now!).
-
-# New Methods
-
-TODO: Update this section.
-<!-- We encourage you to first familiarize yourself with the content of the tutorial notebooks and Hydra. Afterwards, you may want to follow either the patterns set in either the [classic method](cmbml/demo_external_method) or [ML method](cmbml/demo_patch_nn/) demonstrations. The main difference between these is the amount of stuff you want to do within CMB-ML's pipeline; if you already have code that can take input parameters, the patterns for classic methods may be more appropriate.
-
-At this time, the classic method patterns are non-functional suggestions. To see operational code, the PyILC method works (very well!). Please excuse any confusion caused by the hoops which enable us to run it on many simulations at once. Start with the [first top-level script](main_pyilc_predict.py), which gets the pipeline through the cleaning process. Then the [second top-level script](main_pyilc_analysis.py) must be run to finish the process. Both of these scripts use the same configuration file, there is simply a conflict in execution due to settings of `matplotlib`.
-
-All of the ML patterns are functional. We suggest using the demonstration network as a prototype. The pipeline overview is in the [top-level script](main_patch_nn.py). This network operates on patches of sky maps, cut directly from the HEALPix arrangement. Some preprocessing stages are needed to enable fast training. The training and prediction executors follow common PyTorch design patterns ([train](cmbml/demo_patch_nn/stage_executors/E_train.py) and [predict](cmbml/demo_patch_nn/stage_executors/F_predict.py)). Both training and prediction use subclasses of a PyTorch [Dataset](https://pytorch.org/tutorials/beginner/basics/data_tutorial.html).
-
-As an alternative, see the cmbNNCS [top-level script](main_cmbnncs.py). The executors for this method are very similar to the demonstration network, though some changes are needed in order to adhere to the method described in the paper. It does differ more significantly in the [predict](cmbml/cmbnncs/stage_executors/E_predict.py) stage, as this model predicts entire skymaps in a single operation. -->
 
 # Installation
 
@@ -132,74 +100,6 @@ The PyILC method is https://github.com/CMB-ML/cmb-ml-pyilc.git.
   - These will be stored in an `.astropy` directory.
   - Downloading templates is sometimes interrupted resulting in an error and the code crashing. It is annoying and beyond our control. However, because the templates are cached, the pipeline can be resumed and will proceed smoothly.
 
-## For CMB_ML_512_1450
-
-- Download CMB_ML_512_1450
-  - [Use the downloading script](./get_data/get_dataset.py)
-  - `python ./get_data/get_dataset.py`
-  - Files are visible at this [Box link for CMB_ML_512_1450](https://utdallas.box.com/v/cmb-ml-512-1450)
-  - Alternatively, to generate simulations, use `python main_sims.py`
-  
-## For CMB_ML_128_1450
-
-This will run more quickly than the higher resolution.
-
-- Download CMB_ML_128_1450:
-  - [Use the downloading script](./get_data/get_box_CMB_ML_128_1450.py)
-    - Change [cfg/pipeline/pipe_raw.yaml](../cfg/pipeline/pipe_raw.yaml) to use the correct set of shared links. In this yaml, look for `download_sims_reference` and change the `path_template`.
-    - `path_template` should be set based on whatever file you need.
-    - Be sure to change `config_sim.yaml` to write to the correct dataset folder! By default it will save to the 512 dataset folder; there's currently no check against this.
-  - Files are visible at this [Box link for CMB_ML_128_1450](https://utdallas.box.com/v/cmb-ml-128-1450)
-  - Alternatively, to generate simulations, use `python main_sims.py dataset_name=CMB_ML_128_1450 nside=128`
-- Run CMBNNCS on CMB_ML_128_1450 (the smaller UNet5 must be used):
-    - `python main_cmbnncs.py dataset_name=CMB_ML_128_1450 working_dir=CMBNNCS_UNet5/ nside=128 num_epochs=2 use_epochs=[2] model/cmbnncs/network=unet5`
-- Run PyILC on CMB_ML_128_1450:
-    - `python main_pyilc_predict.py dataset_name=CMB_ML_128_1450 nside=128 ELLMAX=382 model.pyilc.distinct.N_scales=5 model.pyilc.distinct.ellpeaks=[100,200,300,383]`
-    - `python main_pyilc_analysis.py dataset_name=CMB_ML_128_1450 nside=128 ELLMAX=382 model.pyilc.distinct.N_scales=5 model.pyilc.distinct.ellpeaks=[100,200,300,383]`
-    - An even faster method is available, using PyILC's HILC method.
-- Run Comparison:
-    - `python main_analysis_compare.py --config-name config_comp_models_t_128` 
-
-# Comparing Results
-
-The below is list of best results on the dataset. Please contact us through this repository to have your results listed. We do ask for the ability to verify those results.
-
-We list below the datasets and model's aggregated (across the Test split) performance. We first calculate each measure for each simulation. The tables below contain average values of those for each metric. The metrics currently implemented are Mean Absolute Error (MAE), Mean Square Error (MSE), Normalized Root Mean Square Error (NRMSE), and Peak Signal-to-Noise Ratio (PSNR). The first three give a general sense of precision. PSNR gives a worst instance measure.
-
-## On TQU-512-1450
-
-### Pixel Space Performance
-
-| Model   | MAE                    | RMSE                  | NRMSE                    | PSNR                  |
-|---------|------------------------|-----------------------|--------------------------|-----------------------|
-| CMBNNCS | $\bf{25.25 \pm 0.29}$  | $\bf{31.69 \pm 0.36}$ | $\bf{0.3039 \pm 0.0040}$ | $\bf{30.25 \pm 0.33}$ |
-| CNILC   | $32.28 \pm 0.44$       | $40.52 \pm 0.55$      | $0.3885 \pm 0.0043$      | $28.89 \pm 0.60$      |
-
-
-# Outside Works
-
-CMB-ML was built in the hopes that researchers can compare on this as a standard. In the future, we hope to add more datasets. If you would like your model or dataset listed, please contact us.
-
-## Works using datasets from this repository
-
-None so far!
-
-# Errata
-
-February 2025: 
-- The repository history was edited to reduce the `.git` size.
-  - The `.git` information was **300 MB**, due to several maps and large python notebooks.
-  - It has been reduced to **21 MB**.  The bulk of this is images for this README and the demonstration notebooks.
-
-November 2024: New dataset released:
-- The noise generation procedure has been revised to be non-white noise
-- The detector FWHM's were changed
-  - Previously they were sub-pixel
-  - They are now larger and still vary
-  - More details [here](assets/CMB-ML/README.txt)
-- The CMB signal was changed away from and returned to using CMBLensed
-- Because the work is still unpublished and we do not know of anyone else using it, references to previous datasets have been updated. The original dataset will be removed June 30, 2025, unless we're made aware of anyone using it.
-
 # Data File Links
 
 We provide links to the various data used. Alternatives to get this data are in `get_data` and the `Demonstrations`. "Science assets" refers to data created by long-standing cosmological surveys.
@@ -234,7 +134,7 @@ We provide links to the various data used. Alternatives to get this data are in 
     <!-- - [Downloading script](./get_data/get_assets.py) -->
 
 - Datasets
-  - **I_512_1850_UnifWMAP_Wide (PRD):** see [download and extraction instructions](#prd-simulation-dataset-i_512_1850_unifwmap_wide).
+  - **I_512_1850_UnifWMAP_Wide:** see [download and extraction instructions](#prd-simulation-dataset-i_512_1850_unifwmap_wide).
   - CMB_ML_512_1450
     - Individual files: [Box Link, CMB_ML_512_1450](https://utdallas.box.com/v/cmb-ml-512-1450)
       - Each simulation instance is in its own tar file and will need to be extracted before use
@@ -273,7 +173,7 @@ We provide links to the various data used. Alternatives to get this data are in 
   - CMBNNCS
     - [UNet8 trained on CMB_ML_512_1450, at various epochs](https://utdallas.box.com/v/ml-cmb-UNet8-IQU-512-1450-bl)
 
-# PRD Simulation Dataset: I_512_1850_UnifWMAP_Wide
+# Simulation Dataset: I_512_1850_UnifWMAP_Wide
 
 This dataset is distributed as **222 uncompressed `.tar` shards** on [UT Dallas Box](https://utdallas.box.com/s/tvq6c72fj2t4lgkqdbh13dvn310da047). It includes the existing simulation and working data. The shards do not need to be repackaged or regenerated to use the released dataset.
 
@@ -311,3 +211,9 @@ python3 get_data/download_unifwmap_wide.py \
 ```
 
 The public Box folder, the download manifest, and these two utilities are for **`I_512_1850_UnifWMAP_Wide` only**. Earlier datasets, including those used for the ICCV work, retain their existing download instructions and the original [`get_data/get_dataset.py`](./get_data/get_dataset.py) implementation.
+
+# ICCV 2025
+
+The ICCV2025 version of this repository is available at https://github.com/CMB-ML/cmb-ml/releases/tag/v0.1.1-iccv2025
+
+It references two different datasets, one at Nside=512 and the other, for smoke testing, at Nside=128.
