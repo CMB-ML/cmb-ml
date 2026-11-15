@@ -2,7 +2,7 @@ import numpy as np
 
 
 def get_var_per_ell(ells, f_sky=1, N_ell=None):
-    """
+    r"""
     Compute the fractional cosmic variance for each multipole $\ell$.
 
     Cosmic variance arises because only $(2\ell + 1)$ modes are available

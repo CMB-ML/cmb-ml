@@ -161,7 +161,7 @@ class PostAnalysisPsFigExecutor(BaseStageExecutor):
             deltas2_params = pred_params
         else:
             raise ValueError("Baseline must be 'real' or 'theory'")
-        ylabel = '$\\%\\Delta D_{\ell}^\\text{TT} [\\mu \\text{K}^2]$'
+        ylabel = '$\\%\\Delta D_{\\ell}^\\text{TT} [\\mu \\text{K}^2]$'
         self.rel_panel(ax2, ells, ylabel, deltas1, deltas2, 
                        deltas1_params, deltas2_params, horz_params)
 
@@ -176,7 +176,7 @@ class PostAnalysisPsFigExecutor(BaseStageExecutor):
         ax.plot(ells, ps_theory, **thry_params)
         ax.scatter(ells,real_conved, s=marker_size, **real_params)
         ax.scatter(ells, pred_conved, s=marker_size, **pred_params)
-        ax.set_ylabel('$D_{\ell}^\\text{TT} [\\mu \\text{K}^2]$')
+        ax.set_ylabel('$D_{\\ell}^\\text{TT} [\\mu \\text{K}^2]$')
         # ax1.set_ylabel(r'$\ell(\ell+1)C_\ell/(2\pi)$ $\;$ [$\mu K^2$]')
         ax.set_ylim(-300, 6500)
         ax.legend()

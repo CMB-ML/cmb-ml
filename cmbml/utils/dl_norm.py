@@ -2,7 +2,7 @@ import numpy as np
 
 
 def get_cl2dl_norm_per_ell(ells: np.ndarray) -> np.ndarray:
-    """
+    r"""
     Compute the standard normalization factor that converts
     angular power spectra from $C_\ell$ to $D_\ell$.
 
@@ -24,7 +24,7 @@ def get_cl2dl_norm_per_ell(ells: np.ndarray) -> np.ndarray:
     Returns
     -------
     np.ndarray
-        Normalization factor $\\ell(\\ell+1)/(2\\pi)$ for each input $\ell$.
+        Normalization factor $\ell(\ell+1)/(2\pi)$ for each input $\ell$.
 
     Notes
     -----

@@ -170,13 +170,13 @@ class PostAnalysisPsCompareFigExecutor(BaseStageExecutor):
             ps_pred = spec['ps'][2:n_ells]
             self.add_ps_to_figures(axs, ells, ps_pred, ps_theory, pred_params, fillstyle)
 
-        ax1.set_ylabel('$D_{\ell}^\\text{TT} [\\mu \\text{K}^2]$')
+        ax1.set_ylabel('$D_{\\ell}^\\text{TT} [\\mu \\text{K}^2]$')
         ax1.set_ylim(-300, 6500)
         ax1.legend(markerscale=3)
 
         ax2.set_xlabel('$\\ell$')
 
-        ax2.set_ylabel('$\\% \\Delta D_{\ell}^\\text{TT} [\\mu \\text{K}^2]$')
+        ax2.set_ylabel('$\\% \\Delta D_{\\ell}^\\text{TT} [\\mu \\text{K}^2]$')
         ax2.set_ylim(-50, 50)
 
         # title = self.make_title(epoch, split, sim_num)
