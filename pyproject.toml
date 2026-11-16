@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "cmbml"
 dynamic = ["version"]
 description = "CMB Machine Learning pipeline"
-license = { text = "CC-BY-4.0" }
+license = { text = "MIT" }
 dependencies = []
 
 [tool.setuptools.packages.find]
