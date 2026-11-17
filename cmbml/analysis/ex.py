@@ -34,3 +34,7 @@ from .stage_executors.P_bundle_ps import (
 )
 
 from .stage_executors.Q_get_best_poly_degree import GetPolyDegreeExecutor
+from .stage_executors.R_bundle_smooth_ps import (
+    BundleSmoothExecutor,
+    BundleSmoothTrueExecutor,
+)
