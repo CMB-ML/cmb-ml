@@ -99,7 +99,7 @@ def get_planck_hm_data_ext(detector, assets_directory, progress=False, download=
     return hm_1_fn, hm_2_fn
 
 
-def get_planck_noise_fn(detector, realization, ring_cut):
+def get_planck_noise_fn(detector, realization, ring_cut="full"):
     planck_noise_fn_template = "ffp10_noise_{frequency}_{ring_cut}_map_mc_{realization}.fits"
 
     fn = planck_noise_fn_template.format(frequency=format_freq(detector), 
