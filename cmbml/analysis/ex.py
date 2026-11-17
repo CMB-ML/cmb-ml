@@ -26,10 +26,11 @@ from .stage_executors.K_make_pred_ps import MakePredPowerSpectrumExecutor
 # from .stage_executors.L_ps_analysis import PowerSpectrumAnalysisExecutor
 # from .stage_executors.L_ps_analysis_serial import PowerSpectrumAnalysisExecutorSerial
 
-from .stage_executors.P_bundle import (
+from .stage_executors.P_bundle_ps import (
     BundlePredExecutor,
     BundleTrueExecutor,
     BundleRealExecutor,
     BundleMeanTheoryExecutor
 )
 
+from .stage_executors.Q_get_best_poly_degree import GetPolyDegreeExecutor
