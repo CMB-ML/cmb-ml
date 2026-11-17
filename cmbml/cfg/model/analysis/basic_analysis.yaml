@@ -50,6 +50,7 @@ target_beam_fwhm: [null, 20.6, 60.0]
 ps_use_smooth_mask: true  # Whether to use the smoothed mask for power spectrum calculations
 ps_anafast_iters: 12
 lmax: 1280
+use_ells: "2:${.lmax}+1"
 
 # Power spectra analysis
 ps_functions: *stat_funcs
