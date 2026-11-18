@@ -40,3 +40,4 @@ from .stage_executors.R_bundle_smooth_ps import (
 )
 from .stage_executors.T_per_ell_metrics import GetPerEllMetricsExecutor
 from .stage_executors.U_scalar_metrics import GetScalarMetricsExecutor
+from .stage_executors.V_per_sim_scalar_metrics import GetPerSimMetricsExecutor
