@@ -1,0 +1,69 @@
+make_theory_ps: # Override needed for bundle_true
+  assets_out:
+    cmb_ps:
+      handler: DictCambPowerSpectrum
+
+bundle_true: # P_bundle_ps.py / BundleTrueExecutor
+  assets_out:
+    ps_bundle:
+      handler: NpyHandler
+      path_template: "{root}/{dataset}/{stage}/true_{split}.npy"
+  assets_in:
+    ps: {stage: make_theory_ps, orig_name: cmb_ps, working: Simulation_Working/}
+  splits:
+    - train
+    - test
+    - valid
+  dir_name: Raw_Bundle
+  make_stage_log: False
+
+bundle_pred: # P_bundle_ps.py / BundlePredExecutor
+  assets_out:
+    ps_bundle:
+      handler: NpyHandler
+      path_template: "{root}/{dataset}/{working}{stage}/pred_{split}_{epoch}.npy"
+  assets_in:
+    # ps: {stage: predict, orig_name: cmb_ps}
+    ps: ???
+  splits: ${splits.run_inference_on}
+  epochs: ${use_epochs_ps_stats}
+  dir_name: &bundle_pred Analysis_Bundle
+  make_stage_log: False
+
+bundle_real: # P_bundle_ps.py / BundleRealExecutor
+  assets_out:
+    ps_bundle:
+      handler: NpyHandler
+      path_template: "{root}/{dataset}/{working}{stage}/real_{split}.npy"
+  assets_in:
+    ps: {stage: make_real_ps, orig_name: auto_real, working: Real_PS/}
+  splits: ${splits.run_inference_on}
+  dir_name: *bundle_pred
+  make_stage_log: False
+
+find_sm_degree: # Q_get_best_poly_degree.py / GetPolyDegreeExecutor
+  assets_out:
+    deg_cfg:
+      handler: Config
+      path_template: "{root}/{dataset}/{working}{stage}/degree.yaml"
+  assets_in:
+    ps_pred_bundle: {stage: bundle_pred, orig_name: ps_bundle}
+    ps_thry_bundle: {stage: bundle_true, orig_name: ps_bundle}
+  splits:
+    - valid
+  epochs: ${use_epochs_ps_stats}
+  dir_name: *bundle_pred
+  make_stage_log: False
+
+bundle_smooth: # R_bundle_smooth_ps.py / BundleSmoothExecutor
+  assets_out:
+    ps_bundle:
+      handler: NpyHandler
+      path_template: "{root}/{dataset}/{working}{stage}/pred_{split}_{epoch}_smooth.npy"
+  assets_in:
+    pred: {stage: bundle_pred, orig_name: ps_bundle}
+    deg_cfg: {stage: find_sm_degree}
+  splits: ${splits.run_inference_on}
+  epochs: ${use_epochs_ps_stats}
+  dir_name: *bundle_pred
+  make_stage_log: False
