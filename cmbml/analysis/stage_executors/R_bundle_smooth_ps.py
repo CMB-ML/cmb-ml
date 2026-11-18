@@ -28,7 +28,7 @@ class BundleSmoothExecutor(BaseStageExecutor):
         self.use_ells = cfg.model.analysis.use_ells
         self.ells = parse_ells(self.use_ells)
 
-        self.sm_basis_kind = cfg.get("sm_basis_kind", None)
+        self.sm_basis_kind = cfg.model.analysis.get("sm_basis_kind", None)
         self.smoother = None
 
     def execute(self) -> None:

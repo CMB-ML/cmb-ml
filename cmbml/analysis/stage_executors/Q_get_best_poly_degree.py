@@ -33,12 +33,12 @@ class GetPolyDegreeExecutor(BaseStageExecutor):
         self.use_ells = cfg.model.analysis.use_ells
         self.ells = parse_ells(self.use_ells)
 
-        self.sm_basis_kind = cfg.get("sm_basis_kind", None)
+        self.sm_basis_kind = cfg.model.analysis.get("sm_basis_kind", None)
         if self.sm_basis_kind is None:
             msg = f"No smoothing choice specified."
             logger.warning(msg)
             raise ValueError(msg)
-        self.deg_range = cfg.get("sm_deg_range", None)
+        self.deg_range = cfg.model.analysis.get("sm_deg_range", None)
         if self.deg_range is None:
             msg = f"No degree range specified."
             logger.warning(msg)
@@ -55,7 +55,7 @@ class GetPolyDegreeExecutor(BaseStageExecutor):
             msg = f"Degree range min must be >=1. Got {self.deg_range}"
             logger.warning(msg)
             raise ValueError(msg)
-        self.criterion = cfg.get("sm_criterion", None)
+        self.criterion = cfg.model.analysis.get("sm_criterion", None)
         if self.criterion is None:
             msg = f"No criterion specified."
             logger.warning(msg)

@@ -52,6 +52,11 @@ ps_anafast_iters: 12
 lmax: 1280
 use_ells: "2:${.lmax}+1"
 
+# Polyfit (smoothing power spectra)
+sm_basis_kind: "polyfit"
+sm_deg_range: [4,30]
+sm_criterion: "mean_r2"
+
 # Power spectra analysis
 ps_functions: *stat_funcs
 ps_operations:
