@@ -39,3 +39,4 @@ from .stage_executors.R_bundle_smooth_ps import (
     BundleSmoothTrueExecutor,
 )
 from .stage_executors.T_per_ell_metrics import GetPerEllMetricsExecutor
+from .stage_executors.U_scalar_metrics import GetScalarMetricsExecutor
