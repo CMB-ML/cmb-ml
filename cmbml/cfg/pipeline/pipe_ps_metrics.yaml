@@ -1,0 +1,107 @@
+make_mean_spectrum:
+  assets_out:
+    mean_thry:
+      handler: NpyHandler
+      path_template: "{root}/{dataset}/{stage}/mean_theory.npy"
+  assets_in:
+    ps_thry_bundle: {stage: bundle_true, orig_name: ps_bundle}
+  splits:
+    - Train
+  dir_name: Raw_Bundle
+  make_stage_log: False
+
+get_per_ell_metrics:
+  metrics:
+    # Predictive skill
+    - mse
+    - R2
+    - skill
+    # Accuracy
+    - abs_rel_err_pct
+    # Bias
+    - bias
+    - tension
+    # Scatter
+    - resid_var
+    - resid_std
+    - pred_var
+    - pred_std
+    # Sensitivity
+    - r
+    - A
+    # Supporting quantities
+    - thry_var
+    - baseline_mse
+    - rel_err
+    - e_thry
+    # R2 decomposition diagnostics
+    - b
+    - A_minus_r
+    - ceiling_r2
+    - loss_calib
+    - loss_bias
+    # Other diagnostics
+    - treble_thry_var
+    - treble_pred_var
+  assets_out:
+    per_ell_metric:
+      handler: NpyHandler
+      path_template: "{root}/{dataset}/{working}{stage}/metric_{metric}_{split}_{epoch}.npy"
+  assets_in:
+    pred: {stage: bundle_smooth, orig_name: ps_bundle}
+    thry: {stage: bundle_true, orig_name: ps_bundle}
+    mean_thry: {stage: make_mean_spectrum, orig_name: mean_thry}
+  splits: ${splits.run_inference_on}
+  epochs: ${use_epochs_ps_stats}
+  dir_name: Analysis_Metrics
+  make_stage_log: True
+
+get_scalar_metrics:
+  lcut: ${model.analysis.lcut}
+  assets_out:
+    scalar_metrics:
+      handler: Config
+      path_template: "{root}/{dataset}/{working}{stage}/scalar_metrics_{split}_{epoch}.yaml"
+  assets_in:
+    per_ell_metric:
+      stage: get_per_ell_metrics
+      orig_name: per_ell_metric
+  splits: ${splits.run_inference_on}
+  epochs: ${use_epochs_ps_stats}
+  dir_name: Analysis_Metrics
+  make_stage_log: True
+
+get_per_sim_metrics:
+  metrics: ["mse", "abs_rel_err_pct", "bias"]
+  assets_out:
+    per_sim_metric:
+      handler: NpyHandler
+      path_template: "{root}/{dataset}/{working}{stage}/simmetric_{metric}_{split}_{epoch}.npy"
+  assets_in:
+    pred: {stage: bundle_smooth, orig_name: ps_bundle}
+    thry: {stage: bundle_true, orig_name: ps_bundle}
+  splits: ${splits.run_inference_on}
+  epochs: ${use_epochs_ps_stats}
+  dir_name: Analysis_Metrics
+  make_stage_log: False
+
+get_scalar_uncertainty:
+  lcut: ${model.analysis.lcut}
+  n_bootstrap: 1000
+  seed: 42
+  confidence: 0.95
+
+  assets_out:
+    uncertainty:
+      handler: Config
+      path_template: "{root}/{dataset}/{working}{stage}/scalar_uncertainty_{split}_{epoch}.yaml"
+
+  assets_in:
+    pred: {stage: bundle_smooth, orig_name: ps_bundle}
+    thry: {stage: bundle_true, orig_name: ps_bundle}
+    mean_thry: {stage: make_mean_spectrum, orig_name: mean_thry}
+
+  splits: ${splits.run_inference_on}
+  epochs: ${use_epochs_ps_stats}
+  dir_name: Analysis_Metrics
+  make_stage_log: True

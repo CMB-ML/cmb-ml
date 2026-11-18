@@ -3,4 +3,4 @@ defaults:
   - assembly_sim
   - pipe_model_analysis
   - pipe_ps_bundling
-  
+  - pipe_ps_metrics
