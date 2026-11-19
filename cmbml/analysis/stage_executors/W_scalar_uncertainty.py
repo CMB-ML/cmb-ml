@@ -15,7 +15,7 @@ from cmbml.core import Asset, BaseStageExecutor, Split
 from cmbml.core.asset_handlers import Config, NpyHandler
 from cmbml.utils.parse_ell_list import parse_ells
 from cmbml.utils.split_metrics import compute_metrics
-from cmbml.stage_executors.U_scalar_metrics import GetScalarMetricsExecutor
+from cmbml.analysis.stage_executors.U_scalar_metrics import GetScalarMetricsExecutor
 
 
 logger = logging.getLogger(__name__)
