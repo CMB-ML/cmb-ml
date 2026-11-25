@@ -20,3 +20,28 @@ get_data_stats:
   dir_name: Simulation_Statistics
   make_stage_log: True
   top_level_working: True
+
+data_preprocess:
+  assets_out:
+    cmb_map:
+      handler: NumpyMap
+      path_template: "{root}/{dataset}/{stage}/{split}/{sim}/cmb_map.npy"
+    obs_maps:
+      handler: NumpyMap
+      path_template: "{root}/{dataset}/{stage}/{split}/{sim}/obs_{freq}_map.npy"
+    preprocess_config:
+      handler: Config
+      path_template: "{root}/{dataset}/{stage}/config.yaml"
+  assets_in:
+    cmb_map: {stage: make_sims}
+    obs_maps: {stage: make_sims}
+  splits:
+    - train
+    - valid
+    - test
+  ordering: NESTED
+  dtype: float32
+  num_processes: 1
+  dir_name: Simulation_Preprocessed_${.ordering}_${.dtype}
+  make_stage_log: True
+  top_level_working: True
