@@ -5,3 +5,4 @@ defaults:
   - pipe_noise_model
   - pipe_sim_analysis
   - adapt_sim_flex
+  - pipe_prep_sims

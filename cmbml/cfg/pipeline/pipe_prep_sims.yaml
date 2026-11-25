@@ -1,0 +1,22 @@
+get_data_stats:
+  assets_out:
+    cmb_stat:
+      handler: NumpyMap
+      path_template: "{root}/{dataset}/{stage}/cmb_stat.npy"
+    obs_stat:
+      handler: NumpyMap
+      path_template: "{root}/{dataset}/{stage}/obs_{freq}_stat.npy"
+    scalar_stats:
+      handler: Config
+      path_template: "{root}/{dataset}/{stage}/scalar_stats.yaml"
+    stats_config:
+      handler: Config
+      path_template: "{root}/{dataset}/{stage}/config.yaml"
+  assets_in:
+    cmb_map: {stage: make_sims}
+    obs_maps: {stage: make_sims}
+  splits:
+    - train
+  dir_name: Simulation_Statistics
+  make_stage_log: True
+  top_level_working: True
