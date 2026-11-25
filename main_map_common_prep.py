@@ -1,5 +1,6 @@
 """
-Compute dataset-level map statistics for normalization.
+Compute dataset-level map statistics for normalization
+and convert from fits to *.npy files for faster operation.
 """
 
 import logging
@@ -7,14 +8,17 @@ import logging
 import hydra
 
 from cmbml.core import PipelineContext, LogMaker
-from cmbml.sim_stats.ex import FindPxMapStatisticsExecutor
+from cmbml.sim_stats.ex import (
+    FindPxMapStatisticsExecutor,
+    PreprocessExecutor
+    )
 
 
 logger = logging.getLogger(__name__)
 
 
 @hydra.main(version_base=None, config_name="config_sim")
-def run_map_statistics(cfg):
+def run_map_common_prep(cfg):
     logger.debug(f"Running {__name__} in {__file__}")
 
     log_maker = LogMaker(cfg)
@@ -22,7 +26,13 @@ def run_map_statistics(cfg):
 
     pipeline_context = PipelineContext(cfg, log_maker)
 
-    pipeline_context.add_pipe(FindPxMapStatisticsExecutor)
+    pipes = [
+        FindPxMapStatisticsExecutor,
+        PreprocessExecutor
+    ]
+
+    for pipe in pipes:
+        pipeline_context.add_pipe(pipe)
 
     pipeline_context.prerun_pipeline()
 
@@ -47,4 +57,4 @@ def run_map_statistics(cfg):
 
 
 if __name__ == "__main__":
-    run_map_statistics()
+    run_map_common_prep()
